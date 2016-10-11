@@ -14,8 +14,14 @@ before_script:
 - mv -fv tools/deploy/ssh_config ~/.ssh/config
 script:
 - npm run -scripts check
-- git remote add deploy root@spreadsheet:/usr/local/apache2/htdocs/git/dev.git
-- git push deploy master
+- if ["$TRAVIS_BRANCH" != "master"]; then
+    git remote add deploy root@spreadsheet:/usr/local/apache2/htdocs/git/master.git
+    git push deploy "$TRAVIS_BRANCH"
+  fi
+# - if ["$TRAVIS_BRANCH" == "master"]; then
+#     git remote add deploy root@spreadsheet:/usr/local/apache2/htdocs/git/master.git
+#     git push deploy master
+#   fi
 cache:
   directories:
   - node_modules
