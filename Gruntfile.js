@@ -15,12 +15,15 @@ module.exports = function(grunt) {
         less: {
             production: {
                 options: {
-                    paths: ['css']
+                    paths: ['css'],
+		    modifyVars:{
+		        imgPath: '"<%= pkg.rootpath %>"'
+		    }
                 },
                 files: {
                     'css/toolbar.css': 'css/toolbar.less'
                 }
-            },
+            }
         },
         watch: {
             files: ['<%= jshint.files %>'],
