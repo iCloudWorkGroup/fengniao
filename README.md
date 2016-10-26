@@ -23,7 +23,6 @@ Node.js 4+ （独立时）
 
 打包dist目录
 
-	npm install
     grunt build
 
 ## How to use
@@ -60,8 +59,11 @@ Node.js 4+ （独立时）
 		</body>
 	</html>
 
-### 应用示例
+## More Detail
 
+应用效果:[http://excel-inc.acmr.com.cn:20064/spreadsheet](http://excel-inc.acmr.com.cn:20064/spreadsheet)
+
+文档地址:[http://excel-inc.acmr.com.cn/20064/doc](http://excel-inc.acmr.com.cn/20064/doc)
 
 ## License
 
