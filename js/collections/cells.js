@@ -97,6 +97,7 @@ define(function(require) {
 			if (prop !== undefined) {
 				setProp(cell, prop);
 			}
+			
 			this.add(cell);
 
 			function setProp(cell, prop) {
@@ -110,6 +111,7 @@ define(function(require) {
 					}
 				}
 			}
+			//新建单元格
 			return cell;
 		},
 		/**

@@ -140,15 +140,10 @@ define(function(require) {
 				left: false
 			},
 			/**
-			 * 用户可定义的属性
-			 * @property {object} customProp
+			 * 单元格格式分类
+			 * @type {Object}
 			 */
-			customProp: {
-				/**
-				 * 单元格背景颜色RGB
-				 * @property {string} background
-				 */
-				background: 'rgb(255, 255, 255)',
+			format:{
 				/**
 				 * 单元格数据类型: 
 				 * 货币 currency
@@ -157,9 +152,8 @@ define(function(require) {
 				 * 文本 text
 				 * 百分比 percent
 				 * 常规 normal
-				 * @property {string} format 
 				 */
-				format: 'normal',
+				type: 'normal',
 				/**
 				 * 文本内容，与设置类型是否匹配
 				 */
@@ -181,6 +175,21 @@ define(function(require) {
 				 * @type {String}
 				 */
 				currencySign: null,
+				/**
+				 * 货币合法性，负数为非法
+				 */
+				currencyValid: true
+			},
+			/**
+			 * 用户自定义的属性
+			 * @property {object} customProp
+			 */
+			customProp: {
+				/**
+				 * 单元格背景颜色RGB
+				 * @property {string} background
+				 */
+				background: 'rgb(255, 255, 255)',
 				/**
 				 * 单元格备注内容
 				 * @property {string} comment
@@ -219,7 +228,11 @@ define(function(require) {
 		 */
 		hide: function() {
 			this.set('showState', false);
-		}
+		},
+		/**
+		 * 生成单元格格式分类的相关信息
+		 */
+		
 	});
 	return CellModel;
 });

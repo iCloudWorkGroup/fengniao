@@ -48,8 +48,6 @@ define(function(require) {
 				modelColList = headItemCols;
 
 			this.listenTo(this.model, 'change', this.render);
-			this.listenTo(this.model, 'change:customProp', this.generateDisplayText);
-			this.listenTo(this.model, 'change:content', this.generateDisplayText);
 			this.listenTo(this.model, 'change:wordWrap', this.adaptCellHight);
 			this.listenTo(this.model, 'change:content', this.adaptCellHight);
 			this.listenTo(this.model, 'change:isDestroy', this.destroy);
@@ -70,8 +68,6 @@ define(function(require) {
 			this.userViewLeft = cache.TempProp.isFrozen ? modelColList.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 			this.userViewTop = cache.TempProp.isFrozen ? modelRowList.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
 
-			//方法移动到设置类型模块中
-			this.generateDisplayText();
 			_.bindAll(this, 'showComment', 'hideComment');
 		},
 		overCellView: function() {
@@ -221,65 +217,6 @@ define(function(require) {
 			text = text.replace(/\u0020/g, '&nbsp;');
 			return text;
 		},
-		generateDisplayText: function() {
-			var modelJSON = this.model.toJSON(),
-				text = modelJSON.content.texts,
-				format = modelJSON.customProp.format,
-				decimal = modelJSON.customProp.decimal,
-				thousands = modelJSON.customProp.thousands || false,
-				dateFormat = modelJSON.customProp.dateFormat,
-				currencySign = modelJSON.customProp.currencySign,
-				isValid = modelJSON.customProp.isValid,
-				displayTexts;
-
-			//类型处理存在bug
-			switch (format) {
-				case 'normal':
-					if (textTypeHandler.isNum(text)) {
-
-						decimal = textTypeHandler.getNoZeroDecimal(text);
-						decimal = decimal < 6 ? decimal : 6;
-						this.model.set("content.displayTexts", textTypeHandler.getFormatNumber(text, thousands, decimal));
-					} else {
-						this.model.set("content.displayTexts", text);
-					}
-					break;
-				case 'text':
-					this.model.set("content.displayTexts", text);
-					break;
-				case 'date':
-					if (isValid) {
-						this.model.set("content.displayTexts", textTypeHandler.getFormatDate(text, dateFormat));
-					} else {
-						this.model.set("content.displayTexts", text);
-					}
-					break;
-				case 'number':
-					if (isValid) {
-						this.model.set("content.displayTexts", textTypeHandler.getFormatNumber(text, thousands, decimal));
-					} else {
-						this.model.set("content.displayTexts", text);
-					}
-					break;
-				case 'currency':
-					if (isValid) {
-						this.model.set("content.displayTexts", textTypeHandler.getFormatCoin(text, decimal, currencySign));
-					} else {
-						this.model.set("content.displayTexts", text);
-					}
-					break;
-				case 'percent':
-					if (isValid) {
-						this.model.set("content.displayTexts", textTypeHandler.getFormatPercent(text, decimal));
-					} else {
-						this.model.set("content.displayTexts", text);
-					}
-					break;
-				default:
-					this.model.set("content.displayTexts", text);
-					break;
-			}
-		},
 		adaptCellHight: function() {
 			var text,
 				height,
@@ -359,9 +296,9 @@ define(function(require) {
 		 * @param modelJSON {modelJSON} 对象属性集合
 		 */
 		setTransverseAlign: function(modelJSON) {
-			var format = modelJSON.customProp.format,
+			var format = modelJSON.format,
 				text = modelJSON.content.texts,
-				isValid = modelJSON.customProp.isValid,
+				isValid = format.isValid,
 				alignRowPosi = modelJSON.content.alignRow;
 			//分离操作
 			if (alignRowPosi === 'center' || alignRowPosi === 'right' || alignRowPosi === 'left') {
@@ -509,14 +446,6 @@ define(function(require) {
 				});
 			}
 		},
-		/**
-		 * 更新文本内容
-		 * @method changeTexts 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		// changeTexts: function(modelJSON) {
-		// 	this.$contentBody.html(this.getDisplayText(modelJSON));
-		// },
 		/**
 		 * 根据状态暂时移除视图
 		 * @method destroy 

@@ -21,6 +21,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+
   jasmineRequire.html = function(j$) {
     j$.ResultsNode = jasmineRequire.ResultsNode();
     j$.HtmlReporter = jasmineRequire.HtmlReporter(j$);
@@ -575,3 +576,4 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
     return QueryString;
   };
+

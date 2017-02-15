@@ -4,10 +4,7 @@ define(function(require) {
 		cells = require('collections/cells'),
 		config = require('spreadsheet/config'),
 		getOperRegion = require('basic/tools/getoperregion'),
-		headItemCols = require('collections/headItemCol'),
-		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
-		analysisLabel = require('basic/tools/analysislabel'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
 		cache = require('basic/tools/cache'),
@@ -15,82 +12,30 @@ define(function(require) {
 
 	textTypeHandler = {
 		/**
-		 * 自动识别类型：识别常规类型与日期类型,只有在用户输入与复制操作时，进行识别
+		 * 自动识别类型：暂只支持由默认的常规类型，转为日期类型的识别方式
 		 * @return {string} 返回识别后，格式化类型
 		 */
-		textTypeRecognize: function(model) {
+		typeRecognize: function(model) {
 			var text = model.get('content').texts,
-				format = model.get('customProp').format,
-				decimal;
-
-			if (format === 'normal' && this.isDate(text)) {
-				model.set('customProp.dateFormat', this.getDateFormat(text));
-				model.set('customProp.format', 'date');
+				type = model.get('format').type;
+			if (type === 'normal' && this.isDate(text)) {
+				model.set('format.dateFormat', this.getDateFormat(text));
+				model.set('format.type', 'date');
+				this.generateDisplayText(model);
 			}
-
-			if (format === 'normal' && this.isNum(text) && text.indexOf(',') === -1) {
-				decimal = this.getNoZeroDecimal(text);
-				text = this.getFormatNumber(text, false, decimal);
-				model.set('content.texts', text);
-			}
-			return text;
 		},
+		/**
+		 * 暂时不支持由日期类型转为常规类型
+		 */
 		setNormal: function(sheetId, label) {
-			var clip,
-				region,
-				operRegion,
-				sendRegion;
-
-			clip = selectRegions.getModelByType('clip')[0];
-			if (clip !== undefined) {
-				cache.clipState = 'null';
-				clip.destroy();
-			}
-			region = getOperRegion(label);
-			operRegion = region.operRegion;
-			sendRegion = region.sendRegion;
-			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-				this.sendData('normal', null, null, null, null, sendRegion);
-				return;
-			}
-
-			//后期修改，多次设置属性，造成效率低下
-			if (region.endColIndex === 'MAX') { //整行操作
-				//整列操作优化
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.format', 'normal');
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.isValid', true);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.decimal', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.thousands', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.dateFormat', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.currencySign', null);
-			} else if (region.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.format', 'normal');
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.isValid', true);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.decimal', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.thousands', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.dateFormat', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.currencySign', null);
-			} else {
-				cells.operateCellsByRegion(operRegion, function(cell) {
-					text = cell.get('content').texts;
-					cell.set('customProp.format', 'normal');
-					cell.set('customProp.isValid', true);
-					cell.set('customProp.decimal', null);
-					cell.set('customProp.thousands', null);
-					cell.set('customProp.dateFormat', null);
-					cell.set('customProp.currencySign', null);
-				});
-			}
-
-			this.sendData('normal', null, null, null, null, sendRegion);
-		},
-		setText: function(sheetId, label) {
-			var text,
+			var self,
 				clip,
 				region,
 				operRegion,
-				sendRegion;
+				sendRegion,
+				format;
 
+			self = this;
 			clip = selectRegions.getModelByType('clip')[0];
 			if (clip !== undefined) {
 				cache.clipState = 'null';
@@ -99,46 +44,92 @@ define(function(require) {
 			region = getOperRegion(label);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
+			format = {
+				type: 'normal',
+				isValid: false,
+				decimal: null,
+				thousands: null,
+				dateFormat: null,
+				currencySign: null,
+				currencyValid: false
+			};
+			//处理第三方调用，操作超出已加载区域
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-				this.sendData('text', null, null, null, null, sendRegion);
+				this.sendData(format, sendRegion);
 				return;
 			}
 			if (operRegion.endColIndex === 'MAX') { //整行操作
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.format', 'text');
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.isValid', true);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.decimal', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.thousands', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.dateFormat', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.currencySign', null);
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
+					self.typeRecognize(cell);
+					self.generateDisplayText(cell);
+				});
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.format', 'text');
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.isValid', true);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.decimal', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.thousands', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.dateFormat', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.currencySign', null);
+				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
+					self.typeRecognize(cell);
+					self.generateDisplayText(cell);
+				});
 			} else {
 				cells.operateCellsByRegion(operRegion, function(cell) {
-					text = cell.get('content').texts;
-					cell.set('customProp.format', 'text');
-					cell.set('customProp.isValid', true);
-					cell.set('customProp.decimal', null);
-					cell.set('customProp.thousands', null);
-					cell.set('customProp.dateFormat', null);
-					cell.set('customProp.currencySign', null);
+					cell.set('format', format);
+					self.typeRecognize(cell);
+					self.generateDisplayText(cell);
 				});
 			}
-
-			this.sendData('text', null, null, null, null, sendRegion);
+			this.sendData(format, sendRegion);
 		},
-		setNum: function(sheetId, thousands, decimal, label) {
-			var text,
-				isValid,
-				self,
+		setText: function(sheetId, label) {
+			var self= this,
 				clip,
 				region,
 				operRegion,
-				sendRegion;
+				sendRegion,
+				format;
+
+			clip = selectRegions.getModelByType('clip')[0];
+			if (clip !== undefined) {
+				cache.clipState = 'null';
+				clip.destroy();
+			}
+			region = getOperRegion(label);
+			operRegion = region.operRegion;
+			sendRegion = region.sendRegion;
+			format = {
+				type: 'text',
+				isValid: false,
+				decimal: null,
+				thousands: null,
+				dateFormat: null,
+				currencySign: null,
+				currencyValid: false
+			};
+			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
+				this.sendData(format, sendRegion);
+				return;
+			}
+			if (operRegion.endColIndex === 'MAX') { //整行操作
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
+			} else if (operRegion.endRowIndex === 'MAX') {
+				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
+			} else {
+				cells.operateCellsByRegion(operRegion, function(cell) {
+					cell.set('format', format);
+					self.generateDisplayText(cell);
+				});
+			}
+
+			this.sendData(format, sendRegion);
+		},
+		setNum: function(sheetId, thousands, decimal, label) {
+			var self,
+				clip,
+				region,
+				operRegion,
+				sendRegion,
+				format;
 
 			clip = selectRegions.getModelByType('clip')[0];
 			if (clip !== undefined) {
@@ -149,139 +140,133 @@ define(function(require) {
 			region = getOperRegion(label);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
+			format = {
+				type: 'number',
+				isValid: false,
+				decimal: decimal,
+				thousands: thousands,
+				dateFormat: null,
+				currencySign: null,
+				currencyValid: false
+			};
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-				this.sendData('text', null, null, null, null, sendRegion);
+				this.sendData(format, sendRegion);
 				return;
 			}
 			if (operRegion.endColIndex === 'MAX') { //整行操作
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.format', 'number');
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.decimal', decimal);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.thousands', thousands);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.dateFormat', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.currencySign', null);
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
 			} else if (operRegion.endRowIndex === 'MAX') { //整行操作
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.format', 'number');
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.decimal', decimal);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.thousands', thousands);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.dateFormat', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.currencySign', null);
+				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
 			} else {
 				cells.operateCellsByRegion(operRegion, function(cell) {
-					text = cell.get('content').texts;
-					isValid = self.isNum(text);
-					cell.set('customProp.format', 'number');
-					cell.set('customProp.isValid', isValid);
-					cell.set('customProp.decimal', decimal);
-					cell.set('customProp.thousands', thousands);
-					cell.set('customProp.dateFormat', null);
-					cell.set('customProp.currencySign', null);
+					cell.set('format', format);
+					self.generateDisplayText(cell);
 				});
 			}
-			this.sendData('number', decimal, thousands, null, null, sendRegion);
+			this.sendData(format, sendRegion);
 		},
 		setDate: function(sheetId, dateFormat, label) {
 			var self,
-				text,
-				isValid,
 				clip,
 				region,
 				operRegion,
-				sendRegion;
+				sendRegion,
+				format;
 
 			clip = selectRegions.getModelByType('clip')[0];
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			format = {
+				type: 'date',
+				isValid: false,
+				decimal: null,
+				thousands: null,
+				dateFormat: dateFormat,
+				currencySign: null,
+				currencyValid: false
+			};
 			region = getOperRegion(label);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
 			self = this;
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-				this.sendData('date', null, null, dateFormat, null, sendRegion);
+				this.sendData(format, sendRegion);
 				return;
 			}
 			if (operRegion.endColIndex === 'MAX') { //整行操作
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.format', 'number');
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.decimal', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.thousands', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.dateFormat', dateFormat);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.currencySign', null);
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
 			} else if (operRegion.endRowIndex === 'MAX') { //整列操作
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.format', 'number');
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.decimal', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.thousands', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.dateFormat', dateFormat);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.currencySign', null);
+				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
 			} else {
 				cells.operateCellsByRegion(operRegion, function(cell) {
-					text = cell.get('content').texts;
-					isValid = self.isDate(text);
-					cell.set('customProp.format', 'date');
-					cell.set('customProp.isValid', isValid);
-					cell.set('customProp.decimal', null);
-					cell.set('customProp.thousands', null);
-					cell.set('customProp.dateFormat', dateFormat);
-					cell.set('customProp.currencySign', null);
+					cell.set('format', format);
+					self.generateDisplayText(cell);
 				});
 			}
-			this.sendData('date', null, null, dateFormat, null, sendRegion);
+			this.sendData(format, sendRegion);
 		},
 		setPercent: function(sheetId, decimal, label) {
 			var self,
-				text,
-				isValid,
 				clip,
 				region,
 				operRegion,
-				sendRegion;
+				sendRegion,
+				format;
 
+			self = this;
 			clip = selectRegions.getModelByType('clip')[0];
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			format = {
+				type: 'percent',
+				isValid: false,
+				decimal: decimal,
+				thousands: false,
+				dateFormat: null,
+				currencySign: null,
+				currencyValid: false
+			};
 			region = getOperRegion(label);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
 			self = this;
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-				this.sendData('percent', decimal, false, null, null, sendRegion);
+				this.sendData(format, sendRegion);
 				return;
 			}
 			if (operRegion.endColIndex === 'MAX') { //整行操作
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.format', 'percent');
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.decimal', decimal);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.thousands', false);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.dateFormat', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.currencySign', null);
-			} else if (operRegion.endRowIndex === 'MAX') { //整行操作
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.format', 'percent');
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.decimal', decimal);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.thousands', false);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.dateFormat', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.currencySign', null);
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
+
+			} else if (operRegion.endRowIndex === 'MAX') { //整列操作
+				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
 			} else {
 				cells.operateCellsByRegion(operRegion, function(cell) {
-					text = cell.get('content').texts;
-					isValid = self.isPercent(text);
-					cell.set('customProp.format', 'percent');
-					//存在问题
-					cell.set('customProp.isValid', isValid);
-					cell.set('customProp.decimal', decimal);
-					cell.set('customProp.thousands', false);
-					cell.set('customProp.dateFormat', null);
-					cell.set('customProp.currencySign', null);
+					cell.set('format', format);
+					self.generateDisplayText(cell);
 				});
 			}
-			this.sendData('percent', decimal, false, null, null, sendRegion);
+			this.sendData(format, sendRegion);
 		},
-
-		setCoin: function(sheetId, decimal, sign, label) {
+		setCurrency: function(sheetId, decimal, sign, label) {
 			var clip,
 				self,
-				text,
-				isValid,
+				format,
 				region,
 				operRegion,
 				sendRegion;
@@ -295,58 +280,57 @@ define(function(require) {
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
 			self = this;
+			format = {
+				type: 'currency',
+				isValid: false,
+				decimal: decimal,
+				thousands: false,
+				dateFormat: null,
+				currencySign: sign,
+				currencyValid: false
+			};
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-				this.sendData('currency', decimal, true, null, sign, sendRegion);
+				this.sendData(format, sendRegion);
 				return;
 			}
 			if (operRegion.endColIndex === 'MAX') { //整行操作
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.format', 'currency');
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.decimal', decimal);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.thousands', true);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.dateFormat', null);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.currencySign', sign);
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
 			} else if (operRegion.endRowIndex === 'MAX') { //整行操作
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.format', 'currency');
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.decimal', decimal);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.thousands', true);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.dateFormat', null);
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.currencySign', sign);
+				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
+					self.generateDisplayText(cell);
+				});
 			} else {
 				cells.operateCellsByRegion(operRegion, function(cell) {
-					text = cell.get('content').texts;
-					isValid = self.isCoin(text);
-					cell.set('customProp.format', 'currency');
-					cell.set('customProp.isValid', isValid);
-					cell.set('customProp.decimal', decimal);
-					cell.set('customProp.thousands', true);
-					cell.set('customProp.dateFormat', null);
-					cell.set('customProp.currencySign', sign);
+					cell.set('format', format);
+					self.generateDisplayText(cell);
 				});
 			}
-			this.sendData('currency', decimal, true, null, sign, sendRegion);
+			this.sendData(format, sendRegion);
 		},
-		sendData: function(format, decimal, thousands, dateFormat, currencySign, sendRegion) {
+		sendData: function(format, sendRegion) {
 			var data;
 			data = {
 				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 				sheetId: '1',
 				coordinate: sendRegion,
-				format: format
+				format: format.type
 			};
-			switch (format) {
+			switch (format.type) {
 				case 'number':
-					data.decimalPoint = decimal || 0;
-					data.thousandPoint = thousands || false;
+					data.decimalPoint = format.decimal || 0;
+					data.thousandPoint = format.thousands || false;
 					break;
 				case 'date':
-					data.dateFormat = dateFormat || '';
+					data.dateFormat = format.dateFormat || '';
 					break;
 				case 'currency':
-					data.decimalPoint = decimal || 0;
-					data.currencySymbol = currencySign;
+					data.decimalPoint = format.decimal || 0;
+					data.currencySymbol = format.currencySign;
 					break;
 				case 'percent':
-					data.decimalPoint = decimal || 0;
+					data.decimalPoint = format.decimal || 0;
 					break;
 			}
 			send.PackAjax({
@@ -354,141 +338,105 @@ define(function(require) {
 				data: JSON.stringify(data)
 			});
 		},
+		/**
+		 * 考虑是否改为内容方法
+		 */
 		isNum: function(value) {
-			var values,
-				tail,
-				head,
-				reHead,
-				reTail;
-
+			var reg;
 			if (value === '') {
 				return false;
 			}
-			values = value.split('.');
-			if (values.length > 2) {
-				return false;
+			if (value.indexOf(',') === -1) {
+				reg = /^(\-|\+)?[0-9]+(\.[0-9]+)?$/;
+			} else {
+				reg = /^(\-|\+)?([1-9][0-9]{0,2})+(,\d{3})*(\.[0-9]+)?$/;
 			}
-			if (values.length === 2) {
-				if (values[1] === '' && values[0] === '') {
-					return false;
-				}
-				tail = values[1];
-				reTail = /^\d*$/g;
-				if (!reTail.test(tail)) {
-					return false;
-				}
-			}
-			head = values[0];
-			if (head.indexOf('+') === 0 || head.indexOf('-') === 0) {
-				head = head.substring(1);
-			}
-			reHead = /^\d{1,3}(,\d{3})*$/g;
-			if (!reHead.test(head) && !/^\d+$/.test(head)) {
-				return false;
-			}
-			return true;
+			return reg.test(value);
 		},
-		getNoZeroDecimal: function(value) {
-			var i, j,
+		/**
+		 * 去除数值开始与末尾无效0字符
+		 * @param  {String} value 原始值
+		 * @return {String} 格式化结果
+		 */
+		trimZero: function(value) {
+			var head,
 				tail,
 				values;
 			if (!this.isNum(value)) {
-				return 0;
-			}
-			values = value.split('.');
-			if (values.length < 2) {
-				return 0;
-			}
-			tail = values[1];
-			i = tail.length;
-			for (j = i - 1; j > -1; j--) {
-				if (tail.charAt(j) === '0') {
-					i--;
-				} else {
-					break;
-				}
-			}
-			return i;
-		},
-		getFormatNumber: function(value, thousands, decimal) {
-			var i = 0,
-				len,
-				head,
-				heads,
-				remainder,
-				tail = '',
-				temp = '',
-				sign = '', //正负号
-				tailZeroCache = '', //小数位开始0的个数
-				values;
-			if (!this.isNum(value) || value === '') {
 				return value;
 			}
 			values = value.split('.');
 			head = values[0];
-			//去除符号
-			if ((head.indexOf('-') === 0 && (sign = '-')) || head.indexOf('+') === 0) {
-				head = head.substring(1);
-			}
-			//输入数据已存在千分位，需要先去掉千分位
-			if (head.indexOf(',') !== -1) {
-				heads = head.split(',');
-				head = '';
-				for (temp in heads) {
-					head += heads[temp];
+			tail = values[1];
+
+			head = head.replace(/^0*/, '');
+			head = head === '' ? '0' : head;
+			if (typeof tail !== 'undefined') {
+				tail = tail.replace(/0*$/, '');
+				if (tail.length !== 0) {
+					head += '.';
 				}
+				head += tail;
 			}
-			if (thousands === true) { //输出数据存在千分位
+			return head;
+		},
+		/**
+		 * 格式化数值类型
+		 * @param  {String} value     原始值
+		 * @param  {Boolean} thousands 是否包含千分位
+		 * @param  {Number} decimal   保留小数位数
+		 * @return {String}   格式化后的结果
+		 */
+		getFormatNumber: function(value, thousands, decimal) {
+			var num,
+				values,
+				remainder,
+				head,
+				tail,
+				temp,
+				len, i;
+			//需要去除末尾无效的0字符
+			if (!this.isNum(value)) {
+				return value;
+			}
+			value = this.trimZero(value);
+			//含有千分位的，先去除千分位，进行处理
+			value = value.replace(/,/g, '');
+			num = parseFloat(value);
+			num = num * Math.pow(10, decimal);
+			num = Math.round(num);
+			value = (num / Math.pow(10, decimal)).toString();
+			if (thousands) {
+				values = value.split('.');
+				head = values[0];
 				len = Math.ceil(head.length / 3);
 				remainder = head.length % 3 > 0 ? head.length % 3 : 3;
 				temp = head;
 				head = '';
 				for (i = len - 1; i > -1; i--) {
 					if (i === 0) {
-						// remainder = remainder > 0 ? remainder : 3;
 						head = temp.substring(0, remainder) + head;
 					} else {
 						head = ',' + temp.substring(3 * (i - 1) + remainder, 3 * i + remainder) + head;
 					}
 				}
-			}
-			if (head === undefined || head === '') {
-				head = '0';
-			}
-			while (head.indexOf('0') === 0 && head.length > 1) {
-				head = head.substring(1);
-			}
-			if (decimal === undefined) {
-				decimal === 2;
-			}
-			if (decimal > 0) {
-				if (decimal > 30) {
-					decimal = 30;
-				}
-				head += '.';
-				if (values.length > 1) {
-					tail = values[1];
-				}
-				if (tail.length > decimal) {
-					tail = tail.substring(0, decimal + 1);
-					//缓存开头的0
-					while (tail.indexOf('0') === 0) {
-						tail = tail.substring(1);
-						tailZeroCache += '0';
-					}
-					tail = Math.round(parseInt(tail) / 10).toString();
-					tail = tailZeroCache + tail;
-				} else {
-					for (i = tail.length; i < decimal; i++) {
-						tail += '0';
-					}
+				value = head;
+				if (typeof values[1] !== 'undefined') {
+					value += '.' + values[1];
 				}
 			}
-			if (decimal < 0 && values.length > 1) {
-				head += '.';
-				tail = values[1];
+			values = value.split('.');
+			//补零
+			if (decimal && (typeof values[1] === 'undefined' || values[1].length < decimal)) {
+				head = values[0];
+				tail = values[1] || '';
+				for (i = 0, len = decimal - tail.length; i < len; i++) {
+					tail += '0';
+				}
+				value = head + '.' + tail;
 			}
-			return sign + head + tail;
+			return value;
+
 		},
 		isDate: function(value) {
 			var regularLine = /^\d{4}\/\d{1,2}\/\d{1,2}$/,
@@ -604,22 +552,33 @@ define(function(require) {
 			}
 			return null;
 		},
-		isCoin: function(value) {
+		isCurrency: function(value) {
 			if (value.charAt(0) === '¥' || value.charAt(0) === '$') {
 				value = value.substring(1, value.length);
 			}
 			return this.isNum(value);
 		},
-		getFormatCoin: function(value, decimal, sign) {
+		isLossCurrency: function(value) {
+			if (value.charAt(0) === '¥' || value.charAt(0) === '$') {
+				value = value.substring(1, value.length);
+			}
+			if (value.charAt(0) === '-') {
+				return true;
+			} else {
+				return false;
+			}
+		},
+		getFormatCurrency: function(value, decimal, sign) {
 			var temp = value,
 				result;
 			if (value === '') {
 				return value;
 			}
-			if (this.isCoin(value)) {
+			if (this.isCurrency(value)) {
 				if (value.charAt(0) === '¥' || value.charAt(0) === '$') {
 					value = value.substring(1, value.length);
 				}
+				sign = sign || '$';
 				result = sign + this.getFormatNumber(value, true, decimal);
 				return result;
 			}
@@ -644,13 +603,102 @@ define(function(require) {
 				}
 			} else {
 				if (this.isNum(value)) {
+					value = value.replace(/,/g, '');
 					value = (Number(value) * 100).toString();
 					value = this.getFormatNumber(value, false, decimal);
 					return value + '%';
 				}
 			}
-
 			return temp;
+		},
+		/**
+		 * 生成显示文本，格式化保存文本，以及设置相关属性设置
+		 * @return {[type]} [description]
+		 */
+		generateDisplayText: function(model) {
+			var displayText,
+				isValid,
+				text = model.get('content.texts'),
+				format = model.get('format'),
+				type = format.type,
+				decimal = format.decimal,
+				thousands = format.thousands,
+				dateFormat = format.dateFormat,
+				currencySign = format.currencySign;
+
+			switch (type) {
+				case 'normal':
+					if (this.isNum(text)) {
+						isValid =true;
+						if(text.indexOf(',')!==-1){
+							thousands =true;
+							model.set('content.texts', text.replace(/,/g,''));
+						}
+						displayText = this.getFormatNumber(text, thousands, config.defaultNumberFormat.decimal);
+						displayText = this.trimZero(displayText);
+						model.set('content.displayTexts', displayText);
+						model.set('format.thousands', thousands);
+					} else {
+						model.set('content.displayTexts', text);
+					}
+					break;
+				case 'date':
+					isValid = this.isDate(text);
+					if (isValid) {
+						model.set('content.displayTexts', textTypeHandler.getFormatDate(text, dateFormat));
+					} else {
+						model.set('content.displayTexts', text);
+					}
+					break;
+				case 'number':
+					isValid = this.isNum(text);
+					if (isValid) {
+						if(text.indexOf(',')!==-1){
+							thousands =true;
+							model.set('content.texts', text.replace(/,/g,''));
+						}
+						model.set('content.displayTexts', textTypeHandler.getFormatNumber(text, thousands, decimal));
+					} else {
+						model.set('content.displayTexts', text);
+					}
+					break;
+				case 'currency':
+					isValid = this.isCurrency(text);
+					if (isValid) {
+						if(text.indexOf(',')!==-1){
+							thousands =true;
+							model.set('content.texts', text.replace(/,/g,''));	
+						}
+						if(text.indexOf('$')!==-1 || text.indexOf('¥')!==-1){
+							model.set('content.texts', text.replace(/¥/g,''));	
+						}
+						model.set('content.displayTexts', textTypeHandler.getFormatCurrency(text, decimal, currencySign));
+					} else {
+						model.set('content.displayTexts', text);
+					}
+					break;
+				case 'percent':
+					isValid = this.isPercent(text);
+					if (isValid) {
+						if(text.indexOf(',')!==-1){
+							thousands =true;
+							model.set('content.texts', text.replace(/,/g,''));	
+						}
+						if(text.indexOf('%')!==-1){
+							text = text.replace(/%/g,'');
+							text = (parseInt(text)/100).toString();
+							model.set('content.texts', text);	
+						}
+						model.set('content.displayTexts', textTypeHandler.getFormatPercent(text, decimal));
+					} else {
+						model.set('content.displayTexts', text);
+					}
+					break;
+				default:
+					model.set('content.displayTexts', text);
+					break;
+			}
+			model.set('format.isValid', isValid);
 		}
 	};
 	return textTypeHandler;

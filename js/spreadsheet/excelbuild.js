@@ -111,7 +111,7 @@ define(function(require) {
 			SpreadSheet.prototype.setNumType = setTextType.setNum.bind(setTextType);
 			SpreadSheet.prototype.setDateType = setTextType.setDate.bind(setTextType);
 			SpreadSheet.prototype.setPercentType = setTextType.setPercent.bind(setTextType);
-			SpreadSheet.prototype.setCoinType = setTextType.setCoin.bind(setTextType);
+			SpreadSheet.prototype.setCoinType = setTextType.setCurrency.bind(setTextType);
 
 			SpreadSheet.prototype.modifyComment = comment.modifyComment.bind(comment);
 			SpreadSheet.prototype.createAddCommentView = comment.createAddCommentView.bind(comment);

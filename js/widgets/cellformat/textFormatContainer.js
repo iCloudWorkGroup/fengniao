@@ -42,13 +42,19 @@ define(function(require) {
 				case 'text':
 					setTextType.setText('1');
 					break;
-				case 'number-1':
+				case 'number-0':
 					setTextType.setNum('1', false, 0);
+					break;
+				case 'number-1':
+					setTextType.setNum('1', false, 1);
 					break;
 				case 'number-2':
 					setTextType.setNum('1', false, 2);
 					break;
 				case 'number-3':
+					setTextType.setNum('1', false, 3);
+					break;
+				case 'number-4':
 					setTextType.setNum('1', false, 4);
 					break;
 				case 'date-1':
@@ -64,10 +70,10 @@ define(function(require) {
 					setTextType.setPercent('1', 2);
 					break;
 				case 'coin-1':
-					setTextType.setCoin('1', 2, '$');
+					setTextType.setCurrency('1', 2, '$');
 					break;
 				case 'coin-2':
-					setTextType.setCoin('1', 2, '¥');
+					setTextType.setCurrency('1', 2, '¥');
 					break;
 				default:
 					setTextType.setText('1');

@@ -125,6 +125,9 @@ define(function() {
 			fifth: 'yyyy年MM月',
 			sixth: 'yyyy年'
 		},
+		defaultNumberFormat:{
+			decimal: 6
+		},
 		keyboard: {
 			backspace: 8,
 			deleteKey: 46,
@@ -144,6 +147,7 @@ define(function() {
 			altEnter: true,
 			enter: true
 		},
+
 		version: '@version@',
 		rootPath: 'http://excel-inc.acmr.com.cn/spreadsheet/'
 	};

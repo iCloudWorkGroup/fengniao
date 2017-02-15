@@ -5,6 +5,7 @@ define(function(require) {
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
 		cells = require('collections/cells');
+
 	return {
 		/**
 		 * 整行设置单元格属性
@@ -12,20 +13,18 @@ define(function(require) {
 		 * @param  {string} prop  需要修改属性,二级属性设置,例:'content.size'
 		 * @param  {string} value 修改值
 		 */
-		rowPropOper: function(index, prop, value) {
+		rowPropOper: function(index, prop,value,fn) {
 			var parentProp,
 				childProp,
 				headRowModel,
 				headRowProp,
 				defaultProp,
-				startColAlias,
-				endColAlias,
 				startColIndex,
 				endColIndex,
 				rowAlias,
 				colAlias,
 				cellList,
-				cell,
+				cellModel,
 				currentStrandX,
 				props,
 				len, i;
@@ -66,16 +65,11 @@ define(function(require) {
 			for (; i < len; i++) {
 				if (cellList[i].get('occupy').y.length === 1) {
 					cellList[i].set(prop, value);
+					if (typeof fn === 'function') {
+						fn(cellList[i]);
+					}
 				}
 			}
-			//在加载区域内，填充创建单元格，并设置属性
-			//暂时取所有值，完成横向动态加载时需要修改
-			// startColAlias = cache.loadStartColAlias;
-			// endColAlias = cache.loadEndColAlias;
-
-			// startColIndex = headItemCols.getIndexByAlias(startColAlias);
-			// endColIndex = headItemCols.getIndexByAlias(endColAlias);
-
 			startColIndex = 0;
 			endColIndex = headItemCols.length - 1;
 
@@ -86,21 +80,8 @@ define(function(require) {
 				colAlias = headItemCols.models[i].get('alias');
 				if (currentStrandX[colAlias] === undefined ||
 					currentStrandX[colAlias][rowAlias] === undefined) {
-					//创建单元格
-					cell = new Cell();
-					cell.set('occupy', {
-						x: [colAlias],
-						y: [rowAlias]
-					});
-					cell.set('physicsBox', {
-						top: headItemRows.models[index].get('top'),
-						left: headItemCols.models[i].get('left'),
-						width: headItemCols.models[i].get('width'),
-						height: headItemRows.models[index].get('height')
-					});
-					cell.set(prop, value);
-					cache.cachePosition(rowAlias, colAlias, cells.length);
-					cells.add(cell);
+					cellModel = cells.createCellModel(i, index);
+					cellModel.set(prop, value);
 				}
 			}
 		},

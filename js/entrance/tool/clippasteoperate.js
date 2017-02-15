@@ -398,7 +398,8 @@ define(function(require) {
 			height: height
 		});
 		cacheCell.set("content.texts", data.text);
-		displaytext = setTextType.textTypeRecognize(cacheCell);
+		setTextType.typeRecognize(cacheCell);
+		setTextType.generateDisplayText(cacheCell);
 		cacheCell.set("content.displayTexts", displaytext);
 		cache.cachePosition(aliasRow, aliasCol, cells.length);
 		cells.add(cacheCell);

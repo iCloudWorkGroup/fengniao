@@ -196,7 +196,6 @@ define(function(require) {
 						break;
 					}
 				}
-
 				if (isNumber(displayPosition.startRowIndex) &&
 					cellRowEndIndex < startRowIndex ||
 					isNumber(displayPosition.endRowIndex) &&
@@ -207,8 +206,8 @@ define(function(require) {
 					cellColStartIndex > endColIndex - 1) {
 					return;
 				}
-
 			}
+			
 			this.cellView = new CellContainer({
 				model: cell,
 				currentRule: this.currentRule

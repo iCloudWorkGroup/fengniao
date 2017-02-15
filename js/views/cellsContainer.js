@@ -69,8 +69,6 @@ define(function(require) {
 			Backbone.on('event:cellsContainer:adaptWidth', this.adaptWidth, this);
 
 			Backbone.on('event:cellsContainer:destroy', this.destroy, this);
-
-
 			Backbone.on('event:cellsContainer:unBindDrag', this.unBindDrag, this);
 			Backbone.on('event:cellsContainer:bindDrag', this.bindDrag, this);
 			Backbone.on('event:cellsContainer:getCoordinate', this.getCoordinate, this);

@@ -216,16 +216,15 @@ define(function(require) {
 					'height': 0,
 					'z-index': -100
 				});
+				//进行输入文本的修改
 				this.model.set('content.texts', this.$el.val());
-				// Backbone.trigger('event:cellsContainer:unBindDrag');
+				setTextType.typeRecognize(this.model);
+				setTextType.generateDisplayText(this.model);
 				this.sendData();
 			}
 			this.$el.val('');
 			if (event === undefined) {
 				this.$el.focus();
-			}
-			if (this.model !== undefined) {
-				setTextType.textTypeRecognize(this.model);
 			}
 			this.showState = false;
 		},
