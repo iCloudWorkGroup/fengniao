@@ -67,6 +67,7 @@ define(function(require) {
 			expect(handler.getFormatNumber("0123.001123",true,3)).toEqual('123.001');
 			expect(handler.getFormatNumber("0123.00",true,3)).toEqual('123.000');
 			expect(handler.getFormatNumber("0123.99",true,0)).toEqual('124');
+			expect(handler.getFormatNumber("-123123.99",true,2)).toEqual('-123,123.99');
 			expect(handler.getFormatNumber("12.56789",true,1)).toEqual('12.6');
 			expect(handler.getFormatNumber("12.056789",true,1)).toEqual('12.1');
 		});

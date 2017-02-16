@@ -393,6 +393,7 @@ define(function(require) {
 				remainder,
 				head,
 				tail,
+				sign='',
 				temp,
 				len, i;
 			//需要去除末尾无效的0字符
@@ -409,6 +410,10 @@ define(function(require) {
 			if (thousands) {
 				values = value.split('.');
 				head = values[0];
+				if(head.charAt(0)==='-' || head.indexOf('+')===0){
+					sign = head.charAt(0);
+					head = head.substring(1,head.length);
+				}
 				len = Math.ceil(head.length / 3);
 				remainder = head.length % 3 > 0 ? head.length % 3 : 3;
 				temp = head;
@@ -420,7 +425,7 @@ define(function(require) {
 						head = ',' + temp.substring(3 * (i - 1) + remainder, 3 * i + remainder) + head;
 					}
 				}
-				value = head;
+				value =sign+head;
 				if (typeof values[1] !== 'undefined') {
 					value += '.' + values[1];
 				}
@@ -579,6 +584,7 @@ define(function(require) {
 					value = value.substring(1, value.length);
 				}
 				sign = sign || '$';
+				//货币千分位
 				result = sign + this.getFormatNumber(value, true, decimal);
 				return result;
 			}
@@ -696,6 +702,7 @@ define(function(require) {
 					break;
 				default:
 					model.set('content.displayTexts', text);
+					isValid = true;
 					break;
 			}
 			model.set('format.isValid', isValid);

@@ -297,6 +297,7 @@ define(function(require) {
 		 */
 		setTransverseAlign: function(modelJSON) {
 			var format = modelJSON.format,
+				type = format.type,
 				text = modelJSON.content.texts,
 				isValid = format.isValid,
 				alignRowPosi = modelJSON.content.alignRow;
@@ -307,13 +308,13 @@ define(function(require) {
 				});
 				return;
 			}
-			if (format !== 'text' && format !== 'normal' && isValid === true) {
+			if (type !== 'text' && type !== 'normal' && isValid === true) {
 				this.$contentBody.css({
 					'text-align': 'right'
 				});
 				return;
 			}
-			if (format === 'normal' && textTypeHandler.isNum(text)) {
+			if (type === 'normal' && textTypeHandler.isNum(text)) {
 				this.$contentBody.css({
 					'text-align': 'right'
 				});
