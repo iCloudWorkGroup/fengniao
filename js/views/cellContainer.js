@@ -202,6 +202,7 @@ define(function(require) {
 				i = 0,
 				height;
 			text = modelJSON.content.displayTexts;
+			text = text || '';
 			temp = text;
 			texts = text.split('\n');
 			text = '';
