@@ -335,11 +335,10 @@ define(function(require) {
 				this.deleteTop(currentDisplayViewTop);
 			}
 			//
-			if (transverseDirection > 0) {
-				this.addRight(currentDisplayViewLeft);
-			}
-			if (transverseDirection < 0) {
-			}
+			// if (transverseDirection > 0) {
+			// }
+			// if (transverseDirection < 0) {
+			// }
 		},
 		/**
 		 * 显示行上方超出预加载区域，删除超出视图
