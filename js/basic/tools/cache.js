@@ -20,6 +20,11 @@ define(function(require) {
 			col: []
 		},
 		/**
+		 * 滚动加载，请求操作，缓冲高度
+		 * @type {number}
+		 */
+		scrollBufferHeight: 800,
+		/**
 		 * 所有单元格位置信息
 		 * @property {object} CellPosition
 		 */

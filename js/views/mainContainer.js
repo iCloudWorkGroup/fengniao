@@ -67,6 +67,9 @@ define(function(require) {
 				Backbone.on('call:mainContainer', this.callMainContainer, this);
 				Backbone.on('event:mainContainer:nextCellPosition', this.nextCellPosition, this);
 				Backbone.on('event:mainContainer:addBottom', this.addBottom, this);
+
+				this.offsetTop = this.currentRule.displayPosition.offsetTop;
+				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get("top");
 			}
 			this.boxModel = {};
 
@@ -334,11 +337,6 @@ define(function(require) {
 				this.addBottom(currentDisplayViewTop);
 				this.deleteTop(currentDisplayViewTop);
 			}
-			//
-			// if (transverseDirection > 0) {
-			// }
-			// if (transverseDirection < 0) {
-			// }
 		},
 		/**
 		 * 显示行上方超出预加载区域，删除超出视图
@@ -348,6 +346,7 @@ define(function(require) {
 		deleteTop: function(recordViewTop) {
 			var limitIndex, //预加载区域索引 
 				limitTop, //预加载区域高度
+				limitAlias,
 				recordIndex,
 				recordTop,
 				headItemRowList,
@@ -357,27 +356,17 @@ define(function(require) {
 				cellPositionArray,
 				offsetTop,
 				userViewTop,
-				i, j, k;
+				i, len;
 
-			//判断Excel冻结状态，非冻结状态(冻结高度为0，用户可视起点高度为0)
-			if (cache.TempProp.isFrozen === true) {
-				offsetTop = this.currentRule.displayPosition.offsetTop;
-				userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get("top");
-			} else {
-				offsetTop = 0;
-				userViewTop = 0;
-			}
-
+			offsetTop = this.offsetTop;
+			userViewTop = this.userViewTop;
 			headItemRowList = headItemRows.models;
-
 			//原状态预加载标线高度
 			recordTop = recordViewTop - config.System.prestrainHeight + offsetTop + userViewTop;
 
 			//当前状态预加载标线高度
-
 			limitTop = this.el.scrollTop - config.System.prestrainHeight + offsetTop + userViewTop;
-
-
+			//修改
 			if (recordTop < 0) recordTop = 0;
 			if (limitTop < 0) limitTop = 0;
 
@@ -392,27 +381,15 @@ define(function(require) {
 			}
 
 			tempCells = cells.getCellsByRowIndex(recordIndex, limitIndex - 1);
-
-			for (j = 0; j < tempCells.length; j++) {
-				//判断cell最下端单元格是否符合要求
-				if (tempCells[j] === undefined || tempCells[j] === null) {
-					continue;
-				}
-				cellPositionArray = tempCells[j].get("occupy").y;
-
-				for (k = cellPositionArray.length - 1; k > -1; k--) {
-					cellMaxRowIndex = headItemRows.getIndexByAlias(cellPositionArray[k]);
-					if (cellMaxRowIndex === null || cellMaxRowIndex === undefined || cellMaxRowIndex === -1) {
-						continue;
-					}
-					if (cellMaxRowIndex < limitIndex) {
-						tempCells[j].hide();
-					}
-					break;
+			limitAlias = headItemRowList[i].get('alias');
+			for (i = 0, len = tempCells.length; i < len; i++) {
+				//判断cell最下端是否超出了显示界限
+				cellPositionArray = tempCells[i].get("occupy").y;
+				if (cellPositionArray.indexOf(limitAlias)===-1) {
+					tempCells[i].hide();
 				}
 			}
 			cache.visibleRegion.top = headItemRowList[limitIndex].get("top");
-			// config.DynamicLoad.row.start = limitIndex;
 		},
 		/**
 		 * 显示行上方到达加载区域，添加视图视图
@@ -516,12 +493,11 @@ define(function(require) {
 
 			limitTopPosi = this.el.scrollTop - config.System.prestrainHeight + offsetTop + userViewTop;
 
-			if (limitTopPosi < 0) limitTopPosi = 0;
+			limitTopPosi = limitTopPosi < 0 ? limitTopPosi : 0;
 			if (limitTopPosi > cache.localRowPosi || cache.localRowPosi === 0) {
 				return;
 			}
 			limitBottomPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
-
 
 			if (limitBottomPosi > cache.localRowPosi) {
 				limitBottomPosi = cache.localRowPosi;
@@ -680,13 +656,9 @@ define(function(require) {
 				tempCells;
 
 			//冻结情况，计算视图的偏移量
-			if (cache.TempProp.isFrozen === true) {
-				offsetTop = this.currentRule.displayPosition.offsetTop;
-				userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get("top");
-			} else {
-				offsetTop = 0;
-				userViewTop = 0;
-			}
+			offsetTop = this.offsetTop;
+			userViewTop = this.userViewTop;
+
 			this.loadRegionRows(offsetTop, userViewTop);
 			this.addRows();
 			this.adaptSelectRegion();

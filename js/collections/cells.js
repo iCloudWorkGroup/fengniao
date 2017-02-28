@@ -868,24 +868,29 @@ define(function(require) {
 		getCellsByRowIndex: function(startIndex, endIndex) {
 			var tempObj,
 				tempAttr,
+				headItemRowList,
 				cacheCellArray,
 				cachePosition,
+				cacheIndexObject = {},
 				cellModelList,
+				index,
 				alias,
 				i;
 
 			cacheCellArray = [];
 			cellModelList = this.models;
+			headItemRowList = headItemRows.models;
 			cachePosition = cache.CellsPosition.strandY;
-			//遍历cache.CellsPosition中符合索引，生成cells[]集合
 			for (i = startIndex; i < endIndex + 1; i++) {
-				if (headItemRows.models[i] !== undefined) {
-					alias = headItemRows.models[i].get('alias');
-					if (cachePosition[alias] !== undefined) {
-						tempObj = cachePosition[alias];
+				if (headItemRowList[i] !== undefined) {
+					alias = headItemRowList[i].get('alias');
+					tempObj = cachePosition[alias];
+					if (tempObj !== undefined) {
 						for (tempAttr in tempObj) {
-							if (cacheCellArray.indexOf(cellModelList[tempObj[tempAttr]]) === -1) {
-								cacheCellArray.push(cellModelList[tempObj[tempAttr]]);
+							index = tempObj[tempAttr];
+							if (typeof cacheIndexObject[index] === 'undefined') {
+								cacheCellArray.push(cellModelList[index]);
+								cacheIndexObject[index] = 0;
 							}
 						}
 					}

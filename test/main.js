@@ -13,7 +13,8 @@ requirejs([
 	// '../test/unit/commentspec',
 	//'../test/unit/row.spec',
 	//'../test/unit/rowoper.spec.js',
-	'../test/unit/col.spec'
+	// '../test/unit/col.spec',
+	'../test/unit/loadrecorder.spec'
 ], function() {
 	window.onload();
 });

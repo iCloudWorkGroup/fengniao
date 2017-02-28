@@ -4,13 +4,22 @@ define(function(require) {
 
 	return {
 		insertPosi: function(startPosi, endPosi, region) {
-			var startIndex,
+			var temp,
+				startIndex,
 				endIndex,
 				startExist,
 				endExist,
+				startNextExist,
+				endNextExist,
 				newStartPosi,
 				newEndPosi,
 				len;
+
+			if (startPosi > endPosi) {
+				temp = startPosi;
+				startPosi = endPosi;
+				endPosi = temp;
+			}
 			startIndex = binary.indexArrayBinary(startPosi, region, 'start', 'end');
 			endIndex = binary.indexArrayBinary(endPosi, region, 'start', 'end');
 			startExist = binary.existArrayBinary(startPosi, region, 'start', 'end');
@@ -18,19 +27,29 @@ define(function(require) {
 
 			newStartPosi = startExist === false ? startPosi : region[startIndex].start;
 			newEndPosi = endExist === false ? endPosi : region[endIndex].end;
-			//ps:对于相应区域，未进行合并，需要改进
+			//处理相邻点
+			startNextExist = binary.existArrayBinary(newStartPosi - 1, region, 'start', 'end');
+			endNextExist = binary.existArrayBinary(newEndPosi + 1, region, 'start', 'end');
+			if (startNextExist === true) {
+				startIndex = binary.indexArrayBinary(newStartPosi - 1, region, 'start', 'end');
+				newStartPosi = region[startIndex].start;
+				startExist = true;
+			}
+			if (endNextExist === true) {
+				endIndex = binary.indexArrayBinary(newEndPosi + 1, region, 'start', 'end');
+				newEndPosi = region[endIndex].end;
+				endExist = true;
+			}
+
 			if (startIndex === endIndex) {
 				if (startExist === true && endExist === true) {
 					return;
 				}
 				len = (startExist === true || endExist === true) ? 1 : 0;
 			} else {
-				if (startExist === true && endExist === true) {
-					len = endIndex - startIndex + 1;
-				} else if (startExist === true || endExist === true) {
-					len = endIndex - startIndex;
-				} else {
-					len = endIndex - startIndex - 1;
+				len = endIndex - startIndex;
+				if (endExist === true) {
+					len++;
 				}
 			}
 			region.splice(startIndex, len, {
@@ -44,8 +63,8 @@ define(function(require) {
 				i;
 			startIndex = binary.indexArrayBinary(startPosi, region, 'start', 'end');
 			startExist = binary.existArrayBinary(startPosi, region, 'start', 'end');
-			//问题
-			if (startExist === true && region[startIndex].start !== startPosi) {
+
+			if (startExist === true) {
 				region[startIndex].end = region[startIndex].end + value;
 				for (i = startIndex + 1; i < region.length; i++) {
 					region[i].start += value;
@@ -58,74 +77,25 @@ define(function(require) {
 				}
 			}
 		},
-		getUnloadPosi: function(startPosi, endPosi, region) {
-			var result = [],
-				startIndex,
-				endIndex,
+		isUnloadPosi: function(startPosi, endPosi, region) {
+			var startIndex,
 				startExist,
+				endIndex,
 				endExist,
-				newStartPosi,
-				newEndPosi,
-				existStartPosi,
-				existEndPosi,
-				i, len;
+				i;
+
 			startIndex = binary.indexArrayBinary(startPosi, region, 'start', 'end');
-			endIndex = binary.indexArrayBinary(endPosi, region, 'start', 'end');
 			startExist = binary.existArrayBinary(startPosi, region, 'start', 'end');
+			endIndex = binary.indexArrayBinary(endPosi, region, 'start', 'end');
 			endExist = binary.existArrayBinary(endPosi, region, 'start', 'end');
 
-
-			if (startIndex === endIndex) {
-
-				if (startExist === false && endExist === false) {
-					result.push({
-						start: startPosi,
-						end: endPosi
-					});
-				} else if (startExist === false && endExist === true) {
-					newEndPosi = region[endIndex].end - 1;
-					result.push({
-						start: startPosi,
-						end: newEndPosi
-					});
-				} else if (startExist === true && endExist === false) {
-					newStartPosi = region[startIndex].start + 1;
-					result.push({
-						start: newStartPosi,
-						end: endPosi
-					});
-				}
-
-			} else {
-				len = endIndex - startIndex;
-				for (i = 0; i < endIndex + 1; i++) {
-					if (region[startIndex + i] === undefined) {
-						result.push({
-							start: startPosi,
-							end: endPosi
-						});
-						break;
-					}
-					existStartPosi = region[startIndex + i].start;
-					existEndPosi = region[startIndex + i].end;
-					if (startPosi > endPosi) {
-						break;
-					} else if (existStartPosi < startPosi) {
-						startPosi = existEndPosi + 1;
-					} else {
-						newStartPosi = startPosi;
-						newEndPosi = existStartPosi - 1;
-						if (newStartPosi <= newEndPosi) {
-							result.push({
-								start: newStartPosi,
-								end: newEndPosi
-							});
-						}
-						startPosi = existEndPosi + 1;
-					}
-				}
+			if(startExist===false || endExist===false){
+				return true;
 			}
-			return result;
+			if(startIndex!==endIndex){
+				return true;
+			}
+			return false;
 		}
 	};
 });
