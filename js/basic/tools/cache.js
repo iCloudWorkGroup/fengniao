@@ -23,7 +23,7 @@ define(function(require) {
 		 * 滚动加载，请求操作，缓冲高度
 		 * @type {number}
 		 */
-		scrollBufferHeight: 800,
+		scrollBufferHeight: 600,
 		/**
 		 * 所有单元格位置信息
 		 * @property {object} CellPosition
@@ -74,11 +74,6 @@ define(function(require) {
 		mouseOperateState: config.mouseOperateState.select,
 
 		listenerList: {}, //事件监听列表
-		/**
-		 * cellsContainer 行视图最大高度
-		 * @type {Number}
-		 */
-		displayRowHeight: 0,
 		/**
 		 * 后台存储excel的总高度
 		 * @property {int} localRowPosi

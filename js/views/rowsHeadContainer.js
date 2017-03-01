@@ -292,7 +292,8 @@ define(function(require) {
 				reduceUserView: this.currentRule.reduceUserView,
 				endIndex: this.currentRule.displayPosition.endIndex
 			});
-			if (initialize === true || modelHeadItemRow.get('top') > config.displayRowHeight) {
+			// if (initialize === true || modelHeadItemRow.get('top') > config.displayRowHeight) {
+			if (initialize === true || modelHeadItemRow.get('top')) {	
 				this.$el.append(this.headItemRowContainer.render().el);
 			} else {
 				this.$el.prepend(this.headItemRowContainer.render().el);

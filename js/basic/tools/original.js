@@ -60,8 +60,6 @@ define(function(require) {
 				headItemRows.add(currentObject);
 			}
 			this.restoreSelectRegion();
-			loadRecorder.insertPosi(0, headItemRows.models[lenRow - 1].height + headItemRows.models[lenRow - 1].top, cache.rowRegionPosi);
-			loadRecorder.insertPosi(0, headItemRows.models[lenRow - 1].height + headItemRows.models[lenRow - 1].top, cache.cellRegionPosi.vertical);
 		},
 		/**
 		 * 解析后台返回行索引数据，如果行数未满足加载区域，则生成新行，进行补充
@@ -239,7 +237,7 @@ define(function(require) {
 					width: width - 1,
 					height: height - 1
 				};
-				if (existCell !== null && existCell !== undefined) {
+				if (typeof existCell !== 'undefined') {
 					//重新渲染cell模型宽高
 					existCell.set('physicsBox', physicsBox);
 				} else {
