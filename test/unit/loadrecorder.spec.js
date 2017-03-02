@@ -301,37 +301,37 @@ define(function(require) {
 		});
 	});
 	describe("判断是否含有未加载区域", function() {
-		var region = [{
-				start: 1,
-				end: 5
-			}, {
-				start: 10,
-				end: 15
-			}, {
-				start: 20,
-				end: 25
-			}, {
-				start: 30,
-				end: 35
-			}, {
-				start: 40,
-				end: 45
-			}, {
-				start: 50,
-				end: 55
-			}, {
-				start: 60,
-				end: 65
-			}];
+		// var region = [{
+		// 		start: 1,
+		// 		end: 5
+		// 	}, {
+		// 		start: 10,
+		// 		end: 15
+		// 	}, {
+		// 		start: 20,
+		// 		end: 25
+		// 	}, {
+		// 		start: 30,
+		// 		end: 35
+		// 	}, {
+		// 		start: 40,
+		// 		end: 45
+		// 	}, {
+		// 		start: 50,
+		// 		end: 55
+		// 	}, {
+		// 		start: 60,
+		// 		end: 65
+		// 	}];
 		it('对于已加载判断', function() {
-			expect(loadRecorder.isUnloadPosi(5,5,region)).toBe(false);
-			expect(loadRecorder.isUnloadPosi(2,3,region)).toBe(false);
-			expect(loadRecorder.isUnloadPosi(2,5,region)).toBe(false);
+			// expect(loadRecorder.isUnloadPosi(5,5,region)).toBe(false);
+			// expect(loadRecorder.isUnloadPosi(2,3,region)).toBe(false);
+			// expect(loadRecorder.isUnloadPosi(2,5,region)).toBe(false);
 		});
 		it('对于未加载判断', function() {
-			expect(loadRecorder.isUnloadPosi(6,7,region)).toBe(true);
-			expect(loadRecorder.isUnloadPosi(21,31,region)).toBe(true);
-			expect(loadRecorder.isUnloadPosi(41,61,region)).toBe(true);
+			// expect(loadRecorder.isUnloadPosi(6,7,region)).toBe(true);
+			// expect(loadRecorder.isUnloadPosi(21,31,region)).toBe(true);
+			// expect(loadRecorder.isUnloadPosi(41,61,region)).toBe(true);
 		});
 	});
 });

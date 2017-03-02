@@ -135,6 +135,6 @@ define(function() {
 			enter: true
 		},
 		version: '@version@',
-		rootPath: 'localhost:8080/pubexcel/'
+		rootPath: 'http://localhost:8080/pubexcel/'
 	};
 });
