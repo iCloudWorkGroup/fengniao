@@ -160,8 +160,7 @@ define(function(require) {
 		 */
 		analysisCellData: function(cellsData) {
 			var j, k, //循环变量
-				tempCell,
-				existCell, //已存在单元格
+				tempCell = null,
 				gridLineColList,
 				gridLineRowList,
 				cellAttributes, //cell模型属性 
@@ -217,7 +216,7 @@ define(function(require) {
 				cellsPositionX = cache.CellsPosition.strandX;
 				if (cellsPositionX[gridAliasColList[0]] !== undefined &&
 					cellsPositionX[gridAliasColList[0]][gridAliasRowList[0]] !== undefined) {
-					existCell = cells.models[cellsPositionX[gridAliasColList[0]][gridAliasRowList[0]]];
+					tempCell = cells.models[cellsPositionX[gridAliasColList[0]][gridAliasRowList[0]]];
 				}
 
 				//计算cell模型宽高
@@ -237,9 +236,9 @@ define(function(require) {
 					width: width - 1,
 					height: height - 1
 				};
-				if (typeof existCell !== 'undefined') {
+				if (tempCell !== null) {
 					//重新渲染cell模型宽高
-					existCell.set('physicsBox', physicsBox);
+					tempCell.set('physicsBox', physicsBox);
 				} else {
 					tempCell = new Cell(cellAttributes);
 					tempCell.set('physicsBox', physicsBox);
@@ -251,7 +250,7 @@ define(function(require) {
 						}
 					}
 				}
-				existCell = null;
+				tempCell = null;
 			}
 		},
 		analysisSheetData: function(sheetsData) {
@@ -426,7 +425,7 @@ define(function(require) {
 				async: false,
 				isPublic: false,
 				data: JSON.stringify({
-					containerHeight: $('#' + domId).height()
+					containerHeight: $('#' + domId).height() + config.System.prestrainHeight
 				}),
 				dataType: 'json',
 				success: function(data) {

@@ -139,6 +139,6 @@ define(function() {
 		},
 
 		version: '@version@',
-		rootPath: 'http://excel-inc.acmr.com.cn/spreadsheet/'
+		rootPath: 'localhost:8080/pubexcel/'
 	};
 });
