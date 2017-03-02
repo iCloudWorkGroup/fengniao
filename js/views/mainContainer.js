@@ -67,9 +67,13 @@ define(function(require) {
 				Backbone.on('call:mainContainer', this.callMainContainer, this);
 				Backbone.on('event:mainContainer:nextCellPosition', this.nextCellPosition, this);
 				Backbone.on('event:mainContainer:addBottom', this.addBottom, this);
-
+			}
+			if (cache.TempProp.isFrozen === true) {
 				this.offsetTop = this.currentRule.displayPosition.offsetTop;
 				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get("top");
+			} else {
+				this.offsetTop = 0;
+				this.userViewTop = 0;
 			}
 			this.boxModel = {};
 
@@ -77,9 +81,6 @@ define(function(require) {
 
 			// for reduction position , prevent event scroll auto trigger.
 			this.isPreventScroll = true;
-
-			this.recordScrollLeft = this.recordScrollTop = 0;
-			this.recordBottomPosi = this.el.offsetHeight + config.System.prestrainHeight + this.offsetTop + this.userViewTop;
 
 			modelsHeadLineRowRegionList = modelsHeadLineRowList = headItemRows.models;
 			modelsHeadLineColRegionList = modelsHeadLineColList = headItemCols.models;
@@ -106,7 +107,9 @@ define(function(require) {
 
 			cache.visibleRegion.top = 0;
 			cache.visibleRegion.bottom = this.boxModel.height;
-
+			//待修改：逻辑存在问题
+			this.recordScrollLeft = this.recordScrollTop = 0;
+			this.recordBottomPosi = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height');
 		},
 		/**
 		 * 生成白色背景，用于遮挡输入框
@@ -322,11 +325,12 @@ define(function(require) {
 			if (!cache.TempProp.isFrozen) {
 				modelRowList = headItemRows;
 				modelColList = headItemCols;
+
 				userViewRowModel = modelRowList.getModelByPosition(this.recordScrollTop);
 				userViewEndRowModel = modelRowList.getModelByPosition(this.recordScrollTop + this.el.offsetHeight);
-
 				cache.UserView.rowAlias = userViewRowModel.get('alias');
 				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
+				
 				userViewColModel = modelColList.getModelByPosition(this.recordScrollLeft);
 				userViewEndColModel = modelColList.getModelByPosition(this.recordScrollLeft + this.el.offsetWidth);
 				cache.UserView.colAlias = userViewColModel.get('alias');
@@ -554,8 +558,7 @@ define(function(require) {
 		 * @return {number} bottom 请求底部的坐标       
 		 */
 		loadRegion: function(top, bottom) {
-			var maxheadItemHeight,
-				isUnloadRows,
+			var isUnloadRows,
 				isUnloadCells,
 				height,
 				i = 0;
@@ -577,8 +580,7 @@ define(function(require) {
 				this.publish(height, 'adjustContainerHeightPublish');
 			}
 			if (isUnloadCells) {
-				maxheadItemHeight = headItemRows.getMaxDistanceHeight();
-				bottom = bottom < maxheadItemHeight ? bottom : maxheadItemHeight;
+				bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
 				this.requestCells(top, bottom);
 				loadRecorder.insertPosi(top, bottom, cache.cellRegionPosi.vertical);
 			}
@@ -601,9 +603,9 @@ define(function(require) {
 					}
 					var startRowSort;
 					startRowSort = data.dataRowStartIndex;
+					cache.localRowPosi = data.maxRowPixel;
 					var rows = data.returndata.spreadSheet[0].sheet.glY;
 					original.analysisRowData(rows, startRowSort);
-					//需重新设置后台存储的最大值
 				}
 			});
 		},
