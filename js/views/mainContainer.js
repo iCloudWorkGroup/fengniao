@@ -330,7 +330,7 @@ define(function(require) {
 				userViewEndRowModel = modelRowList.getModelByPosition(this.recordScrollTop + this.el.offsetHeight);
 				cache.UserView.rowAlias = userViewRowModel.get('alias');
 				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
-				
+
 				userViewColModel = modelColList.getModelByPosition(this.recordScrollLeft);
 				userViewEndColModel = modelColList.getModelByPosition(this.recordScrollLeft + this.el.offsetWidth);
 				cache.UserView.colAlias = userViewColModel.get('alias');
@@ -520,11 +520,11 @@ define(function(require) {
 			userViewTop = this.userViewTop;
 			limitTopPosi = this.el.scrollTop - config.System.prestrainHeight + offsetTop + userViewTop;
 			limitBottomPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
-			recordPosi = recordPosi > limitTopPosi ? recordPosi : limitTopPosi;
 			//自动增长行或者是后台请求数据，已将加载高度可能会超过新的预加载区
 			if (recordPosi > limitBottomPosi) {
 				return;
 			}
+			recordPosi = recordPosi > limitTopPosi ? recordPosi : limitTopPosi;
 			loadBottomPosi = this.loadRegion(recordPosi, limitBottomPosi);
 			addRowBottomPosi = this.addRows(limitBottomPosi);
 			this.adaptSelectRegion();
@@ -560,17 +560,22 @@ define(function(require) {
 		loadRegion: function(top, bottom) {
 			var isUnloadRows,
 				isUnloadCells,
+				// topIndex,
+				// bottomIndex,
 				height,
 				i = 0;
 			if (top > cache.localRowPosi || cache.localRowPosi === 0) {
 				return bottom;
 			}
+			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
 			isUnloadRows = loadRecorder.isUnloadPosi(top, bottom, cache.rowRegionPosi);
 			isUnloadCells = loadRecorder.isUnloadPosi(top, bottom, cache.cellRegionPosi.vertical);
 			//需要根据方向，进行添加缓冲区
 			if (isUnloadRows || isUnloadCells) {
 				bottom = bottom + cache.scrollBufferHeight;
 			}
+			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
+			//需要保存准备值
 			if (isUnloadRows) {
 				this.requestRows(top, bottom);
 				loadRecorder.insertPosi(top, bottom, cache.rowRegionPosi);
@@ -580,7 +585,6 @@ define(function(require) {
 				this.publish(height, 'adjustContainerHeightPublish');
 			}
 			if (isUnloadCells) {
-				bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
 				this.requestCells(top, bottom);
 				loadRecorder.insertPosi(top, bottom, cache.cellRegionPosi.vertical);
 			}
