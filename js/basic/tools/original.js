@@ -1,5 +1,5 @@
-'use strict';
 define(function(require) {
+  	'use strict';
 	var $ = require('lib/jquery'),
 		config = require('spreadsheet/config'),
 		binary = require('basic/util/binary'),
