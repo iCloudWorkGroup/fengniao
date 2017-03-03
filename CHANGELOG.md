@@ -1,3 +1,13 @@
+<a name="0.10.0"></a>
+# [0.10.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.9.0...v0.10.0) (2017-03-03)
+
+
+### Bug Fixes
+
+* git cz �ύ ([51b6967](https://github.com/iCloudWorkGroup/fengniao/commit/51b6967))
+
+
+
 <a name="0.9.0"></a>
 # [0.9.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.8.0...v0.9.0) (2017-03-03)
 
