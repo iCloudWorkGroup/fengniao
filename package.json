@@ -1,6 +1,6 @@
 {
   "name": "spreadsheet",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "online share spreadsheet",
   "rootpath":"http://spreadsheet.acmr.com.cn/",
   "devDependencies": {
