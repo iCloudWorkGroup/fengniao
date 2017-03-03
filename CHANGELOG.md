@@ -1,37 +1,3 @@
-<a name="0.12.0"></a>
-# [0.12.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.10.0...v0.12.0) (2017-03-03)
-
-
-### Bug Fixes
-
-* **�޸�����:** d ([95280f5](https://github.com/iCloudWorkGroup/fengniao/commit/95280f5))
-
-
-
-<a name="0.11.0"></a>
-# [0.11.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.10.0...v0.11.0) (2017-03-03)
-
-
-
-<a name="0.10.0"></a>
-# [0.10.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.9.0...v0.10.0) (2017-03-03)
-
-
-### Bug Fixes
-
-* git cz �ύ ([51b6967](https://github.com/iCloudWorkGroup/fengniao/commit/51b6967))
-
-
-
-<a name="0.9.0"></a>
-# [0.9.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.8.0...v0.9.0) (2017-03-03)
-
-
-
-<a name="Unreleased"></a>
-# Unreleased (2017-03-03)
-
-
 
 <a name="0.7.1"></a>
 ## [0.7.1](https://github.com/iCloudWorkGroup/fengniao/compare/v0.7.0...v0.7.1) (2016-09-18)
