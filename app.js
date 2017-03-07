@@ -10,5 +10,4 @@ define(function(require) {
 	var ss = new SpreadSheet('spreadSheet');
 
 	
-
 });
