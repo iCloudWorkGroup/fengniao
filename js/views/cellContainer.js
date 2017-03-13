@@ -87,9 +87,15 @@ define(function(require) {
 				},1000);
 			}
 		},
+<<<<<<< HEAD
 		outHandle: function() {
 			clearTimeout(this.mouseOverEventId);
 			this.model.set('commentShowState', false);
+=======
+		outCellView: function() {
+			clearTimeout(this.overEvent);
+			this.hideComment();
+>>>>>>> c1139f4... temp commit
 		},
 		commentViewHandler: function() {
 			if (this.model.get('commentShowState') === true) {
