@@ -73,28 +73,36 @@ define(function(require) {
 			return this;
 		},
 		showComment: function(event) {
-			var model,
-				self = this;
-			
-			if (cache.commentState) {
+			var modelJSON = this.model.toJSON();
+				relativeTop = event.offsetY,
+				relativeLeft = event.offsetX,
+				self = this,
+				cellModel,
+				top,left;
+
+			if(relativeTop<0 || relativeLeft<0){
 				return;
 			}
-			model = this.viewCellsContainer.getCoordinateByMouseEvent(event).model;
-			if (this.MouseModel !== model) {
-				clearTimeout(this.overEvent);
-				this.overEvent = setTimeout(function() {
-					if (model !== undefined &&
-						model.get('customProp').comment !== null &&
-						model.get('customProp').comment !== undefined
-					) {
-						model.set('commentShowState', true);
-					}
-				}, 1000);
-				if (this.MouseModel !== null && this.MouseModel !== undefined) {
-					this.MouseModel.set('commentShowState', false);
-				}
-			}
-			this.MouseModel = model;
+			top = relativeTop + modelJSON.physicsPosi.top;
+			left = relativeLeft + modelJSON.physicsPosi.left;
+			cellModel = cells.get
+			// if (this.MouseModel !== model) {
+			// 	clearTimeout(this.overEvent);
+			// 	this.overEvent = setTimeout(function() {
+			// 		if (model !== undefined &&
+			// 			model.get('customProp').comment !== null &&
+			// 			model.get('customProp').comment !== undefined
+			// 		) {
+			// 			//是否有必要
+			// 			model.set('commentShowState', true);
+			// 		}
+			// 	}, 1000);
+			// 	//减少判断
+			// 	if (this.MouseModel !== null ) {
+			// 		this.MouseModel.set('commentShowState', false);
+			// 	}
+			// }
+			// this.MouseModel = model;
 		},
 		hideComment: function() {
 			clearTimeout(this.overEvent);

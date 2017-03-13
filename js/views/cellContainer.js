@@ -82,8 +82,8 @@ define(function(require) {
 			}, 1000);
 		},
 		outCellView: function() {
-			this.hideComment();
 			clearTimeout(this.overEvent);
+			this.hideComment();
 		},
 		commentViewHandler: function() {
 			if (this.model.get('commentShowState') === true) {

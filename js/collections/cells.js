@@ -196,6 +196,46 @@ define(function(require) {
 			return cells;
 
 		},
+				/**
+		 * 按照行索引，获取两行之间的所有包含所有cell对象
+		 * @method getCellsByRowIndex 
+		 * @param  startPosi {int} 行开始索引
+		 * @param  endPosi {int} 行结束索引
+		 * @return {array} Cell数组
+		 */
+		getCellsByRowIndex: function(startIndex, endIndex) {
+			var tempObj,
+				tempAttr,
+				headItemRowList,
+				cacheCellArray,
+				cachePosition,
+				cacheIndexObject = {},
+				cellModelList,
+				index,
+				alias,
+				i;
+
+			cacheCellArray = [];
+			cellModelList = this.models;
+			headItemRowList = headItemRows.models;
+			cachePosition = cache.CellsPosition.strandY;
+			for (i = startIndex; i < endIndex + 1; i++) {
+				if (headItemRowList[i] !== undefined) {
+					alias = headItemRowList[i].get('alias');
+					tempObj = cachePosition[alias];
+					if (tempObj !== undefined) {
+						for (tempAttr in tempObj) {
+							index = tempObj[tempAttr];
+							if (typeof cacheIndexObject[index] === 'undefined') {
+								cacheCellArray.push(cellModelList[index]);
+								cacheIndexObject[index] = 0;
+							}
+						}
+					}
+				}
+			}
+			return cacheCellArray;
+		},
 		/**
 		 * 获取区域内包含所有cell对象
 		 * @method getSelectRegionCells 
@@ -859,46 +899,6 @@ define(function(require) {
 				return this.models[initCellIndex];
 			}
 			return null;
-		},
-		/**
-		 * 按照行索引，获取两行之间的所有包含所有cell对象
-		 * @method getCellsByRowIndex 
-		 * @param  startPosi {int} 行开始索引
-		 * @param  endPosi {int} 行结束索引
-		 * @return {array} Cell数组
-		 */
-		getCellsByRowIndex: function(startIndex, endIndex) {
-			var tempObj,
-				tempAttr,
-				headItemRowList,
-				cacheCellArray,
-				cachePosition,
-				cacheIndexObject = {},
-				cellModelList,
-				index,
-				alias,
-				i;
-
-			cacheCellArray = [];
-			cellModelList = this.models;
-			headItemRowList = headItemRows.models;
-			cachePosition = cache.CellsPosition.strandY;
-			for (i = startIndex; i < endIndex + 1; i++) {
-				if (headItemRowList[i] !== undefined) {
-					alias = headItemRowList[i].get('alias');
-					tempObj = cachePosition[alias];
-					if (tempObj !== undefined) {
-						for (tempAttr in tempObj) {
-							index = tempObj[tempAttr];
-							if (typeof cacheIndexObject[index] === 'undefined') {
-								cacheCellArray.push(cellModelList[index]);
-								cacheIndexObject[index] = 0;
-							}
-						}
-					}
-				}
-			}
-			return cacheCellArray;
 		},
 		/**
 		 * 通过列索引查询，区域内包含单元格

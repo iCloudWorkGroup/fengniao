@@ -73,6 +73,7 @@ define(function(require) {
 			}
 			options.parentNode = this;
 			this.commentContainer = new CommentContainer(options);
+			//不进行滚动订阅，滚动操作，视图destory
 			this.publisherList['mainContainer'].subscribe({
 				master: this.commentContainer,
 				behavior: 'transverseScroll'
@@ -88,7 +89,6 @@ define(function(require) {
 			}
 		},
 		removeCommentContainer: function(model) {
-
 			if (this.commentContainer === undefined ||
 				this.commentContainer === null ||
 				this.commentContainer.state !== 'show') {
