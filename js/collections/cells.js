@@ -35,6 +35,7 @@ define(function(require) {
 		 */
 		createCellModel: function(startColIndex, startRowIndex,
 			endColIndex, endRowIndex, prop) {
+			
 			var headItemColList,
 				headItemRowList,
 				rowLen,
