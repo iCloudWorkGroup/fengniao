@@ -358,7 +358,7 @@ define(function(require) {
 				i, j, gridLineLen,
 				len,
 				cellList = cells;
-			passAdjustRowCells = cellList.getCellsByRowIndex(index, index);
+			passAdjustRowCells = cellList.getCellByRow(index, index);
 			len = passAdjustRowCells.length;
 			for (i = 0; i < len; i++) {
 				passAdjustRowCells[i].set('physicsBox.height', passAdjustRowCells[i].get('physicsBox').height + pixel);

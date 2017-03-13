@@ -59,7 +59,7 @@ define(function(require) {
 				}
 			}
 			headRowModel.set('operProp', headRowProp);
-			cellList = cells.getCellByRow(index, 0, index, headItemCols.length - 1);
+			cellList = cells.getCellByTransverse(index, 0, index, headItemCols.length - 1);
 			len = cellList.length;
 			i = 0;
 			for (; i < len; i++) {

@@ -35,8 +35,8 @@ define(function(require) {
 		 */
 		className: 'item',
 		events: {
-			'mouseenter': 'overCellView',
-			'mouseleave': 'outCellView'
+			'mouseenter': 'overHandle',
+			'mouseleave': 'outHandle'
 		},
 		/**
 		 * 监听model事件
@@ -46,8 +46,12 @@ define(function(require) {
 
 			var modelRowList = headItemRows,
 				modelColList = headItemCols;
-
-			this.listenTo(this.model, 'change', this.render);
+			this.listenTo(this.model, 'change:physicsBox', this.render);
+			this.listenTo(this.model, 'change:content', this.render);
+			this.listenTo(this.model, 'change:border', this.render);
+			this.listenTo(this.model, 'change:format', this.render);
+			this.listenTo(this.model, 'change:customProp', this.render);
+			this.listenTo(this.model, 'change:highlight', this.render);
 			this.listenTo(this.model, 'change:wordWrap', this.adaptCellHight);
 			this.listenTo(this.model, 'change:content', this.adaptCellHight);
 			this.listenTo(this.model, 'change:isDestroy', this.destroy);
@@ -68,22 +72,24 @@ define(function(require) {
 			this.userViewLeft = cache.TempProp.isFrozen ? modelColList.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 			this.userViewTop = cache.TempProp.isFrozen ? modelRowList.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
 
-			_.bindAll(this, 'showComment', 'hideComment');
+			_.bindAll(this, 'overHandle', 'outHandle');
+			this.mouseOverEventId = null;
 		},
-		overCellView: function() {
-			var self = this;
-			this.overEvent = setTimeout(function() {
-				if ($('.comment').length === 0) {
-					if (self.model.get('customProp').comment !== null &&
-						self.model.get('customProp').comment !== undefined) {
-						self.showComment();
-					}
-				}
-			}, 1000);
+		overHandle: function() {
+			var self = this,
+				model = this.model;
+			if(cache.commentEditState){
+				return;
+			}
+			if ($('.comment').length === 0 && typeof model.get('customProp').comment === 'string') {
+				this.mouseOverEventId = setTimeout(function() {
+					self.model.set('commentShowState', true);
+				},1000);
+			}
 		},
-		outCellView: function() {
-			this.hideComment();
-			clearTimeout(this.overEvent);
+		outHandle: function() {
+			clearTimeout(this.mouseOverEventId);
+			this.model.set('commentShowState', false);
 		},
 		commentViewHandler: function() {
 			if (this.model.get('commentShowState') === true) {
@@ -96,10 +102,6 @@ define(function(require) {
 		 * 显示备注视图
 		 */
 		showComment: function() {
-			this.newCommentView();
-		},
-		newCommentView: function() {
-			//ps:修改
 			var rowAlias,
 				colAlias,
 				rowIndex,
@@ -107,15 +109,10 @@ define(function(require) {
 				occupy = this.model.get('occupy'),
 				comment = this.model.get('customProp').comment,
 				options;
-			if (cache.commentState) {
-				return;
-			}
-
 			rowAlias = occupy.y[0];
 			colAlias = occupy.x[occupy.x.length - 1];
 			rowIndex = headItemRows.getIndexByAlias(rowAlias);
 			colIndex = headItemCols.getIndexByAlias(colAlias);
-			//冻结问题
 			options = {
 				colIndex: colIndex,
 				rowIndex: rowIndex,
@@ -123,12 +120,10 @@ define(function(require) {
 				state: 'show'
 			};
 			Backbone.trigger('event:commentContainer:show', options);
+			
 		},
 		hideComment: function() {
-			clearTimeout(this.overEvent);
-			if (cache.commentState) {
-				return;
-			}
+			
 			Backbone.trigger('event:commentContainer:remove');
 		},
 		/**

@@ -139,6 +139,6 @@ define(function() {
 		},
 
 		version: '@version@',
-		rootPath: 'http://localhost:8080/pubexcel/'
+		rootPath: 'ocalhost:8080/pubexcel/'
 	};
 });

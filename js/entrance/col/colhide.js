@@ -69,7 +69,7 @@ define(function(require) {
 				alias,
 				left,
 				i, len;
-			cellList = cells.getCellByX(index, 0, 'MAX', 'MAX');
+			cellList = cells.getCellByVertical(index, 0, 'MAX', 'MAX');
 			alias = headItemCols.models[index].get('alias');
 			width = headItemCols.models[index].get('originalWidth');
 			len = cellList.length;
@@ -235,7 +235,7 @@ define(function(require) {
 					}
 					width = headItemColList[i].get('originalWidth');
 					//当前列单元格调整宽度
-					cellList = cells.getCellByX(i, 0, i, 'MAX');
+					cellList = cells.getCellByVertical(i, 0, i, 'MAX');
 					cellLen = cellList.length;
 					headItemColList[i].set('width', width);
 					headItemLeft = headItemColList[i].get('left');
@@ -258,7 +258,7 @@ define(function(require) {
 					moveWidth += (width + 1);
 				} else if (moveWidth !== 0) {
 					//调整单元格left值
-					cellList = cells.getCellByX(i, 0, i, 'MAX');
+					cellList = cells.getCellByVertical(i, 0, i, 'MAX');
 					cellLen = cellList.length;
 					for (j = 0; j < cellLen; j++) {
 						if (headItemAlias === cellList[j].get('occupy').x[0]) {

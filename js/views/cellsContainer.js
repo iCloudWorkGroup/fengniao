@@ -723,7 +723,9 @@ define(function(require) {
 		located: function(event) {
 			// this is question , need deprecated
 			// when input data time avoid trigger this effect.
-			if (cache.commentState) return;
+			if (cache.commentEditState) {
+				return;
+			}
 			if ($(event.target).attr('class') === 'edit-frame') {
 				return;
 			}
