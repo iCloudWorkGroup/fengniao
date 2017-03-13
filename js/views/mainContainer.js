@@ -70,7 +70,7 @@ define(function(require) {
 			}
 			if (cache.TempProp.isFrozen === true) {
 				this.offsetTop = this.currentRule.displayPosition.offsetTop;
-				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get("top");
+				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
 			} else {
 				this.offsetTop = 0;
 				this.userViewTop = 0;
@@ -138,7 +138,15 @@ define(function(require) {
 			this.publish(headItemRowModel, 'addRowHeadItemViewPublish');
 		},
 		addHeadItemView: function(headItemRowModel) {
-			var gridLineRowContainer;
+			var startRowIndex = this.currentRule.displayPosition.startRowIndex,
+				endRowIndex = this.currentRule.displayPosition.endRowIndex,
+				headItemRowList = headItemRows.models,
+				gridLineRowContainer;
+
+			if (headItemRowModel.get('top') < headItemRowList[startRowIndex].get('top') ||
+				(typeof endRowIndex === 'number' && headItemRowModel.get('top') > headItemRowList[endRowIndex].get('top'))) {
+				return;
+			}
 			gridLineRowContainer = new GridLineRowContainer({
 				model: headItemRowModel,
 				frozenTop: this.currentRule.displayPosition.offsetTop
@@ -146,7 +154,30 @@ define(function(require) {
 			this.cellsContainer.gridLineContainer.rowsGridContainer.$el.append(gridLineRowContainer.render().el);
 		},
 		addCellView: function(cellModel) {
-			var tempView = new CellContainer({
+			var startRowIndex = this.currentRule.displayPosition.startRowIndex,
+				endRowIndex = this.currentRule.displayPosition.endRowIndex,
+				startColIndex = this.currentRule.displayPosition.startColIndex,
+				endColIndex = this.currentRule.displayPosition.endColIndex,
+				headItemRowList = headItemRows.models,
+				headItemColList = headItemCols.models,
+				tempView,
+				left,
+				right,
+				bottom,
+				top;
+
+			top = cellModel.get('physicsBox').top;
+			bottom = cellModel.get('physicsBox').top + cellModel.get('physicsBox').height;
+			left = cellModel.get('physicsBox').left;
+			right = cellModel.get('physicsBox').left + cellModel.get('physicsBox').width;
+			
+			if (bottom < headItemRowList[startRowIndex].get('top') ||
+				(typeof endRowIndex === 'number' && top > headItemRowList[endRowIndex].get('top')) ||
+				right < headItemColList[startColIndex].get('left') ||
+				(typeof endColIndex === 'number' && left > headItemColList[endColIndex].get('left'))) {
+				return;
+			}
+			tempView = new CellContainer({
 				model: cellModel,
 				currentRule: this.currentRule
 			});
@@ -389,7 +420,7 @@ define(function(require) {
 				headItemRowList[i].destroyView();
 			}
 
-			tempCells = cells.getCellsByRowIndex(recordIndex, limitIndex - 1);
+			tempCells = cells.getCellByRow(recordIndex, limitIndex - 1);
 			limitAlias = headItemRowList[i].get('alias');
 			for (i = 0, len = tempCells.length; i < len; i++) {
 				//判断cell最下端是否超出了显示界限
@@ -450,7 +481,7 @@ define(function(require) {
 			}
 			// when mouse fast moving , we has prevent infinite scroll , the double value will be equal.
 			if (limitTopIndex < recordIndex) {
-				tempCells = cells.getCellsByRowIndex(limitTopIndex, recordIndex);
+				tempCells = cells.getCellByRow(limitTopIndex, recordIndex);
 				for (i = 0, len = tempCells.length; i < len; i++) {
 					if (tempCells[i].get('showState') === false) {
 						tempCells[i].set('showState', true);
@@ -488,7 +519,7 @@ define(function(require) {
 				headItemRowList[i].destroyView();
 			}
 			//删除超过加载区域cell视图对象
-			tempCells = cells.getCellsByRowIndex(limitIndex + 1, localViewIndex);
+			tempCells = cells.getCellByRow(limitIndex + 1, localViewIndex);
 			for (i = 0, len = tempCells.length; i < len; i++) {
 				cellRowAliasArray = tempCells[i].get("occupy").y;
 				if (cellRowAliasArray.indexOf(limitAlias) === -1) {
@@ -538,7 +569,7 @@ define(function(require) {
 					this.addRowHeadItemViewPublish(headItemRowModel);
 				}
 			}
-			tempCells = cells.getCellsByRowIndex(recordIndex, limitBottomIndex);
+			tempCells = cells.getCellByRow(recordIndex, limitBottomIndex);
 			for (var i = 0, len = tempCells.length; i < len; i++) {
 				if (tempCells[i].get('showState') === false) {
 					tempCells[i].set('showState', true);
@@ -548,6 +579,7 @@ define(function(require) {
 			}
 			limitBottomPosi = limitBottomPosi > loadBottomPosi ? limitBottomPosi : loadBottomPosi;
 			limitBottomPosi = limitBottomPosi > addRowBottomPosi ? limitBottomPosi : addRowBottomPosi;
+			limitBottomIndex = binary.indexModelBinary(limitBottomPosi, headItemRowList, 'top', 'height');
 			this.adjustColPropCell(recordIndex, limitBottomIndex);
 			cache.visibleRegion.bottom = this.recordBottomPosi = limitBottomPosi;
 		},
@@ -760,7 +792,7 @@ define(function(require) {
 					rowNum: len
 				})
 			});
-			this.adjustColPropCell(startIndex, startIndex + len);
+			this.adjustColPropCell(startIndex, startIndex + len -1);
 			height = headItemRows.getMaxDistanceHeight();
 			this.adjustContainerHeight(height);
 			this.publish(height, 'adjustHeadItemContainerPublish');
@@ -784,7 +816,6 @@ define(function(require) {
 				cellProp,
 				len, i = 0,
 				j;
-
 			headItemColList = headItemCols.models;
 			headItemRowList = headItemRows.models;
 

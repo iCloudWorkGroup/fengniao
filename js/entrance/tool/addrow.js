@@ -143,7 +143,7 @@ define(function(require) {
 				tempCell,
 				top;
 
-			cellsList = cells.getCellsByRowIndex(index + 1,
+			cellsList = cells.getCellByRow(index + 1,
 				headItemRows.length - 1);
 			len = cellsList.length;
 			for (; i < len; i++) {

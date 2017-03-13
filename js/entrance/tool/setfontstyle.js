@@ -33,7 +33,7 @@ define(function(require) {
 		} else if (italic === 'normal') {
 			italic = false;
 		} else {
-			tempCellList = cells.getCellByX(operRegion.startColIndex,
+			tempCellList = cells.getCellByVertical(operRegion.startColIndex,
 				operRegion.startRowIndex,
 				operRegion.endColIndex,
 				operRegion.endRowIndex);

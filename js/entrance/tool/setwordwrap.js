@@ -32,7 +32,7 @@ define(function(require) {
 			if (operRegion.endColIndex === 'MAX' || operRegion.endRowIndex === 'MAX') {
 				wordWrap = true;
 			} else {
-				tempCellList = cells.getCellByX(operRegion.startColIndex,
+				tempCellList = cells.getCellByVertical(operRegion.startColIndex,
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
 					operRegion.endRowIndex);
