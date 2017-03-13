@@ -208,6 +208,7 @@ define(function(require) {
 							}
 						}
 					}
+<<<<<<< HEAD
 				}
 			}
 			return result;
