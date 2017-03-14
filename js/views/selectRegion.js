@@ -75,7 +75,6 @@ define(function(require) {
 			this.$el.html(this.template());
 			return this;
 		},
-<<<<<<< HEAD
 		moveHandle: function(event) {
 			var modelJSON = this.model.toJSON(),
 				headItemRowList = headItemRows.models,
@@ -93,22 +92,17 @@ define(function(require) {
 			if (relativeTop < 0 || relativeLeft < 0 ||
 				relativeTop > modelJSON.physicsBox.height ||
 				relativeLeft > modelJSON.physicsBox.width) {
-=======
-		showComment: function(event) {
-			var modelJSON = this.model.toJSON();
 				relativeTop = event.offsetY,
 				relativeLeft = event.offsetX,
-				self = this,
+				colIndex,
+				rowIndex,
 				cellModel,
-				top,left;
-
+				top, left;
 			if(relativeTop<0 || relativeLeft<0){
->>>>>>> c1139f4... temp commit
 				return;
 			}
 			top = relativeTop + modelJSON.physicsPosi.top;
 			left = relativeLeft + modelJSON.physicsPosi.left;
-<<<<<<< HEAD
 			rowIndex = binary.modelBinary(top, headItemRowList, 'top', 'height');
 			colIndex = binary.modelBinary(left, headItemColList, 'left', 'width');
 			cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
@@ -126,26 +120,6 @@ define(function(require) {
 				}
 				this.mouseOverModel = cellModel || null ;
 			}
-=======
-			cellModel = cells.get
-			// if (this.MouseModel !== model) {
-			// 	clearTimeout(this.overEvent);
-			// 	this.overEvent = setTimeout(function() {
-			// 		if (model !== undefined &&
-			// 			model.get('customProp').comment !== null &&
-			// 			model.get('customProp').comment !== undefined
-			// 		) {
-			// 			//是否有必要
-			// 			model.set('commentShowState', true);
-			// 		}
-			// 	}, 1000);
-			// 	//减少判断
-			// 	if (this.MouseModel !== null ) {
-			// 		this.MouseModel.set('commentShowState', false);
-			// 	}
-			// }
-			// this.MouseModel = model;
->>>>>>> c1139f4... temp commit
 		},
 		outHandle: function() {
 			clearTimeout(this.mouseOverEventId);

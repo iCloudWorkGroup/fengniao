@@ -90,12 +90,7 @@ define(function(require) {
 			}
 		},
 		removeCommentContainer: function(model) {
-<<<<<<< HEAD
 			if (this.commentContainer === null ||
-=======
-			if (this.commentContainer === undefined ||
-				this.commentContainer === null ||
->>>>>>> c1139f4... temp commit
 				this.commentContainer.state !== 'show') {
 				return;
 			}

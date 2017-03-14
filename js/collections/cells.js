@@ -35,7 +35,6 @@ define(function(require) {
 		 */
 		createCellModel: function(startColIndex, startRowIndex,
 			endColIndex, endRowIndex, prop) {
-			
 			var headItemColList,
 				headItemRowList,
 				rowLen,
@@ -209,7 +208,6 @@ define(function(require) {
 							}
 						}
 					}
-<<<<<<< HEAD
 				}
 			}
 			return result;
@@ -290,14 +288,14 @@ define(function(require) {
 			}
 			return cacheCellArray;
 		},
-				/**
+		/**
 		 * 按照行索引，获取两行之间的所有包含所有cell对象
-		 * @method getCellsByRowIndex 
-		 * @param  startPosi {int} 行开始索引
-		 * @param  endPosi {int} 行结束索引
-		 * @return {array} Cell数组
+		 * @method getCellByRow 
+		 * @param  startIndex {number} 行开始索引
+		 * @param  endIndex {number} 行结束索引
+		 * @return {Array} Cell数组
 		 */
-		getCellsByRowIndex: function(startIndex, endIndex) {
+		getCellByRow: function(startIndex, endIndex) {
 			var tempObj,
 				tempAttr,
 				headItemRowList,
@@ -314,16 +312,14 @@ define(function(require) {
 			headItemRowList = headItemRows.models;
 			cachePosition = cache.CellsPosition.strandY;
 			for (i = startIndex; i < endIndex + 1; i++) {
-				if (headItemRowList[i] !== undefined) {
-					alias = headItemRowList[i].get('alias');
-					tempObj = cachePosition[alias];
-					if (tempObj !== undefined) {
-						for (tempAttr in tempObj) {
-							index = tempObj[tempAttr];
-							if (typeof cacheIndexObject[index] === 'undefined') {
-								cacheCellArray.push(cellModelList[index]);
-								cacheIndexObject[index] = 0;
-							}
+				alias = headItemRowList[i].get('alias');
+				tempObj = cachePosition[alias];
+				if (tempObj !== undefined) {
+					for (tempAttr in tempObj) {
+						index = tempObj[tempAttr];
+						if (typeof cacheIndexObject[index] === 'undefined') {
+							cacheCellArray.push(cellModelList[index]);
+							cacheIndexObject[index] = 0;
 						}
 					}
 				}
