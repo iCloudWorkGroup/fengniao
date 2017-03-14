@@ -59,7 +59,7 @@ define(function(require) {
 		 * 存在含有文本单元格，按照先行后列，按照查找到第一个单元格作为模板进行扩大
 		 * 不存在含有文本单元格，直接以左上角为模板进行扩大
 		 */
-		cellList = cells.getCellByRow(startRowIndex, startColIndex, endRowIndex, endColIndex);
+		cellList = cells.getCellByTransverse(startRowIndex, startColIndex, endRowIndex, endColIndex);
 		len = cellList.length;
 		for (i = 0; i < len; i++) {
 			if (cellList[i].get('content').texts !== '') {
@@ -68,7 +68,7 @@ define(function(require) {
 			}
 		}
 		if (cacheCell === undefined) {
-			cacheCell = cells.getCellByRow(startRowIndex, startColIndex)[0];
+			cacheCell = cells.getCellByTransverse(startRowIndex, startColIndex)[0];
 			if (cacheCell !== undefined) {
 				cacheCell = cacheCell.clone();
 			}

@@ -49,6 +49,7 @@ define(function(require) {
 			Backbone.on('event:commentContainer:show', this.showCommentContainer, this);
 			Backbone.on('event:commentContainer:remove', this.removeCommentContainer, this);
 			_.bindAll(this, 'executiveFrozen', 'showCommentContainer', 'removeCommentContainer');
+			this.commentContainer = null;
 		},
 		/**
 		 * 渲染页面
@@ -68,7 +69,7 @@ define(function(require) {
 			this.inputContainer.$el.focus();
 		},
 		showCommentContainer: function(options) {
-			if (cache.commentState) {
+			if (cache.commentEditState) {
 				return;
 			}
 			options.parentNode = this;
@@ -89,8 +90,7 @@ define(function(require) {
 			}
 		},
 		removeCommentContainer: function(model) {
-			if (this.commentContainer === undefined ||
-				this.commentContainer === null ||
+			if (this.commentContainer === null ||
 				this.commentContainer.state !== 'show') {
 				return;
 			}

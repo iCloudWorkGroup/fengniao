@@ -37,8 +37,8 @@ define(function(require) {
 		 */
 		events: {
 			'dblclick': 'editState',
-			'mousemove': 'showComment',
-			'mouseout': 'hideComment'
+			'mousemove': 'moveHandle',
+			'mouseout': 'outHandle'
 		},
 		/**
 		 * 视图初始化函数
@@ -61,6 +61,9 @@ define(function(require) {
 			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 			this.offsetLeft = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetLeft || 0) : 0;
 			this.offsetTop = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetTop || 0) : 0;
+			this.mouseOverModel = null;
+			this.mouseOverEventId = null;
+			_.bindAll(this, 'moveHandle', 'outHandle');
 		},
 		/**
 		 * 页面渲染方法
@@ -72,49 +75,51 @@ define(function(require) {
 			this.$el.html(this.template());
 			return this;
 		},
-		showComment: function(event) {
-			var modelJSON = this.model.toJSON();
+		moveHandle: function(event) {
+			var modelJSON = this.model.toJSON(),
+				headItemRowList = headItemRows.models,
+				headItemColList = headItemCols.models,
 				relativeTop = event.offsetY,
 				relativeLeft = event.offsetX,
-				self = this,
+				colIndex,
+				rowIndex,
 				cellModel,
-				top,left;
+				top, left;
 
-			if(relativeTop<0 || relativeLeft<0){
+			if(cache.commentEidtState){
+				return;
+			}
+			if (relativeTop < 0 || relativeLeft < 0 ||
+				relativeTop > modelJSON.physicsBox.height ||
+				relativeLeft > modelJSON.physicsBox.width) {
 				return;
 			}
 			top = relativeTop + modelJSON.physicsPosi.top;
 			left = relativeLeft + modelJSON.physicsPosi.left;
-			cellModel = cells.get
-			// if (this.MouseModel !== model) {
-			// 	clearTimeout(this.overEvent);
-			// 	this.overEvent = setTimeout(function() {
-			// 		if (model !== undefined &&
-			// 			model.get('customProp').comment !== null &&
-			// 			model.get('customProp').comment !== undefined
-			// 		) {
-			// 			//是否有必要
-			// 			model.set('commentShowState', true);
-			// 		}
-			// 	}, 1000);
-			// 	//减少判断
-			// 	if (this.MouseModel !== null ) {
-			// 		this.MouseModel.set('commentShowState', false);
-			// 	}
-			// }
-			// this.MouseModel = model;
+			rowIndex = binary.modelBinary(top, headItemRowList, 'top', 'height');
+			colIndex = binary.modelBinary(left, headItemColList, 'left', 'width');
+			cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
+
+			if (this.mouseOverModel !== cellModel) {
+				clearTimeout(this.mouseOverEventId);
+				if (typeof cellModel !== 'undefined' &&
+					typeof cellModel.get('customProp').comment === 'string') {
+					this.mouseOverEventId = setTimeout(function() {
+						cellModel.set('commentShowState', true);
+					}, 1000);
+				}
+				if (this.mouseOverModel !== null) {
+					this.mouseOverModel.set('commentShowState', false);
+				}
+				this.mouseOverModel = cellModel || null ;
+			}
 		},
-		hideComment: function() {
-			clearTimeout(this.overEvent);
-			if (cache.commentState) {
-				return;
+		outHandle: function() {
+			clearTimeout(this.mouseOverEventId);
+			if (this.mouseOverModel !== null) {
+				this.mouseOverModel.set('commentShowState', false);
 			}
-			if (this.MouseModel !== null &&
-				this.MouseModel !== undefined &&
-				this.MouseModel.get('commentShowState')) {
-				this.MouseModel.set('commentShowState', false)
-			}
-			this.MouseModel = null;
+			this.mouseOverModel = null;
 		},
 		/**
 		 * 更新显示视图大小，坐标

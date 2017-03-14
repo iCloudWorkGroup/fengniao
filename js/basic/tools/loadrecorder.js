@@ -81,8 +81,7 @@ define(function(require) {
 			var startIndex,
 				startExist,
 				endIndex,
-				endExist,
-				i;
+				endExist;
 
 			startIndex = binary.indexArrayBinary(startPosi, region, 'start', 'end');
 			startExist = binary.existArrayBinary(startPosi, region, 'start', 'end');

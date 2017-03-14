@@ -159,7 +159,7 @@ define(function(require) {
 				tempCell,
 				top;
 
-			cellsList = cells.getCellsByRowIndex(index,
+			cellsList = cells.getCellByRow(index,
 				headItemRows.length - 1);
 
 			deleteAlias = headItemRows.models[index].get('alias');
