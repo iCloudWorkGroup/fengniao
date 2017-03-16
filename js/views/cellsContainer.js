@@ -424,7 +424,8 @@ define(function(require) {
 				cellsPositionX,
 				modelCell,
 				startPosiX, startPosiY, endPosiX, endPosiY,
-				left, width, top, height;
+				occupyX, occupyY,indexX,indexY;
+			// left, width, top, height;
 
 			mainMousePosiX = this.getMouseColRelativePosi(event);
 			mainMousePosiY = this.getMouseRowRelativePosi(event);
@@ -432,9 +433,7 @@ define(function(require) {
 			//this model index of gridline
 			modelIndexCol = binary.modelBinary(mainMousePosiX, headLineColModelList, 'left', 'width', 0, headLineColModelList.length - 1);
 			modelIndexRow = binary.modelBinary(mainMousePosiY, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
-			// isExist cell in cells position array
-			// if exist , callback this object 
-			// if not exist , callback null
+
 			aliasGridCol = headLineColModelList[modelIndexCol].get('alias');
 			aliasGridRow = headLineRowModelList[modelIndexRow].get('alias');
 
@@ -447,14 +446,14 @@ define(function(require) {
 			//if model is exist , cell information reset
 			//if model is not exist , cell information default
 			if (modelCell) {
-				left = modelCell.get('physicsBox').left;
-				top = modelCell.get('physicsBox').top;
-				width = modelCell.get('physicsBox').width;
-				height = modelCell.get('physicsBox').height;
-				startPosiX = binary.modelBinary(left, headLineColModelList, 'left', 'width', 0, headLineColModelList.length - 1);
-				startPosiY = binary.modelBinary(top, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
-				endPosiX = binary.modelBinary(left + width, headLineColModelList, 'left', 'width', 0, headLineColModelList.length - 1);
-				endPosiY = binary.modelBinary(top + height, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
+				occupyX = modelCell.get('occupy').x;
+				occupyY = modelCell.get('occupy').y;
+				indexX = occupyX.indexOf(aliasGridCol);
+				indexY = occupyY.indexOf(aliasGridRow);
+				startPosiX = modelIndexCol - indexX;
+				startPosiY = modelIndexRow - indexY;
+				endPosiX = modelIndexCol + occupyX.length - indexX-1;
+				endPosiY = modelIndexRow + occupyY.length - indexY-1;
 			} else {
 				startPosiX = endPosiX = modelIndexCol;
 				startPosiY = endPosiY = modelIndexRow;
@@ -783,8 +782,7 @@ define(function(require) {
 			};
 			this.adjustOperationRegion(options);
 
-
-			//ps:待修改，对外监听事件，返回值格式存在问题
+			//待修改：对外监听事件，返回值格式存在问题
 			var result = {};
 			for (i = startColIndex; i < endColIndex + 1; i++) {
 				colDisplayNames.push(headLineColModelList[i].get('displayName'));

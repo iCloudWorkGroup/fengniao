@@ -78,8 +78,8 @@ define(function(require) {
 			cache.CellsPosition.strandX = {};
 			cache.CellsPosition.strandY = {};
 			cache.cellRegionPosi.vertical = [];
-			top = cache.visibleRegion.top;
-			bottom = cache.visibleRegion.bottom;
+			top = cache.viewRegion.top;
+			bottom = cache.viewRegion.bottom;
 			this.getCells(top, bottom);
 			loadRecorder.insertPosi(top, bottom, cache.cellRegionPosi.vertical);
 		},

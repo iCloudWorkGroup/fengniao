@@ -142,7 +142,7 @@ define(function(require) {
 			transverse: [],
 			vertical: []
 		},
-		visibleRegion: {
+		viewRegion: {
 			top: 0,
 			bottom: 0,
 			left: 0,

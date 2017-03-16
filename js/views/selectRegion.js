@@ -64,6 +64,7 @@ define(function(require) {
 			this.mouseOverModel = null;
 			this.mouseOverEventId = null;
 			_.bindAll(this, 'moveHandle', 'outHandle');
+			
 		},
 		/**
 		 * 页面渲染方法
