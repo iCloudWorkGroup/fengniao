@@ -3,7 +3,10 @@ define(function(require) {
 	var send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
 		selectRegions = require('collections/selectRegion'),
+		headItemCols = require('collections/headItemCol'),
+		headItemRows = require('collections/headItemRow'),
 		getOperRegion = require('basic/tools/getoperregion'),
+		history = require('basic/tools/history'),
 		cells = require('collections/cells'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation');
@@ -13,7 +16,10 @@ define(function(require) {
 		var clip,
 			region,
 			operRegion,
-			sendRegion;
+			sendRegion,
+			headItemRowList = headItemRows.models,
+			headItemColList = headItemCols.models,
+			changeModelList = [];
 		clip = selectRegions.getModelByType('clip')[0];
 		if (clip !== undefined) {
 			cache.clipState = 'null';
@@ -32,11 +38,25 @@ define(function(require) {
 		} else if (operRegion.endRowIndex === 'MAX') {
 			colOperate.colPropOper(operRegion.startColIndex, 'content.color', color);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell) {
-				cell.set('content.color', color);
+			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+				if (cell.get('content').color !== color) {
+					changeModelList.push({
+						colSort: colSort,
+						rowSort: rowSort,
+						value: cell.get('content').color
+					});
+					cell.set('content.color', color);
+				}
 			});
+			history.addUpdateAction('content.color', color, {
+				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+			}, changeModelList);
 		}
 		sendData();
+
 		function sendData() {
 			send.PackAjax({
 				url: 'text.htm?m=font_color',

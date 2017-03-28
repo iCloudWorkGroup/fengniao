@@ -4,13 +4,17 @@ requirejs.config({
 });
 define(function(require) {
 	var $ = require('lib/jquery'),
-		SpreadSheet = require('spreadsheet/spreadsheet');
+		SpreadSheet = require('spreadsheet/spreadsheet'),
+		re = require('entrance/sheet/redoundo');
 
 	window.SPREADSHEET_AUTHENTIC_KEY = $('#excelId').val();
 	window.SPREADSHEET_BUILD_STATE = $('#build').val();
 	var ss = new SpreadSheet('spreadSheet');
 
-	$('#t').on('click', function() {
-		ss.setCellContent('1','1','H101');
+	$('#t').on('click',function(){
+		re.undo();
+	});
+	$('#tt').on('click',function(){
+		re.redo();
 	});
 });

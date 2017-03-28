@@ -3,6 +3,7 @@ define(function(require) {
 	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
 		getTextBox = require('basic/tools/gettextbox'),
+		history = require('basic/tools/history'),
 		config = require('spreadsheet/config'),
 		send = require('basic/tools/send'),
 		Cell = require('models/cell'),
@@ -208,6 +209,11 @@ define(function(require) {
 		 * 隐藏输入框
 		 */
 		hide: function(event) {
+			var headItemRowList = headItemRows.models,
+				headItemColList = headItemCols.models,
+				modelJSON,
+				rowSort,
+				colSort;
 			if (this.showState === true) {
 				this.$el.css({
 					'left': -1000,
@@ -216,10 +222,25 @@ define(function(require) {
 					'height': 0,
 					'z-index': -100
 				});
+				rowSort = headItemRowList[this.rowIndex].get('sort');
+				colSort = headItemColList[this.colIndex].get('sort');
+				modelJSON = this.model.toJSON();
 				//进行输入文本的修改
-				this.model.set('content.texts', this.$el.val());
-				setTextType.typeRecognize(this.model);
-				setTextType.generateDisplayText(this.model);
+				if (this.model.get('content').texts !== this.$el.val()) {
+					this.model.set('content.texts', this.$el.val());
+					setTextType.typeRecognize(this.model);
+					setTextType.generateDisplayText(this.model);
+					history.addUpdateAction('content', this.model.get('content'), {
+						startColSort: colSort,
+						startRowSort: rowSort,
+						endColSort: colSort,
+						endRowSort: rowSort
+					}, [{
+						colSort: colSort,
+						rowSort: rowSort,
+						value: modelJSON.content
+					}]);
+				}
 				this.sendData();
 			}
 			this.$el.val('');
@@ -503,7 +524,7 @@ define(function(require) {
 			width = getTextBox.getInputWidth(inputText, fontSize) + 20;
 
 			width = width > minWidth ? width : minWidth;
-			if(init!==true){
+			if (init !== true) {
 				width = width > currentWidth ? width : currentWidth;
 			}
 			if (width < maxWidth) {
@@ -531,8 +552,8 @@ define(function(require) {
 			colAlias = this.model.get('occupy').x[0];
 			rowAlias = this.model.get('occupy').y[0];
 
-			rowSort=headItemRows.getModelByAlias(rowAlias).get('sort');
-			colSort=headItemCols.getModelByAlias(colAlias).get('sort');
+			rowSort = headItemRows.getModelByAlias(rowAlias).get('sort');
+			colSort = headItemCols.getModelByAlias(colAlias).get('sort');
 
 			send.PackAjax({
 				url: 'text.htm?m=data',

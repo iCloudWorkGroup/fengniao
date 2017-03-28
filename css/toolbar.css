@@ -27,6 +27,7 @@ span { display: inline-block; }
 .fui-cf-text { margin: 0 3px; }
 .fui-title { text-align: center; height: 15px; }
 .fui-cf-desc { text-align: center; padding: 3px 0 0 0; }
+.ico-undo { background: url(../img/funcBgExtend.png)  -93px -165px; width: 18px ; height: 18px;}
 .ico-paste { background-position: -137px -1px; width: 32px; height: 32px; }
 .ico-shear { background-position: -225px 16px; width: 16px; height: 16px; }
 .ico-copy { background-position: -136px -72px; width: 16px; height: 16px; }

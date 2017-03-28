@@ -3,6 +3,9 @@ define(function(require) {
 	var send = require('basic/tools/send'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
+		history = require('basic/tools/history'),
+		headItemCols = require('collections/headItemCol'),
+		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		rowOperate = require('entrance/row/rowoperation'),
@@ -12,7 +15,9 @@ define(function(require) {
 		var clip,
 			region,
 			operRegion,
-			sendRegion;
+			sendRegion,
+			headItemRowList = headItemRows.models,
+			headItemColList = headItemCols.models;
 
 		clip = selectRegions.getModelByType('clip')[0];
 		if (clip !== undefined) {
@@ -68,23 +73,35 @@ define(function(require) {
 		 * @method setNone
 		 */
 		function setNone() {
+			var changeModelList = [],
+				border = {
+					left: false,
+					right: false,
+					bottom: false,
+					top: false
+				};
 			if (operRegion.endColIndex === 'MAX') {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.left', false);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.right', false);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', false);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', false);
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'border', border);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'border.left', false);
-				colOperate.colPropOper(operRegion.startColIndex, 'border.right', false);
-				colOperate.colPropOper(operRegion.startColIndex, 'border.top', false);
-				colOperate.colPropOper(operRegion.startColIndex, 'border.bottom', false);
+				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
 			} else {
-				cells.operateCellsByRegion(operRegion, function(cell) {
-					cell.set('border.left', false);
-					cell.set('border.right', false);
-					cell.set('border.top', false);
-					cell.set('border.bottom', false);
+				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+					changeModelList.push({
+						colSort: colSort,
+						rowSort: rowSort,
+						value: cell.get('border')
+					});
+					cell.set('border', border);
 				});
+
+				history.addUpdateAction('border', border, {
+						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+					},
+					changeModelList
+				);
 			}
 		}
 		/**
@@ -92,23 +109,34 @@ define(function(require) {
 		 * @method setAll
 		 */
 		function setAll() {
+			var changeModelList = [],
+				border = {
+					left: true,
+					right: true,
+					bottom: true,
+					top: true
+				};
 			if (operRegion.endColIndex === 'MAX') {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.left', true);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.right', true);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'border', border);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'border.left', true);
-				colOperate.colPropOper(operRegion.startColIndex, 'border.right', true);
-				colOperate.colPropOper(operRegion.startColIndex, 'border.top', true);
-				colOperate.colPropOper(operRegion.startColIndex, 'border.bottom', true);
+				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
 			} else {
-				cells.operateCellsByRegion(operRegion, function(cell) {
-					cell.set('border.left', true);
-					cell.set('border.right', true);
-					cell.set('border.top', true);
-					cell.set('border.bottom', true);
+				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+					changeModelList.push({
+						colSort: colSort,
+						rowSort: rowSort,
+						value: cell.get('border')
+					});
+					cell.set('border', border);
 				});
+				history.addUpdateAction('border', border, {
+						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+					},
+					changeModelList
+				);
 			}
 		}
 		/**
@@ -117,19 +145,32 @@ define(function(require) {
 		 * @param  {boolean} reverse
 		 */
 		function setTop() {
-			var cellList, i;
+			var cellList, i, changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
 				colOperate.colPropOper(operRegion.startColIndex, 'border.top', true);
 			} else {
-				cellList = cells.getTopHeadModelByIndex(operRegion.startColIndex,
+				cells.operTopHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
-					operRegion.endRowIndex);
-				for (i in cellList) {
-					cellList[i].set('border.top', true);
-				}
+					operRegion.endRowIndex,
+					function(cell, colSort, rowSort) {
+						changeModelList.push({
+							colSort: colSort,
+							rowSort: rowSort,
+							value: cell.get('border').top
+						});
+						cell.set('border.top', true);
+					});
+				history.addUpdateAction('border.top', true, {
+						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+					},
+					changeModelList
+				);
 			}
 		}
 		/**
@@ -139,19 +180,32 @@ define(function(require) {
 		 * @param  {object} [appointList]
 		 */
 		function setLeft() {
-			var cellList, i;
+			var cellList, i, changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.left', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
 				colOperate.colPropOper(operRegion.startColIndex, 'border.left', true);
 			} else {
-				cellList = cells.getLeftHeadModelByIndex(operRegion.startColIndex,
+				cells.operLeftHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
-					operRegion.endRowIndex);
-				for (i in cellList) {
-					cellList[i].set('border.left', true);
-				}
+					operRegion.endRowIndex,
+					function(cell, colSort, rowSort) {
+						changeModelList.push({
+							colSort: colSort,
+							rowSort: rowSort,
+							value: cell.get('border').left
+						});
+						cell.set('border.left', true);
+					});
+				history.addUpdateAction('border.left', true, {
+						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+					},
+					changeModelList
+				);
 			}
 		}
 		/**
@@ -161,19 +215,32 @@ define(function(require) {
 		 * @param  {object} [appointList]
 		 */
 		function setBottom() {
-			var cellList, i;
+			var cellList, i, changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
 				colOperate.colPropOper(operRegion.startColIndex, 'border.bottom', true);
 			} else {
-				cellList = cells.getBottomHeadModelByIndex(operRegion.startColIndex,
+				cells.operBottomHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
-					operRegion.endRowIndex);
-				for (i in cellList) {
-					cellList[i].set('border.bottom', true);
-				}
+					operRegion.endRowIndex,
+					function(cell, colSort, rowSort) {
+						changeModelList.push({
+							colSort: colSort,
+							rowSort: rowSort,
+							value: cell.get('border').bottom
+						});
+						cell.set('border.bottom', true);
+					});
+				history.addUpdateAction('border.bottom', true, {
+						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+					},
+					changeModelList
+				);
 			}
 		}
 		/**
@@ -183,19 +250,32 @@ define(function(require) {
 		 * @param  {object} [appointList]
 		 */
 		function setRight() {
-			var cellList, i;
+			var cellList, i, changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.right', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
 				colOperate.colPropOper(operRegion.startColIndex, 'border.right', true);
 			} else {
-				cellList = cells.getRightHeadModelByIndex(operRegion.startColIndex,
+				cells.operRightHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
-					operRegion.endRowIndex);
-				for (i in cellList) {
-					cellList[i].set('border.right', true);
-				}
+					operRegion.endRowIndex,
+					function(cell, colSort, rowSort) {
+						changeModelList.push({
+							colSort: colSort,
+							rowSort: rowSort,
+							value: cell.get('border').right
+						});
+						cell.set('border.right', true);
+					});
+				history.addUpdateAction('border.right', true, {
+						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+					},
+					changeModelList
+				);
 			}
 		}
 		/**
@@ -203,15 +283,62 @@ define(function(require) {
 		 * @method setOuter
 		 */
 		function setOuter() {
-			if (region.endRowIndex !== 'MAX') {
-				setTop(region);
-				setBottom(region);
+			var cellList, i, changeModelList = [],cachePosi={};
+			if (operRegion.endColIndex === 'MAX') {
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
+				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
+			} else if (operRegion.endRowIndex === 'MAX') {
+				colOperate.colPropOper(operRegion.startColIndex, 'border.right', true);
+				colOperate.colPropOper(operRegion.startColIndex, 'border.left', true);
+			} else {
+				cells.operOuterHeadModel(operRegion.startColIndex,
+					operRegion.startRowIndex,
+					operRegion.endColIndex,
+					operRegion.endRowIndex,
+					function(cell, colSort, rowSort) {
+						changeModelList.push({
+							colSort: colSort,
+							rowSort: rowSort,
+							value: cell.get('border')
+						});
+					});
+				cells.operRightHeadModel(operRegion.startColIndex,
+					operRegion.startRowIndex,
+					operRegion.endColIndex,
+					operRegion.endRowIndex,
+					function(cell, colSort, rowSort) {
+						cell.set('border.right', true);
+					});
+				cells.operLeftHeadModel(operRegion.startColIndex,
+					operRegion.startRowIndex,
+					operRegion.endColIndex,
+					operRegion.endRowIndex,
+					function(cell, colSort, rowSort) {
+						cell.set('border.left', true);
+					});
+				cells.operTopHeadModel(operRegion.startColIndex,
+					operRegion.startRowIndex,
+					operRegion.endColIndex,
+					operRegion.endRowIndex,
+					function(cell, colSort, rowSort) {
+						cell.set('border.top', true);
+					});
+				cells.operBottomHeadModel(operRegion.startColIndex,
+					operRegion.startRowIndex,
+					operRegion.endColIndex,
+					operRegion.endRowIndex,
+					function(cell, colSort, rowSort) {
+						cell.set('border.bottom', true);
+					});
+				history.addUpdateAction('border', true, {
+						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+					},
+					changeModelList
+				);
 			}
-			if (region.endColIndex !== 'MAX') {
-				setLeft(region);
-				setRight(region);
-			}
-
 		}
 
 	};

@@ -10,6 +10,7 @@ define(function(require) {
 	 * @module basic
 	 */
 	return {
+
 		sendQueueStep: 0, //0
 		containerId: '',
 		//ps:CurrentRule ，FrozenRules ，TempProp 都存有冻结信息，具体功能，需要说明
@@ -19,6 +20,11 @@ define(function(require) {
 			row: [],
 			col: []
 		},
+		/**
+		 * 滚动加载，请求操作，缓冲高度
+		 * @type {number}
+		 */
+		scrollBufferHeight: 600,
 		/**
 		 * 所有单元格位置信息
 		 * @property {object} CellPosition
@@ -36,7 +42,6 @@ define(function(require) {
 			strandY: {}
 		},
 		clipState: 'null', //copy：复制状态，cut:剪切状态，null:未进行剪切板操作
-		commentState: false, //true 备注编辑状态,不能进行选中区域的移动
 		/**
 		 * 用户可视的区域(在Excel未冻结的情况下使用)
 		 * 需要修改默认值
@@ -69,11 +74,6 @@ define(function(require) {
 		mouseOperateState: config.mouseOperateState.select,
 
 		listenerList: {}, //事件监听列表
-		/**
-		 * cellsContainer 行视图最大高度
-		 * @type {Number}
-		 */
-		displayRowHeight: 0,
 		/**
 		 * 后台存储excel的总高度
 		 * @property {int} localRowPosi
@@ -142,12 +142,13 @@ define(function(require) {
 			transverse: [],
 			vertical: []
 		},
-		visibleRegion: {
+		viewRegion: {
 			top: 0,
 			bottom: 0,
 			left: 0,
 			right: 0
 		},
+		commentEidtState: false,
 		//
 		/**
 		 * 保存位置信息
@@ -159,7 +160,6 @@ define(function(require) {
 		cachePosition: function(aliasRow, aliasCol, index) {
 			var positionX,
 				positionY;
-			// cells=require('collections/cells');
 			positionX = this.CellsPosition.strandX;
 			if (!positionX[aliasCol]) {
 				positionX[aliasCol] = {};

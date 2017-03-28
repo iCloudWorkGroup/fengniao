@@ -1,6 +1,9 @@
 'use strict';
 define(function(require) {
 	var send = require('basic/tools/send'),
+		history = require('basic/tools/history'),
+		headItemCols = require('collections/headItemCol'),
+		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
@@ -17,7 +20,12 @@ define(function(require) {
 			clip,
 			region,
 			operRegion,
-			sendRegion;
+			sendRegion,
+			propName,
+			propValue,
+			changeModelList = [],
+			headItemRowList = headItemRows.models,
+			headItemColList = headItemCols.models;
 
 		clip = selectRegions.getModelByType('clip')[0];
 		if (clip !== undefined) {
@@ -75,14 +83,38 @@ define(function(require) {
 				colOperate.colPropOper(operRegion.startColIndex, 'content.alignCol', vertical);
 			}
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell) {
+			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (transverse !== undefined) {
-					cell.set('content.alignRow', transverse);
+					propName = 'content.alignRow';
+					propValue = transverse;
+					if (cell.get('content.alignRow') !== transverse) {
+						changeModelList.push({
+							colSort: colSort,
+							rowSort: rowSort,
+							value: cell.get('content').alignRow
+						});
+						cell.set('content.alignRow', transverse);
+					}
 				} else {
-					cell.set('content.alignCol', vertical);
+					propName = 'content.alignCol';
+					propValue = vertical;
+					if (cell.get('content.alignCol') !== vertical) {
+						changeModelList.push({
+							colSort: colSort,
+							rowSort: rowSort,
+							value: cell.get('content').alignCol
+						});
+						cell.set('content.alignCol', vertical);
+					}
 				}
-			});
 
+			});
+			history.addUpdateAction(propName, propValue, {
+				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+			}, changeModelList);
 		}
 		type = transverse || vertical;
 		sendData();

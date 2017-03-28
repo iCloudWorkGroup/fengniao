@@ -4,6 +4,9 @@ define(function(require) {
 		selectRegions = require('collections/selectRegion'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
+		history = require('basic/tools/history'),
+		headItemCols = require('collections/headItemCol'),
+		headItemRows = require('collections/headItemRow'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		colOperate = require('entrance/col/coloperation'),
 		rowOperate = require('entrance/row/rowoperation');
@@ -13,7 +16,10 @@ define(function(require) {
 			region,
 			operRegion,
 			sendRegion,
-			tempCellList;
+			tempCellList,
+			headItemRowList = headItemRows.models,
+			headItemColList = headItemCols.models,
+			changeModelList = [];
 		clip = selectRegions.getModelByType('clip')[0];
 		if (clip !== undefined) {
 			cache.clipState = 'null';
@@ -32,7 +38,7 @@ define(function(require) {
 			if (operRegion.endColIndex === 'MAX' || operRegion.endRowIndex === 'MAX') {
 				wordWrap = true;
 			} else {
-				tempCellList = cells.getCellByX(operRegion.startColIndex,
+				tempCellList = cells.getCellByVertical(operRegion.startColIndex,
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
 					operRegion.endRowIndex);
@@ -49,9 +55,22 @@ define(function(require) {
 		} else if (operRegion.endColIndex === 'MAX') {
 			colOperate.colPropOper(region.startColIndex, 'wordWrap', wordWrap);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell) {
-				cell.set('wordWrap', wordWrap);
+			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+				if (cell.get('wordWrap') !== wordWrap) {
+					changeModelList.push({
+						colSort: colSort,
+						rowSort: rowSort,
+						value: cell.get('wordWrap')
+					});
+					cell.set('wordWrap', wordWrap);
+				}
 			});
+			history.addUpdateAction('wordWrap', wordWrap, {
+				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+			}, changeModelList);
 		}
 		sendData();
 

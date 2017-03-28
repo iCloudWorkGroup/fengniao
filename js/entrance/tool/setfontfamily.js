@@ -3,6 +3,9 @@ define(function(require) {
 	var send = require('basic/tools/send'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
+		history = require('basic/tools/history'),
+		headItemCols = require('collections/headItemCol'),
+		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		colOperate = require('entrance/col/coloperation'),
@@ -13,7 +16,10 @@ define(function(require) {
 			region,
 			operRegion,
 			sendRegion,
-			tempCellList;
+			tempCellList, 
+			headItemRowList = headItemRows.models,
+			headItemColList = headItemCols.models,
+			changeModelList = [];
 		clip = selectRegions.getModelByType('clip')[0];
 		if (clip !== undefined) {
 			cache.clipState = 'null';
@@ -33,9 +39,22 @@ define(function(require) {
 		} else if (operRegion.endRowIndex === 'MAX') {
 			colOperate.colPropOper(operRegion.startColIndex, 'content.family', fontFamily);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell) {
-				cell.set('content.family', fontFamily);
+			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+				if (cell.get('content').family !== fontFamily) {
+					changeModelList.push({
+						colSort: colSort,
+						rowSort: rowSort,
+						value: cell.get('content').family
+					});
+					cell.set('content.family', fontFamily);
+				}
 			});
+			history.addUpdateAction('content.family', fontFamily, {
+				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+			}, changeModelList);
 		}
 		sendData();
 

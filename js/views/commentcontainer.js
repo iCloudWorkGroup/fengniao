@@ -9,8 +9,10 @@ define(function(require) {
 		cells = require('collections/cells'),
 		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		commentHandler = require('entrance/tool/comment'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
+
 		commentContainer;
 
 	commentContainer = Backbone.View.extend({
@@ -50,7 +52,7 @@ define(function(require) {
 				if (options.state === 'edit') {
 					if (select.get('wholePosi').endX === select.get('wholePosi').startX &&
 						select.get('wholePosi').endY === select.get('wholePosi').startY) {
-						model = cells.getCellByX(this.colIndex, this.rowIndex);
+						model = cells.getCellByVertical(this.colIndex, this.rowIndex);
 						if (model.length > 0) {
 							this.comment = model[0].get('customProp').comment || '';
 						}
@@ -64,9 +66,8 @@ define(function(require) {
 			this.parentNode = options.parentNode;
 			this.state = options.state;
 			if (this.state !== 'show') {
-				cache.commentState = true;
+				cache.commentEditState = true;
 			}
-
 			Backbone.trigger('call:mainContainer', function(container) {
 				mainContainer = container;
 			});
@@ -263,48 +264,12 @@ define(function(require) {
 				i;
 
 			if (this.state !== 'show') {
-				cache.commentState = false;
 				comment = this.$el.val();
 				comment = comment || '';
-				select = selectRegions.getModelByType('operation')[0];
-
-				startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
-				startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
-				if (select.get('wholePosi').endX === 'MAX') {
-					endColIndex = 'MAX';
-					endRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').endY);
-					rowOperate.rowPropOper(startRowIndex, 'customProp.comment', comment);
-				} else if (select.get('wholePosi').endY === 'MAX') {
-					endRowIndex = 'MAX';
-					endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
-					colOperate.colPropOper(startColIndex, 'customProp.comment', comment);
-				} else {
-					endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
-					endRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').endY);
-					cellsList = cells.getFillCellsByRegion(
-						startRowIndex,
-						startColIndex,
-						endRowIndex,
-						endColIndex
-					);
-					for (i in cellsList) {
-						cellsList[i].set('customProp.comment', comment);
-					}
-				}
-				this.sendData(comment);
+				commentHandler.modifyComment('1', comment);
 			}
+			cache.commentEditState = false;
 			this.remove();
-		},
-		sendData: function(comment) {
-			var sendData;
-			sendData = getOperRegion().sendRegion;
-			send.PackAjax({
-				url: 'text.htm?m=comment_set',
-				data: JSON.stringify({
-					coordinate: sendData,
-					comment: comment
-				})
-			});
 		}
 	});
 	return commentContainer;
