@@ -4,6 +4,7 @@ define(function(require) {
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
+		history = require('basic/tools/history'),
 		cells = require('collections/cells'),
 		Cell = require('models/cell'),
 		headItemCols = require('collections/headItemCol'),
@@ -23,12 +24,16 @@ define(function(require) {
 			operRegion,
 			sendRegion,
 			clip,
+			originalCellsIndex = [],
+			currentCellsIndex = [],
 			cacheCell,
 			cellList,
 			occupyX = [],
 			occupyY = [],
 			aliasCol,
 			aliasRow,
+			sortCol,
+			sortRow,
 			width = 0,
 			height = 0,
 			len, i = 0,
@@ -68,6 +73,7 @@ define(function(require) {
 				break;
 			}
 		}
+
 		if (cacheCell === undefined) {
 			cacheCell = cells.getCellByTransverse(startRowIndex, startColIndex)[0];
 			if (cacheCell !== undefined) {
@@ -77,19 +83,11 @@ define(function(require) {
 		if (cacheCell === undefined) {
 			cacheCell = new Cell();
 		}
-
-		if (len) {
-			for (i = 0; i < len; i++) {
-				cellList[i].set('isDestroy', true);
-			}
-		}
-		//删除position索引
-		for (i = startColIndex; i < endColIndex + 1; i++) {
-			for (j = startRowIndex; j < endRowIndex + 1; j++) {
-				aliasCol = gridLineColList[i].get('alias');
-				aliasRow = gridLineRowList[j].get('alias');
-				cache.deletePosi(aliasRow, aliasCol);
-			}
+		for (i = 0; i < len; i++) {
+			aliasCol = cellList[i].get('occupy').x[0];
+			aliasRow = cellList[i].get('occupy').y[0];
+			originalCellsIndex.push(cache.CellsPosition.strandX[aliasCol][aliasRow]);
+			cellList[i].set('isDestroy', true);
 		}
 		//获取occupy信息
 		for (i = 0; i < endColIndex - startColIndex + 1; i++) {
@@ -118,6 +116,7 @@ define(function(require) {
 				cache.cachePosition(aliasRow, aliasCol, cells.length - 1);
 			}
 		}
+		history.addCoverAction([cells.length - 1],originalCellsIndex);
 		sendData();
 
 		function sendData() {

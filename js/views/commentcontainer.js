@@ -9,8 +9,10 @@ define(function(require) {
 		cells = require('collections/cells'),
 		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		commentHandler = require('entrance/tool/comment'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
+
 		commentContainer;
 
 	commentContainer = Backbone.View.extend({

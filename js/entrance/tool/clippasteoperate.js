@@ -6,6 +6,7 @@ define(function(require) {
 		cells = require('collections/cells'),
 		Cell = require('models/cell'),
 		send = require('basic/tools/send'),
+		history = require('basic/tools/history'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
@@ -22,7 +23,10 @@ define(function(require) {
 	}
 
 	function excelDataPaste(type) {
-		var clipRegion,
+		var originalModelIndexs = [],
+			currentModelIndexs = [],
+			cellOccupy = cache.CellsPosition.strandX,
+			clipRegion,
 			selectRegion,
 			startColIndex,
 			startRowIndex,
@@ -93,6 +97,7 @@ define(function(require) {
 							selectRowAlias = headItemRows.models[i - relativeRowIndex].get('alias');
 							tempCellModel = cells.getCellByAlias(selectColAlias, selectRowAlias);
 							if (tempCellModel !== null) {
+								originalModelIndexs.push(cellOccupy[selectColAlias][selectRowAlias]);
 								tempCellModel.set('isDestroy', true);
 								deletePosi(selectColAlias, selectRowAlias);
 							}
@@ -108,7 +113,10 @@ define(function(require) {
 							if (i - relativeRowIndex > headItemRows.models.length - 1) continue;
 							CellModel = cells.getCellByAlias(clipColAlias, clipRowAlias);
 
-							if (type === "cut") deletePosi(clipColAlias, clipRowAlias);
+							if (typeof CellModel !== 'null' && type === "cut") {
+								originalModelIndexs.push(cellOccupy[clipColAlias][clipRowAlias]);
+								deletePosi(clipColAlias, clipRowAlias);
+							}
 							if (CellModel !== null && CellModel.get('occupy').x[0] === clipColAlias && CellModel.get('occupy').y[0] === clipRowAlias) {
 								tempCopyCellModel = CellModel.clone();
 								if (type === "cut") {
@@ -116,10 +124,12 @@ define(function(require) {
 								}
 								adaptCell(tempCopyCellModel, relativeColIndex, relativeRowIndex);
 								cacheCellPosition(tempCopyCellModel);
+								currentModelIndexs.push(cells.length);
 								cells.add(tempCopyCellModel);
 							}
 						}
 					}
+					history.addCoverAction(currentModelIndexs, originalModelIndexs);
 					//修改:对模型直接进行修改
 					Backbone.trigger('event:cellsContainer:adjustSelectRegion', {
 						initColIndex: startColIndex - relativeColIndex,
@@ -229,7 +239,10 @@ define(function(require) {
 	 * @param  {String} pasteText 复制数据内容
 	 */
 	function clipBoardDataPaste(pasteText) {
-		var headItemColList,
+		var originalModelIndexs = [],
+			currentModelIndexs = [],
+			cellOccupy = cache.CellsPosition.starndX,
+			headItemColList,
 			headItemRowList,
 			encodeText,
 			rowData = [],
@@ -322,6 +335,7 @@ define(function(require) {
 							colAlias = headItemColList[startColIndex + j].get('alias');
 							tempCell = cells.getCellByVertical(startColIndex + j, startRowIndex + i)[0];
 							if (tempCell !== undefined && tempCell.get("isDestroy") === false) {
+								originalModelIndexs.push(cellOccupy[colAlias][rowAlias]);
 								tempCell.set("isDestroy", true);
 							}
 							cache.deletePosi(rowAlias, colAlias);
@@ -329,8 +343,10 @@ define(function(require) {
 					}
 					for (i = 0; i < cellData.length; i++) {
 						textToCell(cellData[i]);
+						currentModelIndexs.push(cells.length - 1);
 					}
 				}
+				history.addCoverAction(currentModelIndexs, originalModelIndexs);
 			}
 		});
 

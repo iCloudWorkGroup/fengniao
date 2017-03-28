@@ -5,13 +5,16 @@ define(function(require) {
 		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
+		history = require('basic/tools/history'),
 		cells = require('collections/cells'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		splitCell;
 
 	splitCell = function(sheetId, label) {
-		var region,
+		var headLineColList = headItemCols.models,
+			headLineRowList = headItemRows.models,
+			region,
 			operRegion,
 			sendRegion,
 			startColIndex,
@@ -20,9 +23,11 @@ define(function(require) {
 			endRowIndex,
 			selectRegionCells,
 			cacheCell,
+			occupy,
+			cellPosi,
+			originalCellIndexs = [],
+			currentCellIndexs = [],
 			clip,
-			headLineColList,
-			headLineRowList,
 			i, j, len,
 			aliasCol,
 			aliasRow;
@@ -51,6 +56,14 @@ define(function(require) {
 		selectRegionCells = cells.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
 		headLineColList = headItemCols.models;
 		headLineRowList = headItemRows.models;
+		len = selectRegionCells.length;
+
+		cellPosi = cache.CellsPosition.strandX;
+		for (i = 0; i < len; i++) {
+			occupy=selectRegionCells[i].get('occupy');
+			originalCellIndexs.push(cellPosi[occupy.x[0]][occupy.y[0]]);
+		}
+
 		//删除position索引
 		for (i = 0; i < endColIndex - startColIndex + 1; i++) {
 			for (j = 0; j < endRowIndex - startRowIndex + 1; j++) {
@@ -59,12 +72,14 @@ define(function(require) {
 				cache.deletePosi(aliasRow, aliasCol);
 			}
 		}
-		len = selectRegionCells.length;
+		
 		for (i = 0; i < len; i++) {
 			cacheCell = selectRegionCells[i].clone();
 			selectRegionCells[i].set('isDestroy', true);
 			modifyCell(cacheCell);
+			currentCellIndexs.push(cells.length - 1);
 		}
+		history.addCoverAction(currentCellIndexs, originalCellIndexs);
 		sendData();
 
 		function sendData() {

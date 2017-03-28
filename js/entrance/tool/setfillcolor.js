@@ -6,6 +6,7 @@ define(function(require) {
 		cache = require('basic/tools/cache'),
 		cells = require('collections/cells'),
 		Point = require('basic/tools/point'),
+		history = require('basic/tools/history'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
@@ -23,8 +24,8 @@ define(function(require) {
 		var clip,
 			operRegion,
 			sendRegion,
-			HeadItemRowList,
-			HeadItemColList,
+			headItemRowList = headItemRows.models,
+			headItemColList = headItemCols.models,
 			len, i;
 
 		clip = selectRegions.getModelByType('clip')[0];
@@ -32,8 +33,6 @@ define(function(require) {
 			cache.clipState = 'null';
 			clip.destroy();
 		}
-		HeadItemRowList = headItemCols.models;
-		HeadItemColList = headItemRows.models;
 		if (arrOpr !== undefined) {
 			if (arrOpr.constructor === Array) {
 				len = arrOpr.length;
@@ -53,14 +52,28 @@ define(function(require) {
 		}
 
 		function innerOper(operRegion, sendRegion) {
+			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') { //整行操作
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.background', color);
 			} else if (operRegion.endRowIndex === 'MAX') {
 				colOperate.colPropOper(operRegion.startColIndex, 'customProp.background', color);
 			} else {
-				cells.operateCellsByRegion(operRegion, function(cell) {
-					cell.set('customProp.background', color);
+				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+					if (cell.get('customProp').background !== color) {
+						changeModelList.push({
+							colSort: colSort,
+							rowSort: rowSort,
+							value: cell.get('customProp').background
+						});
+						cell.set('customProp.background', color);
+					}
 				});
+				history.addUpdateAction('customProp.background', color, {
+					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+				}, changeModelList);
 			}
 			send.PackAjax({
 				url: config.url.cell.color,
