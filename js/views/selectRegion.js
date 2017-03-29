@@ -86,34 +86,37 @@ define(function(require) {
 				rowIndex,
 				cellModel,
 				top, left;
-
+			
 			if (cache.commentEidtState) {
 				return;
 			}
+
 			if (relativeTop < 0 || relativeLeft < 0 ||
 				relativeTop > modelJSON.physicsBox.height ||
 				relativeLeft > modelJSON.physicsBox.width) {
-
-				top = relativeTop + modelJSON.physicsPosi.top;
-				left = relativeLeft + modelJSON.physicsPosi.left;
-				rowIndex = binary.modelBinary(top, headItemRowList, 'top', 'height');
-				colIndex = binary.modelBinary(left, headItemColList, 'left', 'width');
-				cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
-
-				if (this.mouseOverModel !== cellModel) {
-					clearTimeout(this.mouseOverEventId);
-					if (typeof cellModel !== 'undefined' &&
-						typeof cellModel.get('customProp').comment === 'string') {
-						this.mouseOverEventId = setTimeout(function() {
-							cellModel.set('commentShowState', true);
-						}, 1000);
-					}
-					if (this.mouseOverModel !== null) {
-						this.mouseOverModel.set('commentShowState', false);
-					}
-					this.mouseOverModel = cellModel || null;
-				}
+				return;
 			}
+			top = relativeTop + modelJSON.physicsPosi.top;
+			left = relativeLeft + modelJSON.physicsPosi.left;
+			rowIndex = binary.modelBinary(top, headItemRowList, 'top', 'height');
+			colIndex = binary.modelBinary(left, headItemColList, 'left', 'width');
+
+			cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
+
+			if (this.mouseOverModel !== cellModel) {
+				clearTimeout(this.mouseOverEventId);
+				if (typeof cellModel !== 'undefined' &&
+					typeof cellModel.get('customProp').comment === 'string') {
+					this.mouseOverEventId = setTimeout(function() {
+						cellModel.set('commentShowState', true);
+					}, 1000);
+				}
+				if (this.mouseOverModel !== null) {
+					this.mouseOverModel.set('commentShowState', false);
+				}
+				this.mouseOverModel = cellModel || null;
+			}
+
 		},
 		outHandle: function() {
 			clearTimeout(this.mouseOverEventId);

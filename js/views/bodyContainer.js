@@ -708,6 +708,8 @@ define(function(require) {
 		destroy: function() {
 			Backbone.off('call:bodyContainer');
 			Backbone.off('event:bodyContainer:executiveFrozen');
+			Backbone.off('event:commentContainer:show');
+			Backbone.off('event:commentContainer:remove');
 			Backbone.trigger('event:colsPanelContainer:destroy');
 			Backbone.trigger('event:rowsPanelContainer:destroy');
 			Backbone.trigger('event:mainContainer:destroy');

@@ -186,6 +186,7 @@ define(function(require) {
 		destroy: function() {
 			Backbone.off('event:contentCellsContainer:reloadCells');
 			Backbone.off('event:restoreHideCellView');
+			Backbone.trigger('event:destroyCellView');
 			this.remove();
 		}
 	});
