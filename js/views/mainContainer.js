@@ -559,6 +559,7 @@ define(function(require) {
 					this.addCellViewPublish(tempCells[i]);
 				}
 			}
+			loadBottomPosi = loadBottomPosi || limitBottomPosi;
 			limitBottomPosi = limitBottomPosi > loadBottomPosi ? limitBottomPosi : loadBottomPosi;
 			limitBottomPosi = limitBottomPosi > addRowBottomPosi ? limitBottomPosi : addRowBottomPosi;
 			limitBottomIndex = binary.indexModelBinary(limitBottomPosi, headItemRowList, 'top', 'height');
@@ -577,6 +578,7 @@ define(function(require) {
 				isUnloadCells,
 				topIndex,
 				bottomIndex,
+				rowLoadBottom,
 				height,
 				i = 0;
 			if (top > cache.localRowPosi || cache.localRowPosi === 0) {
@@ -590,7 +592,6 @@ define(function(require) {
 				bottom = bottom + cache.scrollBufferHeight;
 			}
 			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
-			//需要保存准备值
 			if (isUnloadRows) {
 				this.requestRows(top, bottom);
 				height = headItemRows.getMaxDistanceHeight();
@@ -602,6 +603,7 @@ define(function(require) {
 				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
 					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'),
 					cache.rowRegionPosi);
+				rowLoadBottom = bottom;
 			}
 			if (isUnloadCells) {
 				this.requestCells(top, bottom);
@@ -610,7 +612,7 @@ define(function(require) {
 				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
 					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
 			}
-			return bottom;
+			return rowLoadBottom;
 		},
 		requestRows: function(top, bottom) {
 			send.PackAjax({
@@ -762,7 +764,7 @@ define(function(require) {
 			}
 			loadRecorder.adaptPosi(startPosi, diffDistance, cache.rowRegionPosi);
 			loadRecorder.adaptPosi(startPosi, diffDistance, cache.cellRegionPosi.vertical);
-			if(cache.localRowPosi!==0){
+			if (cache.localRowPosi !== 0) {
 				cache.localRowPosi += diffDistance;
 			}
 		},
