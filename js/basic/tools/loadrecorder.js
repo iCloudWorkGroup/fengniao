@@ -92,11 +92,11 @@ define(function(require) {
 			startExist = binary.existArrayBinary(startPosi, region, 'start', 'end');
 			endIndex = binary.indexArrayBinary(endPosi, region, 'start', 'end');
 			endExist = binary.existArrayBinary(endPosi, region, 'start', 'end');
-
 			if (startExist === false || endExist === false) {
 				return true;
 			}
 			if (startIndex !== endIndex) {
+
 				return true;
 			}
 			return false;

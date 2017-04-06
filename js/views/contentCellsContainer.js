@@ -38,7 +38,6 @@ define(function(require) {
 			this.currentRule = util.clone(cache.CurrentRule);
 			//考虑冻结情况
 			Backbone.on('event:contentCellsContainer:reloadCells', this.reloadCells, this);
-			Backbone.on('event:restoreHideCellView', this.restoreHideCellView, this);
 			//还原
 			this.listenTo(cells, 'add', this.addCell);
 		},

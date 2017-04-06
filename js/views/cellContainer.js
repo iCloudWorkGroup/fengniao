@@ -123,10 +123,8 @@ define(function(require) {
 				state: 'show'
 			};
 			Backbone.trigger('event:commentContainer:show', options);
-
 		},
 		hideComment: function() {
-
 			Backbone.trigger('event:commentContainer:remove');
 		},
 		/**

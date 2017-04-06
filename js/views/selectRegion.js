@@ -64,7 +64,6 @@ define(function(require) {
 			this.mouseOverModel = null;
 			this.mouseOverEventId = null;
 			_.bindAll(this, 'moveHandle', 'outHandle');
-
 		},
 		/**
 		 * 页面渲染方法
@@ -85,8 +84,7 @@ define(function(require) {
 				colIndex,
 				rowIndex,
 				cellModel,
-				top, left;
-			
+				top, left;		
 			if (cache.commentEidtState) {
 				return;
 			}
@@ -100,7 +98,6 @@ define(function(require) {
 			left = relativeLeft + modelJSON.physicsPosi.left;
 			rowIndex = binary.modelBinary(top, headItemRowList, 'top', 'height');
 			colIndex = binary.modelBinary(left, headItemColList, 'left', 'width');
-
 			cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
 
 			if (this.mouseOverModel !== cellModel) {
@@ -116,7 +113,6 @@ define(function(require) {
 				}
 				this.mouseOverModel = cellModel || null;
 			}
-
 		},
 		outHandle: function() {
 			clearTimeout(this.mouseOverEventId);
