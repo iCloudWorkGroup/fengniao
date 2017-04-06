@@ -46,6 +46,8 @@ define(function(require) {
 
 			var modelRowList = headItemRows,
 				modelColList = headItemCols;
+
+			Backbone.on('event:destroyCellView', this.clear, this);
 			this.listenTo(this.model, 'change:physicsBox', this.render);
 			this.listenTo(this.model, 'change:content', this.render);
 			this.listenTo(this.model, 'change:border', this.render);
@@ -78,15 +80,16 @@ define(function(require) {
 		overHandle: function() {
 			var self = this,
 				model = this.model;
-			if(cache.commentEditState){
+			if (cache.commentEditState) {
 				return;
 			}
 			if ($('.comment').length === 0 && typeof model.get('customProp').comment === 'string') {
 				this.mouseOverEventId = setTimeout(function() {
 					self.model.set('commentShowState', true);
-				},1000);
+				}, 1000);
 			}
 		},
+
 		outHandle: function() {
 			clearTimeout(this.mouseOverEventId);
 			this.model.set('commentShowState', false);
@@ -120,10 +123,8 @@ define(function(require) {
 				state: 'show'
 			};
 			Backbone.trigger('event:commentContainer:show', options);
-			
 		},
 		hideComment: function() {
-			
 			Backbone.trigger('event:commentContainer:remove');
 		},
 		/**
@@ -448,6 +449,7 @@ define(function(require) {
 		 * @method destroy 
 		 */
 		destroy: function() {
+			Backbone.off('event:destroyCellView', this.destroy, this);
 			if (this.model.get('isDestroy') || this.model.get('hidden')) {
 				this.remove();
 			}
@@ -457,6 +459,7 @@ define(function(require) {
 		 * @method clear
 		 */
 		clear: function() {
+			Backbone.off('event:destroyCellView', this.destroy, this);
 			this.remove();
 		}
 	});

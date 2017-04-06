@@ -78,10 +78,48 @@ define(function(require) {
 			cache.CellsPosition.strandX = {};
 			cache.CellsPosition.strandY = {};
 			cache.cellRegionPosi.vertical = [];
-			top = cache.visibleRegion.top;
-			bottom = cache.visibleRegion.bottom;
+			top = cache.viewRegion.top;
+			bottom = cache.viewRegion.bottom;
 			this.getCells(top, bottom);
 			loadRecorder.insertPosi(top, bottom, cache.cellRegionPosi.vertical);
+		},
+		restoreHideCellView: function() {
+			var headItemColList = headItemCols.models,
+				headItemRowList = headItemRows.models,
+				len = headItemColList.length,
+				headItemModel,
+				startRowIndex,
+				endRowIndex,
+				colAlias,
+				rowAlias,
+				strandX,
+				tempCell,
+				rowLen,
+				i = 0,
+				j;
+			startRowIndex = headItemRows.getIndexByAlias(cache.UserView.rowAlias);
+			endRowIndex = headItemRows.getIndexByAlias(cache.UserView.rowEndAlias);
+			strandX = cache.CellsPosition.strandX;
+			if (endRowIndex > startRowIndex) {
+				rowLen = endRowIndex + 1;
+			} else {
+				rowLen = headItemRows.length;
+			}
+			for (; i < len; i++) {
+				headItemModel = headItemColList[i];
+				if (headItemModel.get('hidden') === true) {
+					colAlias = headItemModel.get('alias');
+					for (j = startRowIndex; j < rowLen; j++) {
+						rowAlias = headItemRowList[j].get('alias');
+						if (strandX[colAlias] !== undefined && strandX[colAlias][rowAlias] !== undefined) {
+							tempCell = cells.models[strandX[colAlias][rowAlias]];
+							if (tempCell.get('hidden') === true) {
+								this.addCell(tempCell);
+							}
+						}
+					}
+				}
+			}
 		},
 		getCells: function(top, bottom) {
 			send.PackAjax({
@@ -146,6 +184,8 @@ define(function(require) {
 		 */
 		destroy: function() {
 			Backbone.off('event:contentCellsContainer:reloadCells');
+			Backbone.off('event:restoreHideCellView');
+			Backbone.trigger('event:destroyCellView');
 			this.remove();
 		}
 	});

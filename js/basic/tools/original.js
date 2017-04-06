@@ -434,12 +434,13 @@ define(function(require) {
 					}
 					cache.UserView.rowAlias = data.displayRowStartAlias;
 					cache.UserView.colAlias = data.displayColStartAlias;
-
+					//待修改：应由后台返回
 					cache.aliasRowCounter;
 					cache.aliasColCounter;
 
 
 					if (data.returndata.spreadSheet[0].sheet.frozen.state === '1') {
+						//待修改：冻结位置，因返回alias，与useView一致，不应该为index
 						cache.TempProp = {
 							isFrozen: true,
 							colAlias: data.returndata.spreadSheet[0].sheet.frozen.colIndex,
@@ -458,17 +459,19 @@ define(function(require) {
 					var cellModels = data.spreadSheet[0].sheet.cells;
 					var rows = data.spreadSheet[0].sheet.glY;
 					var cols = data.spreadSheet[0].sheet.glX;
+					
 					self.analysisSheetData(sheetNames);
 					self.analysisRowData(rows, startRowSort);
 					self.analysisColData(cols, startColSort);
 					self.analysisCellData(cellModels);
 					self.restoreSelectRegion();
+					loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.rowRegionPosi);
+					loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.cellRegionPosi.vertical);
+					cache.loadCol.startSort = headItemCols.models[0].get('sort');
+					cache.loadCol.endSort = headItemCols.models[headItemCols.length - 1].get('sort');
 				}
 			});
-			loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.rowRegionPosi);
-			loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.cellRegionPosi.vertical);
-			cache.loadCol.startSort = headItemCols.models[0].get('sort');
-			cache.loadCol.endSort = headItemCols.models[headItemCols.length - 1].get('sort');
+
 		}
 	};
 });

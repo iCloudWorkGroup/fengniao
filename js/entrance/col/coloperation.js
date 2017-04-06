@@ -66,8 +66,8 @@ define(function(require) {
 
 			operAlias = headItemRowList[index].get('alias');
 			//获取显示区域
-			startRowIndex = binary.indexModelBinary(cache.visibleRegion.top, headItemRowList, 'top', 'height');
-			endRowIndex = binary.indexModelBinary(cache.visibleRegion.bottom, headItemRowList, 'top', 'height');
+			startRowIndex = binary.indexModelBinary(cache.viewRegion.top, headItemRowList, 'top', 'height');
+			endRowIndex = binary.indexModelBinary(cache.viewRegion.bottom, headItemRowList, 'top', 'height');
 
 			currentStrandX = cache.CellsPosition.strandX;
 			existCellList = cells.getCellByTransverse(0, index, headItemRows.length - 1, index);

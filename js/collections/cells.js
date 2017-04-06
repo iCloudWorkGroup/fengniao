@@ -251,44 +251,6 @@ define(function(require) {
 			return cacheCellArray;
 		},
 		/**
-		 * 按照行索引，获取两行之间的所有包含所有cell对象
-		 * @method getCellByRow 
-		 * @param  startIndex {number} 行开始索引
-		 * @param  endIndex {number} 行结束索引
-		 * @return {Array} Cell数组
-		 */
-		getCellByRow: function(startIndex, endIndex) {
-			var tempObj,
-				tempAttr,
-				headItemRowList,
-				cacheCellArray,
-				cachePosition,
-				cacheIndexObject = {},
-				cellModelList,
-				index,
-				alias,
-				i;
-
-			cacheCellArray = [];
-			cellModelList = this.models;
-			headItemRowList = headItemRows.models;
-			cachePosition = cache.CellsPosition.strandY;
-			for (i = startIndex; i < endIndex + 1; i++) {
-				alias = headItemRowList[i].get('alias');
-				tempObj = cachePosition[alias];
-				if (tempObj !== undefined) {
-					for (tempAttr in tempObj) {
-						index = tempObj[tempAttr];
-						if (typeof cacheIndexObject[index] === 'undefined') {
-							cacheCellArray.push(cellModelList[index]);
-							cacheIndexObject[index] = 0;
-						}
-					}
-				}
-			}
-			return cacheCellArray;
-		},
-		/**
 		 * 待修改
 		 */
 		/**

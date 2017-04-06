@@ -84,11 +84,11 @@ define(function(require) {
 				colIndex,
 				rowIndex,
 				cellModel,
-				top, left;
-
-			if(cache.commentEidtState){
+				top, left;		
+			if (cache.commentEidtState) {
 				return;
 			}
+
 			if (relativeTop < 0 || relativeLeft < 0 ||
 				relativeTop > modelJSON.physicsBox.height ||
 				relativeLeft > modelJSON.physicsBox.width) {
@@ -111,7 +111,7 @@ define(function(require) {
 				if (this.mouseOverModel !== null) {
 					this.mouseOverModel.set('commentShowState', false);
 				}
-				this.mouseOverModel = cellModel || null ;
+				this.mouseOverModel = cellModel || null;
 			}
 		},
 		outHandle: function() {

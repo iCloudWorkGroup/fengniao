@@ -20,7 +20,9 @@ define(function(require) {
 				region,
 				operRegion,
 				sendRegion,
-				index;
+				index,
+				posi,
+				height;
 
 			clip = selectRegions.getModelByType('clip')[0];
 			if (clip !== undefined) {
@@ -40,17 +42,17 @@ define(function(require) {
 				return;
 			}
 			index = operRegion.startRowIndex;
+			posi = headItemRows.models[index].get('top');
+			height = headItemRows.models[index].get('height');
 			this._adaptCells(index);
 			this._adaptSelectRegion(index);
 			this._frozenHandle(index);
 			this._adaptHeadRowItem(index);
-
 			if (cache.TempProp.isFrozen === true) {
 				Backbone.trigger('event:bodyContainer:executiveFrozen');
 			}
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange',posi, -height - 1);
 			sendData();
-			Backbone.on('event:mainContainer:addBottom');
-
 			function sendData() {
 				send.PackAjax({
 					url: 'cells.htm?m=rows_delete',

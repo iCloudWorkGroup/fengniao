@@ -63,9 +63,14 @@ define(function(require) {
 				i;
 			startIndex = binary.indexArrayBinary(startPosi, region, 'start', 'end');
 			startExist = binary.existArrayBinary(startPosi, region, 'start', 'end');
-
 			if (startExist === true) {
 				region[startIndex].end = region[startIndex].end + value;
+				if(region[startIndex].end < region[startIndex].start){
+					i = startIndex;
+					region.splice(startIndex,1);
+				}else{
+					i = startIndex + 1 ;
+				}
 				for (i = startIndex + 1; i < region.length; i++) {
 					region[i].start += value;
 					region[i].end += value;
@@ -87,11 +92,11 @@ define(function(require) {
 			startExist = binary.existArrayBinary(startPosi, region, 'start', 'end');
 			endIndex = binary.indexArrayBinary(endPosi, region, 'start', 'end');
 			endExist = binary.existArrayBinary(endPosi, region, 'start', 'end');
-
-			if(startExist===false || endExist===false){
+			if (startExist === false || endExist === false) {
 				return true;
 			}
-			if(startIndex!==endIndex){
+			if (startIndex !== endIndex) {
+
 				return true;
 			}
 			return false;

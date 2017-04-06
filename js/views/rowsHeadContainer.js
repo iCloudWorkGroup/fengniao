@@ -226,10 +226,11 @@ define(function(require) {
 			this.adjustCells(itemElIndex, diffDistance);
 			this.adjustSelectRegion(itemElIndex, diffDistance);
 			this.requstAdjust(itemElIndex, diffDistance);
+
 			if (this.viewCellsContainer === undefined || this.viewRowsAllHeadContainer === undefined) {
 				this.triggerCallback();
 			}
-
+			
 			this.viewCellsContainer.attributesRender({
 				width: headItemCols.getMaxDistanceWidth(),
 				height: headItemRows.getMaxDistanceHeight()
@@ -237,9 +238,7 @@ define(function(require) {
 			this.viewRowsAllHeadContainer.$el.css({
 				height: headItemRows.getMaxDistanceHeight()
 			});
-			loadRecorder.adaptPosi(headItemRows.models[itemElIndex].get('top'), diffDistance, cache.rowRegionPosi);
-			loadRecorder.adaptPosi(headItemRows.models[itemElIndex].get('top'), diffDistance, cache.cellRegionPosi.vertical);
-			// this.requstAdjust();
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange',headItemRows.models[itemElIndex].get('top'),diffDistance);
 		},
 		/**
 		 * 向后台发送请求，调整列宽
