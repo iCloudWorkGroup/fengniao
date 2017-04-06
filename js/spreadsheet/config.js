@@ -137,8 +137,11 @@ define(function() {
 			altEnter: true,
 			enter: true
 		},
-
+		url:{
+			init: '',
+			
+		}
 		version: '@version@',
-		rootPath: 'ocalhost:8080/pubexcel/'
+		rootPath: 'localhost:8080/pubexcel/'
 	};
 });
