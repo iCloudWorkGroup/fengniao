@@ -76,16 +76,6 @@ define(function() {
 			 */
 			outerBottom: 30,
 			/**
-			 * 单元格默认宽度
-			 * @property {int} cellWidth
-			 */
-			cellWidth: 72,
-			/**
-			 * 单元格默认高度
-			 * @property {int} cellHeight
-			 */
-			cellHeight: 20,
-			/**
 			 * 列调整时，鼠标手势变化的距离
 			 * @property {int} effectDistanceCol
 			 */
@@ -149,6 +139,6 @@ define(function() {
 		},
 
 		version: '@version@',
-		rootPath: 'http://excel-inc.acmr.com.cn/spreadsheet/'
+		rootPath: 'ocalhost:8080/pubexcel/'
 	};
 });

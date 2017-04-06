@@ -70,7 +70,7 @@ define(function(require) {
 			endRowIndex = binary.indexModelBinary(cache.visibleRegion.bottom, headItemRowList, 'top', 'height');
 
 			currentStrandX = cache.CellsPosition.strandX;
-			existCellList = cells.getCellByRow(0, index, headItemRows.length - 1, index);
+			existCellList = cells.getCellByTransverse(0, index, headItemRows.length - 1, index);
 			len = existCellList.length;
 			for (i = 0; i < len; i++) {
 				existCellList[i].set(prop, value);

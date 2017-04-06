@@ -292,7 +292,8 @@ define(function(require) {
 				reduceUserView: this.currentRule.reduceUserView,
 				endIndex: this.currentRule.displayPosition.endIndex
 			});
-			if (initialize === true || modelHeadItemRow.get('top') > config.displayRowHeight) {
+			// if (initialize === true || modelHeadItemRow.get('top') > config.displayRowHeight) {
+			if (initialize === true || modelHeadItemRow.get('top')) {	
 				this.$el.append(this.headItemRowContainer.render().el);
 			} else {
 				this.$el.prepend(this.headItemRowContainer.render().el);
@@ -357,7 +358,7 @@ define(function(require) {
 				i, j, gridLineLen,
 				len,
 				cellList = cells;
-			passAdjustRowCells = cellList.getCellsByRowIndex(index, index);
+			passAdjustRowCells = cellList.getCellByRow(index, index);
 			len = passAdjustRowCells.length;
 			for (i = 0; i < len; i++) {
 				passAdjustRowCells[i].set('physicsBox.height', passAdjustRowCells[i].get('physicsBox').height + pixel);

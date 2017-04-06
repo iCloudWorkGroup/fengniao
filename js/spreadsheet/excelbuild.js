@@ -37,6 +37,8 @@ define(function(require) {
 		deleteCol = require('entrance/tool/deletecol'),
 		regionDel = require('entrance/tool/regiondel'),
 		colHide = require('entrance/col/colhide'),
+		clipSelectOperate = require('entrance/tool/clipselectoperate'),
+		clipPasteOperate = require('entrance/tool/clippasteoperate'),
 		comment = require('entrance/tool/comment');
 
 
@@ -125,6 +127,16 @@ define(function(require) {
 			SpreadSheet.prototype.setWordWrap = setWordWrap;
 			SpreadSheet.prototype.getSelectRegion = getSelectRegion;
 			SpreadSheet.prototype.reloadCells = reloadCells;
+
+			SpreadSheet.prototype.clipSelectOperate = function(type) {
+				clipSelectOperate(type);
+			};
+			SpreadSheet.prototype.clipPasteOperate = function() {
+				if (cache.clipState === "null") {
+					return;
+				}
+				clipPasteOperate();
+			}
 
 			SpreadSheet.prototype.addRow = addRow;
 			SpreadSheet.prototype.addCol = addCol;

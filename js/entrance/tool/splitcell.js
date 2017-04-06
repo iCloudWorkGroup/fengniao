@@ -47,7 +47,7 @@ define(function(require) {
 		endRowIndex = operRegion.endRowIndex;
 
 		//选中区域内所有单元格对象
-		selectRegionCells = cells.getCellByX(startColIndex, startRowIndex, endColIndex, endRowIndex);
+		selectRegionCells = cells.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
 		headLineColList = headItemCols.models;
 		headLineRowList = headItemRows.models;
 		//删除position索引

@@ -50,7 +50,7 @@ define(function(require) {
 				if (options.state === 'edit') {
 					if (select.get('wholePosi').endX === select.get('wholePosi').startX &&
 						select.get('wholePosi').endY === select.get('wholePosi').startY) {
-						model = cells.getCellByX(this.colIndex, this.rowIndex);
+						model = cells.getCellByVertical(this.colIndex, this.rowIndex);
 						if (model.length > 0) {
 							this.comment = model[0].get('customProp').comment || '';
 						}
@@ -64,9 +64,8 @@ define(function(require) {
 			this.parentNode = options.parentNode;
 			this.state = options.state;
 			if (this.state !== 'show') {
-				cache.commentState = true;
+				cache.commentEditState = true;
 			}
-
 			Backbone.trigger('call:mainContainer', function(container) {
 				mainContainer = container;
 			});
@@ -263,11 +262,9 @@ define(function(require) {
 				i;
 
 			if (this.state !== 'show') {
-				cache.commentState = false;
 				comment = this.$el.val();
 				comment = comment || '';
 				select = selectRegions.getModelByType('operation')[0];
-
 				startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
 				startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
 				if (select.get('wholePosi').endX === 'MAX') {
@@ -293,6 +290,7 @@ define(function(require) {
 				}
 				this.sendData(comment);
 			}
+			cache.commentEditState = false;
 			this.remove();
 		},
 		sendData: function(comment) {

@@ -62,8 +62,8 @@ define(function(require) {
 				});
 			}
 			send.PackAjax({
-				// url: 'text.htm?m=fill_bgcolor',
-				url: 'text.htm/fill_bgcolor',
+				url: 'text.htm?m=fill_bgcolor',
+				// url: 'text.htm/fill_bgcolor',
 				data: JSON.stringify({
 					coordinate: sendRegion,
 					bgcolor: color

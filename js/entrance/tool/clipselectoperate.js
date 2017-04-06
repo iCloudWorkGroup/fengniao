@@ -39,6 +39,8 @@ define(function(require) {
 			cache.clipState = 'copy';
 		} else if (type === 'cut') {
 			cache.clipState = 'cut';
+		}else{
+			return;
 		}
 
 		startColIndex = headItemCols.getIndexByAlias(clipModel.get('wholePosi').startX);

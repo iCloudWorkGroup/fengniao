@@ -1,7 +1,17 @@
 requirejs.config({
 	baseUrl: '../js',
 });
-requirejs(['../test/unit/texttype.spec'],function() {
-	//加载测试模块
+requirejs([
+	//'./lib/backbone',
+	// '../test/unit/clipBoardTest',
+	// '../test/unit/reloadCellTest',
+	// '../test/unit/wordWrapTest',
+	// '../test/unit/texttype.spec',
+	// '../test/unit/commentspec',
+	//'../test/unit/row.spec',
+	//'../test/unit/rowoper.spec.js',
+	// '../test/unit/col.spec',
+	'../test/unit/loadrecorder.spec'
+], function() {
 	window.onload();
 });

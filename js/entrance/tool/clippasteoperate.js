@@ -315,7 +315,7 @@ define(function(require) {
 						for (j = 0; j < colLen; j++) {
 							rowAlias = headItemRowList[startRowIndex + i].get('alias');
 							colAlias = headItemColList[startColIndex + j].get('alias');
-							tempCell = cells.getCellByX(startColIndex + j, startRowIndex + i)[0];
+							tempCell = cells.getCellByVertical(startColIndex + j, startRowIndex + i)[0];
 							if (tempCell !== undefined && tempCell.get("isDestroy") === false) {
 								tempCell.set("isDestroy", true);
 							}

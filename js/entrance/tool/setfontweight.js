@@ -38,12 +38,11 @@ define(function(require) {
 		} else if (bold === 'normal') {
 			bold = false;
 		} else {
-			tempCellList = cells.getCellByX(operRegion.startColIndex,
+			tempCellList = cells.getCellByVertical(operRegion.startColIndex,
 				operRegion.startRowIndex,
 				operRegion.endColIndex,
 				operRegion.endRowIndex);
-
-			if (tempCellList === null || tempCellList === undefined || tempCellList.length === 0) {
+			if (tempCellList.length === 0) {
 				bold = true;
 			} else {
 				bold = !tempCellList[0].get('content').bd;
