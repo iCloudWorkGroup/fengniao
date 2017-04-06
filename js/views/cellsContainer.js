@@ -45,10 +45,6 @@ define(function(require) {
 		 */
 		events: {
 			'mousedown': 'located',
-			//	'mouseup' : 'hideInputContainer',
-			// 'dragover': 'onDragOver',
-			// 'dragleave': 'onDragLeave',
-			// 'drop': 'onDrop',
 		},
 		/**
 		 * 类初始化调用方法，绑定集合监听
@@ -58,30 +54,33 @@ define(function(require) {
 		initialize: function(options) {
 
 			Backbone.on('call:cellsContainer', this.callCellsContainer, this);
-			//修改对集合的监听
-			// Backbone.on('event:cellsContainer:createDataSourceRegion', this.createDataSourceRegion, this);
-			// Backbone.on('event:cellsContainer:addClipRegionView', this.addClipRegionView, this);
 
 			Backbone.on('event:cellsContainer:adjustSelectRegion', this.adjustSelectRegion, this);
-			//
 			Backbone.on('event:cellsContainer:adaptSelectRegion', this.adaptSelectRegion, this);
-
 			Backbone.on('event:cellsContainer:adaptWidth', this.adaptWidth, this);
 
-			Backbone.on('event:cellsContainer:destroy', this.destroy, this);
+			//鼠标拖动事件绑定与解绑（解决冻结拆分情况下拖动绑定问题）
 			Backbone.on('event:cellsContainer:unBindDrag', this.unBindDrag, this);
 			Backbone.on('event:cellsContainer:bindDrag', this.bindDrag, this);
+			//-----------------------------------
+			//像素点转换为excel的坐标点
 			Backbone.on('event:cellsContainer:getCoordinate', this.getCoordinate, this);
+			//待验证：视图是否，都需要调用该方法，对象才能进行回收
+			Backbone.on('event:cellsContainer:destroy', this.destroy, this);
+
 			//使用extend+订阅模式分离
 			Backbone.on('event:cellsContainer:startHighlight', this.startHighlight, this);
 			Backbone.on('event:cellsContainer:stopHighlight', this.stopHighlight, this);
 			//-----------------------------
+			//监听剪切板选中区域创建
 			this.listenTo(selectRegions, 'add', this.addSelectRegionView);
 			_.bindAll(this, 'callView', 'drag', 'highlightRegionMove');
+
 			this.currentRule = util.clone(cache.CurrentRule);
 			this.boxAttributes = options.boxAttributes;
+			//需要保留对父级视图的引用，需要父级视图的滚动像素，进行定位 
 			this.parentView = options.parentView;
-			//处理冻结情况,只有主区域能够进行滚动
+			//移动选中区域，快捷键支持
 			if (!cache.TempProp.isFrozen ||
 				(this.currentRule.displayPosition.endRowIndex &&
 					this.currentRule.displayPosition.endColIndex)) {
@@ -96,6 +95,7 @@ define(function(require) {
 			var modelList = selectRegions.models,
 				len,
 				i;
+
 			this.attributesRender(this.boxAttributes);
 
 			this.gridLineContainer = new GridLineContainer();
@@ -107,16 +107,20 @@ define(function(require) {
 			for (i = 0; i < len; i++) {
 				this.addSelectRegionView(modelList[i]);
 			}
+			//删除该方法调用
 			this.triggerCallback();
 			return this;
 		},
+		/**
+		 * 自适应宽度
+		 */
 		adaptWidth: function() {
 			var headItemColList = headItemCols.models,
 				len = headItemColList.length,
 				index,
 				left,
 				width, i;
-
+			//添加对冻结的情况的判断
 			for (i = len - 1; i > -1; i--) {
 				if (!headItemColList[i].get('hidden')) {
 					left = headItemColList[i].get('left');
@@ -126,6 +130,10 @@ define(function(require) {
 			}
 			this.$el.css('width', left + width);
 		},
+		/**
+		 * html5 拖拽效果
+		 * @param  {object} event 事件对象
+		 */
 		onDragOver: function(event) {
 			event.preventDefault();
 			var coordinate,
@@ -135,6 +143,9 @@ define(function(require) {
 			this.adjustDragRegion(coordinate);
 		},
 		onDrop: function(event) {
+			// 两个方法调用多次,是否可以使用其他方式代替
+			// headItemRowList = headItemRows.models,
+			// headItemColList = headItemCols.models,
 			var headItemRowList = headItemRows.models,
 				headItemColList = headItemCols.models,
 				dragRegions,
@@ -147,47 +158,41 @@ define(function(require) {
 				modelCell,
 				i, e = {};
 			dragRegions = selectRegions.getModelByType('drag');
+			//拖拽区域只可能存在一个
 			for (i = 0; i < dragRegions.length; i++) {
 				dragRegions[i].destroy();
 			}
-			coordinate = this.getCoordinateByMouseEvent(event);
 
+			coordinate = this.getCoordinateByMouseEvent(event);
+			//待修改：考虑使用其他方式开放选中信息
 			point = {
 				Col: [headItemColList[coordinate.startColIndex].get('displayName')],
 				Row: [headItemRowList[coordinate.startRowIndex].get('displayName')],
 			};
 			e.point = point;
-
-
 			if (event.isDefaultPrevented() === false) {
 				data = event.originalEvent.dataTransfer.getData("text");
 				e.text = data;
 				event.originalEvent.dataTransfer.clearData();
-				if (data === "") return;
-
+				if (data === "") {
+					return;
+				}
 				if (modelCell === undefined) {
-					modelCell = cells.createCellModel(coordinate.startColIndex, coordinate.startRowIndex, coordinate.endColIndex, coordinate.endRowIndex);
+					modelCell = cells.createCellModel(coordinate.startColIndex, coordinate.startRowIndex);
 				}
 				modelCell.set("content.texts", data);
 			}
 			listener.excute('dataDrag', e);
 		},
-		// onDragLeave: function(event) {
-		// 	var width = this.viewMainContainer.el.clientWidth,
-		// 		height = this.viewMainContainer.el.clientHeight,
-		// 		//ps:修改id
-		// 		clientX = event.originalEvent.clientX - config.System.outerLeft - $('#spreadSheet').offset().left,
-		// 		clientY = event.originalEvent.clientY - config.System.outerTop - $('#spreadSheet').offset().top;
-
-		// 	if (clientX < 0 || clientY < 0 || clientX > width || clientY > height) {
-		// 		var dragRegions, i;
-		// 		dragRegions = selectRegions.getModelByType('drag');
-		// 		for (i = 0; i < dragRegions.length; i++) {
-		// 			dragRegions[i].destroy();
-		// 		}
-		// 	}
-		// },
-		getCoordinate: function(callback, mouseColPosi, mouseRowPosi) {
+		/**
+		 * 待修改:类似方法应该进行合并
+		 * 通过像素位置,获取excel的行列坐标(callback应该放到末尾)
+		 * @param  {[type]}   mouseColPosi [description]
+		 * @param  {[type]}   mouseRowPosi [description]
+		 * @param  {Function} callback     [description]
+		 * @return {[type]}                [description]
+		 */
+		getCoordinate: function(mouseColPosi, mouseRowPosi ,callback) {
 			var currentRowModel = headItemRows.getModelByAlias(cache.TempProp.rowAlias),
 				currentColModel = headItemCols.getModelByAlias(cache.TempProp.colAlias),
 				headLineRowModelList = headItemRows.models,
@@ -205,6 +210,7 @@ define(function(require) {
 				modelIndexRow,
 				coordinate = {};
 
+			//待修改:冻结偏移量,应该记录到视图对象中,避免每次计算
 			this.userViewTop = cache.TempProp.isFrozen ? headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
 			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 			//if this offset value equal 0 ,that position isn't consider frozen point
@@ -231,16 +237,16 @@ define(function(require) {
 			// 	return;
 			// }
 			//position of mouse in mainContainer
+			//待修改:坐标点重新计算
 			mainMousePosiX = clientX + this.parentView.el.scrollLeft - this.currentRule.displayPosition.offsetLeft + reduceLeftValue;
 			mainMousePosiY = clientY + this.parentView.el.scrollTop - this.currentRule.displayPosition.offsetTop + reduceTopValue;
 
 			//
 			if (mainMousePosiX < 0 || mainMousePosiY < 0) return;
 
-
 			//this model index of gridline
-			modelIndexCol = binary.modelBinary(mainMousePosiX, headLineColModelList, 'left', 'width', 0, headLineColModelList.length - 1);
-			modelIndexRow = binary.modelBinary(mainMousePosiY, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
+			modelIndexCol = binary.modelBinary(mainMousePosiX, headLineColModelList, 'left', 'width');
+			modelIndexRow = binary.modelBinary(mainMousePosiY, headLineRowModelList, 'top', 'height');
 			coordinate.col = headLineColModelList[modelIndexCol].get('displayName');
 			coordinate.row = headLineRowModelList[modelIndexRow].get('displayName');
 			callback(coordinate);
@@ -257,6 +263,7 @@ define(function(require) {
 			this.$el.on('mousemove', this.highlightRegionMove);
 		},
 		/**
+		 * 待修改：高亮属于扩展功能，应该作为扩展模块
 		 * 高亮
 		 * @param  {object} event 鼠标移动事件
 		 */
@@ -362,6 +369,7 @@ define(function(require) {
 				this.hightlightView = null;
 			}
 		},
+		//待修改：与getCoordinate方法合并
 		getMouseColRelativePosi: function(event) {
 			var currentColModel = headItemCols.getModelByAlias(cache.TempProp.colAlias),
 				headLineColModelList = headItemCols.models,
@@ -408,7 +416,9 @@ define(function(require) {
 			mainMousePosiY = event.clientY - config.System.outerTop - $('#' + containerId).offset().top + this.parentView.el.scrollTop - this.currentRule.displayPosition.offsetTop + reduceTopValue;
 			return mainMousePosiY;
 		},
+		//--------------------------------------------------------
 		/**
+		 * 待修改：直接调用getCoordinate方法，获取当前点的位置
 		 * 通过点击事件，获取位置信息
 		 * @param  {object} 鼠标点击事件对象
 		 */
@@ -424,9 +434,9 @@ define(function(require) {
 				cellsPositionX,
 				modelCell,
 				startPosiX, startPosiY, endPosiX, endPosiY,
-				occupyX, occupyY,indexX,indexY;
+				occupyX, occupyY, indexX, indexY;
 			// left, width, top, height;
-
+			//待修改：调用getCoordinate方法
 			mainMousePosiX = this.getMouseColRelativePosi(event);
 			mainMousePosiY = this.getMouseRowRelativePosi(event);
 
@@ -452,8 +462,8 @@ define(function(require) {
 				indexY = occupyY.indexOf(aliasGridRow);
 				startPosiX = modelIndexCol - indexX;
 				startPosiY = modelIndexRow - indexY;
-				endPosiX = modelIndexCol + occupyX.length - indexX-1;
-				endPosiY = modelIndexRow + occupyY.length - indexY-1;
+				endPosiX = modelIndexCol + occupyX.length - indexX - 1;
+				endPosiY = modelIndexRow + occupyY.length - indexY - 1;
 			} else {
 				startPosiX = endPosiX = modelIndexCol;
 				startPosiY = endPosiY = modelIndexRow;
@@ -466,6 +476,7 @@ define(function(require) {
 				model: modelCell
 			};
 		},
+
 		selectRegionChange: function(direction) {
 			switch (direction) {
 				case 'LEFT':
@@ -495,6 +506,7 @@ define(function(require) {
 				options,
 				left, top, height, width;
 
+			//待修改：直接使用selectRegions模型进行计算
 			this.userViewTop = cache.TempProp.isFrozen ? headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
 			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 
@@ -540,7 +552,7 @@ define(function(require) {
 			this.$el.off('mousemove', self.drag);
 		},
 		/**
-		 * 触发回调幻术，绑定其他View类
+		 * 触发回调，绑定其他View类
 		 * @method triggerCallback 
 		 */
 		triggerCallback: function() {
@@ -587,6 +599,7 @@ define(function(require) {
 		 */
 		addSelectRegionView: function(model) {
 			var className;
+			//需要加入判断
 			if (model.get("selectType") === "operation") {
 				className = "selected-container";
 			} else {
@@ -604,52 +617,53 @@ define(function(require) {
 		 * 添加选中区域
 		 * @method newSelectRegion
 		 */
-		newSelectRegion: function() {
-			var headItemColModelList,
-				headItemRowModelList,
-				aliasGridRow,
-				aliasGridCol,
-				cellsPositionX,
-				initCell;
+		// newSelectRegion: function() {
+		// 	var headItemColModelList,
+		// 		headItemRowModelList,
+		// 		aliasGridRow,
+		// 		aliasGridCol,
+		// 		cellsPositionX,
+		// 		initCell;
 
-			headItemColModelList = headItemCols.models;
-			headItemRowModelList = headItemRows.models;
+		// 	headItemColModelList = headItemCols.models;
+		// 	headItemRowModelList = headItemRows.models;
 
-			aliasGridRow = headItemColModelList[0].get('alias');
-			aliasGridCol = headItemRowModelList[0].get('alias');
+		// 	aliasGridRow = headItemColModelList[0].get('alias');
+		// 	aliasGridCol = headItemRowModelList[0].get('alias');
 
-			cellsPositionX = cache.CellsPosition.strandX;
+		// 	cellsPositionX = cache.CellsPosition.strandX;
 
-			if (cellsPositionX[aliasGridCol] !== undefined &&
-				cellsPositionX[aliasGridCol][aliasGridRow] !== undefined) {
-				initCell = cells.models[cellsPositionX[aliasGridCol][aliasGridRow]];
-			}
-			if (initCell === undefined) {
-				return {
-					physicsPosi: {
-						top: 0,
-						left: 0
-					},
-					physicsBox: {
-						width: headItemColModelList[0].get('width'),
-						height: headItemRowModelList[0].get('height')
-					}
-				};
-			} else {
-				this.changeSelectHeadLine(initCell);
-				return {
-					physicsPosi: {
-						top: 0,
-						left: 0
-					},
-					physicsBox: {
-						width: initCell.get("physicsBox").width,
-						height: initCell.get("physicsBox").height
-					}
-				};
-			}
-		},
+		// 	if (cellsPositionX[aliasGridCol] !== undefined &&
+		// 		cellsPositionX[aliasGridCol][aliasGridRow] !== undefined) {
+		// 		initCell = cells.models[cellsPositionX[aliasGridCol][aliasGridRow]];
+		// 	}
+		// 	if (initCell === undefined) {
+		// 		return {
+		// 			physicsPosi: {
+		// 				top: 0,
+		// 				left: 0
+		// 			},
+		// 			physicsBox: {
+		// 				width: headItemColModelList[0].get('width'),
+		// 				height: headItemRowModelList[0].get('height')
+		// 			}
+		// 		};
+		// 	} else {
+		// 		this.changeSelectHeadLine(initCell);
+		// 		return {
+		// 			physicsPosi: {
+		// 				top: 0,
+		// 				left: 0
+		// 			},
+		// 			physicsBox: {
+		// 				width: initCell.get("physicsBox").width,
+		// 				height: initCell.get("physicsBox").height
+		// 			}
+		// 		};
+		// 	}
+		// },
 		/**
+		 * 待修改：不使用遍历，使用两次selectregion的差异，进行计算
 		 * 更新选中列标集合
 		 * @method changeSelectHeadLine
 		 * @param initCell {Cell} 单元格
@@ -709,6 +723,7 @@ define(function(require) {
 			}
 		},
 		/**
+		 * 待修改：该方法需要删除
 		 * 调用mainContainer视图
 		 * @method callViewMainContainer
 		 * @param  callback {function} 回调函数
@@ -782,7 +797,7 @@ define(function(require) {
 			};
 			this.adjustOperationRegion(options);
 
-			//待修改：对外监听事件，返回值格式存在问题
+			//待修改：对外监听事件，返回值格式存在问题，作为一个单独的方法进行复用
 			var result = {};
 			for (i = startColIndex; i < endColIndex + 1; i++) {
 				colDisplayNames.push(headLineColModelList[i].get('displayName'));
@@ -933,6 +948,7 @@ define(function(require) {
 			this.adjustOperationRegion(options);
 		},
 		adjustOperationRegion: function(options) {
+			//待修改：两种方法应该合并
 			if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
 				this.adjustDataSourceRegion(options);
 			} else {
@@ -1262,13 +1278,13 @@ define(function(require) {
 			Backbone.off('event:cellsContainer:selectRegionChange');
 			Backbone.off('event:cellsContainer:adjustSelectRegion');
 			Backbone.off('event:cellsContainer:adaptSelectRegion');
-			Backbone.off('event:cellsContainer:destroy');
 			Backbone.off('event:cellsContainer:unBindDrag');
 			Backbone.off('event:cellsContainer:bindDrag');
 			Backbone.off('event:cellsContainer:getCoordinate');
 			Backbone.off('event:cellsContainer:startHighlight');
 			Backbone.off('event:cellsContainer:stopHighlight');
 			Backbone.off('event:cellsContainer:adaptWidth');
+			//更改为触发事件
 			this.contentCellsContainer.destroy();
 			this.selectRegion.destroy();
 			selectModelList = selectRegions.models;

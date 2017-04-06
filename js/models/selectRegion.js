@@ -16,6 +16,7 @@ define(function(require) {
 	SelectRegion = BackboneNest.NestedModel.extend({
 		defaults: {
 			/**
+			 * 待修改：是需要对什么时候保存索引，什么时候保存别名，有一个说明，命名也需要进行区分
 			 * 进行选中操作，初始点击位置，保存值为索引值
 			 * @property {object} initPosi
 			 */
@@ -81,6 +82,7 @@ define(function(require) {
 			},
 			//current box start,end postion index value (complete)
 			/**
+			 * 待修改:缓存值使用排序码
 			 * [wholePosi description]
 			 * @property {object} wholePosi
 			 */
