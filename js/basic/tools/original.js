@@ -1,5 +1,5 @@
 define(function(require) {
-  	'use strict';
+	'use strict';
 	var $ = require('lib/jquery'),
 		config = require('spreadsheet/config'),
 		binary = require('basic/util/binary'),
@@ -420,12 +420,12 @@ define(function(require) {
 
 			//containerHeight,通知后台,加载高度
 			send.PackAjax({
-				//ps:修改id
-				url: 'excel.htm?m=position',
+				url: config.url.table.reload,
 				async: false,
 				isPublic: false,
 				data: JSON.stringify({
-					containerHeight: $('#' + domId).height() + config.System.prestrainHeight
+					top: 0,
+					bottom: $('#' + domId).height() + config.System.prestrainHeight
 				}),
 				dataType: 'json',
 				success: function(data) {
@@ -459,7 +459,7 @@ define(function(require) {
 					var cellModels = data.spreadSheet[0].sheet.cells;
 					var rows = data.spreadSheet[0].sheet.glY;
 					var cols = data.spreadSheet[0].sheet.glX;
-					
+
 					self.analysisSheetData(sheetNames);
 					self.analysisRowData(rows, startRowSort);
 					self.analysisColData(cols, startColSort);

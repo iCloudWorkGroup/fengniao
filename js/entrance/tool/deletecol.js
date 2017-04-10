@@ -57,9 +57,9 @@ define(function(require) {
 			sendData();
 			function sendData(){
 				send.PackAjax({
-					url: 'cells.htm?m=cols_delete',
+					url: config.url.col.reduce,
 					data: JSON.stringify({
-						colSort: sendRegion.startSortX,
+						col: sendRegion.startSortX,
 					}),
 				});
 			}

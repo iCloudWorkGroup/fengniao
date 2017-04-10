@@ -115,7 +115,7 @@ define(function() {
 			fifth: 'yyyy年MM月',
 			sixth: 'yyyy年'
 		},
-		defaultNumberFormat:{
+		defaultNumberFormat: {
 			decimal: 6
 		},
 		keyboard: {
@@ -137,11 +137,56 @@ define(function() {
 			altEnter: true,
 			enter: true
 		},
-		url:{
-			init: '',
-			
-		}
+		url: {
+			row: {
+				plus: 'row/plus',
+				reduce: 'row/reduce',
+				hide: 'row/hide',
+				show: 'row/show',
+				adjust: 'row/adjust',
+				plus_batch: 'row/plus-batch'
+			},
+			col: {
+				plus: 'col/plus',
+				reduce: 'col/reduce',
+				hide: 'col/hide',
+				show: 'col/show',
+				adjust: 'col/adjust',
+				plus_batch: 'col/plus-batch'
+			},
+			cell: {
+				merge: 'cell/merge',
+				split: 'cell/split',
+				border: 'cell/border',
+				color: 'cell/color',
+				align_transverse: 'cell/align-landscape',
+				align_vertically: 'cell/align-portrait',
+				format: 'cell/format',
+				content: 'cell/content',
+				comment_plus: 'cell/comment-plus',
+				comment_del: 'cell/comment-reduce',
+				font_size: 'cell/font-size',
+				font_family: 'cell/font-family',
+				font_weight: 'cell/font-weight',
+				font_italic: 'cell/font-italic',
+				font_color: 'cell/font-color',
+			},
+			table: {
+				reload: 'reload'
+			},
+			sheet: {
+				cut: 'sheet/cut',
+				copy: 'sheet/copy',
+				paste: 'sheet/paste',
+				undo: 'sheet/undo',
+				redo: 'sheet/redo',
+				frozen: 'sheet/frozen',
+				unfrozen: 'sheet/unfrozen',
+				load: 'sheet/area'
+			},
+
+		},
 		version: '@version@',
-		rootPath: 'localhost:8080/pubexcel/'
+		rootPath: 'http://pubexcel/'
 	};
 });

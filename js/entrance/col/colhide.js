@@ -1,6 +1,7 @@
 'use strict';
 define(function(require) {
 	var send = require('basic/tools/send'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
@@ -52,10 +53,10 @@ define(function(require) {
 			Backbone.trigger('event:cellsContainer:adaptWidth');
 
 			send.PackAjax({
-				url: 'cells.htm?m=cols_hide',
+				url: config.url.col.hide,
 				data: JSON.stringify({
-					colSort: headItemColList[colindex].get('sort'),
-					'hide': true
+					sheetId: '1',
+					col: headItemColList[colindex].get('sort')
 				})
 			});
 
@@ -275,7 +276,8 @@ define(function(require) {
 			Backbone.trigger('event:cellsContainer:adaptWidth');
 			Backbone.trigger('event:colsAllHeadContainer:adaptWidth');
 			send.PackAjax({
-				url: 'sheet.htm?m=cols_cancelhide'
+				sheetId: '1',
+				url: config.url.col.show
 			});
 
 		},

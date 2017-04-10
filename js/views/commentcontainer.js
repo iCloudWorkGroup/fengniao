@@ -297,8 +297,9 @@ define(function(require) {
 			var sendData;
 			sendData = getOperRegion().sendRegion;
 			send.PackAjax({
-				url: 'text.htm?m=comment_set',
+				url: config.url.cell.comment_plus,
 				data: JSON.stringify({
+					sheetId: '1',
 					coordinate: sendData,
 					comment: comment
 				})

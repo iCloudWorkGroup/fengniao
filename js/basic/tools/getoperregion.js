@@ -76,10 +76,10 @@ define(function(require) {
 
 		return {
 			sendRegion: {
-				startSortX: startColSort,
-				endSortX: endColSort,
-				startSortY: startRowSort,
-				endSortY: endRowSort
+				startCol: startColSort,
+				endCol: endColSort,
+				startRow: startRowSort,
+				endRow: endRowSort
 			},
 			operRegion: {
 				startColIndex: startColIndex,

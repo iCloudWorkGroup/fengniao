@@ -2,6 +2,7 @@
 define(function(require) {
 	var send = require('basic/tools/send'),
 		binary = require('basic/util/binary'),
+		config = require('spreadsheet/config'),
 		cache = require('basic/tools/cache'),
 		cells = require('collections/cells'),
 		Point = require('basic/tools/point'),
@@ -62,11 +63,11 @@ define(function(require) {
 				});
 			}
 			send.PackAjax({
-				url: 'text.htm?m=fill_bgcolor',
-				// url: 'text.htm/fill_bgcolor',
+				url: config.url.cell.color,
 				data: JSON.stringify({
+					sheetId: '1',
 					coordinate: sendRegion,
-					bgcolor: color
+					color: color
 				})
 			});
 		}

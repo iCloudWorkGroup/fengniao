@@ -41,6 +41,7 @@ define(function(require) {
 			headItemRowList,
 			sendData = [],
 			text = "",
+			URL='',
 			i,
 			j;
 
@@ -58,22 +59,26 @@ define(function(require) {
 		relativeColIndex = startColIndex - headItemCols.getIndexByAlias(selectRegion.get("wholePosi").startX);
 		relativeRowIndex = startRowIndex - headItemRows.getIndexByAlias(selectRegion.get("wholePosi").startY);
 
-
+		if(type === 'cut'){
+			URL = config.url.sheet.cut;
+		}else{
+			URL = config.url.sheet.copy;
+		}
 		send.PackAjax({
-			url: 'plate.htm?m=' + type,
+			url: URL,
 			async: false,
 			data: JSON.stringify({
 				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 				sheetId: '1',
 				orignal: {
-					startColSort: headItemColList[startColIndex].get('sort'),
-					endColSort: headItemColList[endColIndex].get('sort'),
-					startRowSort: headItemRowList[startRowIndex].get('sort'),
-					endRowSort: headItemRowList[endRowIndex].get('sort'),
+					startCol: headItemColList[startColIndex].get('sort'),
+					endCol: headItemColList[endColIndex].get('sort'),
+					startRow: headItemRowList[startRowIndex].get('sort'),
+					endRow: headItemRowList[endRowIndex].get('sort'),
 				},
 				target: {
-					colSort: headItemColList[startColIndex - relativeColIndex].get('sort'),
-					rowSort: headItemRowList[startRowIndex - relativeRowIndex].get('sort')
+					orignalCol: headItemColList[startColIndex - relativeColIndex].get('sort'),
+					orignalRow: headItemRowList[startRowIndex - relativeRowIndex].get('sort')
 				}
 			}),
 			success: function(data) {
@@ -297,13 +302,12 @@ define(function(require) {
 		}
 
 		send.PackAjax({
-			url: 'plate.htm?m=paste',
+			url: config.url.sheet.paste,
 			async: false,
 			data: JSON.stringify({
-				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 				sheetId: '1',
-				startColSort: startColSort,
-				startRowSort: startRowSort,
+				col: startColSort,
+				row: startRowSort,
 				colLen: colLen,
 				rowLen: rowLen,
 				pasteData: sendData

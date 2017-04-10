@@ -51,9 +51,10 @@ define(function(require) {
 
 			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, config.User.cellHeight);
 			send.PackAjax({
-				url: 'cells.htm?m=rows_insert',
+				url: config.url.row.plus,
 				data: JSON.stringify({
-					rowSort: sendRegion.startSortY
+					sheetId: '1',
+					row: sendRegion.startSortY
 				})
 			});
 		},

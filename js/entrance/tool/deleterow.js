@@ -2,6 +2,7 @@
 define(function(require) {
 	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		headItemRows = require('collections/headItemRow'),
 		cells = require('collections/cells'),
 		getOperRegion = require('basic/tools/getoperregion'),
@@ -55,9 +56,9 @@ define(function(require) {
 			sendData();
 			function sendData() {
 				send.PackAjax({
-					url: 'cells.htm?m=rows_delete',
+					url: config.url.row.reduce ,
 					data: JSON.stringify({
-						rowSort: sendRegion.startSortY,
+						row: sendRegion.startSortY,
 					}),
 				});
 			}
