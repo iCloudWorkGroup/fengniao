@@ -9,7 +9,7 @@ module.exports = function(grunt) {
                 globals: {
                     jQuery: true
                 },
-                ignores: ['js/lib/*.js']
+                ignores: ['Gruntfile.js','js/lib/*.js']
             }
         },
         less: {
@@ -32,7 +32,7 @@ module.exports = function(grunt) {
             },
 
             all: {
-                name: 'script',
+                name: 'spreadsheet/spreadsheet',
                 dest: 'dist/fn.js',
                 // 在没有jquery类似的库的前提下可以设置builtin,去除强行依赖。
                 builtin: {
