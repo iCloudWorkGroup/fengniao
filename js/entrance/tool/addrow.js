@@ -54,7 +54,7 @@ define(function(require) {
 				url: config.url.row.plus,
 				data: JSON.stringify({
 					sheetId: '1',
-					row: sendRegion.startSortY
+					row: sendRegion.startRow
 				})
 			});
 		},

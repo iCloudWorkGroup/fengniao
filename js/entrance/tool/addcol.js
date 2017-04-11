@@ -50,7 +50,8 @@ define(function(require) {
 			send.PackAjax({
 				url: config.url.col.plus,
 				data: JSON.stringify({
-					col: sendRegion.startSortX,
+					sheetId: '1',
+					col: sendRegion.startCol,
 				}),
 			});
 		},
