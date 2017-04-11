@@ -72,7 +72,7 @@ define(function(require) {
 		 * @return {array} 筛选结果
 		 */
 		getModelByType: function(type) {
-			return this.where({
+			return this.findWhere({
 				selectType: type
 			});
 		}
