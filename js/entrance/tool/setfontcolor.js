@@ -41,7 +41,7 @@ define(function(require) {
 
 		function sendData() {
 			send.PackAjax({
-				url: config.config.cell.font_color,
+				url: config.url.cell.font_color,
 				data: JSON.stringify({
 					sheetId: '1',
 					coordinate: sendRegion,
