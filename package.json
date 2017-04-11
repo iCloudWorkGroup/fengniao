@@ -1,26 +1,25 @@
 {
-  "name": "spreadsheet",
+  "name": "fengniao",
   "version": "0.8.0",
-  "description": "online share spreadsheet",
-  "rootpath":"http://spreadsheet.acmr.com.cn/",
-  "devDependencies": {
-    "grunt": "0.4.1",
-    "load-grunt-tasks": "0.4.0",
-    "requirejs": "2.1.9",
-    "karma": "^0.13.22",
-    "karma-coverage": "^0.5.5",
+  "rootpath":"http://spreadsheet.acmr.com.cn",
+  "scripts": {
+    "test":"istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info  && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
+    "check": "grunt format"
+  },
+  "dependencies":{
+    "grunt-bump":"^0.7.0",
+    "mocha": "^2.1.0",
+    "istanbul": "^0.3.2",
+    "coveralls": "2.12.0",
+    "expect.js": "^0.3.1",
+    "grunt-conventional-changelog":"^6.1.0",
+    "grunt-contrib-uglify":"^2.1.0",
+    "load-grunt-tasks":"0.4.0",
     "grunt-contrib-jshint": "~0.11.1",
     "grunt-contrib-less":"1.3.0",
-    "grunt-bump":"^0.7.0",
-    "grunt-conventional-github-releaser":"^1.0.0",
-    "grunt-conventional-changelog":"^v6.1.0"
+    "requirejs":"2.1.9"
   },
-  "dependencies": {
-    "express": "~3.1.0",
-    "path": "~0.4.9",
-    "body-parser": "~1.9.1"
-  },
-  "scripts": {
-    "check": "grunt"
+  "devDependencies": {
+    "grunt": "0.4.1"
   }
 }

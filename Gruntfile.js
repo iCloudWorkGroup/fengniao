@@ -3,7 +3,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
-            files: ['Gruntfile.js', 'js/collections/*.js', 'js/models/*.js', 'js/basic/**/*.js','js/views/**/*.js'],
+            files: ['Gruntfile.js', 'js/collections/*.js', 'js/models/*.js', 'js/basic/**/*.js'],
             options: {
                 jshintrc: true,
                 globals: {
@@ -28,13 +28,12 @@ module.exports = function(grunt) {
         },
         build: {
             options: {
-                banner: '/*! Spreadsheet <%= pkg.version %> */\n'
+                banner: '/*! fengniao <%= pkg.version %> */\n'
             },
 
             all: {
-                name: 'spreadsheet/spreadsheet',
-                dest: 'dist/fengniao.js',
-
+                name: 'script',
+                dest: 'dist/fn.js',
                 // 在没有jquery类似的库的前提下可以设置builtin,去除强行依赖。
                 builtin: {
                     dollar: false,
@@ -42,11 +41,22 @@ module.exports = function(grunt) {
                 }
             }
         },
+	uglify:{
+	    options:{
+	        report:"gzip"
+	    },
+	    my_target:{
+		files:{
+		    "dist/fn.min.js":["dist/fn.js"]
+		}
+	    }
+	},
 	bump: {
 	    options: {
 		updateConfigs: ['pkg'],
-		commitFIles:['package.json', 'CHANGELOG.md'],
-		commitMessage: 'spreadsheet: release v%VERSION%'
+		commitFiles:['package.json', 'CHANGELOG.md'],
+		commitMessage: 'release: v%VERSION%',
+		push: false
 	    }
 	},
 	conventionalChangelog: {
@@ -80,9 +90,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-conventional-changelog');
 
-    grunt.registerTask('check', ['jshint']);
-    grunt.registerTask('dist', ['build']);
-    grunt.registerTask('default', ['jshint', 'build']);
+    grunt.registerTask('format', ['jshint']);
+    grunt.registerTask('dist', ['build','uglify']);
+    grunt.registerTask('default', ['format','dist']);
     grunt.registerTask('css', ['less']);
     grunt.registerTask('release','build new version info',function(type){
 	grunt.task.run([
