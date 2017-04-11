@@ -93,7 +93,7 @@ define(function(require) {
 				url: url,
 				data: JSON.stringify({
 					coordinate: sendRegion,
-					alignStyle: type
+					align: type
 				})
 			});
 		}

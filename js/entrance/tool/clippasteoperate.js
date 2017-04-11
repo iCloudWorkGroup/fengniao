@@ -2,6 +2,7 @@ define(function(require) {
 	'use strict';
 	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
 		Cell = require('models/cell'),
 		send = require('basic/tools/send'),

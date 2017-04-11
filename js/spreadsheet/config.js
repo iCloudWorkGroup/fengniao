@@ -159,6 +159,7 @@ define(function() {
 				split: 'cell/split',
 				border: 'cell/border',
 				color: 'cell/color',
+				wordwrap: 'cell/wordwrap',
 				align_transverse: 'cell/align-landscape',
 				align_vertically: 'cell/align-portrait',
 				format: 'cell/format',

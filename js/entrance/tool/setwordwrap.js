@@ -4,6 +4,7 @@ define(function(require) {
 		selectRegions = require('collections/selectRegion'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		colOperate = require('entrance/col/coloperation'),
 		rowOperate = require('entrance/row/rowoperation');
@@ -57,7 +58,7 @@ define(function(require) {
 
 		function sendData() {
 			send.PackAjax({
-				url: 'text.htm?m=wordwrap',
+				url: config.url.cell.wordwrap,
 				data: JSON.stringify({
 					coordinate: sendRegion,
 					wordWrap: wordWrap || 'true'
