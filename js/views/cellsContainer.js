@@ -677,7 +677,6 @@ define(function(require) {
 			endX = headItemCols.getIndexByAlias(endColAlias);
 			endY = headItemRows.getIndexByAlias(endRowAlias);
 
-
 			region = {
 				startColIndex: startX,
 				startRowIndex: startY,

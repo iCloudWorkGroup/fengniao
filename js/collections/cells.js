@@ -750,7 +750,7 @@ define(function(require) {
 				fn(tempCell, headItemColList[i].get('sort'), headItemRowList[endRowIndex].get('sort'));
 			}
 		},
-		operOuterHeadModel:function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn){
+		operOuterHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
 			this.operBottomHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
 			this.operTopHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
 			this.operLeftHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
@@ -1050,48 +1050,43 @@ define(function(require) {
 			}
 		},
 		/**
-		 * 获取完整的操作区域：操作区域内，若存在合并单元格超出操作区域，操作区域应按照单元格扩大，
-		 * 直到没有单元格超出区域
-		 * @param  {[type]} startColIndex 列起始索引
-		 * @param  {[type]} startRowIndex 行起始索引
-		 * @param  {[type]} endColIndex   列结束索引
-		 * @param  {[type]} endRowIndex   行结束索引
+		 * 获取完整的操作区域：确保整个区域合法，区域内只包含完整的单元格对象
+		 * @param  {number} startColIndex 列起始索引
+		 * @param  {number} startRowIndex 行起始索引
+		 * @param  {number} endColIndex   列结束索引
+		 * @param  {number} endRowIndex   行结束索引
 		 * @return {object}               索引信息
 		 */
-		getFullOperationRegion: function(region) {
+		getFullOperationRegion: function(startColIndex, startRowIndex, endColIndex, endRowIndex) {
 			var headItemRowList = headItemRows.models,
 				headItemColList = headItemCols.models,
-				startColIndex = region.startColIndex,
-				startRowIndex = region.startRowIndex,
-				endColIndex = region.endColIndex,
-				endRowIndex = region.endRowIndex,
 				tempCellList,
 				cellStartColIndex,
 				cellStartRowIndex,
 				cellEndColIndex,
 				cellEndRowIndex,
-				cache,
+				temp,
 				flag = true,
 				i = 0;
 
 			if (startColIndex > endColIndex) {
-				cache = startColIndex;
+				temp = startColIndex;
 				startColIndex = endColIndex;
-				endColIndex = cache;
+				endColIndex = temp;
 			}
 			if (startRowIndex > endRowIndex) {
-				cache = startRowIndex;
+				temp = startRowIndex;
 				startRowIndex = endRowIndex;
-				endRowIndex = cache;
+				endRowIndex = temp;
 			}
 			while (flag) {
 				flag = false;
 				tempCellList = this.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
 				for (; i < tempCellList.length; i++) {
-					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, headItemRowList, 'top', 'height', 0, headItemRowList.length - 1);
-					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, headItemColList, 'left', 'width', 0, headItemColList.length - 1);
-					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, headItemRowList, 'top', 'height', 0, headItemRowList.length - 1);
-					cellEndColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left + tempCellList[i].get('physicsBox').width, headItemColList, 'left', 'width', 0, headItemColList.length - 1);
+					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, headItemRowList, 'top', 'height');
+					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, headItemColList, 'left', 'width');
+					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, headItemRowList, 'top', 'height');
+					cellEndColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left + tempCellList[i].get('physicsBox').width, headItemColList, 'left', 'width');
 					if (cellStartColIndex < startColIndex) {
 						startColIndex = cellStartColIndex;
 						flag = true;
@@ -1114,11 +1109,12 @@ define(function(require) {
 					}
 				}
 			}
-			region.startRowIndex = startRowIndex;
-			region.startColIndex = startColIndex;
-			region.endRowIndex = endRowIndex;
-			region.endColIndex = endColIndex;
-			return region;
+			return {
+				startRowIndex: startRowIndex,
+				startColIndex: startColIndex,
+				endRowIndex: endRowIndex,
+				endColIndex: endColIndex
+			}
 		},
 	});
 	return new Cells();
