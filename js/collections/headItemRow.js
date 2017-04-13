@@ -4,6 +4,8 @@ define(function(require) {
 		Backbone = require('lib/backbone'),
 		binary = require('basic/util/binary'),
 		LineRowModel = require('models/lineRow'),
+		config = require('spreadsheet/config'),
+		buildAlias = require('basic/tools/buildalias'),
 		selectRegions = require('collections/selectRegion'),
 		HeadItemRows;
 	/**
@@ -107,7 +109,7 @@ define(function(require) {
 		 * @return {int} 索引
 		 */
 		getIndexByAlias: function(alias) {
-			if (alias==='MAX') {
+			if (alias === 'MAX') {
 				return 'MAX';
 			} else {
 				return _.findIndex(this.toJSON(), {
@@ -152,6 +154,37 @@ define(function(require) {
 				return modelList[currentIndex - 1];
 			}
 			return null;
+		},
+		/**
+		 * 自动生成行数据
+		 * @param  {number} len 增加长度,默认为1
+		 */
+		generate: function(len) {
+			var lastModel,
+				startPosi,
+				startSort,
+				i;
+			if (typeof len === 'undefined') {
+				len = 1;
+			}
+			lastModel = this.models[this.length - 1];
+			startSort = lastModel.get('sort') + 1;
+			startPosi = lastModel.get('height') + lastModel.get('top') + 1;
+
+			for (i = 0; i < len; i++) {
+				if (startSort + 2 > config.User.maxRowNum) {
+					break;
+				}
+				this.add({
+					sort: startSort,
+					alias: (startSort + 1).toString(),
+					top: startPosi,
+					height: config.User.cellHeight - 1,
+					displayName: buildAlias.buildRowAlias(startSort)
+				});
+				startSort++;
+				startPosi = startPosi + config.User.cellHeight;
+			}
 		}
 	});
 	return new HeadItemRows();

@@ -39,7 +39,7 @@
           format;
 
         self = this;
-        clip = selectRegions.getModelByType('clip')[0];
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -80,7 +80,7 @@
           sendRegion,
           format;
 
-        clip = selectRegions.getModelByType('clip')[0];
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -124,7 +124,7 @@
           headItemColList = headItemCols.models,
           format;
 
-        clip = selectRegions.getModelByType('clip')[0];
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -179,7 +179,7 @@
           headItemColList = headItemCols.models,
           format;
 
-        clip = selectRegions.getModelByType('clip')[0];
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -235,7 +235,7 @@
           format;
 
         self = this;
-        clip = selectRegions.getModelByType('clip')[0];
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -295,7 +295,7 @@
           operRegion,
           sendRegion;
 
-        clip = selectRegions.getModelByType('clip')[0];
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();

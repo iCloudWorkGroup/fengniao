@@ -21,7 +21,7 @@ define(function(require) {
 				headItemColList,
 				len;
 
-			clip = selectRegions.getModelByType('clip')[0];
+			clip = selectRegions.getModelByType('clip');
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
@@ -115,7 +115,7 @@ define(function(require) {
 				height,
 				left, i;
 
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('operation');
 			lastHeadItemLeft = headItemColList[colLen - 1].get('left');
 			left = headItemColList[index].get('left');
 			//处理只剩一列情况
@@ -153,7 +153,7 @@ define(function(require) {
 					mouseX: i,
 					mouseY: 0
 				},
-				physicsPosi: {
+				physicsBox: {
 					top: 0,
 					left: left,
 				},
@@ -286,7 +286,7 @@ define(function(require) {
 				select,
 				left,
 				width = 0;
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('operation');
 			startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
 			endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
 			left = headItemColList[startColIndex].get('left');
@@ -294,7 +294,7 @@ define(function(require) {
 				width += (headItemColList[i].get('width') + 1);
 			}
 			select.set('physicsBox.width', width - 1);
-			select.set('physicsPosi.left', left);
+			select.set('physicsBox.left', left);
 			siderLineCols.models[0].set('left', left);
 			siderLineCols.models[0].set('width', width - 1);
 		}

@@ -4,7 +4,7 @@ define(function(require) {
 
 	function reloadCells() {
 		Backbone.trigger('event:contentCellsContainer:reloadCells');
-		Backbone.trigger('event:cellsContainer:adaptSelectRegion');
+		Backbone.trigger('event:selectRegionContainer:adapt');
 	}
 	return reloadCells;
 });

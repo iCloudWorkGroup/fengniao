@@ -1069,6 +1069,22 @@ define(function(require) {
 				flag = true,
 				i = 0;
 
+			if (endColIndex === 'MAX') {
+				return {
+					startRowIndex: startRowIndex,
+					startColIndex: startColIndex,
+					endRowIndex: endRowIndex,
+					endColIndex: headItemCols.length - 1
+				}
+			}
+			if (endRowIndex === 'MAX') {
+				return {
+					startRowIndex: startRowIndex,
+					startColIndex: startColIndex,
+					endColIndex: endColIndex,
+					endRowIndex: headItemRows.length - 1
+				}
+			}
 			if (startColIndex > endColIndex) {
 				temp = startColIndex;
 				startColIndex = endColIndex;

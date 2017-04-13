@@ -78,12 +78,12 @@ define(function(require) {
 				top,
 				cell;
 
-			clip = selectRegions.getModelByType('clip')[0];
+			clip = selectRegions.getModelByType('clip');
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('operation');
 			colAlias = select.get('wholePosi').startX;
 			colIndex = headItemCols.getIndexByAlias(colAlias);
 			rowAlias = select.get('wholePosi').startY;

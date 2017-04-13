@@ -31,7 +31,7 @@ define(function(require) {
 			aliasCol,
 			aliasRow;
 		//选中区域内开始坐标，结束坐标
-		clip = selectRegions.getModelByType('clip')[0];
+		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
 			cache.clipState = 'null';
 			clip.destroy();

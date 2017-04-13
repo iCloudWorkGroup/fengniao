@@ -48,19 +48,19 @@ define(function(require) {
 			i,
 			j;
 
-		clipRegion = selectRegions.getModelByType("clip")[0];
-		selectRegion = selectRegions.getModelByType("operation")[0];
+		clipRegion = selectRegions.getModelByType('clip');
+		selectRegion = selectRegions.getModelByType('operation');
 
 		headItemRowList = headItemRows.models;
 		headItemColList = headItemCols.models;
 
-		startColIndex = headItemCols.getIndexByAlias(clipRegion.get("wholePosi").startX);
-		startRowIndex = headItemRows.getIndexByAlias(clipRegion.get("wholePosi").startY);
-		endColIndex = headItemCols.getIndexByAlias(clipRegion.get("wholePosi").endX);
-		endRowIndex = headItemRows.getIndexByAlias(clipRegion.get("wholePosi").endY);
+		startColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').startX);
+		startRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').startY);
+		endColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').endX);
+		endRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').endY);
 
-		relativeColIndex = startColIndex - headItemCols.getIndexByAlias(selectRegion.get("wholePosi").startX);
-		relativeRowIndex = startRowIndex - headItemRows.getIndexByAlias(selectRegion.get("wholePosi").startY);
+		relativeColIndex = startColIndex - headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
+		relativeRowIndex = startRowIndex - headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
 
 
 		send.PackAjax({
@@ -125,12 +125,12 @@ define(function(require) {
 					}
 					history.addCoverAction(currentModelIndexs, originalModelIndexs);
 					//修改:对模型直接进行修改
-					Backbone.trigger('event:cellsContainer:adjustSelectRegion', {
+					selectRegion.set('tempPosi', {
 						initColIndex: startColIndex - relativeColIndex,
 						initRowIndex: startRowIndex - relativeRowIndex,
 						mouseColIndex: endColIndex - relativeColIndex < headItemCols.models.length - 1 ? endColIndex - relativeColIndex : headItemCols.models.length - 1,
 						mouseRowIndex: endRowIndex - relativeRowIndex < headItemRows.models.length - 1 ? endRowIndex - relativeRowIndex : headItemRows.models.length - 1
-					})
+					});
 					if (type === 'cut') {
 						cache.clipState = "null";
 						clipRegion.destroy();
@@ -138,7 +138,9 @@ define(function(require) {
 					if (startColIndex - relativeColIndex > endColIndex ||
 						endColIndex - relativeColIndex < startColIndex ||
 						startRowIndex - relativeRowIndex > endRowIndex ||
-						endRowIndex - relativeRowIndex < startRowIndex) {} else {
+						endRowIndex - relativeRowIndex < startRowIndex) {
+
+					}else {
 						cache.clipState = "null";
 						clipRegion.destroy();
 					}
@@ -260,7 +262,7 @@ define(function(require) {
 			colLen,
 			tempCell;
 		//清楚选中复制区域视图
-		clipRegion = selectRegions.getModelByType('clip')[0];
+		clipRegion = selectRegions.getModelByType('clip');
 		if (clipRegion !== null && clipRegion !== undefined) {
 			clipRegion.destroy();
 		}
@@ -278,7 +280,7 @@ define(function(require) {
 		headItemRowList = headItemRows.models;
 
 		colLen = rowData[0].split('%09').length;
-		selectRegion = selectRegions.getModelByType('operation')[0];
+		selectRegion = selectRegions.getModelByType('operation');
 		startRowAlias = selectRegion.get('wholePosi').startY;
 		startColAlias = selectRegion.get('wholePosi').startX;
 		startRowIndex = headItemRows.getIndexByAlias(startRowAlias);

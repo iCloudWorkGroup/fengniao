@@ -25,7 +25,7 @@ define(function(require) {
 				sendRegion,
 				index;
 
-			clip = selectRegions.getModelByType('clip')[0];
+			clip = selectRegions.getModelByType('clip');
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
@@ -117,12 +117,12 @@ define(function(require) {
 				width,
 				left;
 
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('operation');
 			startColAlias = select.get('wholePosi').startX;
 			endColAlias = select.get('wholePosi').endX;
 			startColIndex = headItemCols.getIndexByAlias(startColAlias);
 			endColIndex = headItemCols.getIndexByAlias(endColAlias);
-			left = select.get('physicsPosi').left;
+			left = select.get('physicsBox').left;
 			width = select.get('physicsBox').width;
 
 			if (endColIndex < index) {
@@ -157,7 +157,7 @@ define(function(require) {
 
 			if (startColIndex > index) {
 				left = left - headItemCols.models[index].get('width') - 1;
-				select.set('physicsPosi.left', left);
+				select.set('physicsBox.left', left);
 			}
 			siderLineCols.models[0].set('width', width);
 		},

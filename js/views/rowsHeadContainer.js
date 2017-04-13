@@ -227,18 +227,14 @@ define(function(require) {
 			this.adjustSelectRegion(itemElIndex, diffDistance);
 			this.requstAdjust(itemElIndex, diffDistance);
 
-			if (this.viewCellsContainer === undefined || this.viewRowsAllHeadContainer === undefined) {
+			if (this.viewRowsAllHeadContainer === undefined) {
 				this.triggerCallback();
 			}
-			
-			this.viewCellsContainer.attributesRender({
-				width: headItemCols.getMaxDistanceWidth(),
-				height: headItemRows.getMaxDistanceHeight()
-			});
 			this.viewRowsAllHeadContainer.$el.css({
 				height: headItemRows.getMaxDistanceHeight()
 			});
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange',headItemRows.models[itemElIndex].get('top'),diffDistance);
+			Backbone.trigger('event:cellsContainer:adaptHeight');
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange');
 		},
 		/**
 		 * 向后台发送请求，调整列宽
@@ -400,8 +396,8 @@ define(function(require) {
 				selectRegionModel.set("physicsBox.height", cacheHeight + pixel);
 				siderLineRowModel.set("height", cacheHeight + pixel);
 			} else {
-				cacheTop = selectRegionModel.get("physicsPosi").top;
-				selectRegionModel.set("physicsPosi.top", cacheTop + pixel);
+				cacheTop = selectRegionModel.get("physicsBox").top;
+				selectRegionModel.set("physicsBox.top", cacheTop + pixel);
 				siderLineRowModel.set("top", cacheTop + pixel);
 			}
 

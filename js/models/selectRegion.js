@@ -16,56 +16,33 @@ define(function(require) {
 	SelectRegion = BackboneNest.NestedModel.extend({
 		defaults: {
 			/**
-			 * 待修改：是需要对什么时候保存索引，什么时候保存别名，有一个说明，命名也需要进行区分
-			 * 进行选中操作，初始点击位置，保存值为索引值
-			 * @property {object} initPosi
+			 * 瞬间操作缓存对象，直接记录索引值
+			 * @property {object} tempPosi
 			 */
-			initPosi: {
+			tempPosi: {
 				/**
-				 * 鼠标的`X`的位置索引
-				 * @property {number} startX
+				 * 点击位置索引
+				 * @property {number} initColIndex
 				 */
-				startX: 0,
+				initColIndex: 0,
 				/**
-				 * 鼠标的`Y`的位置索引
-				 * @property {number} startY
+				 * 点击位置索引
+				 * @property {number} initRowIndex
 				 */
-				startY: 0,
+				initRowIndex: 0,
+				/**
+				 * 鼠标当前位置索引
+				 * @property {number} mouseRowIndex
+				 */
+				mouseColIndex: 0,
+				/**
+				 * 鼠标当前位置索引
+				 * @property {number} mouseRowIndex
+				 */
+				mouseRowIndex: 0
 			},
 			/**
-			 * 鼠标位置，保存值为索引值
-			 * @property {object} mousePosi
-			 */
-			mousePosi: {
-				/**
-				 * 鼠标的`X`的位置索引
-				 * @property {number} mouseX
-				 */
-				mouseX: 0,
-				/**
-				 * 鼠标的`Y`的位置索引
-				 * @property {number} mouseY
-				 */
-				mouseY: 0
-			},
-			/**
-			 * 相对位置属性
-			 * @property {object} physicsPosi
-			 */
-			physicsPosi: {
-				/**
-				 * 相对位置`top`值
-				 * @property {number} top
-				 */
-				top: 0,
-				/**
-				 * 相对位置`left`值
-				 * @property {number} left
-				 */
-				left: 0,
-			},
-			/**
-			 * 宽高属性
+			 * 盒子模型
 			 * @property {object} physicBox
 			 */
 			physicsBox: {
@@ -78,7 +55,17 @@ define(function(require) {
 				 * 高度
 				 * @property {number} height
 				 */
-				height: 19
+				height: 19,
+				/**
+				 * 相对位置`top`值
+				 * @property {number} top
+				 */
+				top: 0,
+				/**
+				 * 相对位置`left`值
+				 * @property {number} left
+				 */
+				left: 0,
 			},
 			//current box start,end postion index value (complete)
 			/**

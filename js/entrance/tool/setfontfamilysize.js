@@ -21,7 +21,7 @@ define(function(require) {
 			headItemColList = headItemCols.models,
 			changeModelList = [];
 
-		clip = selectRegions.getModelByType('clip')[0];
+		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
 			cache.clipState = 'null';
 			clip.destroy();

@@ -55,20 +55,6 @@ define(function(require) {
 
 			this.currentRule = clone.clone(cache.CurrentRule);
 
-			if (this.currentRule.eventScroll) {
-				/**
-				 * 绑定滚动事件
-				 * @property events
-				 * @type {Object}
-				 */
-				this.delegateEvents({
-					'scroll': 'syncScroll'
-				});
-				Backbone.on('call:mainContainer', this.callMainContainer, this);
-				Backbone.on('event:mainContainer:nextCellPosition', this.nextCellPosition, this);
-				// Backbone.on('event:mainContainer:addBottom', this.addBottom, this);
-				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
-			}
 			if (cache.TempProp.isFrozen === true) {
 				this.offsetTop = this.currentRule.displayPosition.offsetTop;
 				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
@@ -105,9 +91,23 @@ define(function(require) {
 
 			this.boxModel.height = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height') - modelsHeadLineRowRegionList[0].get('top');
 			this.boxModel.width = modelLastHeadLineCol.get('left') + modelLastHeadLineCol.get('width') - modelsHeadLineColRegionList[0].get('left');
-			//待考虑，是否将起始高度算在内
-			cache.viewRegion.top = 0;
-			cache.viewRegion.bottom = this.boxModel.height;
+
+			if (this.currentRule.eventScroll) {
+				/**
+				 * 绑定滚动事件
+				 * @property events
+				 * @type {Object}
+				 */
+				this.delegateEvents({
+					'scroll': 'syncScroll'
+				});
+				Backbone.on('call:mainContainer', this.callMainContainer, this);
+				Backbone.on('event:mainContainer:nextCellPosition', this.nextCellPosition, this);
+				// Backbone.on('event:mainContainer:addBottom', this.addBottom, this);
+				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
+				cache.viewRegion.top = 0;
+				cache.viewRegion.bottom = this.boxModel.height;
+			}
 		},
 		/**
 		 * 生成白色背景，用于遮挡输入框
@@ -594,7 +594,7 @@ define(function(require) {
 			if (isUnloadRows) {
 				this.requestRows(top, bottom);
 				height = headItemRows.getMaxDistanceHeight();
-				this.adjustContainerHeight(height);
+				this.adjustContainerHeight();
 				this.publish(height, 'adjustHeadItemContainerPublish');
 				this.publish(height, 'adjustContainerHeightPublish');
 				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
@@ -660,7 +660,7 @@ define(function(require) {
 		 * @return {[type]} [description]
 		 */
 		adaptSelectRegion: function() {
-			var select = selectRegions.getModelByType("operation")[0],
+			var select = selectRegions.getModelByType("operation"),
 				headLineRowModelList = headItemRows.models,
 				endColAlias = select.get('wholePosi').endX,
 				endRowAlias = select.get('wholePosi').endY,
@@ -762,7 +762,7 @@ define(function(require) {
 			}
 			loadRecorder.adaptPosi(startPosi, diffDistance, cache.rowRegionPosi);
 			loadRecorder.adaptPosi(startPosi, diffDistance, cache.cellRegionPosi.vertical);
-			if(cache.localRowPosi!==0){
+			if (cache.localRowPosi !== 0) {
 				cache.localRowPosi += diffDistance;
 			}
 		},
@@ -814,7 +814,7 @@ define(function(require) {
 			});
 			this.adjustColPropCell(startIndex, startIndex + len - 1);
 			height = headItemRows.getMaxDistanceHeight();
-			this.adjustContainerHeight(height);
+			this.adjustContainerHeight();
 			this.publish(height, 'adjustHeadItemContainerPublish');
 			this.publish(height, 'adjustContainerHeightPublish');
 			return height;
@@ -856,9 +856,7 @@ define(function(require) {
 			}
 		},
 		adjustContainerHeight: function(height) {
-			this.cellsContainer.attributesRender({
-				height: height
-			});
+			Backbone.trigger('event:cellsContainer:adaptHeight');
 		},
 		/**
 		 * 视图销毁
