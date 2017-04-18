@@ -459,6 +459,7 @@ define(function(require) {
 					var cellModels = data.spreadSheet[0].sheet.cells;
 					var rows = data.spreadSheet[0].sheet.glY;
 					var cols = data.spreadSheet[0].sheet.glX;
+
 					self.analysisSheetData(sheetNames);
 					self.analysisRowData(rows, startRowSort);
 					self.analysisColData(cols, startColSort);

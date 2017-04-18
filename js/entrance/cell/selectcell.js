@@ -26,7 +26,7 @@ define(function(require) {
 			region = analysisLabel(label);
 			region = cells.getFullOperationRegion(region);
 		} else {
-			select = selectRegions.getModelByType('operation');
+			select = selectRegions.getModelByType('selected');
 			region.startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
 			region.startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
 		}

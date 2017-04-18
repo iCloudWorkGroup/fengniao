@@ -43,7 +43,7 @@ define(function(require) {
 				this.rowIndex = options.rowIndex;
 				this.comment = options.comment;
 			} else {
-				select = selectRegions.getModelByType('operation');
+				select = selectRegions.getModelByType('selected');
 				colAlias = select.get('wholePosi').endX;
 				rowAlias = select.get('wholePosi').startY;
 

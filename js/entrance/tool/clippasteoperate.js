@@ -49,7 +49,7 @@ define(function(require) {
 			j;
 
 		clipRegion = selectRegions.getModelByType('clip');
-		selectRegion = selectRegions.getModelByType('operation');
+		selectRegion = selectRegions.getModelByType('selected');
 
 		headItemRowList = headItemRows.models;
 		headItemColList = headItemCols.models;
@@ -280,7 +280,7 @@ define(function(require) {
 		headItemRowList = headItemRows.models;
 
 		colLen = rowData[0].split('%09').length;
-		selectRegion = selectRegions.getModelByType('operation');
+		selectRegion = selectRegions.getModelByType('selected');
 		startRowAlias = selectRegion.get('wholePosi').startY;
 		startColAlias = selectRegion.get('wholePosi').startX;
 		startRowIndex = headItemRows.getIndexByAlias(startRowAlias);

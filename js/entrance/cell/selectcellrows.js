@@ -23,7 +23,7 @@ define(function(require) {
 				selectRegions.add(selectModel);
 			}
 		} else {
-			selectModel = selectRegions.getModelByType('operation');
+			selectModel = selectRegions.getModelByType('selected');
 		}
 		selectModel.set('tempPosi', {
 			initColIndex: modelIndex,

@@ -98,7 +98,7 @@ define(function(require) {
 				height,
 				top,
 				endRowIndex;
-			select = selectRegions.getModelByType('operation');
+			select = selectRegions.getModelByType('selected');
 			startRowAlias = select.get('wholePosi').startY;
 			endRowAlias = select.get('wholePosi').endY;
 			top = select.get('physicsBox').top;

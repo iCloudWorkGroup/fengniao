@@ -83,7 +83,7 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
-			select = selectRegions.getModelByType('operation');
+			select = selectRegions.getModelByType('selected');
 			colAlias = select.get('wholePosi').startX;
 			colIndex = headItemCols.getIndexByAlias(colAlias);
 			rowAlias = select.get('wholePosi').startY;
@@ -608,8 +608,7 @@ define(function(require) {
 				if (config.shortcuts.enter &&
 					e.altKey === false &&
 					e.keyCode === keyboard.enter) {
-					Backbone.trigger('event:mainContainer:nextCellPosition', 'DOWN');
-					Backbone.trigger('event:cellsContainer:selectRegionChange', 'DOWN');
+					Backbone.trigger('event:cellsContainer:moveSelectRegion', 'DOWN');
 					if (this.showState === true) {
 						this.hide();
 					}

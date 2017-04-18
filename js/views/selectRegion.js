@@ -51,7 +51,7 @@ define(function(require) {
 		 */
 		initialize: function(options) {
 			this.viewCellsContainer = options.parentView;
-			if (this.model.get("selectType") === "operation") {
+			if (this.model.get('selectType') === 'selected') {
 				Backbone.on('event:selectRegion:patchOprCell', this.patchOprCell, this);
 			}
 			Backbone.on('event:selectRegionContainer:adapt', this.adapt, this);
@@ -193,21 +193,23 @@ define(function(require) {
 			width = colModelList[endColIndex].get('width') + colModelList[endColIndex].get('left') - colModelList[startColIndex].get('left');
 			height = rowModelList[endRowIndex].get('height') + rowModelList[endRowIndex].get('top') - rowModelList[startRowIndex].get('top');
 
-			this.changeHeadLineModel(startColIndex, startRowIndex, endColIndex, endRowIndex);
+			if (this.model.get('selectType') === 'selected') {
+				this.changeHeadLineModel(startColIndex, startRowIndex, endColIndex, endRowIndex);
+				siderLineRows.models[0].set({
+					top: rowModelList[startRowIndex].get('top'),
+					height: height
+				});
+				siderLineCols.models[0].set({
+					left: colModelList[startColIndex].get('left'),
+					width: width
+				});
+			}
 
 			this.model.set('physicsBox', {
 				top: rowModelList[startRowIndex].get('top'),
 				left: colModelList[startColIndex].get('left'),
 				width: width,
 				height: height
-			});
-			siderLineRows.models[0].set({
-				top: rowModelList[startRowIndex].get('top'),
-				height: height
-			});
-			siderLineCols.models[0].set({
-				left: colModelList[startColIndex].get('left'),
-				width: width
 			});
 			this.model.set('wholePosi', {
 				startX: colModelList[startColIndex].get('alias'),
@@ -239,7 +241,7 @@ define(function(require) {
 				row: rowDisplayNames
 			};
 			listener.excute('regionChange', e);
-			if (modelJSON.selectType === 'operation') {
+			if (modelJSON.selectType === 'selected') {
 				listener.excute('selectRegionChange', e);
 			} else {
 				listener.excute('dataSourceRegionChange', e);
@@ -346,7 +348,7 @@ define(function(require) {
 		 * @method destroy
 		 */
 		destroy: function() {
-			if (this.model.get("selectType") === "operation") {
+			if (this.model.get('selectType') === 'selected') {
 				Backbone.off('event:selectRegion:patchOprCell');
 			}
 			Backbone.off('event:selectRegionContainer:adapt');

@@ -117,7 +117,7 @@ define(function(require) {
 				width,
 				left;
 
-			select = selectRegions.getModelByType('operation');
+			select = selectRegions.getModelByType('selected');
 			startColAlias = select.get('wholePosi').startX;
 			endColAlias = select.get('wholePosi').endX;
 			startColIndex = headItemCols.getIndexByAlias(startColAlias);

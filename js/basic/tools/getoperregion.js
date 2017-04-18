@@ -26,7 +26,7 @@ define(function(require) {
 			headItemRowList = headItemRows.models;
 
 		if (label === undefined) {
-			select = selects.getModelByType('operation');
+			select = selects.getModelByType('selected');
 			startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
 			endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
 			startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);

@@ -12,9 +12,9 @@ define(function(require) {
 	var ss = new SpreadSheet('spreadSheet');
 
 	$('#t').on('click',function(){
-		re.undo();
+		ss.startHighlight();
 	});
 	$('#tt').on('click',function(){
-		re.redo();
+		ss.stopHighlight();
 	});
 });
