@@ -127,7 +127,7 @@ define(function(require) {
 			var result = [],
 				strandX,
 				index,
-				tempObj={},
+				tempObj = {},
 				i, j,
 				len1, len2,
 				rowAlias,
@@ -176,7 +176,7 @@ define(function(require) {
 			var result = [],
 				strandY,
 				index,
-				tempObj={},
+				tempObj = {},
 				i, j,
 				len1, len2,
 				rowAlias,
@@ -220,35 +220,7 @@ define(function(require) {
 		 * @return {Array} Cell数组
 		 */
 		getCellByRow: function(startIndex, endIndex) {
-			var tempObj,
-				tempAttr,
-				headItemRowList,
-				cacheCellArray,
-				cachePosition,
-				cacheIndexObject = {},
-				cellModelList,
-				index,
-				alias,
-				i;
-
-			cacheCellArray = [];
-			cellModelList = this.models;
-			headItemRowList = headItemRows.models;
-			cachePosition = cache.CellsPosition.strandY;
-			for (i = startIndex; i < endIndex + 1; i++) {
-				alias = headItemRowList[i].get('alias');
-				tempObj = cachePosition[alias];
-				if (tempObj !== undefined) {
-					for (tempAttr in tempObj) {
-						index = tempObj[tempAttr];
-						if (typeof cacheIndexObject[index] === 'undefined') {
-							cacheCellArray.push(cellModelList[index]);
-							cacheIndexObject[index] = 0;
-						}
-					}
-				}
-			}
-			return cacheCellArray;
+			return this.getCellByTransverse(startIndex, 0, endIndex, 'MAX');
 		},
 		/**
 		 * 待修改
@@ -635,16 +607,13 @@ define(function(require) {
 		/**
 		 * 区域内，最左端单元格数组
 		 * @method getLeftHeadModelByIndex
-		 * @return {array} cell模型结合
 		 */
-		getLeftHeadModelByIndex: function(startColIndex, startRowIndex, endColIndex, endRowIndex) {
-			var result = [],
-				headLineColModelList,
-				headLineRowModelList,
-				cellsPositionX,
+		operLeftHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
+			var headItemRowList = headItemRows.models,
+				headItemColList = headItemCols.models,
+				cellsPosition,
+				tempObj = {},
 				tempCell,
-				colLen,
-				rowLen,
 				aliasCol,
 				aliasRow,
 				i;
@@ -655,39 +624,33 @@ define(function(require) {
 			if (endRowIndex === undefined) {
 				endRowIndex = startRowIndex;
 			}
-			headLineRowModelList = headItemRows.models;
-			headLineColModelList = headItemCols.models;
-
-			colLen = endColIndex - startColIndex + 1;
-			rowLen = endRowIndex - startRowIndex + 1;
-
-			cellsPositionX = cache.CellsPosition.strandX;
-			aliasCol = headLineColModelList[startColIndex].get('alias');
-			for (i = 0; i < rowLen; i++) {
-				aliasRow = headLineRowModelList[startRowIndex + i].get('alias');
-				if (cellsPositionX[aliasCol] !== undefined &&
-					cellsPositionX[aliasCol][aliasRow] !== undefined) {
-					tempCell = this.models[cellsPositionX[aliasCol][aliasRow]];
+			aliasCol = headItemColList[startColIndex].get('alias');
+			cellsPosition = cache.CellsPosition.strandX[aliasCol];
+			for (i = startRowIndex; i < endRowIndex + 1; i++) {
+				aliasRow = headItemRowList[i].get('alias');
+				if (cellsPosition !== undefined && cellsPosition[aliasRow] !== undefined) {
+					if (!tempObj[cellsPosition[aliasRow]]) {
+						tempCell = this.models[cellsPosition[aliasRow]];
+					} else {
+						tempObj[cellsPosition[aliasCol]] = 1;
+						continue;
+					}
 				} else {
-					tempCell = this.createCellModel(startColIndex, startRowIndex + i);
+					tempCell = this.createCellModel(startColIndex, i);
 				}
-				result.push(tempCell);
+				fn(tempCell, headItemColList[startColIndex].get('sort'), headItemRowList[i].get('sort'));
 			}
-			return result;
 		},
 		/**
 		 * 区域内，最右端单元格数组
 		 * @method getLeftHeadModelByIndex
-		 * @return {array} cell模型结合
 		 */
-		getRightHeadModelByIndex: function(startColIndex, startRowIndex, endColIndex, endRowIndex) {
-			var result = [],
-				headLineColModelList,
-				headLineRowModelList,
-				cellsPositionX,
+		operRightHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
+			var headItemRowList = headItemRows.models,
+				headItemColList = headItemCols.models,
+				cellsPosition,
+				tempObj = {},
 				tempCell,
-				colLen,
-				rowLen,
 				aliasCol,
 				aliasRow,
 				i;
@@ -697,40 +660,34 @@ define(function(require) {
 			if (endRowIndex === undefined) {
 				endRowIndex = startRowIndex;
 			}
-			headLineRowModelList = headItemRows.models;
-			headLineColModelList = headItemCols.models;
+			aliasCol = headItemColList[endColIndex].get('alias');
+			cellsPosition = cache.CellsPosition.strandX[aliasCol];
 
-			colLen = endColIndex - startColIndex + 1;
-			rowLen = endRowIndex - startRowIndex + 1;
-
-			cellsPositionX = cache.CellsPosition.strandX;
-			aliasCol = headLineColModelList[endColIndex].get('alias');
-			for (i = 0; i < rowLen; i++) {
-				aliasRow = headLineRowModelList[startRowIndex + i].get('alias');
-				if (cellsPositionX[aliasCol] !== undefined &&
-					cellsPositionX[aliasCol][aliasRow] !== undefined) {
-					tempCell = this.models[cellsPositionX[aliasCol][aliasRow]];
+			for (i = startRowIndex; i < endRowIndex + 1; i++) {
+				aliasRow = headItemRowList[i].get('alias');
+				if (cellsPosition !== undefined && cellsPosition[aliasRow] !== undefined) {
+					if (!tempObj[cellsPosition[aliasRow]]) {
+						tempCell = this.models[cellsPosition[aliasRow]];
+					} else {
+						tempObj[cellsPosition[aliasCol]] = 1;
+						continue;
+					}
 				} else {
-					tempCell = this.createCellModel(endColIndex, startRowIndex + i);
+					tempCell = this.createCellModel(endColIndex, i);
 				}
-				result.push(tempCell);
+				fn(tempCell, headItemColList[endColIndex].get('sort'), headItemRowList[i].get('sort'));
 			}
-			return result;
 		},
 		/**
 		 * 区域内，最上端单元格数组
 		 * @method getTopHeadModelByIndex
-		 * @return {array} cell模型结合
 		 */
-		getTopHeadModelByIndex: function(startColIndex, startRowIndex,
-			endColIndex, endRowIndex) {
-			var result = [],
-				headLineColModelList,
-				headLineRowModelList,
-				cellsPositionX,
+		operTopHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
+			var headItemRowList = headItemRows.models,
+				headItemColList = headItemCols.models,
+				cellsPosition,
+				tempObj = {},
 				tempCell,
-				colLen,
-				rowLen,
 				aliasCol,
 				aliasRow,
 				i;
@@ -740,40 +697,35 @@ define(function(require) {
 			if (endRowIndex === undefined) {
 				endRowIndex = startRowIndex;
 			}
-			headLineRowModelList = headItemRows.models;
-			headLineColModelList = headItemCols.models;
 
-			colLen = endColIndex - startColIndex + 1;
-			rowLen = endRowIndex - startRowIndex + 1;
+			aliasRow = headItemRowList[startRowIndex].get('alias');
+			cellsPosition = cache.CellsPosition.strandY[aliasRow];
 
-			cellsPositionX = cache.CellsPosition.strandX;
-			aliasRow = headLineRowModelList[startRowIndex].get('alias');
-			for (i = 0; i < colLen; i++) {
-				aliasCol = headLineColModelList[startColIndex + i].get('alias');
-				if (cellsPositionX[aliasCol] !== undefined &&
-					cellsPositionX[aliasCol][aliasRow] !== undefined) {
-					tempCell = this.models[cellsPositionX[aliasCol][aliasRow]];
+			for (i = startColIndex; i < endColIndex + 1; i++) {
+				aliasCol = headItemColList[i].get('alias');
+				if (cellsPosition !== undefined && cellsPosition[aliasCol] !== undefined) {
+					if (!tempObj[cellsPosition[aliasCol]]) {
+						tempCell = this.models[cellsPosition[aliasCol]];
+					} else {
+						tempObj[cellsPosition[aliasCol]] = 1;
+						continue;
+					}
 				} else {
-					tempCell = this.createCellModel(startColIndex + i, startRowIndex);
+					tempCell = this.createCellModel(i, startRowIndex);
 				}
-				result.push(tempCell);
+				fn(tempCell, headItemColList[i].get('sort'), headItemRowList[startRowIndex].get('sort'));
 			}
-			return result;
 		},
 		/**
 		 * 区域内，最下端单元格数组
 		 * @method getLeftHeadModelByIndex
-		 * @return {array} cell模型结合
 		 */
-		getBottomHeadModelByIndex: function(startColIndex, startRowIndex,
-			endColIndex, endRowIndex) {
-			var result = [],
-				headLineColModelList,
-				headLineRowModelList,
-				cellsPositionX,
+		operBottomHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
+			var headItemRowList = headItemRows.models,
+				headItemColList = headItemCols.models,
+				cellsPosition,
+				tempObj = {},
 				tempCell,
-				colLen,
-				rowLen,
 				aliasCol,
 				aliasRow,
 				i;
@@ -783,27 +735,30 @@ define(function(require) {
 			if (endRowIndex === undefined) {
 				endRowIndex = startRowIndex;
 			}
-			headLineRowModelList = headItemRows.models;
-			headLineColModelList = headItemCols.models;
+			aliasRow = headItemRowList[endRowIndex].get('alias');
+			cellsPosition = cache.CellsPosition.strandY[aliasRow];
 
-			colLen = endColIndex - startColIndex + 1;
-			rowLen = endRowIndex - startRowIndex + 1;
-
-			cellsPositionX = cache.CellsPosition.strandX;
-			aliasRow = headLineColModelList[endRowIndex].get('alias');
-			for (i = 0; i < colLen; i++) {
-				aliasCol = headLineColModelList[startColIndex + i].get('alias');
-				if (cellsPositionX[aliasCol] !== undefined &&
-					cellsPositionX[aliasCol][aliasRow] !== undefined) {
-					tempCell = this.models[cellsPositionX[aliasCol][aliasRow]];
+			for (i = startColIndex; i < endColIndex + 1; i++) {
+				aliasCol = headItemColList[i].get('alias');
+				if (cellsPosition !== undefined && cellsPosition[aliasCol] !== undefined) {
+					if (!tempObj[cellsPosition[aliasCol]]) {
+						tempCell = this.models[cellsPosition[aliasCol]];
+					} else {
+						tempObj[cellsPosition[aliasCol]] = 1;
+						continue;
+					}
 				} else {
-					tempCell = this.createCellModel(startColIndex + i, endRowIndex);
+					tempCell = this.createCellModel(i, endRowIndex);
 				}
-				result.push(tempCell);
+				fn(tempCell, headItemColList[i].get('sort'), headItemRowList[endRowIndex].get('sort'));
 			}
-			return result;
 		},
-
+		operOuterHeadModel:function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn){
+			this.operBottomHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
+			this.operTopHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
+			this.operLeftHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
+			this.operRightHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn)
+		},
 		/**
 		 * 获取单元格相邻单元格
 		 * @method  getAdjacent
@@ -959,7 +914,7 @@ define(function(require) {
 		 */
 		getCellByAlias: function(aliasCol, aliasRow) {
 			var tempCellIndex;
-			if (cache.CellsPosition.strandY[aliasRow] === undefined || 
+			if (cache.CellsPosition.strandY[aliasRow] === undefined ||
 				cache.CellsPosition.strandY[aliasRow][aliasCol] === undefined) {
 				return null;
 			}
@@ -1093,7 +1048,7 @@ define(function(require) {
 					} else {
 						tempCell = this.createCellModel(startColIndex + j, startRowIndex + i);
 					}
-					fn(tempCell);
+					fn(tempCell, headItemColList[startColIndex + j].get('sort'), headItemRowList[startRowIndex + i].get('sort'));
 				}
 			}
 		},

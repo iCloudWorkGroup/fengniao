@@ -188,6 +188,6 @@ define(function() {
 
 		},
 		version: '@version@',
-		rootPath: 'http://pubexcel/'
+		rootPath: 'http://excel-inc.acmr.com.cn/spreadsheet/'
 	};
 });

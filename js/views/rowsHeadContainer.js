@@ -225,11 +225,10 @@ define(function(require) {
 			this.adjustCells(itemElIndex, diffDistance);
 			this.adjustSelectRegion(itemElIndex, diffDistance);
 			this.requstAdjust(itemElIndex, height);
-
 			if (this.viewCellsContainer === undefined || this.viewRowsAllHeadContainer === undefined) {
 				this.triggerCallback();
 			}
-			
+
 			this.viewCellsContainer.attributesRender({
 				width: headItemCols.getMaxDistanceWidth(),
 				height: headItemRows.getMaxDistanceHeight()
@@ -237,7 +236,7 @@ define(function(require) {
 			this.viewRowsAllHeadContainer.$el.css({
 				height: headItemRows.getMaxDistanceHeight()
 			});
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange',headItemRows.models[itemElIndex].get('top'),diffDistance);
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange', headItemRows.models[itemElIndex].get('top'), diffDistance);
 		},
 		/**
 		 * 向后台发送请求，调整列宽
@@ -292,7 +291,7 @@ define(function(require) {
 				endIndex: this.currentRule.displayPosition.endIndex
 			});
 			// if (initialize === true || modelHeadItemRow.get('top') > config.displayRowHeight) {
-			if (initialize === true || modelHeadItemRow.get('top')) {	
+			if (initialize === true || modelHeadItemRow.get('top')) {
 				this.$el.append(this.headItemRowContainer.render().el);
 			} else {
 				this.$el.prepend(this.headItemRowContainer.render().el);

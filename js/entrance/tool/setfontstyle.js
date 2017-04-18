@@ -4,6 +4,10 @@ define(function(require) {
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
+		history = require('basic/tools/history'),
+		headItemCols = require('collections/headItemCol'),
+		headItemRows = require('collections/headItemRow'),
+		
 		cells = require('collections/cells'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		rowOperate = require('entrance/row/rowoperation'),
@@ -15,7 +19,10 @@ define(function(require) {
 			region,
 			operRegion,
 			sendRegion,
-			tempCellList;
+			tempCellList,
+			headItemRowList = headItemRows.models,
+			headItemColList = headItemCols.models,
+			changeModelList = [];
 		clip = selectRegions.getModelByType('clip')[0];
 		if (clip !== undefined) {
 			cache.clipState = 'null';
@@ -49,11 +56,25 @@ define(function(require) {
 		} else if (operRegion.endRowIndex === 'MAX') {
 			colOperate.colPropOper(operRegion.startColIndex, 'content.italic', italic);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell) {
-				cell.set('content.italic', italic);
+			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+				if (cell.get('content').italic !== italic) {
+					changeModelList.push({
+						colSort: colSort,
+						rowSort: rowSort,
+						value: cell.get('content').italic
+					});
+					cell.set('content.italic', italic);
+				}
 			});
+			history.addUpdateAction('content.italic', italic, {
+				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+			}, changeModelList);
 		}
 		sendData();
+
 		function sendData() {
 			send.PackAjax({
 				url: config.url.cell.font_italic,

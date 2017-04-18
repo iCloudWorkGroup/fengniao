@@ -76,13 +76,6 @@ define(function(require) {
 				this.offsetTop = 0;
 				this.userViewTop = 0;
 			}
-			if (cache.TempProp.isFrozen === true) {
-				this.offsetTop = this.currentRule.displayPosition.offsetTop;
-				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
-			} else {
-				this.offsetTop = 0;
-				this.userViewTop = 0;
-			}
 			this.boxModel = {};
 
 			this.boxAttributes = this.currentRule.boxAttributes;
@@ -112,7 +105,6 @@ define(function(require) {
 
 			this.boxModel.height = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height') - modelsHeadLineRowRegionList[0].get('top');
 			this.boxModel.width = modelLastHeadLineCol.get('left') + modelLastHeadLineCol.get('width') - modelsHeadLineColRegionList[0].get('left');
-
 			//待考虑，是否将起始高度算在内
 			cache.viewRegion.top = 0;
 			cache.viewRegion.bottom = this.boxModel.height;
@@ -176,6 +168,7 @@ define(function(require) {
 			bottom = cellModel.get('physicsBox').top + cellModel.get('physicsBox').height;
 			left = cellModel.get('physicsBox').left;
 			right = cellModel.get('physicsBox').left + cellModel.get('physicsBox').width;
+
 			if (bottom < headItemRowList[startRowIndex].get('top') ||
 				(typeof endRowIndex === 'number' && top > headItemRowList[endRowIndex].get('top')) ||
 				right < headItemColList[startColIndex].get('left') ||
@@ -360,13 +353,11 @@ define(function(require) {
 
 				userViewColModel = headItemCols.getModelByPosition(this.recordScrollLeft);
 				userViewEndColModel = headItemCols.getModelByPosition(this.recordScrollLeft + this.el.offsetWidth);
-
 				cache.UserView.colAlias = userViewColModel.get('alias');
 				cache.UserView.colEndAlias = userViewEndColModel.get('alias');
 			}
 
 			//as scrollbar scroll up
-
 			if (verticalDirection > 0 || direction === 'up') {
 				this.addTop(currentViewTop);
 				this.deleteBottom(cache.viewRegion.bottom);
@@ -503,6 +494,7 @@ define(function(require) {
 			userViewTop = this.userViewTop;
 
 			recordIndex = binary.indexModelBinary(recordPosi, headItemRowList, 'top', 'height');
+
 			limitPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
 			limitIndex = binary.indexModelBinary(limitPosi, headItemRowList, 'top', 'height');
 			for (i = limitIndex + 1; i <= recordIndex; i++) {
@@ -567,7 +559,6 @@ define(function(require) {
 					this.addCellViewPublish(tempCells[i]);
 				}
 			}
-			loadBottomPosi = loadBottomPosi || limitBottomPosi;
 			limitBottomPosi = limitBottomPosi > loadBottomPosi ? limitBottomPosi : loadBottomPosi;
 			limitBottomPosi = limitBottomPosi > addRowBottomPosi ? limitBottomPosi : addRowBottomPosi;
 			limitBottomIndex = binary.indexModelBinary(limitBottomPosi, headItemRowList, 'top', 'height');
@@ -586,7 +577,6 @@ define(function(require) {
 				isUnloadCells,
 				topIndex,
 				bottomIndex,
-				rowLoadBottom,
 				height,
 				i = 0;
 			if (top > cache.localRowPosi || cache.localRowPosi === 0) {
@@ -600,6 +590,7 @@ define(function(require) {
 				bottom = bottom + cache.scrollBufferHeight;
 			}
 			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
+			//需要保存准备值
 			if (isUnloadRows) {
 				this.requestRows(top, bottom);
 				height = headItemRows.getMaxDistanceHeight();
@@ -611,7 +602,6 @@ define(function(require) {
 				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
 					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'),
 					cache.rowRegionPosi);
-				rowLoadBottom = bottom;
 			}
 			if (isUnloadCells) {
 				this.requestCells(top, bottom);
@@ -620,7 +610,7 @@ define(function(require) {
 				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
 					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
 			}
-			return rowLoadBottom;
+			return bottom;
 		},
 		requestRows: function(top, bottom) {
 			send.PackAjax({
@@ -770,7 +760,7 @@ define(function(require) {
 			}
 			loadRecorder.adaptPosi(startPosi, diffDistance, cache.rowRegionPosi);
 			loadRecorder.adaptPosi(startPosi, diffDistance, cache.cellRegionPosi.vertical);
-			if (cache.localRowPosi !== 0) {
+			if(cache.localRowPosi!==0){
 				cache.localRowPosi += diffDistance;
 			}
 		},

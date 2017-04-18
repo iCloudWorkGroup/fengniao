@@ -5,6 +5,9 @@ define(function(require) {
 		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
+		history = require('basic/tools/history'),
+		headItemCols = require('collections/headItemCol'),
+		headItemRows = require('collections/headItemRow'),
 		cells = require('collections/cells'),
 		colOperate = require('entrance/col/coloperation'),
 		rowOperate = require('entrance/row/rowoperation');
@@ -14,7 +17,10 @@ define(function(require) {
 			region,
 			operRegion,
 			sendRegion,
-			tempCellList;
+			tempCellList,
+			headItemRowList = headItemRows.models,
+			headItemColList = headItemCols.models,
+			changeModelList = [];
 		clip = selectRegions.getModelByType('clip')[0];
 		if (clip !== undefined) {
 			cache.clipState = 'null';
@@ -54,9 +60,22 @@ define(function(require) {
 		} else if (operRegion.endColIndex === 'MAX') { //整行操作
 			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.bd', bold);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell) {
-				cell.set('content.bd', bold);
+			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+				if (cell.get('content').bd !== bold) {
+					changeModelList.push({
+						colSort: colSort,
+						rowSort: rowSort,
+						value: cell.get('content').bd
+					});
+					cell.set('content.bd', bold);
+				}
 			});
+			history.addUpdateAction('content.bd', bold, {
+				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+			}, changeModelList);
 		}
 		sendData();
 		function sendData() {

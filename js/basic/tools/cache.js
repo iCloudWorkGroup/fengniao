@@ -160,7 +160,6 @@ define(function(require) {
 		cachePosition: function(aliasRow, aliasCol, index) {
 			var positionX,
 				positionY;
-			// cells=require('collections/cells');
 			positionX = this.CellsPosition.strandX;
 			if (!positionX[aliasCol]) {
 				positionX[aliasCol] = {};

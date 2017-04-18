@@ -6,6 +6,9 @@ define(function(require) {
 		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
+		history = require('basic/tools/history'),
+		headItemCols = require('collections/headItemCol'),
+		headItemRows = require('collections/headItemRow'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
 		cache = require('basic/tools/cache'),
@@ -13,11 +16,13 @@ define(function(require) {
 
 	commentHandler = {
 		modifyComment: function(sheetId, comment, label) {
-
 			var clip,
 				region,
 				operRegion,
-				sendRegion;
+				sendRegion,
+				headItemRowList = headItemRows.models,
+				headItemColList = headItemCols.models,
+				changeModelList = [];
 
 			clip = selectRegions.getModelByType('clip')[0];
 			if (clip !== undefined) {
@@ -38,11 +43,23 @@ define(function(require) {
 			} else if (operRegion.endRowIndex === 'MAX') {
 				colOperate.colPropOper(operRegion.startColIndex, 'customProp.comment', comment);
 			} else {
-				cells.operateCellsByRegion(operRegion, function(cell) {
-					cell.set('customProp.comment', comment);
+				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+					if (cell.get('customProp').comment !== comment) {
+						changeModelList.push({
+							colSort: colSort,
+							rowSort: rowSort,
+							value: cell.get('customProp').comment
+						});
+						cell.set('customProp.comment', comment);
+					}
 				});
+				history.addUpdateAction('customProp.comment', comment, {
+					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+				}, changeModelList);
 			}
-
 			this.sendData(sendRegion, comment, config.url.cell.comment_plus);
 		},
 

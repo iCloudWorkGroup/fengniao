@@ -70,7 +70,8 @@ define(function(require) {
 				CommentContainer = require('widgets/celloperation/commentcontainer'),
 				WordWrapContainer = require('widgets/celloperation/wordwrapcontainer'),
 				ColHide = require('widgets/hidecol/colhidecontainer'),
-				RegionDelContainer = require('widgets/celldel/regiondel');
+				RegionDelContainer = require('widgets/celldel/regiondel'),
+				UndoredoContainer = require('widgets/undoredo/undoredocontainer');
 			new ShearPlateContainer();
 			new FontFamilyContainer();
 			new FontSizeContainer();
@@ -88,6 +89,7 @@ define(function(require) {
 			new WordWrapContainer();
 			new RegionDelContainer();
 			new ColHide();
+			new UndoredoContainer();
 		},
 		buildExcelPublicAPI: function(SpreadSheet) {
 			SpreadSheet.prototype.setFontColor = setFontColor;

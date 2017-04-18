@@ -46,16 +46,16 @@ define(function(require) {
 
 			var modelRowList = headItemRows,
 				modelColList = headItemCols;
-
-			Backbone.on('event:destroyCellView', this.clear, this);
 			this.listenTo(this.model, 'change:physicsBox', this.render);
 			this.listenTo(this.model, 'change:content', this.render);
 			this.listenTo(this.model, 'change:border', this.render);
-			this.listenTo(this.model, 'change:format', this.render);
+			this.listenTo(this.model, 'change:format', this.formatType);
 			this.listenTo(this.model, 'change:customProp', this.render);
 			this.listenTo(this.model, 'change:highlight', this.render);
-			this.listenTo(this.model, 'change:wordWrap', this.adaptCellHight);
-			this.listenTo(this.model, 'change:content', this.adaptCellHight);
+			this.listenTo(this.model, 'change:wordWrap', this.render);
+			// this.listenTo(this.model, 'change:wordWrap', this.adaptCellHight);
+			// this.listenTo(this.model, 'change:content', this.adaptCellHight);
+
 			this.listenTo(this.model, 'change:isDestroy', this.destroy);
 			this.listenTo(this.model, 'change:commentShowState', this.commentViewHandler);
 			this.listenTo(this.model, 'change:hidden', this.destroy);
@@ -123,6 +123,7 @@ define(function(require) {
 				state: 'show'
 			};
 			Backbone.trigger('event:commentContainer:show', options);
+
 		},
 		hideComment: function() {
 			Backbone.trigger('event:commentContainer:remove');
@@ -165,6 +166,14 @@ define(function(require) {
 			this.showCommentSign(modelJSON);
 			return this;
 		},
+		formatType: function() {
+			textTypeHandler.typeRecognize(this.model);
+			textTypeHandler.generateDisplayText(this.model);
+			var modelJSON =this.model.toJSON();
+			this.setTransverseAlign(modelJSON);
+			this.setVerticalAlign(modelJSON);
+			this.$contentBody.html(this.getDisplayText(modelJSON));
+		},
 		/**
 		 * 更新单元格显示状态
 		 * @method changeShowState 
@@ -188,8 +197,6 @@ define(function(require) {
 		 * 根据不同单元格类型，生成不同displaytext
 		 * @return {[type]} [description]
 		 */
-		// getFormatText: function(modelJSON) {
-		// },
 		getDisplayText: function(modelJSON) {
 			var inputText,
 				texts,

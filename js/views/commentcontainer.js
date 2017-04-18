@@ -7,10 +7,11 @@ define(function(require) {
 		getOperRegion = require('basic/tools/getoperregion'),
 		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
-		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		commentHandler = require('entrance/tool/comment'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
+
 		commentContainer;
 
 	commentContainer = Backbone.View.extend({
@@ -264,31 +265,7 @@ define(function(require) {
 			if (this.state !== 'show') {
 				comment = this.$el.val();
 				comment = comment || '';
-				select = selectRegions.getModelByType('operation')[0];
-				startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
-				startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
-				if (select.get('wholePosi').endX === 'MAX') {
-					endColIndex = 'MAX';
-					endRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').endY);
-					rowOperate.rowPropOper(startRowIndex, 'customProp.comment', comment);
-				} else if (select.get('wholePosi').endY === 'MAX') {
-					endRowIndex = 'MAX';
-					endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
-					colOperate.colPropOper(startColIndex, 'customProp.comment', comment);
-				} else {
-					endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
-					endRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').endY);
-					cellsList = cells.getFillCellsByRegion(
-						startRowIndex,
-						startColIndex,
-						endRowIndex,
-						endColIndex
-					);
-					for (i in cellsList) {
-						cellsList[i].set('customProp.comment', comment);
-					}
-				}
-				this.sendData(comment);
+				commentHandler.modifyComment('1', comment);
 			}
 			cache.commentEditState = false;
 			this.remove();
