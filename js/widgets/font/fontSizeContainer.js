@@ -5,7 +5,7 @@ define(function(require) {
 		Backbone = require('lib/backbone'),
 		send = require('basic/tools/send'),
 		selectRegions = require('collections/selectRegion'),
-		setFontFamilySize = require('entrance/tool/setfontfamilysize'),
+		setFontSize = require('entrance/tool/setfontsize'),
 		setCellHeight = require('entrance/cell/setcellheight');
 
 
@@ -47,7 +47,7 @@ define(function(require) {
 			fontSize = $currentTarget.data('size');
 			text = $currentTarget.text();
 			$("#fontSizeShow").text(text);
-			setFontFamilySize('1', fontSize);
+			setFontSize('1', fontSize);
 		}
 	});
 	return FontSizeContainer;

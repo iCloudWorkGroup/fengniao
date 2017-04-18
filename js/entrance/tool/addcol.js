@@ -48,9 +48,10 @@ define(function(require) {
 			this._removeLastColItem();
 			this._frozenHandle(operRegion.startColIndex);
 			send.PackAjax({
-				url: 'cells.htm?m=cols_insert',
+				url: config.url.col.plus,
 				data: JSON.stringify({
-					colSort: sendRegion.startSortX,
+					sheetId: '1',
+					col: sendRegion.startCol,
 				}),
 			});
 		},

@@ -2,6 +2,7 @@
 define(function(require) {
 	var send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		cells = require('collections/cells'),
@@ -68,7 +69,7 @@ define(function(require) {
 
 		function sendData() {
 			send.PackAjax({
-				url: 'cells.htm?m=merge_delete',
+				url: config.url.cell.split,
 				data: JSON.stringify({
 					coordinate: sendRegion
 				}),

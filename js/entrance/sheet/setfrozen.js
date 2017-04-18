@@ -4,6 +4,7 @@ define(function(require) {
 	var Backbone = require('lib/backbone'),
 		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
@@ -152,12 +153,12 @@ define(function(require) {
 		var startColSort = headItemCols.getModelByAlias(cache.UserView.colAlias).get('sort'),
 			startRowSort = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('sort');
 		send.PackAjax({
-			url: 'sheet.htm?m=frozen',
+			url: config.url.sheet.frozen,
 			data: JSON.stringify({
-				frozenSortX: frozenColSort,
-				frozenSortY: frozenRowSort,
-				startSortX: startColSort,
-				startSortY: startRowSort
+				orignalCol: frozenColSort,
+				orignalRow: frozenRowSort,
+				viewCol: startColSort,
+				viewRow: startRowSort
 			})
 		});
 	};
@@ -167,7 +168,7 @@ define(function(require) {
 	 */
 	var requestUnfrozen = function() {
 		send.PackAjax({
-			url: 'sheet.htm?m=unFrozen'
+			url: config.url.sheet.unfrozen
 		});
 	};
 	return setFrozen;

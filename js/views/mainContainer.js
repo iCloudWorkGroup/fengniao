@@ -624,14 +624,13 @@ define(function(require) {
 		},
 		requestRows: function(top, bottom) {
 			send.PackAjax({
-				url: 'excel.htm?m=openexcel',
+				url: config.url.sheet.load,
 				async: false,
 				isPublic: false,
 				data: JSON.stringify({
-					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 					sheetId: '1',
-					rowBegin: top,
-					rowEnd: bottom
+					top: top,
+					bottom: bottom
 				}),
 				success: function(data) {
 					if (data === '') {
@@ -647,14 +646,13 @@ define(function(require) {
 		},
 		requestCells: function(top, bottom) {
 			send.PackAjax({
-				url: 'excel.htm?m=openexcel',
+				url: config.url.sheet.load,
 				async: false,
 				isPublic: false,
 				data: JSON.stringify({
-					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 					sheetId: '1',
-					rowBegin: top,
-					rowEnd: bottom
+					top: top,
+					bottom: bottom
 				}),
 				success: function(data) {
 					if (data === '') {
@@ -817,9 +815,9 @@ define(function(require) {
 			len = Math.ceil((height + cache.scrollBufferHeight - maxheadItemHeight) / config.User.cellHeight);
 			headItemRows.generate(len);
 			send.PackAjax({
-				url: 'sheet.htm?m=addrowline',
+				url: config.url.row.plus_batch,
 				data: JSON.stringify({
-					rowNum: len
+					num: len
 				})
 			});
 			this.adjustColPropCell(startIndex, startIndex + len - 1);

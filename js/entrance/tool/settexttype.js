@@ -312,7 +312,6 @@ define(function(require) {
 		sendData: function(format, sendRegion) {
 			var data;
 			data = {
-				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 				sheetId: '1',
 				coordinate: sendRegion,
 				format: format.type
@@ -334,7 +333,7 @@ define(function(require) {
 					break;
 			}
 			send.PackAjax({
-				url: 'text.htm?m=data_format',
+				url: config.url.cell.format,
 				data: JSON.stringify(data)
 			});
 		},

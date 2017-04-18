@@ -3,13 +3,14 @@ define(function(require) {
 	var send = require('basic/tools/send'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation');
 
 
-	var setFontFamilySize = function(sheetId, fontSize, label) {
+	var setFontSize = function(sheetId, fontSize, label) {
 		var clip,
 			region,
 			operRegion,
@@ -41,8 +42,9 @@ define(function(require) {
 		sendData();
 		function sendData() {
 			send.PackAjax({
-				url: 'text.htm?m=font_size',
+				url: config.url.cell.font_size,
 				data: JSON.stringify({
+					sheetId: "1",
 					coordinate: sendRegion,
 					size: fontSize
 				})
@@ -50,5 +52,5 @@ define(function(require) {
 		}
 
 	};
-	return setFontFamilySize;
+	return setFontSize;
 });

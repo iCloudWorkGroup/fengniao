@@ -1,6 +1,7 @@
 'use strict';
 define(function(require) {
 	var send = require('basic/tools/send'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
@@ -31,27 +32,27 @@ define(function(require) {
 
 		switch (alignType) {
 			case 'left':
-				url = 'cells.htm?m=align_level';
+				url = config.url.cell.align_transverse;
 				transverse = 'left';
 				break;
 			case 'center':
-				url = 'cells.htm?m=align_level';
+				url = config.url.cell.align_transverse;
 				transverse = 'center';
 				break;
 			case 'right':
-				url = 'cells.htm?m=align_level';
+				url = config.url.cell.align_transverse;
 				transverse = 'right';
 				break;
 			case 'top':
-				url = 'cells.htm?m=align_vertical';
+				url = config.url.cell.align_vertical;
 				vertical = 'top';
 				break;
 			case 'middle':
-				url = 'cells.htm?m=align_vertical';
+				url = config.url.cell.align_vertical;
 				vertical = 'middle';
 				break;
 			case 'bottom':
-				url = 'cells.htm?m=align_vertical';
+				url = config.url.cell.align_vertical;
 				vertical = 'bottom';
 				break;
 			default:
@@ -92,7 +93,7 @@ define(function(require) {
 				url: url,
 				data: JSON.stringify({
 					coordinate: sendRegion,
-					alignStyle: type
+					align: type
 				})
 			});
 		}

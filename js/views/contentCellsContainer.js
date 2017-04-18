@@ -123,14 +123,13 @@ define(function(require) {
 		},
 		getCells: function(top, bottom) {
 			send.PackAjax({
-				url: 'excel.htm?m=openexcel',
+				url: config.url.sheet.load,
 				isPublic: false,
 				async: false,
 				data: JSON.stringify({
-					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 					sheetId: '1',
-					rowBegin: top,
-					rowEnd: bottom
+					top: top,
+					bottom: bottom
 				}),
 				success: function(data) {
 					if (data === '') {
