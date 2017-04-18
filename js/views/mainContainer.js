@@ -619,8 +619,8 @@ define(function(require) {
 				isPublic: false,
 				data: JSON.stringify({
 					sheetId: '1',
-					rowBegin: top,
-					rowEnd: bottom
+					top: top,
+					bottom: bottom
 				}),
 				success: function(data) {
 					if (data === '') {
@@ -640,10 +640,9 @@ define(function(require) {
 				async: false,
 				isPublic: false,
 				data: JSON.stringify({
-					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 					sheetId: '1',
-					rowBegin: top,
-					rowEnd: bottom
+					top: top,
+					bottom: bottom
 				}),
 				success: function(data) {
 					if (data === '') {
@@ -808,7 +807,7 @@ define(function(require) {
 			send.PackAjax({
 				url: config.url.row.plus_batch,
 				data: JSON.stringify({
-					rowNum: len
+					num: len
 				})
 			});
 			this.adjustColPropCell(startIndex, startIndex + len - 1);

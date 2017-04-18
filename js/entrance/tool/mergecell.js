@@ -2,6 +2,7 @@
 define(function(require) {
 	var send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		history = require('basic/tools/history'),
 		cells = require('collections/cells'),

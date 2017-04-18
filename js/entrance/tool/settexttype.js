@@ -294,7 +294,6 @@
           headItemColList = headItemCols.models,
           operRegion,
           sendRegion;
-
         clip = selectRegions.getModelByType('clip')[0];
         if (clip !== undefined) {
           cache.clipState = 'null';
@@ -463,7 +462,6 @@
           value = head + '.' + tail;
         }
         return value;
-
       },
       isDate: function(value) {
         var regularLine = /^\d{4}\/\d{1,2}\/\d{1,2}$/,

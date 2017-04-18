@@ -225,7 +225,6 @@ define(function(require) {
 			this.adjustCells(itemElIndex, diffDistance);
 			this.adjustSelectRegion(itemElIndex, diffDistance);
 			this.requstAdjust(itemElIndex, height);
-			
 			if (this.viewCellsContainer === undefined || this.viewRowsAllHeadContainer === undefined) {
 				this.triggerCallback();
 			}

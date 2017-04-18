@@ -269,6 +269,18 @@ define(function(require) {
 			}
 			cache.commentEditState = false;
 			this.remove();
+		},
+		sendData: function(comment) {
+			var sendData;
+			sendData = getOperRegion().sendRegion;
+			send.PackAjax({
+				url: config.url.cell.comment_plus,
+				data: JSON.stringify({
+					sheetId: '1',
+					coordinate: sendData,
+					comment: comment
+				})
+			});
 		}
 	});
 	return commentContainer;
