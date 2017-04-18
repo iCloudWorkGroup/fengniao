@@ -2,11 +2,11 @@
 define(function(require) {
 	var send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
-		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		history = require('basic/tools/history'),
 		cells = require('collections/cells'),
 		Cell = require('models/cell'),
+		config = require('spreadsheet/config'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		getOperRegion = require('basic/tools/getoperregion'),
@@ -66,6 +66,7 @@ define(function(require) {
 		 * 不存在含有文本单元格，直接以左上角为模板进行扩大
 		 */
 		cellList = cells.getCellByTransverse(startRowIndex, startColIndex, endRowIndex, endColIndex);
+
 		len = cellList.length;
 		for (i = 0; i < len; i++) {
 			if (cellList[i].get('content').texts !== '') {

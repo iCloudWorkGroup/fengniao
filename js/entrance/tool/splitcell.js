@@ -2,10 +2,10 @@
 define(function(require) {
 	var send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
-		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		history = require('basic/tools/history'),
+		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
@@ -54,10 +54,9 @@ define(function(require) {
 
 		//选中区域内所有单元格对象
 		selectRegionCells = cells.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
-		headLineColList = headItemCols.models;
-		headLineRowList = headItemRows.models;
 		len = selectRegionCells.length;
 
+		
 		cellPosi = cache.CellsPosition.strandX;
 		for (i = 0; i < len; i++) {
 			occupy=selectRegionCells[i].get('occupy');
@@ -72,6 +71,7 @@ define(function(require) {
 				cache.deletePosi(aliasRow, aliasCol);
 			}
 		}
+
 		
 		for (i = 0; i < len; i++) {
 			cacheCell = selectRegionCells[i].clone();

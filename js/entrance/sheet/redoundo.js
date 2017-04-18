@@ -5,6 +5,7 @@ define(function(require) {
 		cache = require('basic/tools/cache'),
 		binary = require('basic/util/binary'),
 		send = require('basic/tools/send'),
+		config = require('spreadsheet/config'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		cells = require('collections/cells'),
@@ -79,7 +80,7 @@ define(function(require) {
 					}
 				}
 			}
-			this.sendData('');
+			this.sendData(config.url.sheet.redo);
 		},
 		undo: function() {
 			var headItemRowList = headItemRows.models,
@@ -142,7 +143,7 @@ define(function(require) {
 					}
 				}
 			}
-			this.sendData('');
+			this.sendData(config.url.sheet.undo);
 		},
 		sendData: function(url) {
 			send.PackAjax({
