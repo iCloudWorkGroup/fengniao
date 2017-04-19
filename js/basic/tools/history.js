@@ -1,5 +1,5 @@
 'use strict';
-define(function(require) {
+define(function() {
 	var historyList = [{}],
 		historyIndex = 0,
 		history;
@@ -57,6 +57,6 @@ define(function(require) {
 			historyIndex = 0;
 			historyList=[];
 		}
-	}
+	};
 	return history;
 });
