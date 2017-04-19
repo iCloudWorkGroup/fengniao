@@ -537,10 +537,10 @@ define(function(require) {
 		 * @method destoryDelegate
 		 */
 		destoryDelegate: function() {
-			this.$el.off('mousemove', self.drag);
+			this.$el.off('mousemove', this.drag);
 		},
 		/**
-		 * 触发回调幻术，绑定其他View类
+		 * 触发回调函数，绑定其他View类
 		 * @method triggerCallback 
 		 */
 		triggerCallback: function() {
