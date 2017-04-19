@@ -109,13 +109,17 @@ define(function(require) {
 		 * @return {int} 索引
 		 */
 		getIndexByAlias: function(alias) {
+			var i, len, modelList = this.models;
 			if (alias === 'MAX') {
 				return 'MAX';
 			} else {
-				return _.findIndex(this.toJSON(), {
-					'alias': alias
-				});
+				for (i = 0, len = this.length; i < len; i++) {
+					if (modelList[i].get('alias') === alias) {
+						return i;
+					}
+				}
 			}
+			return -1;
 		},
 		getNextAliasByAlias: function(alias) {
 			var index,

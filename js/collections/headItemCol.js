@@ -87,13 +87,17 @@ define(function(require) {
 		 * @return {int} 索引值
 		 */
 		getIndexByAlias: function(alias) {
+			var i, len, modelList = this.models;
 			if (alias === 'MAX') {
 				return 'MAX';
 			} else {
-				return _.findIndex(this.toJSON(), {
-					'alias': alias
-				});
+				for (i = 0, len = this.length; i < len; i++) {
+					if (modelList[i].get('alias') === alias) {
+						return i;
+					}
+				}
 			}
+			return -1;
 		},
 		/**
 		 * 通过别名查询符合条件标线的对象
