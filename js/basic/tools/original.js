@@ -240,9 +240,8 @@ define(function(require) {
 					//重新渲染cell模型宽高
 					tempCell.set('physicsBox', physicsBox);
 				} else {
-					tempCell = new Cell(cellAttributes);
-					tempCell.set('physicsBox', physicsBox);
-					cells.add(tempCell);
+					cellAttributes.physicsBox = physicsBox;
+					cells.add(cellAttributes);
 					//维护postion
 					for (j = 0; j < gridAliasColList.length; j++) {
 						for (k = 0; k < gridAliasRowList.length; k++) {
