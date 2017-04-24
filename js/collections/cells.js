@@ -754,7 +754,7 @@ define(function(require) {
 			this.operBottomHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
 			this.operTopHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
 			this.operLeftHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
-			this.operRightHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn)
+			this.operRightHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
 		},
 		/**
 		 * 获取单元格相邻单元格
@@ -1075,7 +1075,7 @@ define(function(require) {
 					startColIndex: startColIndex,
 					endRowIndex: endRowIndex,
 					endColIndex: headItemCols.length - 1
-				}
+				};
 			}
 			if (endRowIndex === 'MAX') {
 				return {
@@ -1083,7 +1083,7 @@ define(function(require) {
 					startColIndex: startColIndex,
 					endColIndex: endColIndex,
 					endRowIndex: headItemRows.length - 1
-				}
+				};
 			}
 			if (startColIndex > endColIndex) {
 				temp = startColIndex;

@@ -1,5 +1,5 @@
 define(function(require) {
-  	'use strict';
+	'use strict';
 	var $ = require('lib/jquery'),
 		config = require('spreadsheet/config'),
 		binary = require('basic/util/binary'),
@@ -326,9 +326,7 @@ define(function(require) {
 				selectRegionModel = {
 					physicsBox: {
 						top: cell.get('physicsBox').top,
-						left: cell.get('physicsBox').left
-					},
-					physicsBox: {
+						left: cell.get('physicsBox').left,
 						width: cell.get('physicsBox').width,
 						height: cell.get('physicsBox').height
 					},
