@@ -2,7 +2,6 @@
 //, secound phease correction
 //attention bug, remarket lack isn't exist `remarket` property .
 //attention bug, showState is or not exist value ?
-
 'use strict';
 define(function(require) {
 	var BackboneNest = require('lib/backbone.nested'),
