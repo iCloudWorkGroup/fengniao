@@ -61,6 +61,8 @@ define(function(require) {
 			this.listenTo(this.model, 'change:hidden', this.destroy);
 			this.listenTo(this.model, 'destroy', this.clear);
 
+			this.template = options.template;
+
 			this.currentRule = options.currentRule;
 			if (cache.TempProp.isFrozen !== true ||
 				this.currentRule.displayPosition.endRowIndex === undefined) {
@@ -134,8 +136,6 @@ define(function(require) {
 		 */
 		render: function() {
 			var modelJSON = this.model.toJSON();
-
-			this.template = Handlebars.compile($('#tempItemCell').html());
 			// this.$el.removeAttr('style');
 			this.$el.css({
 				'width': modelJSON.physicsBox.width,

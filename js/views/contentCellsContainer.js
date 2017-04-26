@@ -3,6 +3,7 @@ define(function(require) {
 	var $ = require('lib/jquery'),
 		_ = require('lib/underscore'),
 		Backbone = require('lib/backbone'),
+		Handlebars = require('lib/handlebars'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		util = require('basic/util/clone'),
@@ -172,9 +173,11 @@ define(function(require) {
 				}
 			}
 
+			this.cellTemplate = this.cellTemplate || Handlebars.compile($('#tempItemCell').html());
 			this.cellView = new CellContainer({
 				model: cell,
-				currentRule: this.currentRule
+				currentRule: this.currentRule,
+				template: this.cellTemplate
 			});
 			this.$el.append(this.cellView.render().el);
 		},
