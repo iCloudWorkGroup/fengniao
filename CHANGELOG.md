@@ -1,3 +1,15 @@
+<a name="0.11.0"></a>
+# [0.11.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.10.0...v0.11.0) (2017-04-27)
+
+
+### Bug Fixes
+
+* **config.js:** �޸�`rootPath`���� (#167) ([7b9a4b2](https://github.com/iCloudWorkGroup/fengniao/commit/7b9a4b2))
+* **main.css:** 修改sheet名称居中样式 (#166) ([3c3af34](https://github.com/iCloudWorkGroup/fengniao/commit/3c3af34))
+* **toolbar.css:** �޸���ʽ����ͻ (#169) ([09696c5](https://github.com/iCloudWorkGroup/fengniao/commit/09696c5))
+
+
+
 <a name="0.10.0"></a>
 # [0.10.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.9.0...v0.10.0) (2017-04-18)
 将请求修改为rest风格
