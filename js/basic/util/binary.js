@@ -198,27 +198,27 @@ define(function() {
 		 * 二分查询，暂时查询sort值使用
 		 */
 		indexAttrBinary: function(value, array, attr, startIndex, endIndex) {
-			var	middleIndex;
-			
+			var middleIndex;
+
 			startIndex = startIndex || 0;
 			endIndex = endIndex || array.length - 1;
-			if (array[startIndex].get(attr) > value) {
+			if (array[startIndex].attributes[attr] > value) {
 				return -1;
 			}
-			if (array[endIndex].get(attr) < value) {
+			if (array[endIndex].attributes[attr] < value) {
 				return -1;
 			}
 			while (startIndex < endIndex) {
-				if (array[startIndex].get(attr)=== value) {
+				if (array[startIndex].attributes[attr] === value) {
 					return startIndex;
 				}
-				if (array[endIndex].get(attr) === value) {
+				if (array[endIndex].attributes[attr] === value) {
 					return endIndex;
 				}
 				middleIndex = endIndex + startIndex >>> 1;
-				if (array[middleIndex].get(attr) === value) {
+				if (array[middleIndex].attributes[attr] === value) {
 					return middleIndex;
-				} else if (array[middleIndex].get(attr) < value) {
+				} else if (array[middleIndex].attributes[attr] < value) {
 					startIndex = middleIndex + 1;
 				} else {
 					endIndex = middleIndex;

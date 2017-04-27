@@ -188,6 +188,10 @@ define(function() {
 
 		},
 		version: '@version@',
-		rootPath: 'http://excel-inc.acmr.com.cn/spreadsheet/'
+<<<<<<< HEAD
+		rootPath: 'http://localhost:8080/fn/'
+=======
+		rootPath: 'http://excel-inc.acmr.com.cn/fn/'
+>>>>>>> master
 	};
 });

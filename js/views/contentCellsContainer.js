@@ -1,8 +1,6 @@
 define(function(require) {
 	'use strict';
-	var $ = require('lib/jquery'),
-		_ = require('lib/underscore'),
-		Backbone = require('lib/backbone'),
+	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		util = require('basic/util/clone'),
