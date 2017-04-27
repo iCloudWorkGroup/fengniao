@@ -57,6 +57,6 @@ define(function() {
 			historyIndex = 0;
 			historyList=[];
 		}
-	}
+	};
 	return history;
 });
