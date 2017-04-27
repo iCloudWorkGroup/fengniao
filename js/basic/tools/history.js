@@ -1,5 +1,5 @@
 'use strict';
-define(function(require) {
+define(function() {
 	var historyList = [{}],
 		historyIndex = 0,
 		history;

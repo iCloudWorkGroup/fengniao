@@ -1130,7 +1130,7 @@ define(function(require) {
 				startColIndex: startColIndex,
 				endRowIndex: endRowIndex,
 				endColIndex: endColIndex
-			}
+			};
 		},
 	});
 	return new Cells();

@@ -380,10 +380,10 @@ define(function(require) {
 			}
 
 			if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
-				selectModel = selectRegions.getModelByType('dataSource');
+				selectModel = selectRegions.getModelByType('datasource');
 				if (typeof selectModel === 'undefined') {
 					selectModel = new SelectRegionModel();
-					selectModel.set('selectType', 'dataSource');
+					selectModel.set('selectType', 'datasource');
 					selectRegions.add(selectModel);
 				}
 			} else {

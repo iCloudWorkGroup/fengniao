@@ -11,10 +11,4 @@ define(function(require) {
 	window.SPREADSHEET_BUILD_STATE = $('#build').val();
 	var ss = new SpreadSheet('spreadSheet');
 
-	$('#t').on('click',function(){
-		ss.startHighlight();
-	});
-	$('#tt').on('click',function(){
-		ss.stopHighlight();
-	});
 });
