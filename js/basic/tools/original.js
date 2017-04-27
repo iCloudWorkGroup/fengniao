@@ -7,9 +7,6 @@ define(function(require) {
 		send = require('basic/tools/send'),
 		loadRecorder = require('basic/tools/loadrecorder'),
 		buildAlias = require('basic/tools/buildalias'),
-		LineRow = require('models/lineRow'),
-		LineCol = require('models/lineCol'),
-		Cell = require('models/cell'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		siderLineCols = require('collections/siderLineCol'),
@@ -86,7 +83,7 @@ define(function(require) {
 					alias: rows[i].aliasY,
 					operProp: rows[i].operProp,
 					displayName: buildAlias.buildRowAlias(startRowSort + i)
-				}
+				};
 				headItemRows.push(tempHeadRow, {
 					at: index
 				});
@@ -146,7 +143,7 @@ define(function(require) {
 						width: config.User.cellWidth,
 						alias: (headItemCols.length + 1).toString(),
 						displayName: buildAlias.buildColAlias(collen + j),
-					}
+					};
 					headItemCols.add(tempHeadCol);
 				}
 			}

@@ -92,7 +92,7 @@ define(function(require) {
 				return 'MAX';
 			} else {
 				for (i = 0, len = this.length; i < len; i++) {
-					if (modelList[i].get('alias') === alias) {
+					if (modelList[i].attributes.alias === alias) {
 						return i;
 					}
 				}

@@ -5,6 +5,7 @@
 define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
+		_ = require('lib/underscore'),
 		Handlebars = require('lib/handlebars'),
 		binary = require('basic/util/binary'),
 		Backbone = require('lib/backbone'),
@@ -60,8 +61,6 @@ define(function(require) {
 			this.listenTo(this.model, 'change:commentShowState', this.commentViewHandler);
 			this.listenTo(this.model, 'change:hidden', this.destroy);
 			this.listenTo(this.model, 'destroy', this.clear);
-
-			this.template = options.template;
 
 			this.currentRule = options.currentRule;
 			if (cache.TempProp.isFrozen !== true ||
@@ -137,6 +136,7 @@ define(function(require) {
 		render: function() {
 			var modelJSON = this.model.toJSON();
 			// this.$el.removeAttr('style');
+			this.template =Handlebars.compile($('#tempItemCell').html());
 			this.$el.css({
 				'width': modelJSON.physicsBox.width,
 				'height': modelJSON.physicsBox.height,
@@ -169,7 +169,7 @@ define(function(require) {
 		formatType: function() {
 			textTypeHandler.typeRecognize(this.model);
 			textTypeHandler.generateDisplayText(this.model);
-			var modelJSON =this.model.toJSON();
+			var modelJSON = this.model.toJSON();
 			this.setTransverseAlign(modelJSON);
 			this.setVerticalAlign(modelJSON);
 			this.$contentBody.html(this.getDisplayText(modelJSON));
