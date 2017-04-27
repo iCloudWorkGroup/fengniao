@@ -314,11 +314,9 @@ define(function(require) {
 				startRowIndex = headItemRows.getIndexByAlias(rowAlias);
 
 				selectRegionModel = {
-					physicsPosi: {
-						top: cell.get('physicsBox').top,
-						left: cell.get('physicsBox').left
-					},
 					physicsBox: {
+						top: cell.get('physicsBox').top,
+						left: cell.get('physicsBox').left,
 						width: cell.get('physicsBox').width,
 						height: cell.get('physicsBox').height
 					},
@@ -366,13 +364,11 @@ define(function(require) {
 				}
 			} else {
 				selectRegionModel = {
-					physicsPosi: {
-						top: headItemRowModel.get('top'),
-						left: headItemColModel.get('left')
-					},
 					physicsBox: {
 						width: headItemColModel.get('width'),
-						height: headItemRowModel.get('height')
+						height: headItemRowModel.get('height'),
+						top: headItemRowModel.get('top'),
+						left: headItemColModel.get('left')
 					},
 					wholePosi: {
 						startX: colAlias,

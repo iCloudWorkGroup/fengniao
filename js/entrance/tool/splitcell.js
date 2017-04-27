@@ -6,7 +6,6 @@ define(function(require) {
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		history = require('basic/tools/history'),
-		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
@@ -33,7 +32,7 @@ define(function(require) {
 			aliasCol,
 			aliasRow;
 		//选中区域内开始坐标，结束坐标
-		clip = selectRegions.getModelByType('clip')[0];
+		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
 			cache.clipState = 'null';
 			clip.destroy();

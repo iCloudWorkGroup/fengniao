@@ -27,7 +27,7 @@ define(function(require) {
 				index,
 				height;
 
-			clip = selectRegions.getModelByType('clip')[0];
+			clip = selectRegions.getModelByType('clip');
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
@@ -103,7 +103,7 @@ define(function(require) {
 				height,
 				top,
 				endRowIndex;
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('selected');
 			startRowAlias = select.get('wholePosi').startY;
 			endRowAlias = select.get('wholePosi').endY;
 			startRowIndex = headItemRows.getIndexByAlias(startRowAlias);
@@ -113,9 +113,9 @@ define(function(require) {
 				return;
 			}
 			if (startRowIndex >= index) {
-				top = select.get('physicsPosi').top;
+				top = select.get('physicsBox').top;
 				top += config.User.cellHeight;
-				select.set('physicsPosi.top', top);
+				select.set('physicsBox.top', top);
 				siderLineRows.models[0].set('top', top);
 				startRowIndex++;
 			}

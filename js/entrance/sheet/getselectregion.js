@@ -25,7 +25,7 @@ define(function(require) {
 			endRowIndex, i;
 
 		selectRegion = selectRegions.findWhere({
-			'selectType': 'operation'
+			'selectType': 'selected'
 		});
 		startColAlias = selectRegion.get('wholePosi').startX;
 		startRowAlias = selectRegion.get('wholePosi').startY;

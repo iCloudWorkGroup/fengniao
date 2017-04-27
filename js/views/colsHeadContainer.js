@@ -231,12 +231,7 @@ define(function(require) {
 			this.adjustSelectRegion(itemElIndex, diffDistance);
 			this.requstAdjust(itemElIndex, width);
 			this.triggerCallback();
-
-			this.viewCellsContainer.attributesRender({
-				width: headItemCols.getMaxDistanceWidth(),
-				height: headItemRows.getMaxDistanceHeight()
-			});
-
+			Backbone.trigger('event:cellsContainer:adaptWidth');
 			this.viewColsAllHeadContainer.$el.css({
 				width: headItemCols.getMaxDistanceWidth()
 			});
@@ -439,8 +434,8 @@ define(function(require) {
 				selectRegionModel.set("physicsBox.width", cacheWidth + pixel);
 				siderLineColModel.set("width", cacheWidth + pixel);
 			} else {
-				cacheLeft = selectRegionModel.get("physicsPosi").left;
-				selectRegionModel.set("physicsPosi.left", cacheLeft + pixel);
+				cacheLeft = selectRegionModel.get("physicsBox").left;
+				selectRegionModel.set("physicsBox.left", cacheLeft + pixel);
 				siderLineColModel.set("left", cacheLeft + pixel);
 			}
 		},

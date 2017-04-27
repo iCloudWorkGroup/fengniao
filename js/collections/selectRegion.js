@@ -30,7 +30,7 @@ define(function(require) {
 		 */
 		getAdjacent: function(direction) {
 			var initPosiIndex = this.models[0].get('initPosi'),
-				physicsPosi = this.models[0].get('physicsPosi'),
+				physicsBox = this.models[0].get('physicsBox'),
 				wholePosiIndex = this.models[0].get('wholePosi'),
 				initPosiRowIndex = initPosiIndex.startX,
 				wholePosiStartRowIndex = wholePosiIndex.startX,
@@ -40,24 +40,24 @@ define(function(require) {
 				case 'LEFT':
 					model.initPosi = {};
 					model.wholePosi = {};
-					model.physicsPosi = {};
+					model.physicsBox = {};
 					model.physicsBox = {};
 					model.initPosi.startX = initPosiRowIndex - 1;
 					model.wholePosi.startX = wholePosiStartRowIndex - 1;
 					model.wholePosi.endX = wholePosiEndRowIndex - 1;
-					model.physicsPosi.left = physicsPosi.left - config.User.cellWidth;
+					model.physicsBox.left = physicsBox.left - config.User.cellWidth;
 					this.models[0].set(model);
 					break;
 				case 'RIGHT':
 
 					model.initPosi = {};
 					model.wholePosi = {};
-					model.physicsPosi = {};
+					model.physicsBox = {};
 					model.physicsBox = {};
 					model.initPosi.startX = initPosiRowIndex + 1;
 					model.wholePosi.startX = wholePosiStartRowIndex + 1;
 					model.wholePosi.endX = wholePosiEndRowIndex + 1;
-					model.physicsPosi.left = physicsPosi.left + config.User.cellWidth;
+					model.physicsBox.left = physicsBox.left + config.User.cellWidth;
 					this.models[0].set(model);
 					break;
 				case 'UP':
@@ -72,7 +72,7 @@ define(function(require) {
 		 * @return {array} 筛选结果
 		 */
 		getModelByType: function(type) {
-			return this.where({
+			return this.findWhere({
 				selectType: type
 			});
 		}

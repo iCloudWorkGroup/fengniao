@@ -20,11 +20,11 @@ define(function(require) {
 			i,
 			j;
 
-		clipModel = selectRegions.getModelByType('clip')[0];
+		clipModel = selectRegions.getModelByType('clip');
 		if (clipModel !== undefined) {
 			clipModel.destroy();
 		}
-		selectRegion = selectRegions.getModelByType('operation')[0];
+		selectRegion = selectRegions.getModelByType('selected');
 		//整行整列，禁止复制
 		if(selectRegion.get('wholePosi').endX === 'MAX' ||
 			selectRegion.get('wholePosi').endY === 'MAX'){
