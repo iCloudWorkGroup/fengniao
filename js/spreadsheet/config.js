@@ -102,7 +102,7 @@ define(function() {
 			maxRowNum: 9999
 		},
 		mouseOperateState: {
-			select: 'operation',
+			select: 'selected',
 			dataSource: 'datasource',
 			drag: 'drag',
 			highlight: 'highlight'

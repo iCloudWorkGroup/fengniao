@@ -27,6 +27,7 @@ define(function(require) {
 		excelBuild.buildDataSourceOperation(SpreadSheet);
 		excelBuild.buildExcelEventListener(SpreadSheet);
 		excelBuild.buildExcelExtend(SpreadSheet);
+
 	}
 	SpreadSheet.Point = Point;
 	return SpreadSheet;

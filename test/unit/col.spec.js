@@ -43,7 +43,7 @@ define(function(require) {
 			var select;
 
 			selectRegions.add({
-				physicsPosi: {
+				physicsBox: {
 					top: 40,
 					left: 72,
 				},
@@ -58,10 +58,10 @@ define(function(require) {
 					endY: '6'
 				}
 			});
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('operation');
 
 			deleteColhandle._adaptSelectRegion(9);
-			expect(select.get('physicsPosi').left).toEqual(72);
+			expect(select.get('physicsBox').left).toEqual(72);
 			expect(select.get('physicsBox').width).toEqual(288);
 			expect(select.get('wholePosi').startX).toEqual('2');
 			expect(select.get('wholePosi').startY).toEqual('3');
@@ -70,24 +70,24 @@ define(function(require) {
 
 
 			deleteColhandle._adaptSelectRegion(3);
-			expect(select.get('physicsPosi').left).toEqual(72);
+			expect(select.get('physicsBox').left).toEqual(72);
 			expect(select.get('physicsBox').width).toEqual(216);
 			expect(select.get('wholePosi').startX).toEqual('2');
 			expect(select.get('wholePosi').endX).toEqual('5');
 
 			select.set('wholePosi.endX', '2');
 			select.set('physicsBox.width', 72);
-			select.set('physicsPosi.left', 72);
+			select.set('physicsBox.left', 72);
 			deleteColhandle._adaptSelectRegion(1);
 
-			expect(select.get('physicsPosi').left).toEqual(72);
+			expect(select.get('physicsBox').left).toEqual(72);
 			expect(select.get('physicsBox').width).toEqual(71);
 			expect(select.get('wholePosi').startX).toEqual('3');
 			expect(select.get('wholePosi').endX).toEqual('3');
 
 			deleteColhandle._adaptSelectRegion(0);
 
-			expect(select.get('physicsPosi').left).toEqual(0);
+			expect(select.get('physicsBox').left).toEqual(0);
 			expect(select.get('physicsBox').width).toEqual(71);
 			expect(select.get('wholePosi').startX).toEqual('3');
 			expect(select.get('wholePosi').endX).toEqual('3');
@@ -158,7 +158,7 @@ define(function(require) {
 				colFrozen: true
 			};
 			selectRegions.add({
-				physicsPosi: {
+				physicsBox: {
 					top: 40,
 					left: 72,
 				},
@@ -232,7 +232,7 @@ define(function(require) {
 		it("调整选中区域测试", function() {
 			var select;
 			selectRegions.add({
-				physicsPosi: {
+				physicsBox: {
 					left: 72,
 				},
 				physicsBox: {
@@ -243,23 +243,23 @@ define(function(require) {
 					endX: '2',
 				}
 			});
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('operation');
 
 			addColhandle._adaptSelectRegion(5);
-			expect(select.get('physicsPosi').left).toEqual(72);
+			expect(select.get('physicsBox').left).toEqual(72);
 			expect(select.get('physicsBox').width).toEqual(68);
 			expect(select.get('wholePosi').startX).toEqual('2');
 			expect(select.get('wholePosi').endX).toEqual('2');
 
 			addColhandle._adaptSelectRegion(1);
-			expect(select.get('physicsPosi').left).toEqual(144);
+			expect(select.get('physicsBox').left).toEqual(144);
 			expect(select.get('physicsBox').width).toEqual(68);
 			expect(select.get('wholePosi').startX).toEqual('2');
 			expect(select.get('wholePosi').endX).toEqual('2');
 
 			// addColhandle._adaptSelectRegion(2);
 			// select.set('wholePosi.endX','3');
-			// expect(select.get('physicsPosi').left).toEqual(72);
+			// expect(select.get('physicsBox').left).toEqual(72);
 			// expect(select.get('physicsBox').width).toEqual(68);
 			// expect(select.get('wholePosi').startX).toEqual('2');
 			// expect(select.get('wholePosi').endX).toEqual('2');
@@ -336,7 +336,7 @@ define(function(require) {
 				colFrozen: true
 			}
 			selectRegions.add({
-				physicsPosi: {
+				physicsBox: {
 					left: 72
 				},
 				physicsBox: {
@@ -354,7 +354,7 @@ define(function(require) {
 			expect(insertModel.get('displayName')).toEqual('F');
 
 			selectRegions.add({
-				physicsPosi: {
+				physicsBox: {
 					left: 72,
 				},
 				physicsBox: {

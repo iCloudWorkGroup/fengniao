@@ -9,6 +9,7 @@ textarea { resize: none; overflow: hidden; }
 /**
  * transition effect
  */
+
 .col-head-line, .row-head-line, .selected-container, .clip-container, .datasource-container, .row, .col, .col-head-item, .row-head-item { transition: .1s; -moz-transition: .1s; -webkit-transition: .1s; -o-transition: .1s; }
 
 /**

@@ -25,7 +25,7 @@ define(function(require) {
 				operRegion,
 				sendRegion;
 
-			clip = selectRegions.getModelByType('clip')[0];
+			clip = selectRegions.getModelByType('clip');
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
@@ -129,7 +129,7 @@ define(function(require) {
 				width,
 				left;
 
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('selected');
 
 			startColAlias = select.get('wholePosi').startX;
 			endColAlias = select.get('wholePosi').endX;
@@ -149,7 +149,7 @@ define(function(require) {
 					left = insertModel.get('left');
 					width = insertModel.get('width');
 					startColAlias = insertModel.get('alias');
-					select.set('physicsPosi.left', left);
+					select.set('physicsBox.left', left);
 					select.set('physicsBox.width', width);
 					select.set('wholePosi.startX', startColAlias);
 					select.set('wholePosi.endX', startColAlias);
@@ -157,12 +157,12 @@ define(function(require) {
 					siderLineCols.models[0].set('width', width);
 					headItemCols.models[lastIndex - 1].set('activeState', true);
 				} else {
-					left = select.get('physicsPosi').left;
+					left = select.get('physicsBox').left;
 					left += config.User.cellWidth;
 					width = select.get('physicsBox').width;
 					width -= headItemCols.models[lastIndex].get('width');
 					endColAlias = insertModel.get('alias');
-					select.set('physicsPosi.left', left);
+					select.set('physicsBox.left', left);
 					select.set('physicsBox.width', width);
 					endColAlias = headItemCols.models[endColIndex - 1].get('alias');
 					select.set('wholePosi.endX', endColAlias);
@@ -172,9 +172,9 @@ define(function(require) {
 				}
 				return;
 			}
-			left = select.get('physicsPosi').left;
+			left = select.get('physicsBox').left;
 			left += config.User.cellWidth;
-			select.set('physicsPosi.left', left);
+			select.set('physicsBox.left', left);
 			siderLineCols.models[0].set('left', left);
 		},
 		/**

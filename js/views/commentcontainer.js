@@ -42,7 +42,7 @@ define(function(require) {
 				this.rowIndex = options.rowIndex;
 				this.comment = options.comment;
 			} else {
-				select = selectRegions.getModelByType('operation')[0];
+				select = selectRegions.getModelByType('selected');
 				colAlias = select.get('wholePosi').endX;
 				rowAlias = select.get('wholePosi').startY;
 
@@ -271,13 +271,13 @@ define(function(require) {
 			this.remove();
 		},
 		sendData: function(comment) {
-			var sendData;
-			sendData = getOperRegion().sendRegion;
+			var data;
+			data = getOperRegion().sendRegion;
 			send.PackAjax({
 				url: config.url.cell.comment_plus,
 				data: JSON.stringify({
 					sheetId: '1',
-					coordinate: sendData,
+					coordinate: data,
 					comment: comment
 				})
 			});

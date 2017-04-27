@@ -1,3 +1,57 @@
+<<<<<<< HEAD
+li { list-style: none; }
+@font-face { font-family: 'Glyphicons Halflings'; src: url('http://excel-inc.acmr.com.cn/spreadsheet/fonts/glyphicons-halflings-regular.eot'); src: url('http://excel-inc.acmr.com.cn/spreadsheet/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('http://excel-inc.acmr.com.cn/spreadsheet/fonts/glyphicons-halflings-regular.woff') format('woff'), url('http://excel-inc.acmr.com.cn/spreadsheet/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('http://excel-inc.acmr.com.cn/spreadsheet/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg'); }
+.glyphicon-plus:before { content: "\2b"; }
+.glyphicon-th-list:before { content: "\e012"; }
+.glyphicons { font-family: 'Glyphicons Halflings'; color: #555; font-size: 12px; }
+.topBar, .toolBar { font-size: 9pt; font-family: 'Microsoft Yahei', 'SimSun', 'sans-serif'; background: #e1e1e1; overflow: hidden; }
+.fui-control { float: left; }
+.fui-control-list { height: 30px; }
+.fui-control-list li { float: left; }
+.fui-control-list li span { padding: 7px 12px; color: #000; height: 16px; display: block; cursor: default; }
+.fui-control-list .active { background: #fafafa; color: #217346; }
+.fui-control-list li span:hover { color: #217346; }
+.file-control { float: left; }
+.file-control span { background: #217346; color: #fff; padding: 7px 20px; height: 16px; display: block; cursor: default; }
+.toolBar { background: #fafafa; border-bottom: 1px solid #e1e1e1; height: 99px; overflow: hidden; }
+.excel-name { margin-left: 100px; float: left; }
+.excel-name .textarea { width: 134px; height: 16px; padding: 4px 12px; margin: 3px 0; overflow: hidden; }
+.fui-cf-ico { background: url('http://excel-inc.acmr.com.cn/spreadsheet/img/funcBg.png'); }
+.fui-cf-extend-ico { background: url('http://excel-inc.acmr.com.cn/spreadsheet/img/funcExtend.png'); }
+.fui-section { border: 1px solid #fafafa; }
+.caret { display: inline-block; width: 0; height: 0; vertical-align: middle; border-top: 3px dashed; border-right: 3px solid transparent; border-left: 3px solid transparent; }
+.fui-group { display: inline-block; }
+.fui-separator, .fui-container { display: inline-block; }
+.fui-separator { height: 80px; border-right: 1px dashed #c6c6c6; margin: 0 6px; display: inline-block; }
+.fui-layout { vertical-align: top; }
+span { display: inline-block; }
+.fui-cf-text { margin: 0 3px; }
+.fui-title { text-align: center; height: 15px; }
+.fui-cf-desc { text-align: center; padding: 3px 0 0 0; }
+.ico-undo { background: url(../img/funcBgExtend.png)  -93px -165px; width: 18px ; height: 18px;}
+.ico-paste { background-position: -137px -1px; width: 32px; height: 32px; }
+.ico-shear { background-position: -225px 16px; width: 16px; height: 16px; }
+.ico-copy { background-position: -136px -72px; width: 16px; height: 16px; }
+.ico-weight { width: 16px; height: 16px; background-position: -136px -89px; }
+.ico-italic { width: 16px; height: 16px; background-position: -207px 18px; }
+.ico-borderbottom { width: 16px; height: 16px; background-position: -1px -137px; }
+.ico-bordertop { width: 16px; height: 16px; background-position: -19px -173px; }
+.ico-borderleft { width: 16px; height: 16px; background-position: -1px -173px; }
+.ico-borderright { width: 16px; height: 16px; background-position: -55px -173px; }
+.ico-bordernone { width: 16px; height: 16px; background-position: -37px -173px; }
+.ico-borderall { width: 16px; height: 16px; background-position: -163px -145px; }
+.ico-borderouter { width: 16px; height: 16px; background-position: -73px -173px; }
+.ico-fillbg { width: 16px; height: 16px; background-position: 25px 64px; }
+.ico-fillcolor { width: 16px; height: 16px; background-position: -19px 72px; }
+.ico-aligntop { width: 16px; height: 16px; background-position: -173px -109px; }
+.ico-alignmiddle { width: 16px; height: 16px; background-position: -55px -137px; }
+.ico-alignbottom { width: 16px; height: 16px; background-position: -173px -91px; }
+.ico-alignleft { width: 16px; height: 16px; background-position: -173px -73px; }
+.ico-aligncenter { width: 16px; height: 16px; background-position: -73px -137px; }
+.ico-alignright { width: 16px; height: 16px; background-position: -173px -55px; }
+.ico-wordwrap { width: 16px; height: 16px; background-position: -180px -126px; }
+
+=======
 li {
   list-style: none;
 }
@@ -229,6 +283,7 @@ span {
   background-position: -180px -126px;
 }
 >>>>>>> a274ba895d4cc36e8ad6d29ee68ae928f43a2b3e
+>>>>>>> master
 /*.ico-text {
     width: 32px;
     height: 32px;

@@ -13,8 +13,8 @@ define(function(require) {
 			cache.mouseOperateState = config.mouseOperateState.select;
 		},
 		destroyDataSoureRegion: function() {
-			if (selectRegions.getModelByType('dataSource')[0] !== undefined) {
-				selectRegions.getModelByType('dataSource')[0].destroy();
+			if (selectRegions.getModelByType('datasource') !== undefined) {
+				selectRegions.getModelByType('datasource').destroy();
 			}
 		}
 	};

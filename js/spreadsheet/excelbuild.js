@@ -28,7 +28,6 @@ define(function(require) {
 		adaptScreen = require('entrance/sheet/adaptscreen'),
 		getFrozenState = require('entrance/sheet/getfrozenstate'),
 		getSelectRegion = require('entrance/sheet/getselectregion'),
-		highlight = require('entrance/extention/highlight'),
 		reloadCells = require('entrance/cell/reloadcells'),
 		setTextType = require('entrance/tool/settexttype'),
 		addRow = require('entrance/tool/addrow'),
@@ -165,6 +164,7 @@ define(function(require) {
 			SpreadSheet.prototype.removeEventListener = listener.removeEventListener;
 		},
 		buildExcelExtend: function(SpreadSheet) {
+			var highlight = require('extension/highlight');
 			SpreadSheet.prototype.startHighlight = highlight.startHighlight;
 			SpreadSheet.prototype.stopHighlight = highlight.stopHighlight;
 			SpreadSheet.prototype.getHighlightDirection = highlight.getHighlightDirection;
