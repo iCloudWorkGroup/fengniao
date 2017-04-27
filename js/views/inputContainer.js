@@ -556,13 +556,14 @@ define(function(require) {
 			colSort = headItemCols.getModelByAlias(colAlias).get('sort');
 
 			send.PackAjax({
-				url: 'text.htm?m=data',
+				url: config.url.cell.content,
 				data: JSON.stringify({
-					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 					sheetId: '1',
 					coordinate: {
-						startSortY: rowSort,
-						startSortX: colSort
+						startRow: rowSort,
+						startCol: colSort,
+						endRow: rowSort,
+						endCol: colSort
 					},
 					content: encodeURIComponent(text)
 				})
@@ -575,7 +576,6 @@ define(function(require) {
 				send.PackAjax({
 					url: 'text.htm?m=wordwrap',
 					data: JSON.stringify({
-						excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 						sheetId: '1',
 						coordinate: {
 							startX: colAlias,

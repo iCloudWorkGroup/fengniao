@@ -2,11 +2,11 @@
 define(function(require) {
 	var send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		history = require('basic/tools/history'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
-		
 		cells = require('collections/cells'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		rowOperate = require('entrance/row/rowoperation'),
@@ -76,7 +76,7 @@ define(function(require) {
 
 		function sendData() {
 			send.PackAjax({
-				url: 'text.htm?m=font_italic',
+				url: config.url.cell.font_italic,
 				data: JSON.stringify({
 					coordinate: sendRegion,
 					italic: italic

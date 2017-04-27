@@ -1,4 +1,16 @@
+<a name="0.10.0"></a>
+# [0.10.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.9.0...v0.10.0) (2017-04-18)
+将请求修改为rest风格
+
 # SpreadSheet Online 版本更新日志
+<a name="0.9.0"></a>
+# [0.9.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.8.0...v0.9.0) (2017-04-18)
+
+### Bug Fixes
+
+* **js/views/contentCellsContainer** 修复由于单元格重新加载，造成的行消失问题 ([c7c8d32](https://github.com/iCloudWorkGroup/fengniao/commit/c7c8d32))
+
+* **comment** 修复由于单元格视图没有销毁，造成的备注视图无法销毁  ([8873852](https://github.com/iCloudWorkGroup/fengniao/commit/8873852))
 
 ## 0.8.0(2016-09-18)
 

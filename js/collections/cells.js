@@ -156,6 +156,7 @@ define(function(require) {
 							if (!tempObj[index]) {
 								result.push(this.at(index));
 								tempObj[index] = 1;
+
 							}
 						}
 					}
@@ -222,6 +223,9 @@ define(function(require) {
 		getCellByRow: function(startIndex, endIndex) {
 			return this.getCellByTransverse(startIndex, 0, endIndex, 'MAX');
 		},
+		/**
+		 * 待修改
+		 */
 		/**
 		 * 获取区域内包含所有cell对象
 		 * @method getSelectRegionCells 

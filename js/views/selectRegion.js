@@ -71,7 +71,6 @@ define(function(require) {
 			this.mouseOverModel = null;
 			this.mouseOverEventId = null;
 			_.bindAll(this, 'moveHandle', 'outHandle');
-
 		},
 		/**
 		 * 页面渲染方法
@@ -118,6 +117,7 @@ define(function(require) {
 					}
 					this.mouseOverModel = cellModel || null;
 				}
+				this.mouseOverModel = cellModel || null;
 			}
 		},
 		outHandle: function() {

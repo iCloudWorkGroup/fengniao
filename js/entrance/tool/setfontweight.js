@@ -2,6 +2,7 @@
 define(function(require) {
 	var send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		history = require('basic/tools/history'),
@@ -79,10 +80,10 @@ define(function(require) {
 		sendData();
 		function sendData() {
 			send.PackAjax({
-				url: 'text.htm?m=font_weight',
+				url: config.url.cell.font_weight,
 				data: JSON.stringify({
 					coordinate: sendRegion,
-					isBold: bold || true
+					weight: bold
 				})
 			});
 		}

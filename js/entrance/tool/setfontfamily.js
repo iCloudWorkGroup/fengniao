@@ -3,6 +3,7 @@ define(function(require) {
 	var send = require('basic/tools/send'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		history = require('basic/tools/history'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
@@ -60,7 +61,7 @@ define(function(require) {
 
 		function sendData() {
 			send.PackAjax({
-				url: 'text.htm?m=font_family',
+				url: config.url.cell.font_family,
 				data: JSON.stringify({
 					coordinate: sendRegion,
 					family: fontFamily

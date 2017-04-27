@@ -16,7 +16,7 @@ define(function(require) {
 		selectCellCols = require('entrance/cell/selectcellcols'),
 		selectCellRows = require('entrance/cell/selectcellrows'),
 		setCellBorder = require('entrance/tool/setcellborder'),
-		setFontFamilySize = require('entrance/tool/setfontfamilysize'),
+		setFontSize = require('entrance/tool/setfontsize'),
 		setFontWeight = require('entrance/tool/setfontweight'),
 		setFontStyle = require('entrance/tool/setfontstyle'),
 		setFrozen = require('entrance/sheet/setfrozen'),
@@ -36,6 +36,8 @@ define(function(require) {
 		deleteCol = require('entrance/tool/deletecol'),
 		regionDel = require('entrance/tool/regiondel'),
 		colHide = require('entrance/col/colhide'),
+		clipSelectOperate = require('entrance/tool/clipselectoperate'),
+		clipPasteOperate = require('entrance/tool/clippasteoperate'),
 		comment = require('entrance/tool/comment');
 
 
@@ -102,7 +104,7 @@ define(function(require) {
 			SpreadSheet.prototype.selectCellCols = selectCellCols;
 			SpreadSheet.prototype.selectCellRows = selectCellRows;
 			SpreadSheet.prototype.setCellWidth = setCellWidth;
-			SpreadSheet.prototype.setFontSize = setFontFamilySize;
+			SpreadSheet.prototype.setFontSize = setFontSize;
 			SpreadSheet.prototype.setFontStyle = setFontStyle;
 			SpreadSheet.prototype.setFontWeight = setFontWeight;
 			SpreadSheet.prototype.setFrozen = setFrozen;
@@ -126,6 +128,16 @@ define(function(require) {
 			SpreadSheet.prototype.setWordWrap = setWordWrap;
 			SpreadSheet.prototype.getSelectRegion = getSelectRegion;
 			SpreadSheet.prototype.reloadCells = reloadCells;
+
+			SpreadSheet.prototype.clipSelectOperate = function(type) {
+				clipSelectOperate(type);
+			};
+			SpreadSheet.prototype.clipPasteOperate = function() {
+				if (cache.clipState === "null") {
+					return;
+				}
+				clipPasteOperate();
+			}
 
 			SpreadSheet.prototype.addRow = addRow;
 			SpreadSheet.prototype.addCol = addCol;

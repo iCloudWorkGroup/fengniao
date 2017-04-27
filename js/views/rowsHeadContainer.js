@@ -206,7 +206,6 @@ define(function(require) {
 			if (!this.$lockData) {
 				return;
 			}
-			// this.requstAdjust();
 			modelList = headItemRows.models;
 			len = modelList.length;
 			itemElIndex = headItemRows.getIndexByAlias(this.$itemEl.data('alias'));
@@ -220,14 +219,12 @@ define(function(require) {
 			this.itemEl = this.$itemEl = this.$lockData = null;
 		},
 		rowHeightAdjust: function(itemElIndex, height) {
-
 			var diffDistance = height - headItemRows.models[itemElIndex].get('height');
 			this.adjustHeadLine(itemElIndex, diffDistance);
 			this.adjustCells(itemElIndex, diffDistance);
 			this.adjustSelectRegion(itemElIndex, diffDistance);
-			this.requstAdjust(itemElIndex, diffDistance);
-
-			if (this.viewRowsAllHeadContainer === undefined) {
+			this.requstAdjust(itemElIndex, height);
+			if ( this.viewRowsAllHeadContainer === undefined) {
 				this.triggerCallback();
 			}
 			this.viewRowsAllHeadContainer.$el.css({
@@ -243,9 +240,10 @@ define(function(require) {
 		requstAdjust: function(rowIndex, offset) {
 			var rowSort = headItemRows.models[rowIndex].get('sort');
 			send.PackAjax({
-				url: 'cells.htm?m=rows_height',
+				url: config.url.row.adjust,
 				data: JSON.stringify({
-					rowSort: rowSort,
+					sheetId: '1',
+					row: rowSort,
 					offset: offset
 				})
 			});

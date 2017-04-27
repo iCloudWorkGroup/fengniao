@@ -2,10 +2,12 @@
 define(function(require) {
 	var send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		history = require('basic/tools/history'),
 		cells = require('collections/cells'),
 		Cell = require('models/cell'),
+		config = require('spreadsheet/config'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		getOperRegion = require('basic/tools/getoperregion'),
@@ -121,7 +123,7 @@ define(function(require) {
 
 		function sendData() {
 			send.PackAjax({
-				url: 'cells.htm?m=merge',
+				url: config.url.cell.merge,
 				data: JSON.stringify({
 					coordinate: sendRegion
 				}),

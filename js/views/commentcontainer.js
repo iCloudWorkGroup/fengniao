@@ -7,7 +7,6 @@ define(function(require) {
 		getOperRegion = require('basic/tools/getoperregion'),
 		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
-		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
 		commentHandler = require('entrance/tool/comment'),
 		rowOperate = require('entrance/row/rowoperation'),
@@ -270,6 +269,18 @@ define(function(require) {
 			}
 			cache.commentEditState = false;
 			this.remove();
+		},
+		sendData: function(comment) {
+			var data;
+			data = getOperRegion().sendRegion;
+			send.PackAjax({
+				url: config.url.cell.comment_plus,
+				data: JSON.stringify({
+					sheetId: '1',
+					coordinate: data,
+					comment: comment
+				})
+			});
 		}
 	});
 	return commentContainer;

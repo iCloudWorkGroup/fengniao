@@ -55,6 +55,7 @@ define(function(require) {
 			this.listenTo(this.model, 'change:wordWrap', this.render);
 			// this.listenTo(this.model, 'change:wordWrap', this.adaptCellHight);
 			// this.listenTo(this.model, 'change:content', this.adaptCellHight);
+
 			this.listenTo(this.model, 'change:isDestroy', this.destroy);
 			this.listenTo(this.model, 'change:commentShowState', this.commentViewHandler);
 			this.listenTo(this.model, 'change:hidden', this.destroy);
@@ -125,7 +126,6 @@ define(function(require) {
 
 		},
 		hideComment: function() {
-
 			Backbone.trigger('event:commentContainer:remove');
 		},
 		/**
@@ -456,6 +456,7 @@ define(function(require) {
 		 * @method destroy 
 		 */
 		destroy: function() {
+			Backbone.off('event:destroyCellView', this.destroy, this);
 			if (this.model.get('isDestroy') || this.model.get('hidden')) {
 				this.remove();
 			}
@@ -465,6 +466,7 @@ define(function(require) {
 		 * @method clear
 		 */
 		clear: function() {
+			Backbone.off('event:destroyCellView', this.destroy, this);
 			this.remove();
 		}
 	});

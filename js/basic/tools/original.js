@@ -60,8 +60,6 @@ define(function(require) {
 				headItemRows.add(currentObject);
 			}
 			this.restoreSelectRegion();
-			loadRecorder.insertPosi(0, headItemRows.models[lenRow - 1].height + headItemRows.models[lenRow - 1].top, cache.rowRegionPosi);
-			loadRecorder.insertPosi(0, headItemRows.models[lenRow - 1].height + headItemRows.models[lenRow - 1].top, cache.cellRegionPosi.vertical);
 		},
 		/**
 		 * 解析后台返回行索引数据，如果行数未满足加载区域，则生成新行，进行补充
@@ -162,8 +160,7 @@ define(function(require) {
 		 */
 		analysisCellData: function(cellsData) {
 			var j, k, //循环变量
-				tempCell,
-				existCell, //已存在单元格
+				tempCell = null,
 				gridLineColList,
 				gridLineRowList,
 				cellAttributes, //cell模型属性 
@@ -219,7 +216,7 @@ define(function(require) {
 				cellsPositionX = cache.CellsPosition.strandX;
 				if (cellsPositionX[gridAliasColList[0]] !== undefined &&
 					cellsPositionX[gridAliasColList[0]][gridAliasRowList[0]] !== undefined) {
-					existCell = cells.models[cellsPositionX[gridAliasColList[0]][gridAliasRowList[0]]];
+					tempCell = cells.models[cellsPositionX[gridAliasColList[0]][gridAliasRowList[0]]];
 				}
 
 				//计算cell模型宽高
@@ -239,9 +236,9 @@ define(function(require) {
 					width: width - 1,
 					height: height - 1
 				};
-				if (existCell !== null && existCell !== undefined) {
+				if (tempCell !== null) {
 					//重新渲染cell模型宽高
-					existCell.set('physicsBox', physicsBox);
+					tempCell.set('physicsBox', physicsBox);
 				} else {
 					tempCell = new Cell(cellAttributes);
 					tempCell.set('physicsBox', physicsBox);
@@ -253,7 +250,7 @@ define(function(require) {
 						}
 					}
 				}
-				existCell = null;
+				tempCell = null;
 			}
 		},
 		analysisSheetData: function(sheetsData) {
@@ -419,12 +416,12 @@ define(function(require) {
 
 			//containerHeight,通知后台,加载高度
 			send.PackAjax({
-				//ps:修改id
-				url: 'excel.htm?m=position',
+				url: config.url.table.reload,
 				async: false,
 				isPublic: false,
 				data: JSON.stringify({
-					containerHeight: $('#' + domId).height()
+					top: 0,
+					bottom: $('#' + domId).height() + config.System.prestrainHeight
 				}),
 				dataType: 'json',
 				success: function(data) {
@@ -433,12 +430,13 @@ define(function(require) {
 					}
 					cache.UserView.rowAlias = data.displayRowStartAlias;
 					cache.UserView.colAlias = data.displayColStartAlias;
-
+					//待修改：应由后台返回
 					cache.aliasRowCounter;
 					cache.aliasColCounter;
 
 
 					if (data.returndata.spreadSheet[0].sheet.frozen.state === '1') {
+						//待修改：冻结位置，因返回alias，与useView一致，不应该为index
 						cache.TempProp = {
 							isFrozen: true,
 							colAlias: data.returndata.spreadSheet[0].sheet.frozen.colIndex,
@@ -463,12 +461,13 @@ define(function(require) {
 					self.analysisColData(cols, startColSort);
 					self.analysisCellData(cellModels);
 					self.restoreSelectRegion();
+					loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.rowRegionPosi);
+					loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.cellRegionPosi.vertical);
+					cache.loadCol.startSort = headItemCols.models[0].get('sort');
+					cache.loadCol.endSort = headItemCols.models[headItemCols.length - 1].get('sort');
 				}
 			});
-			loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.rowRegionPosi);
-			loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.cellRegionPosi.vertical);
-			cache.loadCol.startSort = headItemCols.models[0].get('sort');
-			cache.loadCol.endSort = headItemCols.models[headItemCols.length - 1].get('sort');
+
 		}
 	};
 });

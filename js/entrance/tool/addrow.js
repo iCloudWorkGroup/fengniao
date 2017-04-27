@@ -22,7 +22,10 @@ define(function(require) {
 			var clip,
 				region,
 				operRegion,
-				sendRegion;
+				sendRegion,
+				posi,
+				index,
+				height;
 
 			clip = selectRegions.getModelByType('clip');
 			if (clip !== undefined) {
@@ -37,17 +40,21 @@ define(function(require) {
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
 				return;
 			}
+			index = operRegion.startRowIndex;
+			posi = headItemRows.models[index].get('top');
+			height = headItemRows.models[index].get('height');
+			this._adaptHeadRowItem(index);
+			this._adaptSelectRegion(index);
+			this._adaptCells(index);
+			this._fillCells(index);
+			this._frozenHandle(index);
 
-			this._adaptHeadRowItem(operRegion.startRowIndex);
-			this._adaptSelectRegion(operRegion.startRowIndex);
-			this._adaptCells(operRegion.startRowIndex);
-			this._fillCells(operRegion.startRowIndex);
-			this._frozenHandle(operRegion.startRowIndex);
-
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, config.User.cellHeight);
 			send.PackAjax({
-				url: 'cells.htm?m=rows_insert',
+				url: config.url.row.plus,
 				data: JSON.stringify({
-					rowSort: sendRegion.startSortY
+					sheetId: '1',
+					row: sendRegion.startRow
 				})
 			});
 		},
@@ -143,7 +150,7 @@ define(function(require) {
 				tempCell,
 				top;
 
-			cellsList = cells.getCellsByRowIndex(index + 1,
+			cellsList = cells.getCellByRow(index + 1,
 				headItemRows.length - 1);
 			len = cellsList.length;
 			for (; i < len; i++) {

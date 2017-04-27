@@ -3,6 +3,7 @@ define(function(require) {
 	var send = require('basic/tools/send'),
 		cells = require('collections/cells'),
 		Backbone = require('lib/backbone'),
+		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		history = require('basic/tools/history'),
@@ -33,7 +34,7 @@ define(function(require) {
 			sendRegion = region.sendRegion;
 
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-				this.sendData(sendRegion, comment, 'text.htm?m=comment_set');
+				this.sendData(sendRegion, comment, config.url.cell.comment_plus);
 				return;
 			}
 
@@ -59,7 +60,7 @@ define(function(require) {
 					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
 				}, changeModelList);
 			}
-			this.sendData(sendRegion, comment, 'text.htm?m=comment_set');
+			this.sendData(sendRegion, comment, config.url.cell.comment_plus);
 		},
 
 		createAddCommentView: function(sheetId) {

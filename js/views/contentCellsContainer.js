@@ -36,6 +36,7 @@ define(function(require) {
 		 */
 		initialize: function() {
 			this.currentRule = util.clone(cache.CurrentRule);
+			//考虑冻结情况
 			Backbone.on('event:contentCellsContainer:reloadCells', this.reloadCells, this);
 			Backbone.on('event:contentCellsContainer:restoreCell', this.addCell, this);
 			//还原
@@ -83,16 +84,53 @@ define(function(require) {
 			this.getCells(top, bottom);
 			loadRecorder.insertPosi(top, bottom, cache.cellRegionPosi.vertical);
 		},
+		restoreHideCellView: function() {
+			var headItemColList = headItemCols.models,
+				headItemRowList = headItemRows.models,
+				len = headItemColList.length,
+				headItemModel,
+				startRowIndex,
+				endRowIndex,
+				colAlias,
+				rowAlias,
+				strandX,
+				tempCell,
+				rowLen,
+				i = 0,
+				j;
+			startRowIndex = headItemRows.getIndexByAlias(cache.UserView.rowAlias);
+			endRowIndex = headItemRows.getIndexByAlias(cache.UserView.rowEndAlias);
+			strandX = cache.CellsPosition.strandX;
+			if (endRowIndex > startRowIndex) {
+				rowLen = endRowIndex + 1;
+			} else {
+				rowLen = headItemRows.length;
+			}
+			for (; i < len; i++) {
+				headItemModel = headItemColList[i];
+				if (headItemModel.get('hidden') === true) {
+					colAlias = headItemModel.get('alias');
+					for (j = startRowIndex; j < rowLen; j++) {
+						rowAlias = headItemRowList[j].get('alias');
+						if (strandX[colAlias] !== undefined && strandX[colAlias][rowAlias] !== undefined) {
+							tempCell = cells.models[strandX[colAlias][rowAlias]];
+							if (tempCell.get('hidden') === true) {
+								this.addCell(tempCell);
+							}
+						}
+					}
+				}
+			}
+		},
 		getCells: function(top, bottom) {
 			send.PackAjax({
-				url: 'excel.htm?m=openexcel',
+				url: config.url.sheet.load,
 				isPublic: false,
 				async: false,
 				data: JSON.stringify({
-					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 					sheetId: '1',
-					rowBegin: top,
-					rowEnd: bottom
+					top: top,
+					bottom: bottom
 				}),
 				success: function(data) {
 					if (data === '') {
@@ -146,6 +184,8 @@ define(function(require) {
 		 */
 		destroy: function() {
 			Backbone.off('event:contentCellsContainer:reloadCells');
+			Backbone.off('event:restoreHideCellView');
+			Backbone.trigger('event:destroyCellView');
 			this.remove();
 		}
 	});

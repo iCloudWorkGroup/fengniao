@@ -396,7 +396,6 @@ define(function(require) {
 				mouseRowIndex: endRowIndex
 			});
 
-			//开放监听事件
 			var result = {};
 			for (i = startColIndex; i < endColIndex + 1; i++) {
 				colDisplayNames.push(headItemColList[i].get('displayName'));

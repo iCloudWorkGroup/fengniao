@@ -39,6 +39,7 @@
           format;
 
         self = this;
+
         clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
@@ -79,6 +80,7 @@
           operRegion,
           sendRegion,
           format;
+
 
         clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
@@ -178,7 +180,6 @@
           headItemRowList = headItemRows.models,
           headItemColList = headItemCols.models,
           format;
-
         clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';

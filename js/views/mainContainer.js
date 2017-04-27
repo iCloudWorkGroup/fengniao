@@ -291,15 +291,18 @@ define(function(require) {
 			if (adjustPosi > 0) {
 				this.el.scrollTop += adjustPosi + 17;
 			}
+			recordScrollTop = this.el.scrollTop;
+			this.el.scrollTop = (top - this.el.offsetHeight);
+			this.deleteTop(recordScrollTop);
+			this.addBottom(this.recordBottomPosi);
 		},
 		/**
 		 * 处理鼠标滚动事件
 		 * @method syncScroll
 		 * @param  {event} e 鼠标滚动事件
 		 */
-		syncScroll: function(direction) {
+		syncScroll: function(e, direction) {
 			var verticalDirection,
-				transverseDirection,
 				userViewRowModel,
 				userViewColModel,
 				userViewEndRowModel,
@@ -344,9 +347,7 @@ define(function(require) {
 				limitTop, //预加载区域边界高度
 				limitAlias, //预加载区域边界别名
 				recordIndex,
-				recordTop,
 				tempCells, //区域内单元格数组
-				maxRowIndex,
 				cellPositionArray,
 				offsetTop,
 				userViewTop,
@@ -356,9 +357,12 @@ define(function(require) {
 			userViewTop = this.userViewTop;
 			//当前状态预加载标线高度
 			limitTop = this.el.scrollTop - config.System.prestrainHeight + offsetTop + userViewTop;
-			//修改
-			if (recordTop < 0) recordTop = 0;
-			if (limitTop < 0) limitTop = 0;
+			if (recordTop < 0) {
+				recordTop = 0;
+			}
+			if (limitTop < 0) {
+				limitTop = 0;
+			}
 
 			limitIndex = binary.indexModelBinary(limitTop, headItemRowList, 'top', 'height');
 			recordIndex = binary.indexModelBinary(recordTop, headItemRowList, 'top', 'height');
@@ -374,12 +378,12 @@ define(function(require) {
 			limitAlias = headItemRowList[i].get('alias');
 			for (i = 0, len = tempCells.length; i < len; i++) {
 				//判断cell最下端是否超出了显示界限
-				cellPositionArray = tempCells[i].get("occupy").y;
+				cellPositionArray = tempCells[i].get('occupy').y;
 				if (cellPositionArray.indexOf(limitAlias) === -1) {
 					tempCells[i].hide();
 				}
 			}
-			cache.viewRegion.top = headItemRowList[limitIndex].get("top");
+			cache.viewRegion.top = headItemRowList[limitIndex].get('top');
 		},
 		/**
 		 * 显示行上方到达加载区域，添加视图视图
@@ -388,14 +392,11 @@ define(function(require) {
 		 */
 		addTop: function(recordTop) {
 			var headItemRowList = headItemRows.models,
-				recordTop,
 				recordIndex,
 				limitTopPosi,
 				limitTopIndex,
 				limitBottomPosi,
-				limitBottomIndex,
 				headItemRowModel,
-				headItemRowContainer,
 				tempCells,
 				offsetTop,
 				userViewTop,
@@ -436,7 +437,7 @@ define(function(require) {
 				}
 			}
 			this.adjustColPropCell(limitTopIndex, recordIndex);
-			cache.viewRegion.top = headItemRowList[limitTopIndex].get("top");
+			cache.viewRegion.top = headItemRowList[limitTopIndex].get('top');
 		},
 		/**
 		 * 显示行下方超出预加载区域，删除超出视图
@@ -516,7 +517,7 @@ define(function(require) {
 				}
 			}
 			tempCells = cells.getCellByRow(recordIndex, limitBottomIndex);
-			for (var i = 0, len = tempCells.length; i < len; i++) {
+			for (i = 0, len = tempCells.length; i < len; i++) {
 				if (tempCells[i].get('showState') === false) {
 					tempCells[i].set('showState', true);
 					this.addCellView(tempCells[i]);
@@ -541,8 +542,7 @@ define(function(require) {
 				isUnloadCells,
 				topIndex,
 				bottomIndex,
-				height,
-				i = 0;
+				height;
 			if (top > cache.localRowPosi || cache.localRowPosi === 0) {
 				return bottom;
 			}
@@ -572,20 +572,19 @@ define(function(require) {
 				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
 				bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
 				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
-					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
+				headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
 			}
 			return bottom;
 		},
 		requestRows: function(top, bottom) {
 			send.PackAjax({
-				url: 'excel.htm?m=openexcel',
+				url: config.url.sheet.load,
 				async: false,
 				isPublic: false,
 				data: JSON.stringify({
-					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 					sheetId: '1',
-					rowBegin: top,
-					rowEnd: bottom
+					top: top,
+					bottom: bottom
 				}),
 				success: function(data) {
 					if (data === '') {
@@ -601,14 +600,13 @@ define(function(require) {
 		},
 		requestCells: function(top, bottom) {
 			send.PackAjax({
-				url: 'excel.htm?m=openexcel',
+				url: config.url.sheet.load,
 				async: false,
 				isPublic: false,
 				data: JSON.stringify({
-					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 					sheetId: '1',
-					rowBegin: top,
-					rowEnd: bottom
+					top: top,
+					bottom: bottom
 				}),
 				success: function(data) {
 					if (data === '') {
@@ -660,9 +658,7 @@ define(function(require) {
 			var distanceLeft,
 				distanceRight,
 				distanceTop,
-				distanceBottom,
-				localRecordScrollTop,
-				localRecordScrollLeft;
+				distanceBottom;
 			if (this.isPreventScroll) {
 				//for get this offsetleft value , because of this div in table . so this offsetleft equal 0 ,
 				//then we get other method get it's offsetleft value
@@ -701,8 +697,7 @@ define(function(require) {
 			this.isPreventScroll = true;
 		},
 		adaptRowHeightChange: function(startPosi, diffDistance) {
-			var flag = false,
-				userViewRowModel,
+			var userViewRowModel,
 				userViewEndRowModel;
 			if (cache.viewRegion.top > startPosi) {
 				cache.viewRegion.top += diffDistance;
@@ -761,7 +756,6 @@ define(function(require) {
 			var maxheadItemHeight = headItemRows.getMaxDistanceHeight(),
 				maxLocalHeight = cache.localRowPosi,
 				startIndex = headItemRows.length,
-				distance,
 				len;
 
 			if (height <= maxheadItemHeight || height <= maxLocalHeight) {
@@ -771,9 +765,9 @@ define(function(require) {
 			len = Math.ceil((height + cache.scrollBufferHeight - maxheadItemHeight) / config.User.cellHeight);
 			headItemRows.generate(len);
 			send.PackAjax({
-				url: 'sheet.htm?m=addrowline',
+				url: config.url.row.plus_batch,
 				data: JSON.stringify({
-					rowNum: len
+					num: len
 				})
 			});
 			this.adjustColPropCell(startIndex, startIndex + len - 1);
@@ -794,10 +788,8 @@ define(function(require) {
 				headItemModel,
 				aliasCol,
 				aliasRow,
-				cellModel,
 				occupyCol,
 				colProp,
-				cellProp,
 				len, i = 0,
 				j;
 			headItemColList = headItemCols.models;

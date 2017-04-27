@@ -2,6 +2,7 @@
 define(function(require) {
 	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		headItemRows = require('collections/headItemRow'),
 		cells = require('collections/cells'),
 		getOperRegion = require('basic/tools/getoperregion'),
@@ -20,7 +21,9 @@ define(function(require) {
 				region,
 				operRegion,
 				sendRegion,
-				index;
+				index,
+				posi,
+				height;
 
 			clip = selectRegions.getModelByType('clip');
 			if (clip !== undefined) {
@@ -40,22 +43,22 @@ define(function(require) {
 				return;
 			}
 			index = operRegion.startRowIndex;
+			posi = headItemRows.models[index].get('top');
+			height = headItemRows.models[index].get('height');
 			this._adaptCells(index);
 			this._adaptSelectRegion(index);
 			this._frozenHandle(index);
 			this._adaptHeadRowItem(index);
-
 			if (cache.TempProp.isFrozen === true) {
 				Backbone.trigger('event:bodyContainer:executiveFrozen');
 			}
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange',posi, -height - 1);
 			sendData();
-			Backbone.on('event:mainContainer:addBottom');
-
 			function sendData() {
 				send.PackAjax({
-					url: 'cells.htm?m=rows_delete',
+					url: config.url.row.reduce ,
 					data: JSON.stringify({
-						rowSort: sendRegion.startSortY,
+						row: sendRegion.startSortY,
 					}),
 				});
 			}
@@ -159,7 +162,7 @@ define(function(require) {
 				tempCell,
 				top;
 
-			cellsList = cells.getCellsByRowIndex(index,
+			cellsList = cells.getCellByRow(index,
 				headItemRows.length - 1);
 
 			deleteAlias = headItemRows.models[index].get('alias');
