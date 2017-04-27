@@ -1,20 +1,18 @@
+# SpreadSheet Online 版本更新日志
+
 <a name="0.11.0"></a>
 # [0.11.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.10.0...v0.11.0) (2017-04-27)
 
-
 ### Bug Fixes
 
-* **config.js:** �޸�`rootPath`���� (#167) ([7b9a4b2](https://github.com/iCloudWorkGroup/fengniao/commit/7b9a4b2))
-* **main.css:** 修改sheet名称居中样式 (#166) ([3c3af34](https://github.com/iCloudWorkGroup/fengniao/commit/3c3af34))
-* **toolbar.css:** �޸���ʽ����ͻ (#169) ([09696c5](https://github.com/iCloudWorkGroup/fengniao/commit/09696c5))
-
-
+* **js/views/cellsContainer** 修改cellsContainer模块结构:
+		1.将高亮功能从cellscontainer模块分离
+		2.将selectModel盒模型的计算转移到selectModel视图中
 
 <a name="0.10.0"></a>
 # [0.10.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.9.0...v0.10.0) (2017-04-18)
 将请求修改为rest风格
 
-# SpreadSheet Online 版本更新日志
 <a name="0.9.0"></a>
 # [0.9.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.8.0...v0.9.0) (2017-04-18)
 
