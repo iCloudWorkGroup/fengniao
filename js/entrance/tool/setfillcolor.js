@@ -76,7 +76,7 @@ define(function(require) {
 				}, changeModelList);
 			}
 			send.PackAjax({
-				url: config.url.cell.color,
+				url: config.url.cell.bg,
 				data: JSON.stringify({
 					sheetId: '1',
 					coordinate: sendRegion,

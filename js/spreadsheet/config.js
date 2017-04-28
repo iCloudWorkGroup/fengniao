@@ -158,7 +158,7 @@ define(function() {
 				merge: 'cell/merge',
 				split: 'cell/split',
 				border: 'cell/border',
-				color: 'cell/color',
+				bg: 'cell/bg',
 				wordwrap: 'cell/wordwrap',
 				align_transverse: 'cell/align-landscape',
 				align_vertically: 'cell/align-portrait',
