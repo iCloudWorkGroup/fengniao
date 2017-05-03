@@ -5,7 +5,6 @@ define(function(require) {
 		send = require('basic/tools/send'),
 		config = require('spreadsheet/config'),
 		cache = require('basic/tools/cache'),
-		getTemplate = require('basic/tools/template'),
 		observerPattern = require('basic/util/observer.pattern'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
@@ -58,9 +57,8 @@ define(function(require) {
 		 * @chainable
 		 */
 		render: function() {
-			this.$el.html(getTemplate('BODYTEMPLATE'));
 			this.inputContainer = new InputContainer();
-			this.$el.find('.main-layout').append();
+			this.$el.find('.main-layout').append(this.inputContainer.render().el);
 			this.calculation();
 			this.adaptScreen();
 			this.generateSheet();
