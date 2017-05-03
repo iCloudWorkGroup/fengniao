@@ -6,7 +6,7 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		_ = require('lib/underscore'),
-		Handlebars = require('lib/handlebars'),
+		getTemplate = require('basic/tools/template'),
 		binary = require('basic/util/binary'),
 		Backbone = require('lib/backbone'),
 		headItemRows = require('collections/headItemRow'),
@@ -135,8 +135,7 @@ define(function(require) {
 		 */
 		render: function() {
 			var modelJSON = this.model.toJSON();
-			// this.$el.removeAttr('style');
-			this.template =Handlebars.compile($('#tempItemCell').html());
+			this.template = getTemplate('CELLTEMPLATE');
 			this.$el.css({
 				'width': modelJSON.physicsBox.width,
 				'height': modelJSON.physicsBox.height,

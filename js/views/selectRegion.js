@@ -2,7 +2,7 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		Backbone = require('lib/backbone'),
-		Handlebars = require('lib/handlebars'),
+		getTemplate = require('basic/tools/template'),
 		util = require('basic/util/clone'),
 		binary = require('basic/util/binary'),
 		cache = require('basic/tools/cache'),
@@ -77,7 +77,7 @@ define(function(require) {
 		 * @method render
 		 */
 		render: function() {
-			this.template = Handlebars.compile($('#tempSelectContainer').html());
+			this.template = getTemplate('SELECTTEMPLATE');
 			this.$el.html(this.template());
 			this.changeBox();
 			return this;

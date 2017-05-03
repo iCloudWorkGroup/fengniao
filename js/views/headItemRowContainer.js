@@ -3,7 +3,7 @@ define(function(require) {
 	var $ = require('lib/jquery'),
 		_ = require('lib/underscore'),
 		Backbone = require('lib/backbone'),
-		Handlebars = require('lib/handlebars'),
+		getTemplate = require('basic/tools/template'),
 		headItemRows = require('collections/headItemRow'),
 		cache = require('basic/tools/cache'),
 		util = require('basic/util/clone'),
@@ -46,7 +46,7 @@ define(function(require) {
 		 * @return {object} 返回自身对象`this`
 		 */
 		render: function() {
-			this.template = Handlebars.compile($('#tempRowHeadItem').html());
+			this.template = getTemplate('ROWHEADTEMPLATE');
 			this.changeTop();
 			this.changeHeight();
 			this.$el.html(this.template(this.model.toJSON())).data('alias', this.model.get('alias'));
