@@ -1,7 +1,6 @@
 'use strict';
 define(function(require) {
 	var original = require('basic/tools/original'),
-		domloader = require('basic/tools/template'),
 		listener = require('basic/util/listener'),
 		cache = require('basic/tools/cache'),
 		setFontColor = require('entrance/tool/setfontcolor'),
@@ -42,9 +41,6 @@ define(function(require) {
 
 
 	var excelBuild = {
-		buildDom: function(id) {
-			domloader(id);
-		},
 		buildExcelOriginalData: function(domId) {
 			original.restoreExcel(domId);
 		},
