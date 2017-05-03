@@ -61,7 +61,7 @@ define(function(require) {
 
 		function sendData() {
 			send.PackAjax({
-				url: config.url.border,
+				url: config.url.cell.border,
 				data: JSON.stringify({
 					coordinate: sendRegion,
 					direction: border

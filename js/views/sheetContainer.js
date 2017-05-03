@@ -2,7 +2,7 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		Backbone = require('lib/backbone'),
-		Handlebars = require('lib/handlebars');
+		getTemplate = require('basic/tools/template');
 	/**
 	 * RowsGridContainer
 	 * @author ray wu
@@ -18,7 +18,7 @@ define(function(require) {
 		initialize: function(option) {
 			var modelJSON = this.model.toJSON();
 			this.listenTo(this.model, 'destroy', this.destroy);
-			this.template=Handlebars.compile($('#tempSheetContainer').html());
+			this.template = getTemplate('SHEETTEMPLATE');
 			this.$el.html(this.template(modelJSON));
 			if(option.active ===true){
 				this.$el.addClass('active');

@@ -445,6 +445,7 @@ define(function(require) {
 		 */
 		deleteBottom: function(recordPosi) {
 			var headItemRowList = headItemRows.models,
+				cellRowAliasArray,
 				recordIndex,
 				limitPosi,
 				limitIndex,
@@ -468,7 +469,7 @@ define(function(require) {
 			//删除超过加载区域cell视图对象
 			tempCells = cells.getCellByRow(limitIndex + 1, localViewIndex);
 			for (i = 0, len = tempCells.length; i < len; i++) {
-				cellRowAliasArray = tempCells[i].get("occupy").y;
+				cellRowAliasArray = tempCells[i].get('occupy').y;
 				if (cellRowAliasArray.indexOf(limitAlias) === -1) {
 					tempCells[i].hide();
 				}
