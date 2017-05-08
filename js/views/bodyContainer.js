@@ -59,7 +59,7 @@ define(function(require) {
 		render: function() {
 			this.$el.html(getTemplate('BODYTEMPLATE'));
 			this.inputContainer = new InputContainer();
-			this.$el.find('.main-layout').append();
+			this.$el.find('.main-layout').append(this.inputContainer.render().el);
 			this.calculation();
 			this.adaptScreen();
 			this.generateSheet();
