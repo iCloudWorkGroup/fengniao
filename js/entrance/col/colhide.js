@@ -15,7 +15,6 @@ define(function(require) {
 		hide: function(sheetId, label) {
 			var clip,
 				region,
-				sendRegion,
 				colindex,
 				colSort,
 				adjustWidth,
@@ -179,21 +178,17 @@ define(function(require) {
 				headItemColList[i].set('left', left - width - 1);
 			}
 		},
-		cancelHide: function(sheetId, label) {
+		cancelHide: function(sheetId) {
 			var headItemColList = headItemCols.models,
 				len = headItemColList.length,
 				hidden,
-				select,
 				cellList,
 				cellLen,
 				cellWidth,
 				cellLeft,
-				headItemModel,
 				headItemLeft,
 				headItemAlias,
-				selectLeft,
 				moveWidth = 0, //取消隐藏时，单元格，列对象，向右移动宽度
-				colAlias,
 				width,
 				i = 0,
 				j;

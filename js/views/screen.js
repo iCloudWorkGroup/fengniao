@@ -204,7 +204,7 @@ define(function(require) {
 		 */
 		realseDrag: function(e) {
 			this.triggerCallback();
-			Backbone.trigger('event:cellsContainer:unBindDrag');
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'commonMoveState');
 			//release events of cols
 			Backbone.trigger('event:colsHeadContainer:relaseSpaceEffect');
 			//release events of rows

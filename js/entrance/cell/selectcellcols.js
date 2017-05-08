@@ -2,7 +2,6 @@
 define(function(require) {
 	var cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
-		listener = require('basic/util/listener'),
 		selectRegions = require('collections/selectRegion'),
 		SelectRegionModel = require('models/selectRegion'),
 		headItemRows = require('collections/headItemRow');

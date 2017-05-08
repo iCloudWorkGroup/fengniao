@@ -42,8 +42,6 @@ define(function(require) {
 		 */
 		events: {
 			'dblclick': 'editState',
-			'mousemove': 'moveHandle',
-			'mouseout': 'outHandle'
 		},
 		/**
 		 * 视图初始化函数
@@ -68,9 +66,6 @@ define(function(require) {
 			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 			this.offsetLeft = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetLeft || 0) : 0;
 			this.offsetTop = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetTop || 0) : 0;
-			this.mouseOverModel = null;
-			this.mouseOverEventId = null;
-			_.bindAll(this, 'moveHandle', 'outHandle');
 		},
 		/**
 		 * 页面渲染方法
@@ -81,51 +76,6 @@ define(function(require) {
 			this.$el.html(this.template());
 			this.changeBox();
 			return this;
-		},
-		moveHandle: function(event) {
-			var modelJSON = this.model.toJSON(),
-				relativeTop = event.offsetY,
-				relativeLeft = event.offsetX,
-				colIndex,
-				rowIndex,
-				cellModel,
-				top, left;
-
-			if (cache.commentEidtState) {
-				return;
-			}
-			if (relativeTop < 0 || relativeLeft < 0 ||
-				relativeTop > modelJSON.physicsBox.height ||
-				relativeLeft > modelJSON.physicsBox.width) {
-
-				top = relativeTop + modelJSON.physicsBox.top;
-				left = relativeLeft + modelJSON.physicsBox.left;
-				rowIndex = binary.modelBinary(top, rowModelList, 'top', 'height');
-				colIndex = binary.modelBinary(left, colModelList, 'left', 'width');
-				cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
-
-				if (this.mouseOverModel !== cellModel) {
-					clearTimeout(this.mouseOverEventId);
-					if (typeof cellModel !== 'undefined' &&
-						typeof cellModel.get('customProp').comment === 'string') {
-						this.mouseOverEventId = setTimeout(function() {
-							cellModel.set('commentShowState', true);
-						}, 1000);
-					}
-					if (this.mouseOverModel !== null) {
-						this.mouseOverModel.set('commentShowState', false);
-					}
-					this.mouseOverModel = cellModel || null;
-				}
-				this.mouseOverModel = cellModel || null;
-			}
-		},
-		outHandle: function() {
-			clearTimeout(this.mouseOverEventId);
-			if (this.mouseOverModel !== null) {
-				this.mouseOverModel.set('commentShowState', false);
-			}
-			this.mouseOverModel = null;
 		},
 		/**
 		 * 更新显示视图大小，坐标

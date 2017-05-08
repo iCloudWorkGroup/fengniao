@@ -52,6 +52,7 @@ define(function(require) {
 				userViewBottomIndex,
 				len;
 
+
 			Backbone.on('event:mainContainer:destroy', this.destroy, this);
 			Backbone.on('event:mainContainer:attributesRender', this.attributesRender, this);
 			Backbone.on('event:mainContainer:appointPosition', this.appointPosition, this);
@@ -111,6 +112,8 @@ define(function(require) {
 				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
 				cache.viewRegion.top = modelsHeadLineRowRegionList[0].get('top');
 				cache.viewRegion.bottom = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height');
+				cache.viewRegion.scrollTop = 0;
+				cache.viewRegion.scrollLeft = 0;
 			}
 		},
 		/**
@@ -328,12 +331,14 @@ define(function(require) {
 			if (verticalDirection > 0 || direction === 'up') {
 				this.addTop(currentViewTop);
 				this.deleteBottom(cache.viewRegion.bottom);
+				cache.viewRegion.scrollLeft = this.el.scrollLeft;
 			}
 			//as scrollbar scroll down
 			if (verticalDirection < 0 || direction === 'down') {
 				//delete top row
 				this.addBottom(cache.viewRegion.bottom);
 				this.deleteTop(currentViewTop);
+				cache.viewRegion.scrollTop = this.el.scrollTop;
 			}
 		},
 		/**
@@ -573,7 +578,7 @@ define(function(require) {
 				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
 				bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
 				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
-				headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
+					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
 			}
 			return bottom;
 		},

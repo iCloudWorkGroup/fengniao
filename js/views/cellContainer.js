@@ -35,10 +35,6 @@ define(function(require) {
 		 * @type {string}
 		 */
 		className: 'item',
-		events: {
-			'mouseenter': 'overHandle',
-			'mouseleave': 'outHandle'
-		},
 		/**
 		 * 监听model事件
 		 * @method initialize 
@@ -57,8 +53,9 @@ define(function(require) {
 			// this.listenTo(this.model, 'change:wordWrap', this.adaptCellHight);
 			// this.listenTo(this.model, 'change:content', this.adaptCellHight);
 
+
+			//待修改，对于销毁事件的绑定
 			this.listenTo(this.model, 'change:isDestroy', this.destroy);
-			this.listenTo(this.model, 'change:commentShowState', this.commentViewHandler);
 			this.listenTo(this.model, 'change:hidden', this.destroy);
 			this.listenTo(this.model, 'destroy', this.clear);
 
@@ -75,59 +72,7 @@ define(function(require) {
 			this.userViewLeft = cache.TempProp.isFrozen ? modelColList.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 			this.userViewTop = cache.TempProp.isFrozen ? modelRowList.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
 
-			_.bindAll(this, 'overHandle', 'outHandle');
 			this.mouseOverEventId = null;
-		},
-		overHandle: function() {
-			var self = this,
-				model = this.model;
-			if (cache.commentEditState) {
-				return;
-			}
-			if ($('.comment').length === 0 && typeof model.get('customProp').comment === 'string') {
-				this.mouseOverEventId = setTimeout(function() {
-					self.model.set('commentShowState', true);
-				}, 1000);
-			}
-		},
-
-		outHandle: function() {
-			clearTimeout(this.mouseOverEventId);
-			this.model.set('commentShowState', false);
-		},
-		commentViewHandler: function() {
-			if (this.model.get('commentShowState') === true) {
-				this.showComment();
-			} else {
-				this.hideComment();
-			}
-		},
-		/**
-		 * 显示备注视图
-		 */
-		showComment: function() {
-			var rowAlias,
-				colAlias,
-				rowIndex,
-				colIndex,
-				occupy = this.model.get('occupy'),
-				comment = this.model.get('customProp').comment,
-				options;
-			rowAlias = occupy.y[0];
-			colAlias = occupy.x[occupy.x.length - 1];
-			rowIndex = headItemRows.getIndexByAlias(rowAlias);
-			colIndex = headItemCols.getIndexByAlias(colAlias);
-			options = {
-				colIndex: colIndex,
-				rowIndex: rowIndex,
-				comment: comment,
-				state: 'show'
-			};
-			Backbone.trigger('event:commentContainer:show', options);
-
-		},
-		hideComment: function() {
-			Backbone.trigger('event:commentContainer:remove');
 		},
 		/**
 		 * 渲染单元格

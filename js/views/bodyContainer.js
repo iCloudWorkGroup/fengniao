@@ -47,9 +47,8 @@ define(function(require) {
 		initialize: function() {
 			Backbone.on('call:bodyContainer', this.callBodyContainer, this);
 			Backbone.on('event:bodyContainer:executiveFrozen', this.executiveFrozen, this);
-			Backbone.on('event:commentContainer:show', this.showCommentContainer, this);
-			Backbone.on('event:commentContainer:remove', this.removeCommentContainer, this);
-			_.bindAll(this, 'executiveFrozen', 'showCommentContainer', 'removeCommentContainer');
+			Backbone.on('event:bodyContainer:handleComment', this.handleComment, this);
+			// _.bindAll(this, 'executiveFrozen');
 			this.commentContainer = null;
 		},
 		/**
@@ -70,13 +69,12 @@ define(function(require) {
 			});
 			this.inputContainer.$el.focus();
 		},
-		showCommentContainer: function(options) {
-			if (cache.commentEditState) {
-				return;
+		handleComment: function(options) {
+			var action = options.action;
+			if (!this.commentContainer) {
+				this.commentContainer = new CommentContainer();
+				this.$el.find('.main-layout').append(this.commentContainer.render().el);
 			}
-			options.parentNode = this;
-			this.commentContainer = new CommentContainer(options);
-			//不进行滚动订阅，滚动操作，视图destory
 			this.publisherList['mainContainer'].subscribe({
 				master: this.commentContainer,
 				behavior: 'transverseScroll'
@@ -86,27 +84,15 @@ define(function(require) {
 				behavior: 'verticalScroll'
 			}, 'verticalPublish');
 
-			this.$el.find('.main-layout').append(this.commentContainer.render().el);
-			if (options.state !== 'show') {
-				this.commentContainer.$el.focus();
+			if (action === 'hide') {
+				this.commentContainer.hide();
+			} else if (action === 'edit') {
+				this.commentContainer.edit(options);
+			} else if(action==='add'){
+				this.commentContainer.add(options);
+			}else {
+				this.commentContainer.show(options);
 			}
-		},
-		removeCommentContainer: function(model) {
-			if (this.commentContainer === null ||
-				this.commentContainer.state !== 'show') {
-				return;
-			}
-			this.publisherList['mainContainer'].unsubscribe({
-				master: this.commentContainer,
-				behavior: 'transverseScroll'
-			}, 'transversePublish');
-			this.publisherList['mainContainer'].unsubscribe({
-				master: this.commentContainer,
-				behavior: 'verticalScroll'
-			}, 'verticalPublish');
-			//判断状态
-			this.commentContainer.close();
-			this.commentContainer = null;
 		},
 		generateSheet: function() {
 			var sheetsView = new SheetsContainer();
