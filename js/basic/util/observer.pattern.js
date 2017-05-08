@@ -47,7 +47,11 @@ define(function() {
 				for (i = 0; i < max; i++) {
 					if (action === 'publish') {
 						subscriber = subscribers[i];
-						subscriber.master[subscriber.behavior](arg, subscriber.args);
+						if(typeof subscriber === 'object'){
+							subscriber.master[subscriber.behavior](arg, subscriber.args);
+						}else if(typeof subscriber === 'function'){
+							subscriber(arg);
+						}
 					} else {
 						if (subscribers[i] === arg) {
 							subscribers.splice(i, 1);

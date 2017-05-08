@@ -15,6 +15,13 @@ define(function(require) {
 		commentHandler;
 
 	commentHandler = {
+		removeClip: function() {
+			var clip = selectRegions.getModelByType('clip');
+			if (clip !== undefined) {
+				cache.clipState = 'null';
+				clip.destroy();
+			}
+		},
 		modifyComment: function(sheetId, comment, label) {
 			var clip,
 				region,
@@ -24,11 +31,7 @@ define(function(require) {
 				headItemColList = headItemCols.models,
 				changeModelList = [];
 
-			clip = selectRegions.getModelByType('clip');
-			if (clip !== undefined) {
-				cache.clipState = 'null';
-				clip.destroy();
-			}
+			this.removeClip();
 			region = getOperRegion(label);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
@@ -64,28 +67,21 @@ define(function(require) {
 		},
 
 		createAddCommentView: function(sheetId) {
-			var clip = selectRegions.getModelByType('clip');
-			if (clip !== undefined) {
-				cache.clipState = 'null';
-				clip.destroy();
-			}
-			Backbone.trigger('event:commentContainer:show', {
-				'state': 'add',
+			this.removeClip();
+			Backbone.trigger('event:bodyContainer:handleComment', {
+				'action': 'add',
 			});
 		},
 
 		createEditComment: function(sheetId) {
-			var clip = selectRegions.getModelByType('clip');
-			if (clip !== undefined) {
-				cache.clipState = 'null';
-				clip.destroy();
-			}
-			Backbone.trigger('event:commentContainer:show', {
-				'state': 'edit'
+			this.removeClip();
+			Backbone.trigger('event:bodyContainer:handleComment', {
+				'action': 'edit'
 			});
 		},
 
 		deleteComment: function(sheetId, label) {
+			this.removeClip();
 			this.modifyComment('1', null, label);
 		},
 		sendData: function(sendRegion, comment, url) {

@@ -30,9 +30,9 @@ define(function(require) {
 			region.startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
 			region.startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
 		}
-		if (region.startColIndex < 0 || 
-			region.startRowIndex < 0 || 
-			region.endColIndex < 0 || 
+		if (region.startColIndex < 0 ||
+			region.startRowIndex < 0 ||
+			region.endColIndex < 0 ||
 			region.endRowIndex < 0) {
 			return;
 		}
@@ -57,10 +57,7 @@ define(function(require) {
 			},
 			physicsBox: {
 				top: headItemRowList[startRowIndex].get('top'),
-				left: headItemColList[startColIndex].get('left')
-
-			},
-			physicsBox: {
+				left: headItemColList[startColIndex].get('left'),
 				width: width - 1,
 				height: height - 1
 			},

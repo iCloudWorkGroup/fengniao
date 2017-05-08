@@ -1,16 +1,17 @@
 'use strict';
 define(function(require) {
-	var cache = require('basic/tools/cache'),
+	var Backbone = require('lib/backbone'),
 		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
+
 		operation;
 
 	operation = {
 		setDataSourceRegion: function() {
-			cache.mouseOperateState = config.mouseOperateState.dataSource;
+			Backbone.trigger('event:cellsContainer:setMouseState', 'locatedState' , 'dataSourceLocatedState');
 		},
 		setSelectRegion: function() {
-			cache.mouseOperateState = config.mouseOperateState.select;
+			Backbone.trigger('event:cellsContainer:setMouseState', 'locatedState' , 'selectLocatedState');
 		},
 		destroyDataSoureRegion: function() {
 			if (selectRegions.getModelByType('datasource') !== undefined) {

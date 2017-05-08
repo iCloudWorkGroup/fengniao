@@ -1,22 +1,21 @@
 define(function(require) {
 	'use strict';
-	var CellsContainerView = require('views/cellsContainer'),
-		SelectRegionView = require('views/selectRegion'),
-		Backbone = require('lib/backbone'),
+
+	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
+		SelectRegionModel = require('models/selectRegion'),
+		selectRegions = require('collections/selectRegion'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
-		selectRegions = require('collections/selectRegion'),
-		SelectRegionModel = require('models/selectRegion'),
 		cells = require('collections/cells'),
+		CellsContainerView = require('views/cellsContainer'),
+		SelectRegionView = require('views/selectRegion'),
 		headItemColList = headItemCols.models,
 		headItemRowList = headItemRows.models,
 		highlightAction,
 		highlightRender,
-		addListen,
 		extend,
-		initialize1,
-		initialize2;
+		initialize;
 
 	extend = function(target, options) {
 		var name;
@@ -24,41 +23,9 @@ define(function(require) {
 			target[name] = options[name];
 		}
 	}
-	addListen = function(modelName, fn) {
-		Backbone.trigger('event:' + modelName + ':extend', fn);
-	}
 
 	highlightAction = {
-		/**
-		 * 开启单元格边框高亮功能
-		 */
-		startHighlight: function() {
-			//鼠标移动阻止原有事件（mousedown,mousemove）
-			this.undelegateEvents();
-			this.$el.off('mousemove', this.dragSelect);
-			//监听鼠标移动事件
-			this.$el.on('mousemove', this.highlightMove);
-		},
-		/**
-		 * 停止单元格边框高亮功能
-		 * @return {[type]} [description]
-		 */
-		stopHighlight: function() {
-			var selectModel;
-			//移除鼠标事件监听
-			this.$el.off('mousemove', this.highlightMove);
-			//绑定视图原有事件
-			this.delegateEvents();
-			selectModel = selectRegions.getModelByType('highlight');
-			if (typeof selectModel !== undefined) {
-				selectModel.destroy();
-			}
-		},
-		/**
-		 * 模块监听
-		 * @param  {object} event 鼠标移动事件
-		 */
-		highlightMove: function(event) {
+		hightlightMoveState: function() {
 			var strandCol = cache.CellsPosition.strandX,
 				cellModel,
 				selectModel,
@@ -83,11 +50,8 @@ define(function(require) {
 			colAlias = headItemColList[colIndex].get('alias');
 			rowAlias = headItemRowList[rowIndex].get('alias');
 
-			selectModel = selectRegions.getModelByType('highlight')
-
-			if (strandCol[colAlias] && typeof strandCol[colAlias][rowAlias] !== 'undefined') {
-				cellModel = cells.models[strandCol[colAlias][rowAlias]];
-			}
+			selectModel = selectRegions.getModelByType('highlight');
+			cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
 
 			if (typeof cellModel !== 'undefined' && cellModel.get('highlight')) {
 				left = cellModel.get('physicsBox').left;
@@ -96,9 +60,10 @@ define(function(require) {
 				bottom = top + cellModel.get('physicsBox').height;
 			} else {
 				cache.highlightDirection = 'null';
-				selectModel && selectModel.set('hightlight', null);
+				selectModel && selectModel.set('highlightDirection', null);
 				return;
 			}
+
 			if (typeof selectModel === 'undefined') {
 				selectModel = new SelectRegionModel();
 				selectModel.set('selectType', 'highlight');
@@ -140,6 +105,7 @@ define(function(require) {
 			}
 		}
 	}
+
 	highlightRender = {
 		highlight: function() {
 			var direction = this.model.get('highlightDirection');
@@ -147,33 +113,31 @@ define(function(require) {
 			this.$el.removeClass("highlight-left");
 			this.$el.removeClass("highlight-top");
 			this.$el.removeClass("highlight-bottom");
-			this.$el.addClass('highlight-' + direction);
+			if(direction){
+				this.$el.addClass('highlight-' + direction);
+			}	
 		}
 	}
+
 	extend(CellsContainerView.prototype, highlightAction);
 	extend(SelectRegionView.prototype, highlightRender);
 
-	initialize1 = CellsContainerView.prototype.initialize;
-	CellsContainerView.prototype.initialize = function(options) {
-		initialize1.call(this, options);
-		Backbone.on('event:cellsContainer:startHighlight', this.startHighlight, this);
-		Backbone.on('event:cellsContainer:stopHighlight', this.stopHighlight, this);
-		_.bindAll(this, 'highlightMove');
-	}
-	initialize2 = SelectRegionView.prototype.initialize;
+	initialize = SelectRegionView.prototype.initialize;
 	SelectRegionView.prototype.initialize = function(options) {
-		initialize2.call(this, options);
+		initialize.call(this, options);
 		if (this.model.get('selectType') === 'highlight') {
 			this.listenTo(this.model, 'change:highlightDirection', this.highlight);
 		}
 	}
-
 	return {
 		startHighlight: function() {
-			Backbone.trigger('event:cellsContainer:startHighlight');
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'hightlightMoveState');
 		},
 		stopHighlight: function() {
-			Backbone.trigger('event:cellsContainer:stopHighlight');
+			if (selectRegions.getModelByType('highlight') !== undefined) {
+				selectRegions.getModelByType('highlight').destroy();
+			}
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'commonMoveState');
 		},
 		getLightDirection: function() {
 			return cache.highlightDirection;

@@ -37,14 +37,20 @@ define(function(require) {
 		 * @type {String}
 		 */
 		className: 'cells-container',
+
+		currentState: null,
 		/**
 		 * 绑定鼠标事件
 		 * @property events
 		 * @type {Object}
 		 */
 		events: {
-			'mousedown': 'located',
+			'mousedown': 'mouseDownHandle',
+			'mousemove': 'mouseMoveHandle',
+			'mouseout': 'outHandle'
 		},
+		locatedState: null,
+		moveState: null,
 		/**
 		 * 类初始化调用方法，绑定集合监听
 		 * @method initialize
@@ -64,6 +70,8 @@ define(function(require) {
 
 			Backbone.on('event:cellsContainer:destroy', this.destroy, this);
 
+			Backbone.on('event:cellsContainer:setMouseState', this.setMouseState, this);
+
 			this.currentRule = util.clone(cache.CurrentRule);
 			//记录冻结情况下导致视图移动大小
 			if (cache.TempProp.isFrozen === true) {
@@ -80,7 +88,7 @@ define(function(require) {
 
 			//监听剪切板选中区域创建
 			this.listenTo(selectRegions, 'add', this.addSelectRegionView);
-			_.bindAll(this, 'dragSelect');
+			_.bindAll(this, 'mouseDownHandle', 'mouseMoveHandle');
 
 			this.boxAttributes = options.boxAttributes;
 			//需要保留对父级视图的引用，需要父级视图的滚动像素，进行定位 
@@ -91,6 +99,44 @@ define(function(require) {
 					this.currentRule.displayPosition.endColIndex)) {
 				Backbone.on('event:cellsContainer:moveSelectRegion', this.moveSelectRegion, this);
 			}
+			this.locatedState = this.selectLocatedState;
+			this.moveState = this.commonMoveState;
+			this.mouseCoordinate = {};
+			this.mouseLastCell = null;
+			this.mouseOverEventId = null;
+
+		},
+		mouseDownHandle: function(event) {
+			var temp = $('.comment');
+			if (temp.length && temp.attr('disabled') === undefined) {
+				return;
+			}
+			if ($(event.target).attr('class') === 'edit-frame') {
+				return;
+			}
+			this.locatedState(event);
+		},
+		mouseMoveHandle: function(event) {
+			var temp = $('.comment');
+			if (temp.length && temp.attr('disabled') === undefined) {
+				return;
+			}
+			if ($(event.target).attr('class') === 'edit-frame') {
+				return;
+			}
+			this.moveState(event);
+		},
+		outHandle: function() {
+			var temp = $('.comment');
+			if (temp.length && temp.attr('disabled') === undefined) {
+				return;
+			}
+			clearTimeout(this.mouseOverEventId);
+			this.mouseCoordinate = {};
+			this.mouseLastCell = null;
+			Backbone.trigger('event:bodyContainer:handleComment', {
+				action: 'hide'
+			});
 		},
 		/**
 		 * 渲染方法
@@ -153,6 +199,89 @@ define(function(require) {
 				}
 			}
 			this.$el.css('height', top + height);
+		},
+		/**
+		 * 设置当前鼠标操作状态
+		 * @param {String}   type 状态类型（鼠标点击/鼠标移动）
+		 * @param {Function} fn   [description]
+		 */
+		setMouseState: function(type, state) {
+			this[type] = this[state];
+		},
+		selectLocatedState: function(event) {
+			var selectModel = selectRegions.getModelByType('selected');
+			this.located(event.clientX, event.clientY, selectModel);
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'selectMoveState');
+		},
+		dataSourceLocatedState: function(event) {
+			var selectModel = selectRegions.getModelByType('datasource');
+			if (typeof selectModel === 'undefined') {
+				selectModel = new SelectRegionModel();
+				selectModel.set('selectType', 'datasource');
+				selectRegions.add(selectModel);
+			}
+			this.located(event.clientX, event.clientY, selectModel);
+			this.moveState = this.dataSourceMoveState;
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
+		},
+		selectMoveState: function(event) {
+			var selectModel = selectRegions.getModelByType('selected');
+			this.select(event.clientX, event.clientY, selectModel);
+		},
+		dataSourceMoveState: function(event) {
+			var selectModel = selectRegions.getModelByType('datasource');
+			this.select(event.clientX, event.clientY, selectModel);
+		},
+		commonMoveState: function(event) {
+			var cell,
+				colIndex,
+				rowIndex,
+				colAlias,
+				rowAlias,
+				startRowIndex,
+				coordinate,
+				options,
+				occupyX,
+				occupyY;
+
+			coordinate = this.getCoordinateByMouseEvent(event);
+			rowIndex = coordinate.rowIndex;
+			colIndex = coordinate.colIndex;
+			rowAlias = headItemRowList[rowIndex].get('alias');
+			colAlias = headItemColList[colIndex].get('alias');
+
+			if (this.mouseCoordinate.colAlias === colAlias && this.mouseCoordinate.rowAlias === rowAlias) {
+				return;
+			}
+			cell = cells.getCellByVertical(colIndex, rowIndex)[0];
+			cell = cell || null;
+			if (this.mouseLastCell === cell) {
+				return;
+			}
+			this.mouseLastCell = cell;
+			if (cell && cell.get('customProp').comment !== null) {
+				occupyX = cell.get('occupy').x;
+				occupyY = cell.get('occupy').y;
+				options = {
+					colIndex: colIndex + occupyX.length - occupyX.indexOf(colAlias) - 1,
+					rowIndex: rowIndex - occupyY.indexOf(rowAlias),
+					comment: cell.get('customProp').comment,
+					action: 'show'
+				};
+			} else {
+				options = {
+					action: 'hide'
+				};
+			}
+			clearTimeout(this.mouseOverEventId);
+			this.mouseOverEventId = setTimeout(function() {
+				Backbone.trigger('event:bodyContainer:handleComment', options);
+			}, 400);
+
+			this.mouseCoordinate = {
+				colAlias: colAlias,
+				rowAlias: rowAlias
+			};
 		},
 		/**
 		 * 待修改:类似方法应该进行合并
@@ -221,7 +350,8 @@ define(function(require) {
 		 * @param  {Function} fn      回调函数
 		 */
 		getCoordinateDisplayName: function(colPosi, rowPosi, fn) {
-			var region = this.currentRule.displayPosition,
+			var containerId = cache.containerId,
+				region = this.currentRule.displayPosition,
 				coordinate,
 				clientColPosi,
 				clientRowPosi,
@@ -324,18 +454,14 @@ define(function(require) {
 		 * 单击网格区域
 		 * @param  {[type]} event 单击事件对象
 		 */
-		located: function(event) {
-			var selectModel;
-			// this is question , need deprecated
-			// when input data time avoid trigger this effect.
+		located: function(colPosi, rowPosi, selectModel) {
 			if (cache.commentEditState) {
 				return;
 			}
 			if ($(event.target).attr('class') === 'edit-frame') {
 				return;
 			}
-			this.changePosi(event.clientX, event.clientY, selectModel);
-			Backbone.trigger('event:cellsContainer:bindDrag');
+			this.changePosi(colPosi, rowPosi, selectModel);
 		},
 		/**
 		 * 单元格区域单击事件处理
@@ -379,16 +505,6 @@ define(function(require) {
 				text = modelCell.get('content.texts');
 			}
 
-			if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
-				selectModel = selectRegions.getModelByType('datasource');
-				if (typeof selectModel === 'undefined') {
-					selectModel = new SelectRegionModel();
-					selectModel.set('selectType', 'datasource');
-					selectRegions.add(selectModel);
-				}
-			} else {
-				selectModel = selectRegions.getModelByType('selected');
-			}
 			selectModel.set('tempPosi', {
 				initColIndex: startColIndex,
 				initRowIndex: startRowIndex,
@@ -432,28 +548,11 @@ define(function(require) {
 			}
 		},
 		/**
-		 * 绑定鼠标拖拽事件
-		 * @method bindDrag
-		 */
-		bindDragSelect: function() {
-			this.$el.on('mousemove', this.dragSelect);
-		},
-		/**
-		 * 移除鼠标拖拽事件
-		 * @method unBindDrag 
-		 */
-		unBindDragSelect: function() {
-			this.$el.off('mousemove', this.dragSelect);
-		},
-		dragSelect: function(event) {
-			this.select(event.clientX, event.clientY);
-		},
-		/**
 		 * 鼠标拖动选择区域
 		 * @param  {number} colPosi 纵向坐标
 		 * @param  {number} rowPosi 横向坐标
 		 */
-		select: function(colPosi, rowPosi) {
+		select: function(colPosi, rowPosi, selectModel) {
 			var initColIndex,
 				initRowIndex,
 				lastColMouse,
@@ -469,8 +568,6 @@ define(function(require) {
 			coordinate = this.getCoordinate(colPosi, rowPosi);
 			mouseColIndex = coordinate.colIndex;
 			mouseRowIndex = coordinate.rowIndex;
-
-			selectModel = selectRegions.getModelByType(cache.mouseOperateState);
 
 			//鼠标开始移动索引
 			initColIndex = selectModel.get('tempPosi').initColIndex;
@@ -499,18 +596,9 @@ define(function(require) {
 				len,
 				selectModelList;
 			Backbone.off('event:cellsContainer:destroy');
-			Backbone.off('event:cellsContainer:selectRegionChange');
-			Backbone.off('event:cellsContainer:adaptSelectRegion');
-			Backbone.off('event:cellsContainer:unBindDrag');
-			Backbone.off('event:cellsContainer:bindDrag');
-			Backbone.off('event:cellsContainer:getCoordinate');
-			Backbone.off('event:cellsContainer:startHighlight');
-			Backbone.off('event:cellsContainer:stopHighlight');
 			Backbone.off('event:cellsContainer:adaptWidth');
 			Backbone.off('event:cellsContainer:adaptHeight');
-			//待修改：更改为触发事件
-			// this.contentCellsContainer.destroy();
-			// this.selectRegion.destroy();
+			//待修改：需要销毁包含视图
 			selectModelList = selectRegions.models;
 			len = selectModelList.length;
 			for (; i < len; i++) {
