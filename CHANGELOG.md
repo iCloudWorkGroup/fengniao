@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 
-# SpreadSheet Online 版本更新日志
-
-=======
 # SpreadSheet Online 版本更新日志
 
 <a name="0.11.0"></a>
@@ -14,7 +10,6 @@
 		1.将高亮功能从cellscontainer模块分离
 		2.将selectModel盒模型的计算转移到selectModel视图中
 
->>>>>>> master
 <a name="0.10.0"></a>
 # [0.10.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.9.0...v0.10.0) (2017-04-18)
 将请求修改为rest风格
