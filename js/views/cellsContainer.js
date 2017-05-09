@@ -46,8 +46,8 @@ define(function(require) {
 		 */
 		events: {
 			'mousedown': 'mouseDownHandle',
-			'mousemove': 'mouseMoveHandle',
-			'mouseout': 'outHandle'
+			// 'mousemove': 'mouseMoveHandle',
+			// 'mouseout': 'outHandle'
 		},
 		locatedState: null,
 		moveState: null,
