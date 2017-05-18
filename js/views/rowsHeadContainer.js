@@ -219,24 +219,19 @@ define(function(require) {
 			this.itemEl = this.$itemEl = this.$lockData = null;
 		},
 		rowHeightAdjust: function(itemElIndex, height) {
-
 			var diffDistance = height - headItemRows.models[itemElIndex].get('height');
 			this.adjustHeadLine(itemElIndex, diffDistance);
 			this.adjustCells(itemElIndex, diffDistance);
 			this.adjustSelectRegion(itemElIndex, diffDistance);
 			this.requstAdjust(itemElIndex, height);
-			if (this.viewCellsContainer === undefined || this.viewRowsAllHeadContainer === undefined) {
+			if ( this.viewRowsAllHeadContainer === undefined) {
 				this.triggerCallback();
 			}
-
-			this.viewCellsContainer.attributesRender({
-				width: headItemCols.getMaxDistanceWidth(),
-				height: headItemRows.getMaxDistanceHeight()
-			});
 			this.viewRowsAllHeadContainer.$el.css({
 				height: headItemRows.getMaxDistanceHeight()
 			});
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange', headItemRows.models[itemElIndex].get('top'), diffDistance);
+			Backbone.trigger('event:cellsContainer:adaptHeight');
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange');
 		},
 		/**
 		 * 向后台发送请求，调整列宽
@@ -291,7 +286,7 @@ define(function(require) {
 				endIndex: this.currentRule.displayPosition.endIndex
 			});
 			// if (initialize === true || modelHeadItemRow.get('top') > config.displayRowHeight) {
-			if (initialize === true || modelHeadItemRow.get('top')) {
+			if (initialize === true || modelHeadItemRow.get('top')) {	
 				this.$el.append(this.headItemRowContainer.render().el);
 			} else {
 				this.$el.prepend(this.headItemRowContainer.render().el);
@@ -399,8 +394,8 @@ define(function(require) {
 				selectRegionModel.set("physicsBox.height", cacheHeight + pixel);
 				siderLineRowModel.set("height", cacheHeight + pixel);
 			} else {
-				cacheTop = selectRegionModel.get("physicsPosi").top;
-				selectRegionModel.set("physicsPosi.top", cacheTop + pixel);
+				cacheTop = selectRegionModel.get("physicsBox").top;
+				selectRegionModel.set("physicsBox.top", cacheTop + pixel);
 				siderLineRowModel.set("top", cacheTop + pixel);
 			}
 

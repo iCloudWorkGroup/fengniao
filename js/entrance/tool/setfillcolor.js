@@ -28,7 +28,7 @@ define(function(require) {
 			headItemColList = headItemCols.models,
 			len, i;
 
-		clip = selectRegions.getModelByType('clip')[0];
+		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
 			cache.clipState = 'null';
 			clip.destroy();
@@ -76,7 +76,7 @@ define(function(require) {
 				}, changeModelList);
 			}
 			send.PackAjax({
-				url: config.url.cell.color,
+				url: config.url.cell.bg,
 				data: JSON.stringify({
 					sheetId: '1',
 					coordinate: sendRegion,

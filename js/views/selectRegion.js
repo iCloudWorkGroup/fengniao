@@ -2,15 +2,20 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		Backbone = require('lib/backbone'),
-		Handlebars = require('lib/handlebars'),
+		getTemplate = require('basic/tools/template'),
 		util = require('basic/util/clone'),
 		binary = require('basic/util/binary'),
 		cache = require('basic/tools/cache'),
 		send = require('basic/tools/send'),
 		Cell = require('models/cell'),
+		listener = require('basic/util/listener'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
+		siderLineRows = require('collections/siderLineRow'),
+		siderLineCols = require('collections/siderLineCol'),
 		cells = require('collections/cells'),
+		rowModelList = headItemRows.models,
+		colModelList = headItemCols.models,
 		SelectRegion;
 
 	/**
@@ -37,8 +42,6 @@ define(function(require) {
 		 */
 		events: {
 			'dblclick': 'editState',
-			'mousemove': 'moveHandle',
-			'mouseout': 'outHandle'
 		},
 		/**
 		 * 视图初始化函数
@@ -46,11 +49,13 @@ define(function(require) {
 		 */
 		initialize: function(options) {
 			this.viewCellsContainer = options.parentView;
-			if (this.model.get("selectType") === "operation") {
+			if (this.model.get('selectType') === 'selected') {
 				Backbone.on('event:selectRegion:patchOprCell', this.patchOprCell, this);
 			}
+			Backbone.on('event:selectRegionContainer:adapt', this.adapt, this);
 			//添加视图
-			this.listenTo(this.model, 'change', this.changePosition);
+			this.listenTo(this.model, 'change:tempPosi', this.changePosi);
+			this.listenTo(this.model, 'change:physicsBox', this.changeBox);
 			this.listenTo(this.model, 'destroy', this.destroy);
 			if (options.currentRule !== undefined) {
 				this.currentRule = options.currentRule;
@@ -61,76 +66,27 @@ define(function(require) {
 			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 			this.offsetLeft = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetLeft || 0) : 0;
 			this.offsetTop = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetTop || 0) : 0;
-			this.mouseOverModel = null;
-			this.mouseOverEventId = null;
-			_.bindAll(this, 'moveHandle', 'outHandle');
 		},
 		/**
 		 * 页面渲染方法
 		 * @method render
 		 */
 		render: function() {
-			this.changePosition();
-			this.template = Handlebars.compile($('#tempSelectContainer').html());
+			this.template = getTemplate('SELECTTEMPLATE');
 			this.$el.html(this.template());
+			this.changeBox();
 			return this;
-		},
-		moveHandle: function(event) {
-			var modelJSON = this.model.toJSON(),
-				headItemRowList = headItemRows.models,
-				headItemColList = headItemCols.models,
-				relativeTop = event.offsetY,
-				relativeLeft = event.offsetX,
-				colIndex,
-				rowIndex,
-				cellModel,
-				top, left;		
-			if (cache.commentEidtState) {
-				return;
-			}
-
-			if (relativeTop < 0 || relativeLeft < 0 ||
-				relativeTop > modelJSON.physicsBox.height ||
-				relativeLeft > modelJSON.physicsBox.width) {
-				return;
-			}
-			top = relativeTop + modelJSON.physicsPosi.top;
-			left = relativeLeft + modelJSON.physicsPosi.left;
-			rowIndex = binary.modelBinary(top, headItemRowList, 'top', 'height');
-			colIndex = binary.modelBinary(left, headItemColList, 'left', 'width');
-			cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
-
-			if (this.mouseOverModel !== cellModel) {
-				clearTimeout(this.mouseOverEventId);
-				if (typeof cellModel !== 'undefined' &&
-					typeof cellModel.get('customProp').comment === 'string') {
-					this.mouseOverEventId = setTimeout(function() {
-						cellModel.set('commentShowState', true);
-					}, 1000);
-				}
-				if (this.mouseOverModel !== null) {
-					this.mouseOverModel.set('commentShowState', false);
-				}
-				this.mouseOverModel = cellModel || null;
-			}
-		},
-		outHandle: function() {
-			clearTimeout(this.mouseOverEventId);
-			if (this.mouseOverModel !== null) {
-				this.mouseOverModel.set('commentShowState', false);
-			}
-			this.mouseOverModel = null;
 		},
 		/**
 		 * 更新显示视图大小，坐标
-		 * @method changePosition
+		 * @method changeBox
 		 */
-		changePosition: function() {
+		changeBox: function() {
 			var modelJSON = this.model.toJSON(),
 				height = modelJSON.physicsBox.height,
 				width = modelJSON.physicsBox.width,
-				left = modelJSON.physicsPosi.left,
-				top = modelJSON.physicsPosi.top;
+				left = modelJSON.physicsBox.left,
+				top = modelJSON.physicsBox.top;
 			if (left === 0) {
 				left = left - 1;
 				width = width - 1;
@@ -155,6 +111,128 @@ define(function(require) {
 			return function(callback) {
 				object[name] = callback;
 			};
+		},
+		/**
+		 * 修改选中区域大小，位置
+		 */
+		changePosi: function() {
+			var modelJSON = this.model.toJSON(),
+				colDisplayNames = [],
+				rowDisplayNames = [],
+				startColIndex,
+				startRowIndex,
+				endColIndex,
+				endRowIndex,
+				region,
+				width,
+				height,
+				e = {},
+				i;
+
+			region = cells.getFullOperationRegion(
+				modelJSON.tempPosi.initColIndex,
+				modelJSON.tempPosi.initRowIndex,
+				modelJSON.tempPosi.mouseColIndex,
+				modelJSON.tempPosi.mouseRowIndex
+			);
+			startColIndex = region.startColIndex;
+			startRowIndex = region.startRowIndex;
+			endColIndex = region.endColIndex;
+			endRowIndex = region.endRowIndex;
+
+			width = colModelList[endColIndex].get('width') + colModelList[endColIndex].get('left') - colModelList[startColIndex].get('left');
+			height = rowModelList[endRowIndex].get('height') + rowModelList[endRowIndex].get('top') - rowModelList[startRowIndex].get('top');
+
+			if (this.model.get('selectType') === 'selected') {
+				this.changeHeadLineModel(startColIndex, startRowIndex, endColIndex, endRowIndex);
+				siderLineRows.models[0].set({
+					top: rowModelList[startRowIndex].get('top'),
+					height: height
+				});
+				siderLineCols.models[0].set({
+					left: colModelList[startColIndex].get('left'),
+					width: width
+				});
+			}
+
+			this.model.set('physicsBox', {
+				top: rowModelList[startRowIndex].get('top'),
+				left: colModelList[startColIndex].get('left'),
+				width: width,
+				height: height
+			});
+			this.model.set('wholePosi', {
+				startX: colModelList[startColIndex].get('alias'),
+				startY: rowModelList[startRowIndex].get('alias'),
+				endX: colModelList[endColIndex].get('alias'),
+				endY: rowModelList[endRowIndex].get('alias')
+			});
+			//判断是否为整行或整列操作
+			if (modelJSON.tempPosi.mouseColIndex === 'MAX') {
+				this.model.set('wholePosi.endX', 'MAX');
+				colDisplayNames.push('A');
+				colDisplayNames.push(colModelList[endColIndex].get('displayName'));
+				rowDisplayNames.push(rowModelList[startRowIndex].get('displayName'));
+			} else if (modelJSON.tempPosi.mouseRowIndex === 'MAX') {
+				this.model.set('wholePosi.endY', 'MAX');
+				rowDisplayNames.push('1');
+				rowDisplayNames.push(rowModelList[endRowIndex].get('displayName'));
+				colDisplayNames.push(colModelList[startColIndex].get('displayName'));
+			} else {
+				for (i = startColIndex; i < endColIndex + 1; i++) {
+					colDisplayNames.push(colModelList[i].get('displayName'));
+				}
+				for (i = startRowIndex; i < endRowIndex + 1; i++) {
+					rowDisplayNames.push(rowModelList[i].get('displayName'));
+				}
+			}
+			e.point = {
+				col: colDisplayNames,
+				row: rowDisplayNames
+			};
+			listener.excute('regionChange', e);
+			if (modelJSON.selectType === 'selected') {
+				listener.excute('selectRegionChange', e);
+			} else {
+				listener.excute('dataSourceRegionChange', e);
+			}
+
+		},
+		changeHeadLineModel: function(currentStartCol, currentStartRow, currentEndCol, currentEndRow) {
+			var modelJSON = this.model.toJSON(),
+				originalStartRow,
+				originalStartCol,
+				originalEndRow,
+				originalEndCol, i;
+
+			originalStartRow = headItemRows.getIndexByAlias(modelJSON.wholePosi.startY);
+			originalStartCol = headItemCols.getIndexByAlias(modelJSON.wholePosi.startX);
+			originalEndRow = headItemRows.getIndexByAlias(modelJSON.wholePosi.endY);
+			originalEndCol = headItemCols.getIndexByAlias(modelJSON.wholePosi.endX);
+
+			originalEndRow = originalEndRow !== 'MAX' ? originalEndRow : headItemRows.length - 1;
+			originalEndCol = originalEndCol !== 'MAX' ? originalEndCol : headItemCols.length - 1;
+			for (i = originalStartRow; i <= originalEndRow; i++) {
+				rowModelList[i].set({
+					activeState: false
+				});
+			}
+
+			for (i = originalStartCol; i <= originalEndCol; i++) {
+				colModelList[i].set({
+					activeState: false
+				});
+			}
+			for (i = currentStartRow; i <= currentEndRow; i++) {
+				rowModelList[i].set({
+					activeState: true
+				});
+			}
+			for (i = currentStartCol; i <= currentEndCol; i++) {
+				colModelList[i].set({
+					activeState: true
+				});
+			}
 		},
 		/**
 		 * 选中区域内，对每一个单元格区域调用cycleCallback函数操作，如果不存在单元格，则创建后，进行操作
@@ -220,9 +298,10 @@ define(function(require) {
 		 * @method destroy
 		 */
 		destroy: function() {
-			if (this.model.get("selectType") === "operation") {
+			if (this.model.get('selectType') === 'selected') {
 				Backbone.off('event:selectRegion:patchOprCell');
 			}
+			Backbone.off('event:selectRegionContainer:adapt');
 			this.remove();
 		}
 	});

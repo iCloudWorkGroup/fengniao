@@ -102,7 +102,7 @@ define(function() {
 			maxRowNum: 9999
 		},
 		mouseOperateState: {
-			select: 'operation',
+			select: 'selected',
 			dataSource: 'datasource',
 			drag: 'drag',
 			highlight: 'highlight'
@@ -158,7 +158,7 @@ define(function() {
 				merge: 'cell/merge',
 				split: 'cell/split',
 				border: 'cell/border',
-				color: 'cell/color',
+				bg: 'cell/bg',
 				wordwrap: 'cell/wordwrap',
 				align_transverse: 'cell/align-landscape',
 				align_vertically: 'cell/align-portrait',
@@ -188,6 +188,6 @@ define(function() {
 
 		},
 		version: '@version@',
-		rootPath: 'http://excel-inc.acmr.com.cn/spreadsheet/'
+		rootPath: 'http://excel-inc.acmr.com.cn/fn/'
 	};
 });

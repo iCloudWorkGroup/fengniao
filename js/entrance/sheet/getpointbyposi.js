@@ -10,7 +10,7 @@ define(function(require) {
 				result.point = callback;
 			};
 		};
-		Backbone.trigger('event:cellsContainer:getCoordinate', getResult(), mouseColPosi, mouseRowPosi);
+		Backbone.trigger('event:cellsContainer:getCoordinateDisplayName', mouseColPosi, mouseRowPosi , getResult());
 		if (result.point === undefined) {
 			result.point = {
 				col: '',

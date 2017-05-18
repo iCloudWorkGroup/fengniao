@@ -2,7 +2,7 @@
 define(function(require) {
 	var $ = require('lib/jquery'),
 		Backbone = require('lib/backbone'),
-		Handlebars = require('lib/handlebars'),
+		getTemplate = require('basic/tools/template'),
 		headItemCols = require('collections/headItemCol'),
 		cache = require('basic/tools/cache'),
 		util = require('basic/util/clone'),
@@ -49,7 +49,7 @@ define(function(require) {
 			/**
 			 * @property {string} template
 			 */
-			this.template = Handlebars.compile($('#tempColHeadItem').html());
+			this.template = getTemplate('COLHEADTEMPLATE');
 			this.changeLeft();
 			// this.changeWidth();
 			this.changeRightAjacentHide();

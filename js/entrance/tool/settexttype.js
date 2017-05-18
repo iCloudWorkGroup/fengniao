@@ -39,7 +39,8 @@
           format;
 
         self = this;
-        clip = selectRegions.getModelByType('clip')[0];
+
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -80,7 +81,8 @@
           sendRegion,
           format;
 
-        clip = selectRegions.getModelByType('clip')[0];
+
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -124,7 +126,7 @@
           headItemColList = headItemCols.models,
           format;
 
-        clip = selectRegions.getModelByType('clip')[0];
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -178,8 +180,7 @@
           headItemRowList = headItemRows.models,
           headItemColList = headItemCols.models,
           format;
-
-        clip = selectRegions.getModelByType('clip')[0];
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -235,7 +236,7 @@
           format;
 
         self = this;
-        clip = selectRegions.getModelByType('clip')[0];
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -294,7 +295,8 @@
           headItemColList = headItemCols.models,
           operRegion,
           sendRegion;
-        clip = selectRegions.getModelByType('clip')[0];
+
+        clip = selectRegions.getModelByType('clip');
         if (clip !== undefined) {
           cache.clipState = 'null';
           clip.destroy();
@@ -325,16 +327,27 @@
             self.generateDisplayText(cell);
           });
         } else {
-          cells.operateCellsByRegion(operRegion, function(cell) {
+          cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+            changeModelList.push({
+              colSort: colSort,
+              rowSort: rowSort,
+              value: cell.get('format')
+            });
             cell.set('format', format);
-            self.generateDisplayText(cell);
           });
+          history.addUpdateAction('format', format, {
+            startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+            startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+            endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+            endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+          }, changeModelList);
         }
         this.sendData(format, sendRegion);
       },
       sendData: function(format, sendRegion) {
         var data;
         data = {
+          excelId: window.SPREADSHEET_AUTHENTIC_KEY,
           sheetId: '1',
           coordinate: sendRegion,
           format: format.type
@@ -356,7 +369,7 @@
             break;
         }
         send.PackAjax({
-          url: config.url.cell.format,
+          url: 'text.htm?m=data_format',
           data: JSON.stringify(data)
         });
       },
@@ -390,6 +403,7 @@
         values = value.split('.');
         head = values[0];
         tail = values[1];
+
         head = head.replace(/^0*/, '');
         head = head === '' ? '0' : head;
         if (typeof tail !== 'undefined') {
@@ -462,6 +476,7 @@
           value = head + '.' + tail;
         }
         return value;
+
       },
       isDate: function(value) {
         var regularLine = /^\d{4}\/\d{1,2}\/\d{1,2}$/,

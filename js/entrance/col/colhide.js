@@ -15,14 +15,13 @@ define(function(require) {
 		hide: function(sheetId, label) {
 			var clip,
 				region,
-				sendRegion,
 				colindex,
 				colSort,
 				adjustWidth,
 				headItemColList,
 				len;
 
-			clip = selectRegions.getModelByType('clip')[0];
+			clip = selectRegions.getModelByType('clip');
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
@@ -116,7 +115,7 @@ define(function(require) {
 				height,
 				left, i;
 
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('selected');
 			lastHeadItemLeft = headItemColList[colLen - 1].get('left');
 			left = headItemColList[index].get('left');
 			//处理只剩一列情况
@@ -145,33 +144,12 @@ define(function(require) {
 			width = headItemModel.get('width');
 			left = headItemModel.get('left');
 
-			select.set({
-				initPosi: {
-					startX: i,
-					startY: 0,
-				},
-				mousePosi: {
-					mouseX: i,
-					mouseY: 0
-				},
-				physicsPosi: {
-					top: 0,
-					left: left,
-				},
-				physicsBox: {
-					width: width,
-					height: height
-				},
-				wholePosi: {
-					startX: colAlias,
-					startY: rowStartAlias,
-					endX: colAlias,
-					endY: 'MAX'
-				},
-				selectType: 'operation'
+			select.set('tempPosi', {
+				initColIndex: i,
+				initRowIndex: 0,
+				mouseColIndex: i,
+				mouseRowIndex: 'MAX'
 			});
-			siderLineCols.models[0].set('left', left);
-			siderLineCols.models[0].set('width', width - 1);
 		},
 		_adjustHideHeadItemCols: function(index) {
 			var headItemColList = headItemCols.models,
@@ -200,21 +178,17 @@ define(function(require) {
 				headItemColList[i].set('left', left - width - 1);
 			}
 		},
-		cancelHide: function(sheetId, label) {
+		cancelHide: function(sheetId) {
 			var headItemColList = headItemCols.models,
 				len = headItemColList.length,
 				hidden,
-				select,
 				cellList,
 				cellLen,
 				cellWidth,
 				cellLeft,
-				headItemModel,
 				headItemLeft,
 				headItemAlias,
-				selectLeft,
 				moveWidth = 0, //取消隐藏时，单元格，列对象，向右移动宽度
-				colAlias,
 				width,
 				i = 0,
 				j;
@@ -288,7 +262,7 @@ define(function(require) {
 				select,
 				left,
 				width = 0;
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('selected');
 			startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
 			endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
 			left = headItemColList[startColIndex].get('left');
@@ -296,7 +270,7 @@ define(function(require) {
 				width += (headItemColList[i].get('width') + 1);
 			}
 			select.set('physicsBox.width', width - 1);
-			select.set('physicsPosi.left', left);
+			select.set('physicsBox.left', left);
 			siderLineCols.models[0].set('left', left);
 			siderLineCols.models[0].set('width', width - 1);
 		}

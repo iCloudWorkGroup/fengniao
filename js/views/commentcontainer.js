@@ -11,202 +11,157 @@ define(function(require) {
 		commentHandler = require('entrance/tool/comment'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
-
 		commentContainer;
 
 	commentContainer = Backbone.View.extend({
+
 		tagName: 'textarea',
 
 		className: 'comment',
 
-		state: 'show', // show:显示状态   edit: 编辑状态  
+		isTransverseScroll: false,
+
+		isVerticalScroll: false,
 
 		events: {
 			'blur': 'close'
 		},
 
-		initialize: function(options) {
-			var mainContainer,
-				colAliasLen,
-				colAlias,
-				rowAlias,
-				colIndex,
-				rowIndex,
-				endRowAlias,
-				endColAlias,
-				select,
-				model;
+		initialize: function() {},
 
-			if (options.colIndex !== undefined) {
-				this.colIndex = options.colIndex;
-				this.rowIndex = options.rowIndex;
-				this.comment = options.comment;
-			} else {
-				select = selectRegions.getModelByType('operation')[0];
-				colAlias = select.get('wholePosi').endX;
-				rowAlias = select.get('wholePosi').startY;
-
-				this.colIndex = headItemCols.getIndexByAlias(colAlias);
-				this.rowIndex = headItemRows.getIndexByAlias(rowAlias);
-				if (options.state === 'edit') {
-					if (select.get('wholePosi').endX === select.get('wholePosi').startX &&
-						select.get('wholePosi').endY === select.get('wholePosi').startY) {
-						model = cells.getCellByVertical(this.colIndex, this.rowIndex);
-						if (model.length > 0) {
-							this.comment = model[0].get('customProp').comment || '';
-						}
-					} else { //含有多个单元格
-						this.comment = '';
-					}
-				} else {
-					this.comment = '';
-				}
-			}
-			this.parentNode = options.parentNode;
-			this.state = options.state;
-			if (this.state !== 'show') {
-				cache.commentEditState = true;
-			}
-			Backbone.trigger('call:mainContainer', function(container) {
-				mainContainer = container;
-			});
-			this.mainContainer = mainContainer;
-		},
 		render: function() {
-			var left,
-				top;
-			left = this.getAbsoluteLeft();
-			top = this.getAbsoluteTop();
-			this.adjustZIndex();
 			this.$el.css({
-				left: left,
-				top: top,
+				left: -1000,
+				top: -1000,
 				width: config.User.commentWidth + 'px',
 				height: config.User.commentHeight + 'px'
 			});
-			this.$el.val(this.comment);
-			if (this.state === 'show') {
-				this.$el.attr('disabled', true);
-			}
 			return this;
+		},
+		add: function(options) {
+			this.edit(options);
+			this.$el.val('');
+		},
+		edit: function(options) {
+			this.show(options);
+			this.$el.removeAttr('disabled');
+			this.$el.focus();
+		},
+
+		show: function(options) {
+			var colIndex = options.colIndex,
+				rowIndex = options.rowIndex,
+				comment = options.comment,
+				frozenColIndex,
+				frozenRowIndex,
+				selectModel,
+				cellList,
+				frozen;
+
+			if (typeof colIndex === 'undefined') {
+				selectModel = selectRegions.getModelByType('selected');
+				colIndex = headItemCols.getIndexByAlias(selectModel.get('wholePosi').endX);
+				rowIndex = headItemRows.getIndexByAlias(selectModel.get('wholePosi').startY);
+				cellList = cells.getCellByVertical(colIndex, rowIndex);
+				if (cellList.length === 1) {
+					comment = cellList[0].get('customProp').comment;
+				}
+			}
+			frozenColIndex = cache.TempProp.colFrozen || headItemCols.getIndexByAlias(cache.TempProp.colAlias);
+			frozenRowIndex = cache.TempProp.rowFrozen || headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
+
+			if (frozenColIndex && frozenColIndex > colIndex) {
+				this.isTransverseScroll = false;
+			} else {
+				this.isTransverseScroll = true;
+			}
+			if (frozenRowIndex && frozenRowIndex > rowIndex) {
+				this.isVerticalScroll = false;
+			} else {
+				this.isVerticalScroll = true;
+			}
+
+			this.left = this.getAbsoluteLeft(colIndex);
+			this.top = this.getAbsoluteTop(rowIndex);
+			this.adjustZIndex(colIndex, rowIndex);
+			this.$el.css({
+				left: this.left + 5,
+				top: this.top,
+				display: true
+			});
+			this.$el.attr('disabled', 'disabled');
+			this.$el.css('display', 'block');
+			this.$el.val(comment);
+		},
+
+		hide: function() {
+			this.$el.css('display', 'none');
+			this.$el.attr('disabled', 'disabled');
+			this.isTransverseScroll = false;
+			this.isVerticalScroll = false;
 		},
 		/**
 		 * 横向移动输入框
 		 */
-		transverseScroll: function() {
-			var left;
-			left = this.getAbsoluteLeft();
+		transverseScroll: function(value) {
+			if (!this.isTransverseScroll) {
+				return;
+			}
 			this.$el.css({
-				'left': left
+				'left': this.left + value
 			});
 		},
 		/**
 		 * 纵向移动输入框
 		 */
-		verticalScroll: function() {
-			var top;
-			top = this.getAbsoluteTop();
+		verticalScroll: function(value) {
+			if (!this.isVerticalScroll) {
+				return;
+			}
 			this.$el.css({
-				'top': top
+				'top': this.top + value
 			});
 		},
 		/**
 		 * 获取输入框left坐标
-		 * @param  {object} mainContainer mainContainer
-		 * @param  {number} colIndex 选中区域列索引
 		 */
-		getAbsoluteLeft: function() {
-			var outLeft,
-				scrollLeft,
-				userViewLeft,
-				userViewIndex,
-				frozenColIndex,
-				headItemLeft,
-				mainContainer,
-				limitRight,
-				right,
-				tempLeft,
-				colIndex,
-				result;
+		getAbsoluteLeft: function(colIndex) {
+			var left,
+				colModel;
+			left = config.System.outerLeft;
 
-			colIndex = this.colIndex;
-			mainContainer = this.mainContainer;
-
-			outLeft = config.System.outerLeft;
-			scrollLeft = mainContainer.$el.scrollLeft();
-			//判断边界值
 			if (colIndex === 'MAX') {
-				headItemLeft = 0;
-			} else {
-				headItemLeft = headItemCols.models[colIndex].get('left') + headItemCols.models[colIndex].get('width');
+				return left;
+			}
+			if (cache.TempProp.colFrozen) {
+				left += headItemCols.getModelByAlias(cache.UserView.colAlias).get('left');
 			}
 
-			if (cache.TempProp.colFrozen) { //冻结情况
-				frozenColIndex = headItemCols.getIndexByAlias(cache.TempProp.colAlias);
-				if (frozenColIndex > colIndex) {
-					scrollLeft = 0;
-				}
-				userViewIndex = headItemCols.getIndexByAlias(cache.UserView.colAlias);
-				userViewLeft = headItemCols.models[userViewIndex].get('left');
-				headItemLeft = headItemLeft - userViewLeft + outLeft - scrollLeft + 1;
-			} else { //非冻结情况
-				headItemLeft = headItemLeft + outLeft - scrollLeft + 1;
-			}
-
-			//判断备注是否超过了显示区域
-			right = headItemLeft + config.User.commentWidth + 1;
-
-			limitRight = this.parentNode.$el.width();
-
-			if (right > limitRight) {
-				tempLeft = headItemLeft - config.User.commentWidth - headItemCols.models[colIndex].get('width') - 10;
-				if (tempLeft > 0) {
-					headItemLeft = tempLeft;
-				}
-			}
-			return headItemLeft;
+			colModel = headItemCols.models[colIndex];
+			left += colModel.get('left') + colModel.get('width');
+			return left;
 		},
-		getAbsoluteTop: function() {
-			var outTop,
-				scrollTop,
-				userViewTop,
-				userViewIndex,
-				frozenRowIndex,
-				mainContainer,
-				rowIndex,
-				headItemTop,
-				result;
+		getAbsoluteTop: function(rowIndex) {
+			var top,
+				rowModel;
+			top = config.System.outerTop;
 
-			rowIndex = this.rowIndex;
-			mainContainer = this.mainContainer;
-
-			outTop = config.System.outerTop;
-			scrollTop = mainContainer.$el.scrollTop();
-
-			headItemTop = headItemRows.models[rowIndex].get('top');
-
-			if (cache.TempProp.rowFrozen) { //冻结情况
-				frozenRowIndex = headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
-				if (frozenRowIndex > rowIndex) {
-					scrollTop = 0;
-				}
-				userViewIndex = headItemRows.getIndexByAlias(cache.UserView.rowAlias);
-				userViewTop = headItemRows.models[userViewIndex].get('top');
-				result = headItemTop - userViewTop + outTop - scrollTop + 1;
-				return result;
-			} else { //非冻结情况
-				result = headItemTop + outTop - scrollTop + 1;
-				return result;
+			if (rowIndex === 'MAX') {
+				return top;
 			}
+			if (cache.TempProp.rowIndex) {
+				left += headItemRows.getModelByAlias(cache.UserView.rowAlias).get('left');
+			}
+
+			rowModel = headItemRows.models[rowIndex];
+			top += rowModel.get('top');
+			return top;
 		},
-		adjustZIndex: function() {
+		adjustZIndex: function(colIndex, rowIndex) {
 			var colIndex,
 				rowIndex,
 				frozenColIndex,
 				frozenRowIndex;
-
-			colIndex = this.colIndex;
-			rowIndex = this.rowIndex;
 
 			if (cache.TempProp.colFrozen && cache.TempProp.rowFrozen) { //冻结情况
 				frozenColIndex = headItemCols.getIndexByAlias(cache.TempProp.colAlias);
@@ -253,34 +208,11 @@ define(function(require) {
 			}
 		},
 		close: function() {
-			var comment,
-				select,
-				cellsList,
-				startColIndex,
-				startRowIndex,
-				endColIndex,
-				endRowIndex,
-				i;
-
-			if (this.state !== 'show') {
-				comment = this.$el.val();
-				comment = comment || '';
-				commentHandler.modifyComment('1', comment);
-			}
-			cache.commentEditState = false;
-			this.remove();
-		},
-		sendData: function(comment) {
-			var sendData;
-			sendData = getOperRegion().sendRegion;
-			send.PackAjax({
-				url: config.url.cell.comment_plus,
-				data: JSON.stringify({
-					sheetId: '1',
-					coordinate: sendData,
-					comment: comment
-				})
-			});
+			var comment;
+			comment = this.$el.val();
+			comment = comment || '';
+			commentHandler.modifyComment('1', comment);
+			this.hide();
 		}
 	});
 	return commentContainer;

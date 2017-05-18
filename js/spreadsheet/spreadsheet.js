@@ -19,7 +19,6 @@ define(function(require) {
 			config.User.maxRowNum = cfg.maxRowNum || config.User.maxRowNum;
 		}
 		cache.containerId = id;
-		excelBuild.buildDom(id);
 		excelBuild.buildExcelOriginalData(id);
 		excelBuild.buildExcelView(id);
 		excelBuild.buildExcelToolbar();
@@ -27,6 +26,7 @@ define(function(require) {
 		excelBuild.buildDataSourceOperation(SpreadSheet);
 		excelBuild.buildExcelEventListener(SpreadSheet);
 		excelBuild.buildExcelExtend(SpreadSheet);
+
 	}
 	SpreadSheet.Point = Point;
 	return SpreadSheet;

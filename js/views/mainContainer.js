@@ -25,7 +25,9 @@ define(function(require) {
 		selectRegions = require('collections/selectRegion'),
 		GridLineRowContainer = require('views/gridLineRowContainer'),
 		CellContainer = require('views/cellContainer'),
-		CellsContainer = require('views/cellsContainer');
+		CellsContainer = require('views/cellsContainer'),
+		headItemRowList = headItemRows.models,
+		headItemColList = headItemCols.models;
 
 	/**
 	 *单元格显示区域视图类
@@ -47,7 +49,9 @@ define(function(require) {
 				modelsHeadLineColRegionList,
 				modelLastHeadLineRow,
 				modelLastHeadLineCol,
+				userViewBottomIndex,
 				len;
+
 
 			Backbone.on('event:mainContainer:destroy', this.destroy, this);
 			Backbone.on('event:mainContainer:attributesRender', this.attributesRender, this);
@@ -55,20 +59,6 @@ define(function(require) {
 
 			this.currentRule = clone.clone(cache.CurrentRule);
 
-			if (this.currentRule.eventScroll) {
-				/**
-				 * 绑定滚动事件
-				 * @property events
-				 * @type {Object}
-				 */
-				this.delegateEvents({
-					'scroll': 'syncScroll'
-				});
-				Backbone.on('call:mainContainer', this.callMainContainer, this);
-				Backbone.on('event:mainContainer:nextCellPosition', this.nextCellPosition, this);
-				// Backbone.on('event:mainContainer:addBottom', this.addBottom, this);
-				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
-			}
 			if (cache.TempProp.isFrozen === true) {
 				this.offsetTop = this.currentRule.displayPosition.offsetTop;
 				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
@@ -103,11 +93,28 @@ define(function(require) {
 			len = modelsHeadLineColRegionList.length;
 			modelLastHeadLineCol = modelsHeadLineColRegionList[len - 1];
 
-			this.boxModel.height = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height') - modelsHeadLineRowRegionList[0].get('top');
-			this.boxModel.width = modelLastHeadLineCol.get('left') + modelLastHeadLineCol.get('width') - modelsHeadLineColRegionList[0].get('left');
-			//待考虑，是否将起始高度算在内
-			cache.viewRegion.top = 0;
-			cache.viewRegion.bottom = this.boxModel.height;
+			this.boxModel.height = modelLastHeadLineRow.get('top') +
+				modelLastHeadLineRow.get('height') - modelsHeadLineRowRegionList[0].get('top');
+			this.boxModel.width = modelLastHeadLineCol.get('left') +
+				modelLastHeadLineCol.get('width') - modelsHeadLineColRegionList[0].get('left');
+
+			if (this.currentRule.eventScroll) {
+				/**
+				 * 绑定滚动事件
+				 * @property events
+				 * @type {Object}
+				 */
+				this.delegateEvents({
+					'scroll': 'syncScroll'
+				});
+				Backbone.on('call:mainContainer', this.callMainContainer, this);
+				Backbone.on('event:mainContainer:showSelectRegion', this.showSelectRegion, this);
+				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
+				cache.viewRegion.top = modelsHeadLineRowRegionList[0].get('top');
+				cache.viewRegion.bottom = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height');
+				cache.viewRegion.scrollTop = 0;
+				cache.viewRegion.scrollLeft = 0;
+			}
 		},
 		/**
 		 * 生成白色背景，用于遮挡输入框
@@ -252,7 +259,7 @@ define(function(require) {
 				this.$el.addClass(newAttributes.style);
 			}
 		},
-		nextCellPosition: function(direction) {
+		showSelectRegion: function(direction) {
 			switch (direction) {
 				case 'LEFT':
 					break;
@@ -261,7 +268,7 @@ define(function(require) {
 				case 'UP':
 					break;
 				case 'DOWN':
-					this.downCellPosition();
+					this.downScroll();
 					break;
 				default:
 					break;
@@ -270,58 +277,22 @@ define(function(require) {
 		/**
 		 * 输入回车，选中区域超出容器显示范围，进行向下滚动
 		 */
-		downCellPosition: function() {
-			var rowAliasArray = [],
-				loadStartAlias = [],
-				loadEndAlias,
-				offsetTop,
-				userViewTop,
-				recordScrollTop,
-				cellModel,
-				bottomHeadRowItem,
-				top,
-				i, len;
+		downScroll: function() {
+			var limitBottomPosi,
+				bottomRowModel,
+				userViewBottom,
+				userViewBottomPosi,
+				selectModel,
+				adjustPosi;
 
+			selectModel = selectRegions.getModelByType('selected');
+			bottomRowModel = headItemRows.getModelByAlias(selectModel.get('wholePosi').startY);
+			limitBottomPosi = selectModel.get('physicsBox').top + bottomRowModel.get('height');
 
-			//处理冻结情况,只有主区域能够进行滚动
-			if (cache.TempProp.isFrozen &&
-				(this.currentRule.displayPosition.endRowIndex ||
-					this.currentRule.displayPosition.endColIndex)) {
-				return;
-			}
-
-			//判断是否存在单元格未全部初始化
-			cellModel = cells.getCellsByWholeSelectRegion()[0];
-			if (cellModel === null) {
-				rowAliasArray.push(selectRegions.models[0].get('wholePosi').startY);
-			} else {
-				rowAliasArray = cellModel.get('occupy').y;
-			}
-
-			len = rowAliasArray.length;
-			for (i = 0; i < len; i++) {
-				if (headItemRows.getIndexByAlias(rowAliasArray[i]) === -1) {
-					loadStartAlias = rowAliasArray[i];
-					break;
-				}
-			}
-			if (loadStartAlias !== undefined) {
-				loadEndAlias = rowAliasArray[len - 1];
-			}
-			bottomHeadRowItem = headItemRows.getModelByAlias(rowAliasArray[len - 1]);
-			//判断Excel冻结状态，非冻结状态(冻结高度为0，用户可视起点高度为0)
-			if (cache.TempProp.isFrozen === true) {
-				offsetTop = this.currentRule.displayPosition.offsetTop;
-				userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
-			} else {
-				offsetTop = 0;
-				userViewTop = 0;
-			}
-			//重新定位，可视区域底部高度值
-			top = bottomHeadRowItem.get('top') + bottomHeadRowItem.get('height') + config.User.cellHeight + 10 - offsetTop - userViewTop;
-
-			if (top < this.el.scrollTop + this.el.offsetHeight) {
-				return;
+			adjustPosi = limitBottomPosi - this.offsetTop - this.userViewTop -
+				this.el.scrollTop - this.el.offsetHeight;
+			if (adjustPosi > 0) {
+				this.el.scrollTop += adjustPosi + 17;
 			}
 			recordScrollTop = this.el.scrollTop;
 			this.el.scrollTop = (top - this.el.offsetHeight);
@@ -360,12 +331,14 @@ define(function(require) {
 			if (verticalDirection > 0 || direction === 'up') {
 				this.addTop(currentViewTop);
 				this.deleteBottom(cache.viewRegion.bottom);
+				cache.viewRegion.scrollLeft = this.el.scrollLeft;
 			}
 			//as scrollbar scroll down
 			if (verticalDirection < 0 || direction === 'down') {
 				//delete top row
 				this.addBottom(cache.viewRegion.bottom);
 				this.deleteTop(currentViewTop);
+				cache.viewRegion.scrollTop = this.el.scrollTop;
 			}
 		},
 		/**
@@ -591,7 +564,7 @@ define(function(require) {
 			if (isUnloadRows) {
 				this.requestRows(top, bottom);
 				height = headItemRows.getMaxDistanceHeight();
-				this.adjustContainerHeight(height);
+				this.adjustContainerHeight();
 				this.publish(height, 'adjustHeadItemContainerPublish');
 				this.publish(height, 'adjustContainerHeightPublish');
 				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
@@ -655,7 +628,7 @@ define(function(require) {
 		 * @return {[type]} [description]
 		 */
 		adaptSelectRegion: function() {
-			var select = selectRegions.getModelByType('operation')[0],
+			var select = selectRegions.getModelByType('selected'),
 				headLineRowModelList = headItemRows.models,
 				endColAlias = select.get('wholePosi').endX,
 				endRowAlias = select.get('wholePosi').endY,
@@ -805,7 +778,7 @@ define(function(require) {
 			});
 			this.adjustColPropCell(startIndex, startIndex + len - 1);
 			height = headItemRows.getMaxDistanceHeight();
-			this.adjustContainerHeight(height);
+			this.adjustContainerHeight();
 			this.publish(height, 'adjustHeadItemContainerPublish');
 			this.publish(height, 'adjustContainerHeightPublish');
 			return height;
@@ -845,9 +818,7 @@ define(function(require) {
 			}
 		},
 		adjustContainerHeight: function(height) {
-			this.cellsContainer.attributesRender({
-				height: height
-			});
+			Backbone.trigger('event:cellsContainer:adaptHeight');
 		},
 		/**
 		 * 视图销毁

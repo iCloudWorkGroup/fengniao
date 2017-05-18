@@ -22,7 +22,7 @@ define(function(require) {
 			headItemColList = headItemCols.models,
 			changeModelList = [];
 
-		clip = selectRegions.getModelByType('clip')[0];
+		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
 			cache.clipState = 'null';
 			clip.destroy();
@@ -41,7 +41,6 @@ define(function(require) {
 		} else if (operRegion.endColIndex === 'MAX') { //整行操作
 			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.size', fontSize);
 		} else {
-
 			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('content').size !== fontSize) {
 					changeModelList.push({
@@ -60,6 +59,7 @@ define(function(require) {
 			}, changeModelList);
 		}
 		sendData();
+
 		function sendData() {
 			send.PackAjax({
 				url: config.url.cell.font_size,

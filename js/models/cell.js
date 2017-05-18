@@ -2,7 +2,6 @@
 //, secound phease correction
 //attention bug, remarket lack isn't exist `remarket` property .
 //attention bug, showState is or not exist value ?
-
 'use strict';
 define(function(require) {
 	var BackboneNest = require('lib/backbone.nested'),
@@ -215,7 +214,7 @@ define(function(require) {
 			 * 是否允许单元格进行高亮效果（ps:此属性为外部扩展属性，后期应对此属性进行分离）
 			 * @type {Boolean}
 			 */
-			highlight: false,
+			highlight: true,
 			/**
 			 * 单元格备注显示状态
 			 * @type {Boolean}

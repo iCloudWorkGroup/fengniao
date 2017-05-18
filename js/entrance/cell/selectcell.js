@@ -26,13 +26,13 @@ define(function(require) {
 			region = analysisLabel(label);
 			region = cells.getFullOperationRegion(region);
 		} else {
-			select = selectRegions.getModelByType('operation')[0];
+			select = selectRegions.getModelByType('selected');
 			region.startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
 			region.startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
 		}
-		if (region.startColIndex < 0 || 
-			region.startRowIndex < 0 || 
-			region.endColIndex < 0 || 
+		if (region.startColIndex < 0 ||
+			region.startRowIndex < 0 ||
+			region.endColIndex < 0 ||
 			region.endRowIndex < 0) {
 			return;
 		}
@@ -55,12 +55,9 @@ define(function(require) {
 				mouseX: endColIndex,
 				mouseY: endRowIndex
 			},
-			physicsPosi: {
-				top: headItemRowList[startRowIndex].get('top'),
-				left: headItemColList[startColIndex].get('left')
-
-			},
 			physicsBox: {
+				top: headItemRowList[startRowIndex].get('top'),
+				left: headItemColList[startColIndex].get('left'),
 				width: width - 1,
 				height: height - 1
 			},
