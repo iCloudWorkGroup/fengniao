@@ -2,10 +2,14 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		_ = require('lib/underscore'),
+		util = require('basic/util/clone'),
+		cache = require('basic/tools/cache'),
 		Backbone = require('lib/backbone'),
+		headItemRows = require('collections/headItemRow'),
 		siderLineRows = require('collections/siderLineRow'),
 		RowsHeadContainer = require('views/rowsHeadContainer'),
-		SiderLineRowContainer = require('views/siderLineRowContainer');
+		SiderLineRowContainer = require('views/siderLineRowContainer'),
+		headItemRowList = headItemRows.models;
 
 	/**
 	 * 行标题，标线容器视图类
@@ -31,6 +35,8 @@ define(function(require) {
 		 */
 		initialize: function(options) {
 			Backbone.on('call:rowsAllHeadContainer', this.callRowsAllHeadContainer, this);
+			Backbone.on('event:rowsAllHeadContainer:adaptHeight', this.adaptHeight, this);
+			this.currentRule = util.clone(cache.CurrentRule);
 			this.listenTo(siderLineRows, 'add', this.addSiderLineRow);
 			this.boxAttributes = options.boxAttributes;
 		},
@@ -55,6 +61,26 @@ define(function(require) {
 
 			}
 			return this;
+		},
+		adaptHeight: function() {
+			var bottom = 0,
+				top = 0,
+				len, i,
+				start;
+
+			len = this.currentRule.displayPosition.endRowIndex || headItemRowList.length - 1;
+			start = this.currentRule.displayPosition.startRowIndex || 0;
+			for (i = len; i >= start; i--) {
+				if (!headItemRowList[i].get('hidden')) {
+					top = headItemRowList[i].get('top') + headItemRowList[i].get('height');
+					bottom = headItemRowList[start].get('top');
+					this.$el.css({
+						'height': top - bottom
+					});
+					break;
+				}
+			}
+
 		},
 		/**
 		 * 用于其他视图，绑定该视图或调用该视图方法

@@ -35,6 +35,7 @@ define(function(require) {
 		initialize: function() {
 			this.currentRule = util.clone(cache.CurrentRule);
 			//考虑冻结情况
+			Backbone.on('event:restoreHideCellView', this.restoreHideCellView, this);
 			Backbone.on('event:contentCellsContainer:reloadCells', this.reloadCells, this);
 			Backbone.on('event:contentCellsContainer:restoreCell', this.addCell, this);
 			//还原
@@ -96,8 +97,9 @@ define(function(require) {
 				rowLen,
 				i = 0,
 				j;
-			startRowIndex = headItemRows.getIndexByAlias(cache.UserView.rowAlias);
-			endRowIndex = headItemRows.getIndexByAlias(cache.UserView.rowEndAlias);
+
+			startRowIndex = headItemRows.getIndexByPosi(cache.viewRegion.top);
+			endRowIndex = headItemRows.getIndexByPosi(cache.viewRegion.bottom);
 			strandX = cache.CellsPosition.strandX;
 			if (endRowIndex > startRowIndex) {
 				rowLen = endRowIndex + 1;

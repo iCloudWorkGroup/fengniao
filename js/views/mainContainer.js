@@ -282,6 +282,7 @@ define(function(require) {
 				bottomRowModel,
 				userViewBottom,
 				userViewBottomPosi,
+				recordScrollTop,
 				selectModel,
 				adjustPosi;
 
@@ -310,7 +311,8 @@ define(function(require) {
 				userViewColModel,
 				userViewEndRowModel,
 				userViewEndColModel,
-				currentViewTop = cache.viewRegion.top;
+				currentViewTop = cache.viewRegion.top,
+				currentViewBottom = cache.viewRegion.bottom;
 
 			this.preventAutoScroll();
 			verticalDirection = currentViewTop - this.el.scrollTop - this.offsetTop - this.userViewTop;
@@ -326,20 +328,20 @@ define(function(require) {
 				cache.UserView.colAlias = userViewColModel.get('alias');
 				cache.UserView.colEndAlias = userViewEndColModel.get('alias');
 			}
-
 			//as scrollbar scroll up
 			if (verticalDirection > 0 || direction === 'up') {
 				this.addTop(currentViewTop);
-				this.deleteBottom(cache.viewRegion.bottom);
-				cache.viewRegion.scrollLeft = this.el.scrollLeft;
+				this.deleteBottom(currentViewBottom);
+				cache.viewRegion.scrollTop = this.el.scrollTop;
 			}
 			//as scrollbar scroll down
 			if (verticalDirection < 0 || direction === 'down') {
 				//delete top row
-				this.addBottom(cache.viewRegion.bottom);
+				this.addBottom(currentViewBottom);
 				this.deleteTop(currentViewTop);
 				cache.viewRegion.scrollTop = this.el.scrollTop;
 			}
+			cache.viewRegion.scrollLeft = this.el.scrollLeft;
 		},
 		/**
 		 * 显示行上方超出预加载区域，删除超出视图
@@ -503,7 +505,7 @@ define(function(require) {
 			offsetTop = this.offsetTop;
 			userViewTop = this.userViewTop;
 			limitTopPosi = this.el.scrollTop - config.System.prestrainHeight + offsetTop + userViewTop;
-			limitBottomPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
+			limitBottomPosi = limitTopPosi + this.el.offsetHeight + config.System.prestrainHeight * 2;
 			//自动增长行或者是后台请求数据，已将加载高度可能会超过新的预加载区
 			if (recordPosi > limitBottomPosi) {
 				return;
@@ -565,8 +567,6 @@ define(function(require) {
 				this.requestRows(top, bottom);
 				height = headItemRows.getMaxDistanceHeight();
 				this.adjustContainerHeight();
-				this.publish(height, 'adjustHeadItemContainerPublish');
-				this.publish(height, 'adjustContainerHeightPublish');
 				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
 				bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
 				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
@@ -779,8 +779,6 @@ define(function(require) {
 			this.adjustColPropCell(startIndex, startIndex + len - 1);
 			height = headItemRows.getMaxDistanceHeight();
 			this.adjustContainerHeight();
-			this.publish(height, 'adjustHeadItemContainerPublish');
-			this.publish(height, 'adjustContainerHeightPublish');
 			return height;
 		},
 		/**
@@ -819,6 +817,7 @@ define(function(require) {
 		},
 		adjustContainerHeight: function(height) {
 			Backbone.trigger('event:cellsContainer:adaptHeight');
+			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
 		},
 		/**
 		 * 视图销毁

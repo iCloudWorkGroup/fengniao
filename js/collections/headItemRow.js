@@ -102,6 +102,9 @@ define(function(require) {
 			var currentIndex = binary.newModelBinary(posi, this.models, 'top', 'height', 0, this.models.length - 1);
 			return this.models[currentIndex];
 		},
+		getIndexByPosi: function(posi) {
+			return binary.newModelBinary(posi, this.models, 'top', 'height');
+		},
 		/**
 		 * 通过别名查询符合条件标线的索引
 		 * @method getIndexByAlias

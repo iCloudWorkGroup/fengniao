@@ -242,7 +242,8 @@ define(function(require) {
 				coordinate,
 				options,
 				occupyX,
-				occupyY;
+				occupyY,
+				comment;
 
 			coordinate = this.getCoordinateByMouseEvent(event);
 			rowIndex = coordinate.rowIndex;
@@ -259,7 +260,7 @@ define(function(require) {
 				return;
 			}
 			this.mouseLastCell = cell;
-			if (cell && cell.get('customProp').comment !== null) {
+			if (cell && (comment = cell.get('customProp').comment) !== null && comment !== undefined) {
 				occupyX = cell.get('occupy').x;
 				occupyY = cell.get('occupy').y;
 				options = {
@@ -274,10 +275,13 @@ define(function(require) {
 				};
 			}
 			clearTimeout(this.mouseOverEventId);
-			this.mouseOverEventId = setTimeout(function() {
+			if (options.action === 'hide') {
 				Backbone.trigger('event:bodyContainer:handleComment', options);
-			}, 400);
-
+			} else {
+				this.mouseOverEventId = setTimeout(function() {
+					Backbone.trigger('event:bodyContainer:handleComment', options);
+				}, 400);
+			}
 			this.mouseCoordinate = {
 				colAlias: colAlias,
 				rowAlias: rowAlias

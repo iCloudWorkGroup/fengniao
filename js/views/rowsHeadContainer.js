@@ -101,7 +101,6 @@ define(function(require) {
 			Backbone.trigger('call:screenContainer', this.callView('viewScreenContainer'));
 			Backbone.trigger('call:mainContainer', this.callView('viewMainContainer'));
 			Backbone.trigger('call:cellsContainer', this.callView('viewCellsContainer'));
-			Backbone.trigger('call:rowsAllHeadContainer', this.callView('viewRowsAllHeadContainer'));
 		},
 		/**
 		 * 用于其他视图，绑定该视图或调用该视图方法
@@ -165,6 +164,7 @@ define(function(require) {
 				offsetTopByBottom: this.itemEl.clientHeight + this.$itemEl.offset().top,
 				self: this
 			}, this.moveEvent);
+
 			this.rowsSpaceLineContainer = new RowsSpaceLineContainer({
 				boxAttributes: {
 					top: this.itemEl.offsetTop + this.itemEl.clientHeight
@@ -224,12 +224,7 @@ define(function(require) {
 			this.adjustCells(itemElIndex, diffDistance);
 			this.adjustSelectRegion(itemElIndex, diffDistance);
 			this.requstAdjust(itemElIndex, height);
-			if ( this.viewRowsAllHeadContainer === undefined) {
-				this.triggerCallback();
-			}
-			this.viewRowsAllHeadContainer.$el.css({
-				height: headItemRows.getMaxDistanceHeight()
-			});
+			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
 			Backbone.trigger('event:cellsContainer:adaptHeight');
 			Backbone.trigger('event:mainContainer:adaptRowHeightChange');
 		},

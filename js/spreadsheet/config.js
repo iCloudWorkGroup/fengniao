@@ -161,7 +161,7 @@ define(function() {
 				bg: 'cell/bg',
 				wordwrap: 'cell/wordwrap',
 				align_transverse: 'cell/align-landscape',
-				align_vertically: 'cell/align-portrait',
+				align_vertical: 'cell/align-portrait',
 				format: 'cell/format',
 				content: 'cell/content',
 				comment_plus: 'cell/comment-plus',
