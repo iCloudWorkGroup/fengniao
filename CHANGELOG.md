@@ -1,8 +1,6 @@
 <a name="0.10.0"></a>
 # [0.10.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.9.0...v0.10.0) (2017-04-18)
 将请求修改为rest风格
-
-
 # SpreadSheet Online 版本更新日志
 <a name="0.9.0"></a>
 # [0.9.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.8.0...v0.9.0) (2017-04-18)
