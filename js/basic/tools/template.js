@@ -23,8 +23,9 @@ define(function(require) {
 
 	templatesHTML.SELECTTEMPLATE = '<div class="box"><div class="expand"></div><div class="bg"></div></div>';
 
-	templatesHTML.CELLTEMPLATE = '<div class="bg" style="display:table-cell">{{cotent.texts}}</div>';
-
+	templatesHTML.CELLTEMPLATE = '<div class="bg" style="display:table-cell;color:{{content.color}};font-family:{{content.family}};font-size:{{content.size}}px;';
+	templatesHTML.CELLTEMPLATE += '">{{content.texts}}</div>';
+	
 	templatesHTML.COLGRIDTEMPLATE = '<div class="col" style="left:{{left}}px;"></div>';
 	templatesHTML.ROWGRIDTEMPLATE = '<div class="row" style="top:{{top}}px;"></div>';
 

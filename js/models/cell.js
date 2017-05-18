@@ -215,11 +215,6 @@ define(function(require) {
 			 * @type {Boolean}
 			 */
 			highlight: true,
-			/**
-			 * 单元格备注显示状态
-			 * @type {Boolean}
-			 */
-			commentShowState: false,
 		},
 		/**
 		 * 隐藏当前单元格

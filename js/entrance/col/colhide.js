@@ -26,10 +26,14 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			if (cache.TempProp.isFrozen) {
+				return;
+			}
 			region = getOperRegion(label);
 			if (region.operRegion.endRowIndex !== 'MAX') {
 				return;
 			}
+
 			headItemColList = headItemCols.models;
 			len = headItemColList.length;
 
@@ -195,6 +199,11 @@ define(function(require) {
 
 			if (cache.TempProp.isFrozen) {
 				return;
+			}
+			clip = selectRegions.getModelByType('clip');
+			if (clip !== undefined) {
+				cache.clipState = 'null';
+				clip.destroy();
 			}
 			Backbone.trigger('event:restoreHideCellView');
 			Backbone.trigger('event:restoreHideCols');
