@@ -87,8 +87,7 @@ define(function(require) {
 				}
 			}),
 			success: function(data) {
-				var isable = data.returndata;
-				if (isable) {
+				if (data.isLegal) {
 					for (i = startRowIndex; i < endRowIndex + 1; i++) {
 						for (j = startColIndex; j < endColIndex + 1; j++) {
 							if (j - relativeColIndex > headItemCols.models.length - 1) continue;
@@ -329,8 +328,7 @@ define(function(require) {
 				pasteData: sendData
 			}),
 			success: function(data) {
-				var isable = data.returndata;
-				if (isable === true) {
+				if (data.isLegal) {
 					for (i = 0; i < rowLen; i++) {
 						for (j = 0; j < colLen; j++) {
 							rowAlias = headItemRowList[startRowIndex + i].get('alias');
