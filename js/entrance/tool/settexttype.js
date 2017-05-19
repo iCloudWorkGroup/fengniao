@@ -369,7 +369,7 @@
             break;
         }
         send.PackAjax({
-          url: 'text.htm?m=data_format',
+          url: config.url.cell.format,
           data: JSON.stringify(data)
         });
       },

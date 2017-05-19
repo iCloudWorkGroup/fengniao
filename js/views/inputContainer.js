@@ -111,26 +111,26 @@ define(function(require) {
 			modelJSON = this.model.toJSON();
 			if (modelJSON.content.bd === true) {
 				this.$el.css({
-					'font-weight': 'bold'
+					'fontWeight': 'bold'
 				});
 			} else {
 				this.$el.css({
-					'font-weight': 'normal'
+					'fontWeight': 'normal'
 				});
 			}
 			if (modelJSON.content.italic === true) {
 				this.$el.css({
-					'font-style': 'italic'
+					'fontStyle': 'italic'
 				});
 			} else {
 				this.$el.css({
-					'font-style': 'normal'
+					'fontStyle': 'normal'
 				});
 			}
 			this.$el.css({
 				'color': modelJSON.content.color,
-				'font-size': modelJSON.content.size + 'pt',
-				'font-family': modelJSON.content.family,
+				'fontSize': modelJSON.content.size + 'pt',
+				'fontFamily': modelJSON.content.family,
 				'left': left,
 				'top': top,
 			});

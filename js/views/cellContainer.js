@@ -16,7 +16,8 @@ define(function(require) {
 		config = require('spreadsheet/config'),
 		getTextBox = require('basic/tools/gettextbox'),
 		setCellHeight = require('entrance/cell/setcellheight'),
-		textTypeHandler = require('entrance/tool/settexttype'),
+		formatHandler = require('entrance/tool/settexttype'),
+		headItemColList = headItemCols.models,
 		CellContainer;
 
 	/**
@@ -43,116 +44,103 @@ define(function(require) {
 
 			var modelRowList = headItemRows,
 				modelColList = headItemCols;
-			this.listenTo(this.model, 'change:physicsBox', this.render);
-			this.listenTo(this.model, 'change:content', this.render);
-			this.listenTo(this.model, 'change:border', this.render);
-			this.listenTo(this.model, 'change:format', this.formatType);
-			this.listenTo(this.model, 'change:customProp', this.render);
-			this.listenTo(this.model, 'change:highlight', this.render);
-			this.listenTo(this.model, 'change:wordWrap', this.render);
-			// this.listenTo(this.model, 'change:wordWrap', this.adaptCellHight);
-			// this.listenTo(this.model, 'change:content', this.adaptCellHight);
 
+			this.listenTo(this.model, 'change:physicsBox.width', this.changeWidth);
+			this.listenTo(this.model, 'change:physicsBox.height', this.changeHeight);
+			this.listenTo(this.model, 'change:physicsBox.left', this.changeLeft);
+			this.listenTo(this.model, 'change:physicsBox.top', this.changeTop);
 
-			//待修改，对于销毁事件的绑定
-			this.listenTo(this.model, 'change:isDestroy', this.destroy);
-			this.listenTo(this.model, 'change:hidden', this.destroy);
-			this.listenTo(this.model, 'destroy', this.clear);
+			this.listenTo(this.model, 'change:content.size', this.changeFontSize);
+			this.listenTo(this.model, 'change:content.family', this.changeFontFamily);
+			this.listenTo(this.model, 'change:content.italic', this.changeItalic);
+			this.listenTo(this.model, 'change:content.bd', this.changeBold);
+			this.listenTo(this.model, 'change:content.color', this.changeColor);
+			this.listenTo(this.model, 'change:content.alignRow', this.changeTransverseAlign);
+			this.listenTo(this.model, 'change:content.alignCol', this.changeVerticalAlign);
+			this.listenTo(this.model, 'change:content.texts', this.generateDisplayText);
+
+			this.listenTo(this.model, 'change:border.left', this.changeLeftBorder);
+			this.listenTo(this.model, 'change:border.right', this.changeRightBorder);
+			this.listenTo(this.model, 'change:border.top', this.changeTopBorder);
+			this.listenTo(this.model, 'change:border.bottom', this.changeBottomBorder);
+
+			this.listenTo(this.model, 'change:customProp.background', this.changeBackground);
+
+			this.listenTo(this.model, 'change:customProp.comment', this.showCommentSign);
+			//初始化不走该方法，直接将显示文本贴到html中
+			this.listenTo(this.model, 'change:format', this.generateDisplayText);
+
+			this.listenTo(this.model, 'change:wordWrap', this.changeWordWrap);
 
 			this.currentRule = options.currentRule;
 			if (cache.TempProp.isFrozen !== true ||
 				this.currentRule.displayPosition.endRowIndex === undefined) {
-				this.listenTo(this.model, 'change:showState', this.changeShowState);
+				this.listenTo(this.model, 'change:showState', this.destroy);
 			}
-			this.currentRule = options.currentRule;
+			//待修改：需要验证现删除DOM，视图对象是否得到了释放
+			this.listenTo(this.model, 'change:isDestroy', this.destroy);
+			this.listenTo(this.model, 'change:hidden', this.destroy);
+			this.listenTo(this.model, 'destroy', this.remove);
 
 			this.offsetLeft = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetLeft || 0) : 0;
 			this.offsetTop = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetTop || 0) : 0;
 
 			this.userViewLeft = cache.TempProp.isFrozen ? modelColList.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 			this.userViewTop = cache.TempProp.isFrozen ? modelRowList.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
-
-			this.mouseOverEventId = null;
 		},
 		/**
 		 * 渲染单元格
 		 * @method render 
 		 */
 		render: function() {
-			var modelJSON = this.model.toJSON();
+			var modelAttr = this.model.attributes;
 			this.template = getTemplate('CELLTEMPLATE');
-			this.$el.css({
-				'width': modelJSON.physicsBox.width,
-				'height': modelJSON.physicsBox.height,
-				'left': modelJSON.physicsBox.left - this.offsetLeft - this.userViewLeft - 1,
-				'top': modelJSON.physicsBox.top - this.offsetTop - this.userViewTop - 1
-			}).html(this.template(modelJSON));
 
-			// "color": modelJSON.content.color
-			// this is improve poiont , marinottejs itemview function can be replace this bug
-			this.$contentBody = $('.bg', this.$el);
-			this.$contentBody.css({
-				"color": modelJSON.content.color,
-				"font-family": modelJSON.content.family,
-				"font-size": modelJSON.content.size + 'pt'
-			}).html(this.getDisplayText(modelJSON));
+			this.$el.html(this.template({
+				content: modelAttr.content,
+				text: this.getHtmlText(modelAttr)
+			}));
 
-			this.changeTopBorder(modelJSON);
-			this.changeLeftBorder(modelJSON);
-			this.changeBottomBorder(modelJSON);
-			this.changeRightBorder(modelJSON);
-			this.changeBackground(modelJSON);
-			this.setTransverseAlign(modelJSON);
-			this.setVerticalAlign(modelJSON);
-			this.setBold(modelJSON);
-			this.setItalic(modelJSON);
-			this.wordWrap(modelJSON);
-			this.showCommentSign(modelJSON);
+			this.$contentBody = this.$contentBody = $('.bg', this.$el);
+
+			this.changeFontFamily(modelAttr);
+			this.changeFontSize(modelAttr);
+			this.changeColor(modelAttr);
+
+			this.changeWidth(modelAttr);
+			this.changeHeight(modelAttr);
+			this.changeLeft(modelAttr);
+			this.changeTop(modelAttr);
+
+			this.changeItalic(modelAttr);
+			this.changeBold(modelAttr);
+			this.changeTransverseAlign(modelAttr);
+			this.changeVerticalAlign(modelAttr);
+
+			this.changeTopBorder(modelAttr);
+			this.changeLeftBorder(modelAttr);
+			this.changeBottomBorder(modelAttr);
+			this.changeRightBorder(modelAttr);
+
+			this.changeBackground(modelAttr);
+			this.changeWordWrap(modelAttr);
+			this.showCommentSign(modelAttr);
 			return this;
 		},
-		formatType: function() {
-			textTypeHandler.typeRecognize(this.model);
-			textTypeHandler.generateDisplayText(this.model);
-			var modelJSON = this.model.toJSON();
-			this.setTransverseAlign(modelJSON);
-			this.setVerticalAlign(modelJSON);
-			this.$contentBody.html(this.getDisplayText(modelJSON));
-		},
-		/**
-		 * 更新单元格显示状态
-		 * @method changeShowState 
-		 */
-		changeShowState: function() {
-			if (this.model.get('showState') === false) {
-				this.remove();
-			}
-		},
-		/**
-		 * 显示备注标记
-		 * @param  {object} modelJSON showCommentSign
-		 */
-		showCommentSign: function(modelJSON) {
-			if (modelJSON.customProp.comment !== null &&
-				modelJSON.customProp.comment !== undefined) {
-				this.$el.prepend('<div class="comment-ico"><div class="triangle"></div></div>');
-			}
-		},
-		/**
-		 * 根据不同单元格类型，生成不同displaytext
-		 * @return {[type]} [description]
-		 */
-		getDisplayText: function(modelJSON) {
-			var inputText,
+		getHtmlText: function(modelAttr) {
+			var text,
 				texts,
-				text,
 				temp,
 				i = 0,
 				height;
-			text = modelJSON.content.displayTexts;
-			text = text || '';
-			temp = text;
+
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			text = modelAttr.content.displayTexts || '';
 			texts = text.split('\n');
 			text = '';
+
 			if (this.model.get('wordWrap') === false) {
 				for (i = 0; i < texts.length; i++) {
 					text += texts[i];
@@ -164,6 +152,283 @@ define(function(require) {
 			}
 			text = text.replace(/\u0020/g, '&nbsp;');
 			return text;
+		},
+		changeWidth: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			this.$el.css({
+				width: modelAttr.physicsBox.width
+			});
+		},
+		changeHeight: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			this.$el.css({
+				height: modelAttr.physicsBox.height
+			});
+		},
+		changeLeft: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			this.$el.css({
+				left: modelAttr.physicsBox.left - this.offsetLeft - this.userViewLeft - 1
+			});
+		},
+		changeTop: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			this.$el.css({
+				top: modelAttr.physicsBox.top - this.offsetTop - this.userViewTop - 1
+			});
+		},
+		changeBold: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			if (modelAttr.content.bd) {
+				this.$contentBody.css({
+					'fontWeight': 'bold'
+				});
+			} else {
+				this.$contentBody.css({
+					'fontWeight': 'normal'
+				});
+			}
+		},
+		/**
+		 * 设置单元格内容斜体
+		 * @method changeItalic 
+		 * @param modelJSON {modelJSON} 对象属性集合
+		 */
+		changeItalic: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			if (modelAttr.content.italic) {
+				this.$contentBody.css({
+					'fontStyle': 'italic'
+				});
+			} else {
+				this.$contentBody.css({
+					'fontStyle': 'normal'
+				});
+			}
+		},
+		changeTransverseAlign: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			var format = modelAttr.format,
+				isValid = format.isValid,
+				type = format.type,
+				text = modelAttr.content.texts,
+				alignRow = modelAttr.content.alignRow;
+			if (alignRow) {
+				this.$contentBody.css({
+					'textAlign': alignRow
+				});
+				return;
+			}
+			if (type !== 'text' && type !== 'normal' && isValid === true) {
+				this.$contentBody.css({
+					'textAlign': 'right'
+				});
+				return;
+			}
+			if (type === 'normal' && formatHandler.isNum(text)) {
+				this.$contentBody.css({
+					'textAlign': 'right'
+				});
+				return;
+			}
+			this.$contentBody.css({
+				'textAlign': 'left'
+			});
+		},
+		/**
+		 * 设置单元格内容垂直对齐方式
+		 * @method changeVerticalAlign 
+		 * @param modelJSON {modelJSON} 对象属性集合
+		 */
+		changeVerticalAlign: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			this.$contentBody.css({
+				'verticalAlign': this.model.attributes.content.alignCol
+			});
+		},
+		/**
+		 * 渲染上边框
+		 * @method changeTopBorder 
+		 * @param modelJSON {modelJSON} 对象属性集合
+		 */
+		changeTopBorder: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			if (modelAttr.border.top) {
+				this.$el.css({
+					'borderTopColor': '#000'
+				});
+			} else {
+				this.$el.css({
+					'borderTopColor': 'transparent'
+				});
+			}
+		},
+		/**
+		 * 渲染下边框边框
+		 * @method changeBottomBorder 
+		 * @param modelJSON {modelJSON} 对象属性集合
+		 */
+		changeBottomBorder: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			if (modelAttr.border.bottom) {
+				this.$el.css({
+					'borderBottomColor': '#000'
+				});
+			} else {
+				this.$el.css({
+					'borderBottomColor': 'transparent'
+				});
+			}
+		},
+		/**
+		 * 渲染左边框
+		 * @method changeLeftBorder 
+		 * @param modelJSON {modelJSON} 对象属性集合
+		 */
+		changeLeftBorder: function(modelAttr) {
+			var headItemModel;
+
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			if (!modelAttr.border.left) {
+				this.$el.css({
+					'borderLeftColor': 'transparent'
+				});
+			} else {
+				headItemModel = headItemCols.getModelByAlias(modelAttr.occupy.x[0]);
+				if (headItemModel.attributes.isLeftAjacentHide) {
+					this.$el.css({
+						'borderLeftColor': 'transparent'
+					});
+				} else {
+					this.$el.css({
+						'borderLeftColor': '#000'
+					});
+				}
+			}
+		},
+		/**
+		 * 渲染右边框边框
+		 * @method changeRightBorder 
+		 * @param modelJSON {modelJSON} 对象属性集合
+		 */
+		changeRightBorder: function(modelAttr) {
+			var headItemModel,
+				occupyX;
+
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			occupyX = modelAttr.occupy.x;
+			if (!modelAttr.border.right) {
+				this.$el.css({
+					'borderRightColor': 'transparent'
+				});
+			} else {
+				headItemModel = headItemCols.getModelByAlias(occupyX[occupyX.length - 1]);
+				if (headItemModel.attributes.isRightAjacentHide) {
+					this.$el.css({
+						'borderRightColor': 'transparent'
+					});
+				} else {
+					this.$el.css({
+						'borderRightColor': '#000'
+					});
+				}
+			}
+		},
+		/**
+		 * 渲染单元格背景
+		 * @method changeBackground 
+		 * @param modelJSON {modelJSON} 对象属性集合
+		 */
+		changeBackground: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			if (modelAttr.customProp.background !== '') {
+				this.$contentBody.css({
+					'backgroundColor': modelAttr.customProp.background
+				});
+			} else {
+				this.$contentBody.css({
+					'backgroundColor': '#fff'
+				});
+			}
+		},
+		changeWordWrap: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			if (modelAttr.wordWrap === true) {
+				this.$contentBody.css({
+					'wordBreak': 'break-word',
+					'whiteSpace': 'normal'
+				});
+			} else {
+				this.$contentBody.css({
+					'whiteSpace': 'nowrap'
+				});
+			}
+		},
+		/**
+		 * 显示备注标记
+		 * @param  {object} modelJSON showCommentSign
+		 */
+		showCommentSign: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			if (modelAttr.customProp.comment !== null &&
+				modelAttr.customProp.comment !== undefined) {
+				this.$el.prepend('<div class="comment-ico"><div class="triangle"></div></div>');
+			} else {
+				var commentSign = this.$el.find('.comment-ico');
+				commentSign.remove();
+			}
+		},
+		generateDisplayText: function() {
+			formatHandler.typeRecognize(this.model);
+			formatHandler.generateDisplayText(this.model);
+			var modelAttr = this.model.attributes;
+			this.changeTransverseAlign(modelAttr);
+			this.$contentBody.html(this.getHtmlText(modelAttr));
+		},
+		changeFontFamily: function() {
+			this.$contentBody.css({
+				'fontFamily': this.model.attributes.content.family,
+			});
+		},
+		changeFontSize: function() {
+			this.$contentBody.css({
+				'fontSize': this.model.attributes.content.size + 'pt',
+			});
+		},
+		changeColor: function() {
+			this.$contentBody.css({
+				'color': this.model.attributes.content.color,
+			});
 		},
 		adaptCellHight: function() {
 			var text,
@@ -206,213 +471,15 @@ define(function(require) {
 			}
 		},
 		/**
-		 * 设置单元格内容斜体
-		 * @method setItalic 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		setItalic: function(modelJSON) {
-			if (modelJSON.content.italic) {
-				this.$contentBody.css({
-					'font-style': 'italic'
-				});
-			} else {
-				this.$contentBody.css({
-					'font-style': 'normal'
-				});
-			}
-		},
-		/**
-		 * 设置单元格内容粗体
-		 * @method setBold 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		setBold: function(modelJSON) {
-			if (modelJSON.content.bd) {
-				this.$contentBody.css({
-					'font-weight': 'bold'
-				});
-			} else {
-				this.$contentBody.css({
-					'font-weight': 'normal'
-				});
-			}
-
-		},
-		/**
-		 * 设置单元格内容水平对齐方式
-		 * @method setTransverseAlign 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		setTransverseAlign: function(modelJSON) {
-			var format = modelJSON.format,
-				type = format.type,
-				text = modelJSON.content.texts,
-				isValid = format.isValid,
-				alignRowPosi = modelJSON.content.alignRow;
-			//分离操作
-			if (alignRowPosi === 'center' || alignRowPosi === 'right' || alignRowPosi === 'left') {
-				this.$contentBody.css({
-					'text-align': alignRowPosi
-				});
-				return;
-			}
-			if (type !== 'text' && type !== 'normal' && isValid === true) {
-				this.$contentBody.css({
-					'text-align': 'right'
-				});
-				return;
-			}
-			if (type === 'normal' && textTypeHandler.isNum(text)) {
-				this.$contentBody.css({
-					'text-align': 'right'
-				});
-				return;
-			}
-			this.$contentBody.css({
-				'text-align': 'left'
-			});
-		},
-		/**
-		 * 设置单元格内容垂直对齐方式
-		 * @method setVerticalAlign 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		setVerticalAlign: function(modelJSON) {
-			if (modelJSON.content.alignCol === 'middle') {
-				this.$contentBody.css({
-					"vertical-align": "middle",
-				});
-			} else if (modelJSON.content.alignCol === 'bottom') {
-				this.$contentBody.css({
-					"vertical-align": "bottom"
-				});
-			} else {
-				this.$contentBody.css({
-					"vertical-align": "top"
-				});
-			}
-		},
-		/**
-		 * 渲染上边框
-		 * @method changeTopBorder 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		changeTopBorder: function(modelJSON) {
-			if (modelJSON.border.top) {
-				this.$el.css({
-					'borderTopColor': '#000'
-				});
-			} else {
-				this.$el.css({
-					'borderTopColor': 'transparent'
-				});
-			}
-		},
-		/**
-		 * 渲染左边框
-		 * @method changeLeftBorder 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		changeLeftBorder: function(modelJSON) {
-			var left = modelJSON.physicsBox.left,
-				headItemColList = headItemCols.models,
-				index;
-
-			index = binary.indexModelBinary(left + 1, headItemColList, 'left', 'width');
-			if (headItemColList[index].get('isLeftAjacentHide') || !modelJSON.border.left) {
-				this.$el.css({
-					'borderLeftColor': 'transparent'
-				});
-			} else {
-				this.$el.css({
-					'borderLeftColor': '#000'
-				});
-			}
-
-		},
-		/**
-		 * 渲染下边框边框
-		 * @method changeBottomBorder 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		changeBottomBorder: function(modelJSON) {
-			if (modelJSON.border.bottom) {
-				this.$el.css({
-					'borderBottomColor': '#000'
-				});
-			} else {
-				this.$el.css({
-					'borderBottomColor': 'transparent'
-				});
-			}
-		},
-		/**
-		 * 渲染右边框边框
-		 * @method changeRightBorder 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		changeRightBorder: function(modelJSON) {
-			var right = modelJSON.physicsBox.left + modelJSON.physicsBox.width,
-				headItemColList = headItemCols.models,
-				index;
-			index = binary.indexModelBinary(right, headItemColList, 'left', 'width');
-			//边框处理
-			if (headItemColList[index].get('isRightAjacentHide') || !modelJSON.border.right) {
-				this.$el.css({
-					'borderRightColor': 'transparent'
-				});
-			} else {
-				this.$el.css({
-					'borderRightColor': '#000'
-				});
-			}
-		},
-		/**
-		 * 渲染单元格背景
-		 * @method changeBackground 
-		 * @param modelJSON {modelJSON} 对象属性集合
-		 */
-		changeBackground: function(modelJSON) {
-			if (modelJSON.customProp.background !== '') {
-				this.$contentBody.css({
-					'backgroundColor': modelJSON.customProp.background
-				});
-			} else {
-				this.$contentBody.css({
-					'backgroundColor': '#fff'
-				});
-			}
-		},
-		wordWrap: function(modelJSON) {
-			if (modelJSON.wordWrap === true) {
-				this.$contentBody.css({
-					'wordBreak': 'break-word',
-					'whiteSpace': 'normal'
-				});
-			} else {
-				this.$contentBody.css({
-					'whiteSpace': 'nowrap'
-				});
-			}
-		},
-		/**
 		 * 根据状态暂时移除视图
 		 * @method destroy 
 		 */
 		destroy: function() {
-			Backbone.off('event:destroyCellView', this.destroy, this);
-			if (this.model.get('isDestroy') || this.model.get('hidden')) {
+			var attr = this.model.attributes;
+			if (attr.hidden || !attr.showState || attr.isDestroy) {
 				this.remove();
 			}
 		},
-		/**
-		 * 彻底清除视图
-		 * @method clear
-		 */
-		clear: function() {
-			Backbone.off('event:destroyCellView', this.destroy, this);
-			this.remove();
-		}
 	});
 	return CellContainer;
 });
