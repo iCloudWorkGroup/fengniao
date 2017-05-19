@@ -8,7 +8,7 @@ define(function(require) {
 	templatesHTML.BODYTEMPLATE += '<table class="cui-grid" cellspacing="0" cellpadding="0" id="tableContainer">';
 	templatesHTML.BODYTEMPLATE += '<tbody><tr><td><div class="left-corner"></div></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></tbody>';
 	templatesHTML.BODYTEMPLATE += '</table><div class="input"></div></div>';
-	templatesHTML.BODYTEMPLATE += '<div class="sheet-layout"><div class="sheet-body">';
+	templatesHTML.BODYTEMPLATE += '<div class="sheet-layout">{{f}}<div class="sheet-body">';
 	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-box glyphicons glyphicon-plus"></div>';
 	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-box active glyphicons glyphicon-th-list"></div>';
 	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-list"></div>';
@@ -23,9 +23,8 @@ define(function(require) {
 
 	templatesHTML.SELECTTEMPLATE = '<div class="box"><div class="expand"></div><div class="bg"></div></div>';
 
-	templatesHTML.CELLTEMPLATE = '<div class="bg" style="display:table-cell;color:{{content.color}};font-family:{{content.family}};font-size:{{content.size}}px;';
-	templatesHTML.CELLTEMPLATE += '">{{content.texts}}</div>';
-	
+	templatesHTML.CELLTEMPLATE = '<div class="bg" style="display:table-cell;">{{content.texts}}</div>';
+
 	templatesHTML.COLGRIDTEMPLATE = '<div class="col" style="left:{{left}}px;"></div>';
 	templatesHTML.ROWGRIDTEMPLATE = '<div class="row" style="top:{{top}}px;"></div>';
 

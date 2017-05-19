@@ -46,7 +46,7 @@ define(function(require) {
 			headItemRowList,
 			sendData = [],
 			text = "",
-			URL='',
+			URL = '',
 			i,
 			j;
 
@@ -64,9 +64,9 @@ define(function(require) {
 		relativeColIndex = startColIndex - headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
 		relativeRowIndex = startRowIndex - headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
 
-		if(type === 'cut'){
+		if (type === 'cut') {
 			URL = config.url.sheet.cut;
-		}else{
+		} else {
 			URL = config.url.sheet.copy;
 		}
 		send.PackAjax({
@@ -87,7 +87,7 @@ define(function(require) {
 				}
 			}),
 			success: function(data) {
-				if (data.isLegal) {
+				if (data && data.isLegal) {
 					for (i = startRowIndex; i < endRowIndex + 1; i++) {
 						for (j = startColIndex; j < endColIndex + 1; j++) {
 							if (j - relativeColIndex > headItemCols.models.length - 1) continue;
@@ -145,7 +145,7 @@ define(function(require) {
 						startRowIndex - relativeRowIndex > endRowIndex ||
 						endRowIndex - relativeRowIndex < startRowIndex) {
 
-					}else {
+					} else {
 						cache.clipState = "null";
 						clipRegion.destroy();
 					}
@@ -328,7 +328,7 @@ define(function(require) {
 				pasteData: sendData
 			}),
 			success: function(data) {
-				if (data.isLegal) {
+				if (data && data.isLegal) {
 					for (i = 0; i < rowLen; i++) {
 						for (j = 0; j < colLen; j++) {
 							rowAlias = headItemRowList[startRowIndex + i].get('alias');

@@ -102,6 +102,11 @@ define(function(require) {
 			}));
 
 			this.$contentBody = this.$contentBody = $('.bg', this.$el);
+
+			this.changeFontFamily(modelAttr);
+			this.changeFontSize(modelAttr);
+			this.changeColor(modelAttr);
+
 			this.changeWidth(modelAttr);
 			this.changeHeight(modelAttr);
 			this.changeLeft(modelAttr);
@@ -417,7 +422,7 @@ define(function(require) {
 		},
 		changeFontSize: function() {
 			this.$contentBody.css({
-				'fontSize': this.model.attributes.content.size,
+				'fontSize': this.model.attributes.content.size + 'pt',
 			});
 		},
 		changeColor: function() {

@@ -2,7 +2,7 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		_ = require('lib/underscore'),
-		util = require('basic/util/clone'),
+		clone = require('basic/util/clone'),
 		cache = require('basic/tools/cache'),
 		Backbone = require('lib/backbone'),
 		headItemRows = require('collections/headItemRow'),
@@ -36,7 +36,7 @@ define(function(require) {
 		initialize: function(options) {
 			Backbone.on('call:rowsAllHeadContainer', this.callRowsAllHeadContainer, this);
 			Backbone.on('event:rowsAllHeadContainer:adaptHeight', this.adaptHeight, this);
-			this.currentRule = util.clone(cache.CurrentRule);
+			this.currentRule = clone.clone(cache.CurrentRule);
 			this.listenTo(siderLineRows, 'add', this.addSiderLineRow);
 			this.boxAttributes = options.boxAttributes;
 		},

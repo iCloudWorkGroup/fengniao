@@ -129,7 +129,7 @@ define(function(require) {
 			}
 			this.$el.css({
 				'color': modelJSON.content.color,
-				'fontSize': modelJSON.content.size + 'px',
+				'fontSize': modelJSON.content.size + 'pt',
 				'fontFamily': modelJSON.content.family,
 				'left': left,
 				'top': top,
