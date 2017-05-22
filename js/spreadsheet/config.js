@@ -161,7 +161,7 @@ define(function() {
 				bg: 'cell/bg',
 				wordwrap: 'cell/wordwrap',
 				align_transverse: 'cell/align-landscape',
-				align_vertically: 'cell/align-portrait',
+				align_vertical: 'cell/align-portrait',
 				format: 'cell/format',
 				content: 'cell/content',
 				comment_plus: 'cell/comment-plus',
@@ -188,6 +188,6 @@ define(function() {
 
 		},
 		version: '@version@',
-		rootPath: 'http://excel-inc.acmr.com.cn/fn/'
+		rootPath: 'http://192.168.2.127:8080/fn/'
 	};
 });
