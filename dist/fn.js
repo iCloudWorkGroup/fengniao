@@ -1,4 +1,4 @@
-/*! fengniao 0.8.0 */
+/*! fengniao 0.11.0 */
 
 
 /**
@@ -130,7 +130,7 @@
 
 
     
-define('lib/jquery',function() {
+    define('lib/jquery',function() {
     	return (function(window, noGlobal) {
     		// Support: Firefox 18+
     		// Can't be in strict mode, several libs including ASP.NET trace
@@ -9264,7 +9264,7 @@ define('lib/jquery',function() {
     			maxRowNum: 9999
     		},
     		mouseOperateState: {
-    			select: 'operation',
+    			select: 'selected',
     			dataSource: 'datasource',
     			drag: 'drag',
     			highlight: 'highlight'
@@ -9277,7 +9277,7 @@ define('lib/jquery',function() {
     			fifth: 'yyyy年MM月',
     			sixth: 'yyyy年'
     		},
-    		defaultNumberFormat:{
+    		defaultNumberFormat: {
     			decimal: 6
     		},
     		keyboard: {
@@ -9299,9 +9299,58 @@ define('lib/jquery',function() {
     			altEnter: true,
     			enter: true
     		},
+    		url: {
+    			row: {
+    				plus: 'row/plus',
+    				reduce: 'row/reduce',
+    				hide: 'row/hide',
+    				show: 'row/show',
+    				adjust: 'row/adjust',
+    				plus_batch: 'row/plus-batch'
+    			},
+    			col: {
+    				plus: 'col/plus',
+    				reduce: 'col/reduce',
+    				hide: 'col/hide',
+    				show: 'col/show',
+    				adjust: 'col/adjust',
+    				plus_batch: 'col/plus-batch'
+    			},
+    			cell: {
+    				merge: 'cell/merge',
+    				split: 'cell/split',
+    				border: 'cell/border',
+    				bg: 'cell/bg',
+    				wordwrap: 'cell/wordwrap',
+    				align_transverse: 'cell/align-landscape',
+    				align_vertical: 'cell/align-portrait',
+    				format: 'cell/format',
+    				content: 'cell/content',
+    				comment_plus: 'cell/comment-plus',
+    				comment_del: 'cell/comment-reduce',
+    				font_size: 'cell/font-size',
+    				font_family: 'cell/font-family',
+    				font_weight: 'cell/font-weight',
+    				font_italic: 'cell/font-italic',
+    				font_color: 'cell/font-color',
+    			},
+    			table: {
+    				reload: 'reload'
+    			},
+    			sheet: {
+    				cut: 'sheet/cut',
+    				copy: 'sheet/copy',
+    				paste: 'sheet/paste',
+    				undo: 'sheet/undo',
+    				redo: 'sheet/redo',
+    				frozen: 'sheet/frozen',
+    				unfrozen: 'sheet/unfrozen',
+    				load: 'sheet/area'
+    			},
     
-    		version: '0.8.0',
-    		rootPath: 'ocalhost:8080/pubexcel/'
+    		},
+    		version: '0.11.0',
+    		rootPath: 'http://192.168.2.127:8080/fn/'
     	};
     });
     
@@ -9387,7 +9436,9 @@ define('lib/jquery',function() {
     			top: 0,
     			bottom: 0,
     			left: 0,
-    			right: 0
+    			right: 0,
+    			scrollLeft: 0,
+    			scrollTop: 0
     		},
     		commentEidtState: false,
     		//
@@ -9395,7 +9446,6 @@ define('lib/jquery',function() {
     		cachePosition: function(aliasRow, aliasCol, index) {
     			var positionX,
     				positionY;
-    			// cells=require('collections/cells');
     			positionX = this.CellsPosition.strandX;
     			if (!positionX[aliasCol]) {
     				positionX[aliasCol] = {};
@@ -9662,27 +9712,27 @@ define('lib/jquery',function() {
     		},
     		
     		indexAttrBinary: function(value, array, attr, startIndex, endIndex) {
-    			var	middleIndex;
-    			
+    			var middleIndex;
+    
     			startIndex = startIndex || 0;
     			endIndex = endIndex || array.length - 1;
-    			if (array[startIndex].get(attr) > value) {
+    			if (array[startIndex].attributes[attr] > value) {
     				return -1;
     			}
-    			if (array[endIndex].get(attr) < value) {
+    			if (array[endIndex].attributes[attr] < value) {
     				return -1;
     			}
     			while (startIndex < endIndex) {
-    				if (array[startIndex].get(attr)=== value) {
+    				if (array[startIndex].attributes[attr] === value) {
     					return startIndex;
     				}
-    				if (array[endIndex].get(attr) === value) {
+    				if (array[endIndex].attributes[attr] === value) {
     					return endIndex;
     				}
     				middleIndex = endIndex + startIndex >>> 1;
-    				if (array[middleIndex].get(attr) === value) {
+    				if (array[middleIndex].attributes[attr] === value) {
     					return middleIndex;
-    				} else if (array[middleIndex].get(attr) < value) {
+    				} else if (array[middleIndex].attributes[attr] < value) {
     					startIndex = middleIndex + 1;
     				} else {
     					endIndex = middleIndex;
@@ -13191,7 +13241,7 @@ define('lib/jquery',function() {
       return Backbone;
     });
     
-
+    
     
     
     define('lib/backbone.nested',function() {
@@ -13561,39 +13611,6 @@ define('lib/jquery',function() {
       return Backbone;
     });
     
-    define('models/lineRow',function() {
-    
-    	var BackboneNest = require('lib/backbone.nested'),
-    		LineRowModel;
-    
-    	
-    	LineRowModel = BackboneNest.NestedModel.extend({
-    		defaults: {
-    			
-    			sort: 0,
-    			
-    			alias: '',
-    			
-    			top: 0,
-    			
-    			height: 19,
-    			
-    			displayName: '',
-    			
-    			activeState: false,
-    			
-    			isView: true,
-    			
-    			operProp:{}
-    		},
-    		
-    		destroyView: function() {
-    			this.set('isView', false);
-    		}
-    	});
-    	return LineRowModel;
-    });
-    
     define('models/lineCol',function() {
     	var BackboneNest = require('lib/backbone.nested'),
     		LineColModel;
@@ -13634,113 +13651,6 @@ define('lib/jquery',function() {
     	});
     	return LineColModel;
     });
-    //attention bug, this `models` need to `Models` , this is error 
-    //, secound phease correction
-    //attention bug, remarket lack isn't exist `remarket` property .
-    //attention bug, showState is or not exist value ?
-    
-    
-    define('models/cell',function() {
-    	var BackboneNest = require('lib/backbone.nested'),
-    		CellModel;
-    	
-    	CellModel = BackboneNest.NestedModel.extend({
-    		defaults: {
-    			
-    			physicsBox: {
-    				
-    				top: 0,
-    				
-    				left: 0,
-    				
-    				width: 71,
-    				
-    				height: 19
-    			},
-    			
-    			occupy: {
-    				
-    				x: [],
-    				
-    				y: []
-    			},
-    			
-    			content: {
-    				
-    				size: '11',
-    				
-    				family: 'SimSun',
-    				
-    				bd: false,
-    				
-    				italic: false,
-    				
-    				color: 'rgb(0, 0, 0)',
-    				
-    				alignRow: '',
-    				
-    				alignCol: 'middle',
-    				
-    				texts: '',
-    				
-    				displayTexts: ''
-    			},
-    			wordWrap: false,
-    			
-    			border: {
-    				
-    				top: false,
-    				
-    				right: false,
-    				
-    				bottom: false,
-    				
-    				left: false
-    			},
-    			
-    			format:{
-    				
-    				type: 'normal',
-    				
-    				isValid: true,
-    				
-    				decimal: null,
-    				
-    				thousands: null,
-    				
-    				dateFormat: null,
-    				
-    				currencySign: null,
-    				
-    				currencyValid: true
-    			},
-    			
-    			customProp: {
-    				
-    				background: 'rgb(255, 255, 255)',
-    				
-    				comment: null
-    			},
-    			
-    			showState: true,
-    			
-    			hidden: false,
-    			
-    			isDestroy: false,
-    			
-    			highlight: false,
-    			
-    			commentShowState: false,
-    		},
-    		
-    		hide: function() {
-    			this.set('showState', false);
-    		},
-    		
-    		
-    	});
-    	return CellModel;
-    });
     //attention bug, those name didn't significance
     
     define('models/selectRegion',function() {
@@ -13751,32 +13661,26 @@ define('lib/jquery',function() {
     	SelectRegion = BackboneNest.NestedModel.extend({
     		defaults: {
     			
-    			initPosi: {
+    			tempPosi: {
     				
-    				startX: 0,
+    				initColIndex: 0,
     				
-    				startY: 0,
-    			},
-    			
-    			mousePosi: {
+    				initRowIndex: 0,
     				
-    				mouseX: 0,
+    				mouseColIndex: 0,
     				
-    				mouseY: 0
-    			},
-    			
-    			physicsPosi: {
-    				
-    				top: 0,
-    				
-    				left: 0,
+    				mouseRowIndex: 0
     			},
     			
     			physicsBox: {
     				
     				width: 71,
     				
-    				height: 19
+    				height: 19,
+    				
+    				top: 0,
+    				
+    				left: 0,
     			},
     			//current box start,end postion index value (complete)
     			
@@ -13790,7 +13694,7 @@ define('lib/jquery',function() {
     				
     				endY: 0
     			},
-    			selectType: 'operation' // 'dataSource','drag' , 'clip'
+    			selectType: 'selected' // 'dataSource','drag' , 'clip' , 'highlight'
     		}
     	});
     	return SelectRegion;
@@ -13811,7 +13715,7 @@ define('lib/jquery',function() {
     		
     		getAdjacent: function(direction) {
     			var initPosiIndex = this.models[0].get('initPosi'),
-    				physicsPosi = this.models[0].get('physicsPosi'),
+    				physicsBox = this.models[0].get('physicsBox'),
     				wholePosiIndex = this.models[0].get('wholePosi'),
     				initPosiRowIndex = initPosiIndex.startX,
     				wholePosiStartRowIndex = wholePosiIndex.startX,
@@ -13821,24 +13725,24 @@ define('lib/jquery',function() {
     				case 'LEFT':
     					model.initPosi = {};
     					model.wholePosi = {};
-    					model.physicsPosi = {};
+    					model.physicsBox = {};
     					model.physicsBox = {};
     					model.initPosi.startX = initPosiRowIndex - 1;
     					model.wholePosi.startX = wholePosiStartRowIndex - 1;
     					model.wholePosi.endX = wholePosiEndRowIndex - 1;
-    					model.physicsPosi.left = physicsPosi.left - config.User.cellWidth;
+    					model.physicsBox.left = physicsBox.left - config.User.cellWidth;
     					this.models[0].set(model);
     					break;
     				case 'RIGHT':
     
     					model.initPosi = {};
     					model.wholePosi = {};
-    					model.physicsPosi = {};
+    					model.physicsBox = {};
     					model.physicsBox = {};
     					model.initPosi.startX = initPosiRowIndex + 1;
     					model.wholePosi.startX = wholePosiStartRowIndex + 1;
     					model.wholePosi.endX = wholePosiEndRowIndex + 1;
-    					model.physicsPosi.left = physicsPosi.left + config.User.cellWidth;
+    					model.physicsBox.left = physicsBox.left + config.User.cellWidth;
     					this.models[0].set(model);
     					break;
     				case 'UP':
@@ -13849,7 +13753,7 @@ define('lib/jquery',function() {
     		},
     		
     		getModelByType: function(type) {
-    			return this.where({
+    			return this.findWhere({
     				selectType: type
     			});
     		}
@@ -13912,13 +13816,17 @@ define('lib/jquery',function() {
     		},
     		
     		getIndexByAlias: function(alias) {
+    			var i, len, modelList = this.models;
     			if (alias === 'MAX') {
     				return 'MAX';
     			} else {
-    				return _.findIndex(this.toJSON(), {
-    					'alias': alias
-    				});
+    				for (i = 0, len = this.length; i < len; i++) {
+    					if (modelList[i].attributes.alias === alias) {
+    						return i;
+    					}
+    				}
     			}
+    			return -1;
     		},
     		
     		getModelByAlias: function(alias) {
@@ -13956,6 +13864,39 @@ define('lib/jquery',function() {
     		}
     	});
     	return new HeadItemCols();
+    });
+    
+    define('models/lineRow',function() {
+    
+    	var BackboneNest = require('lib/backbone.nested'),
+    		LineRowModel;
+    
+    	
+    	LineRowModel = BackboneNest.NestedModel.extend({
+    		defaults: {
+    			
+    			sort: 0,
+    			
+    			alias: '',
+    			
+    			top: 0,
+    			
+    			height: 19,
+    			
+    			displayName: '',
+    			
+    			activeState: false,
+    			
+    			isView: true,
+    			
+    			operProp:{}
+    		},
+    		
+    		destroyView: function() {
+    			this.set('isView', false);
+    		}
+    	});
+    	return LineRowModel;
     });
     
     define('collections/headItemRow',function() {
@@ -14023,15 +13964,22 @@ define('lib/jquery',function() {
     			var currentIndex = binary.newModelBinary(posi, this.models, 'top', 'height', 0, this.models.length - 1);
     			return this.models[currentIndex];
     		},
+    		getIndexByPosi: function(posi) {
+    			return binary.newModelBinary(posi, this.models, 'top', 'height');
+    		},
     		
     		getIndexByAlias: function(alias) {
+    			var i, len, modelList = this.models;
     			if (alias === 'MAX') {
     				return 'MAX';
     			} else {
-    				return _.findIndex(this.toJSON(), {
-    					'alias': alias
-    				});
+    				for (i = 0, len = this.length; i < len; i++) {
+    					if (modelList[i].attributes.alias === alias) {
+    						return i;
+    					}
+    				}
     			}
+    			return -1;
     		},
     		getNextAliasByAlias: function(alias) {
     			var index,
@@ -14181,6 +14129,110 @@ define('lib/jquery',function() {
     	});
     	return new Sheets();
     });
+    //attention bug, this `models` need to `Models` , this is error 
+    //, secound phease correction
+    //attention bug, remarket lack isn't exist `remarket` property .
+    //attention bug, showState is or not exist value ?
+    
+    define('models/cell',function() {
+    	var BackboneNest = require('lib/backbone.nested'),
+    		CellModel;
+    	
+    	CellModel = BackboneNest.NestedModel.extend({
+    		defaults: {
+    			
+    			physicsBox: {
+    				
+    				top: 0,
+    				
+    				left: 0,
+    				
+    				width: 71,
+    				
+    				height: 19
+    			},
+    			
+    			occupy: {
+    				
+    				x: [],
+    				
+    				y: []
+    			},
+    			
+    			content: {
+    				
+    				size: '11',
+    				
+    				family: 'SimSun',
+    				
+    				bd: false,
+    				
+    				italic: false,
+    				
+    				color: 'rgb(0, 0, 0)',
+    				
+    				alignRow: '',
+    				
+    				alignCol: 'middle',
+    				
+    				texts: '',
+    				
+    				displayTexts: ''
+    			},
+    			wordWrap: false,
+    			
+    			border: {
+    				
+    				top: false,
+    				
+    				right: false,
+    				
+    				bottom: false,
+    				
+    				left: false
+    			},
+    			
+    			format:{
+    				
+    				type: 'normal',
+    				
+    				isValid: true,
+    				
+    				decimal: null,
+    				
+    				thousands: null,
+    				
+    				dateFormat: null,
+    				
+    				currencySign: null,
+    				
+    				currencyValid: true
+    			},
+    			
+    			customProp: {
+    				
+    				background: 'rgb(255, 255, 255)',
+    				
+    				comment: null
+    			},
+    			
+    			showState: true,
+    			
+    			hidden: false,
+    			
+    			isDestroy: false,
+    			
+    			highlight: true,
+    		},
+    		
+    		hide: function() {
+    			this.set('showState', false);
+    		},
+    		
+    		
+    	});
+    	return CellModel;
+    });
     
     define('collections/cells',function() {
     	var Backbone = require('lib/backbone'),
@@ -14282,7 +14334,7 @@ define('lib/jquery',function() {
     			var result = [],
     				strandX,
     				index,
-    				tempObj={},
+    				tempObj = {},
     				i, j,
     				len1, len2,
     				rowAlias,
@@ -14304,13 +14356,14 @@ define('lib/jquery',function() {
     			for (i = startIndexCol, len1 = endIndexCol + 1; i < len1; i++) {
     				colAlias = headItemCols.models[i].get('alias');
     				if (typeof strandX[colAlias] !== 'undefined') {
-    					for (j = startIndexRow,len2=endIndexRow +1; j < len2; j++) {
+    					for (j = startIndexRow, len2 = endIndexRow + 1; j < len2; j++) {
     						rowAlias = headItemRows.models[j].get('alias');
-    						if(typeof strandX[colAlias][rowAlias] !== 'undefined') {
+    						if (typeof strandX[colAlias][rowAlias] !== 'undefined') {
     							index = strandX[colAlias][rowAlias];
     							if (!tempObj[index]) {
     								result.push(this.at(index));
-    								tempObj[index]=1;
+    								tempObj[index] = 1;
+    
     							}
     						}
     					}
@@ -14323,7 +14376,7 @@ define('lib/jquery',function() {
     			var result = [],
     				strandY,
     				index,
-    				tempObj={},
+    				tempObj = {},
     				i, j,
     				len1, len2,
     				rowAlias,
@@ -14345,13 +14398,13 @@ define('lib/jquery',function() {
     			for (i = startIndexRow, len1 = endIndexRow + 1; i < len1; i++) {
     				rowAlias = headItemRows.models[i].get('alias');
     				if (typeof strandY[rowAlias] !== 'undefined') {
-    					for (j = startIndexCol,len2=endIndexCol+1; j < len2; j++) {
+    					for (j = startIndexCol, len2 = endIndexCol + 1; j < len2; j++) {
     						colAlias = headItemCols.models[j].get('alias');
-    						if(typeof strandY[rowAlias][colAlias] !== 'undefined') {
+    						if (typeof strandY[rowAlias][colAlias] !== 'undefined') {
     							index = strandY[rowAlias][colAlias];
     							if (!tempObj[index]) {
     								result.push(this.at(index));
-    								tempObj[index]=1;
+    								tempObj[index] = 1;
     							}
     						}
     					}
@@ -14361,35 +14414,7 @@ define('lib/jquery',function() {
     		},
     		
     		getCellByRow: function(startIndex, endIndex) {
-    			var tempObj,
-    				tempAttr,
-    				headItemRowList,
-    				cacheCellArray,
-    				cachePosition,
-    				cacheIndexObject = {},
-    				cellModelList,
-    				index,
-    				alias,
-    				i;
-    
-    			cacheCellArray = [];
-    			cellModelList = this.models;
-    			headItemRowList = headItemRows.models;
-    			cachePosition = cache.CellsPosition.strandY;
-    			for (i = startIndex; i < endIndex + 1; i++) {
-    				alias = headItemRowList[i].get('alias');
-    				tempObj = cachePosition[alias];
-    				if (tempObj !== undefined) {
-    					for (tempAttr in tempObj) {
-    						index = tempObj[tempAttr];
-    						if (typeof cacheIndexObject[index] === 'undefined') {
-    							cacheCellArray.push(cellModelList[index]);
-    							cacheIndexObject[index] = 0;
-    						}
-    					}
-    				}
-    			}
-    			return cacheCellArray;
+    			return this.getCellByTransverse(startIndex, 0, endIndex, 'MAX');
     		},
     		
     		
@@ -14733,14 +14758,12 @@ define('lib/jquery',function() {
     			return partModelList;
     		},
     		
-    		getLeftHeadModelByIndex: function(startColIndex, startRowIndex, endColIndex, endRowIndex) {
-    			var result = [],
-    				headLineColModelList,
-    				headLineRowModelList,
-    				cellsPositionX,
+    		operLeftHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
+    			var headItemRowList = headItemRows.models,
+    				headItemColList = headItemCols.models,
+    				cellsPosition,
+    				tempObj = {},
     				tempCell,
-    				colLen,
-    				rowLen,
     				aliasCol,
     				aliasRow,
     				i;
@@ -14751,35 +14774,30 @@ define('lib/jquery',function() {
     			if (endRowIndex === undefined) {
     				endRowIndex = startRowIndex;
     			}
-    			headLineRowModelList = headItemRows.models;
-    			headLineColModelList = headItemCols.models;
-    
-    			colLen = endColIndex - startColIndex + 1;
-    			rowLen = endRowIndex - startRowIndex + 1;
-    
-    			cellsPositionX = cache.CellsPosition.strandX;
-    			aliasCol = headLineColModelList[startColIndex].get('alias');
-    			for (i = 0; i < rowLen; i++) {
-    				aliasRow = headLineRowModelList[startRowIndex + i].get('alias');
-    				if (cellsPositionX[aliasCol] !== undefined &&
-    					cellsPositionX[aliasCol][aliasRow] !== undefined) {
-    					tempCell = this.models[cellsPositionX[aliasCol][aliasRow]];
+    			aliasCol = headItemColList[startColIndex].get('alias');
+    			cellsPosition = cache.CellsPosition.strandX[aliasCol];
+    			for (i = startRowIndex; i < endRowIndex + 1; i++) {
+    				aliasRow = headItemRowList[i].get('alias');
+    				if (cellsPosition !== undefined && cellsPosition[aliasRow] !== undefined) {
+    					if (!tempObj[cellsPosition[aliasRow]]) {
+    						tempCell = this.models[cellsPosition[aliasRow]];
+    					} else {
+    						tempObj[cellsPosition[aliasCol]] = 1;
+    						continue;
+    					}
     				} else {
-    					tempCell = this.createCellModel(startColIndex, startRowIndex + i);
+    					tempCell = this.createCellModel(startColIndex, i);
     				}
-    				result.push(tempCell);
+    				fn(tempCell, headItemColList[startColIndex].get('sort'), headItemRowList[i].get('sort'));
     			}
-    			return result;
     		},
     		
-    		getRightHeadModelByIndex: function(startColIndex, startRowIndex, endColIndex, endRowIndex) {
-    			var result = [],
-    				headLineColModelList,
-    				headLineRowModelList,
-    				cellsPositionX,
+    		operRightHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
+    			var headItemRowList = headItemRows.models,
+    				headItemColList = headItemCols.models,
+    				cellsPosition,
+    				tempObj = {},
     				tempCell,
-    				colLen,
-    				rowLen,
     				aliasCol,
     				aliasRow,
     				i;
@@ -14789,36 +14807,31 @@ define('lib/jquery',function() {
     			if (endRowIndex === undefined) {
     				endRowIndex = startRowIndex;
     			}
-    			headLineRowModelList = headItemRows.models;
-    			headLineColModelList = headItemCols.models;
+    			aliasCol = headItemColList[endColIndex].get('alias');
+    			cellsPosition = cache.CellsPosition.strandX[aliasCol];
     
-    			colLen = endColIndex - startColIndex + 1;
-    			rowLen = endRowIndex - startRowIndex + 1;
-    
-    			cellsPositionX = cache.CellsPosition.strandX;
-    			aliasCol = headLineColModelList[endColIndex].get('alias');
-    			for (i = 0; i < rowLen; i++) {
-    				aliasRow = headLineRowModelList[startRowIndex + i].get('alias');
-    				if (cellsPositionX[aliasCol] !== undefined &&
-    					cellsPositionX[aliasCol][aliasRow] !== undefined) {
-    					tempCell = this.models[cellsPositionX[aliasCol][aliasRow]];
+    			for (i = startRowIndex; i < endRowIndex + 1; i++) {
+    				aliasRow = headItemRowList[i].get('alias');
+    				if (cellsPosition !== undefined && cellsPosition[aliasRow] !== undefined) {
+    					if (!tempObj[cellsPosition[aliasRow]]) {
+    						tempCell = this.models[cellsPosition[aliasRow]];
+    					} else {
+    						tempObj[cellsPosition[aliasCol]] = 1;
+    						continue;
+    					}
     				} else {
-    					tempCell = this.createCellModel(endColIndex, startRowIndex + i);
+    					tempCell = this.createCellModel(endColIndex, i);
     				}
-    				result.push(tempCell);
+    				fn(tempCell, headItemColList[endColIndex].get('sort'), headItemRowList[i].get('sort'));
     			}
-    			return result;
     		},
     		
-    		getTopHeadModelByIndex: function(startColIndex, startRowIndex,
-    			endColIndex, endRowIndex) {
-    			var result = [],
-    				headLineColModelList,
-    				headLineRowModelList,
-    				cellsPositionX,
+    		operTopHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
+    			var headItemRowList = headItemRows.models,
+    				headItemColList = headItemCols.models,
+    				cellsPosition,
+    				tempObj = {},
     				tempCell,
-    				colLen,
-    				rowLen,
     				aliasCol,
     				aliasRow,
     				i;
@@ -14828,36 +14841,32 @@ define('lib/jquery',function() {
     			if (endRowIndex === undefined) {
     				endRowIndex = startRowIndex;
     			}
-    			headLineRowModelList = headItemRows.models;
-    			headLineColModelList = headItemCols.models;
     
-    			colLen = endColIndex - startColIndex + 1;
-    			rowLen = endRowIndex - startRowIndex + 1;
+    			aliasRow = headItemRowList[startRowIndex].get('alias');
+    			cellsPosition = cache.CellsPosition.strandY[aliasRow];
     
-    			cellsPositionX = cache.CellsPosition.strandX;
-    			aliasRow = headLineRowModelList[startRowIndex].get('alias');
-    			for (i = 0; i < colLen; i++) {
-    				aliasCol = headLineColModelList[startColIndex + i].get('alias');
-    				if (cellsPositionX[aliasCol] !== undefined &&
-    					cellsPositionX[aliasCol][aliasRow] !== undefined) {
-    					tempCell = this.models[cellsPositionX[aliasCol][aliasRow]];
+    			for (i = startColIndex; i < endColIndex + 1; i++) {
+    				aliasCol = headItemColList[i].get('alias');
+    				if (cellsPosition !== undefined && cellsPosition[aliasCol] !== undefined) {
+    					if (!tempObj[cellsPosition[aliasCol]]) {
+    						tempCell = this.models[cellsPosition[aliasCol]];
+    					} else {
+    						tempObj[cellsPosition[aliasCol]] = 1;
+    						continue;
+    					}
     				} else {
-    					tempCell = this.createCellModel(startColIndex + i, startRowIndex);
+    					tempCell = this.createCellModel(i, startRowIndex);
     				}
-    				result.push(tempCell);
+    				fn(tempCell, headItemColList[i].get('sort'), headItemRowList[startRowIndex].get('sort'));
     			}
-    			return result;
     		},
     		
-    		getBottomHeadModelByIndex: function(startColIndex, startRowIndex,
-    			endColIndex, endRowIndex) {
-    			var result = [],
-    				headLineColModelList,
-    				headLineRowModelList,
-    				cellsPositionX,
+    		operBottomHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
+    			var headItemRowList = headItemRows.models,
+    				headItemColList = headItemCols.models,
+    				cellsPosition,
+    				tempObj = {},
     				tempCell,
-    				colLen,
-    				rowLen,
     				aliasCol,
     				aliasRow,
     				i;
@@ -14867,27 +14876,30 @@ define('lib/jquery',function() {
     			if (endRowIndex === undefined) {
     				endRowIndex = startRowIndex;
     			}
-    			headLineRowModelList = headItemRows.models;
-    			headLineColModelList = headItemCols.models;
+    			aliasRow = headItemRowList[endRowIndex].get('alias');
+    			cellsPosition = cache.CellsPosition.strandY[aliasRow];
     
-    			colLen = endColIndex - startColIndex + 1;
-    			rowLen = endRowIndex - startRowIndex + 1;
-    
-    			cellsPositionX = cache.CellsPosition.strandX;
-    			aliasRow = headLineColModelList[endRowIndex].get('alias');
-    			for (i = 0; i < colLen; i++) {
-    				aliasCol = headLineColModelList[startColIndex + i].get('alias');
-    				if (cellsPositionX[aliasCol] !== undefined &&
-    					cellsPositionX[aliasCol][aliasRow] !== undefined) {
-    					tempCell = this.models[cellsPositionX[aliasCol][aliasRow]];
+    			for (i = startColIndex; i < endColIndex + 1; i++) {
+    				aliasCol = headItemColList[i].get('alias');
+    				if (cellsPosition !== undefined && cellsPosition[aliasCol] !== undefined) {
+    					if (!tempObj[cellsPosition[aliasCol]]) {
+    						tempCell = this.models[cellsPosition[aliasCol]];
+    					} else {
+    						tempObj[cellsPosition[aliasCol]] = 1;
+    						continue;
+    					}
     				} else {
-    					tempCell = this.createCellModel(startColIndex + i, endRowIndex);
+    					tempCell = this.createCellModel(i, endRowIndex);
     				}
-    				result.push(tempCell);
+    				fn(tempCell, headItemColList[i].get('sort'), headItemRowList[endRowIndex].get('sort'));
     			}
-    			return result;
     		},
-    
+    		operOuterHeadModel: function(startColIndex, startRowIndex, endColIndex, endRowIndex, fn) {
+    			this.operBottomHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
+    			this.operTopHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
+    			this.operLeftHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
+    			this.operRightHeadModel(startColIndex, startRowIndex, endColIndex, endRowIndex, fn);
+    		},
     		
     		getAdjacent: function(currentModel, direction) {
     			var gridLineRowModelList,
@@ -15016,7 +15028,7 @@ define('lib/jquery',function() {
     		
     		getCellByAlias: function(aliasCol, aliasRow) {
     			var tempCellIndex;
-    			if (cache.CellsPosition.strandY[aliasRow] === undefined || 
+    			if (cache.CellsPosition.strandY[aliasRow] === undefined ||
     				cache.CellsPosition.strandY[aliasRow][aliasCol] === undefined) {
     				return null;
     			}
@@ -15131,45 +15143,57 @@ define('lib/jquery',function() {
     					} else {
     						tempCell = this.createCellModel(startColIndex + j, startRowIndex + i);
     					}
-    					fn(tempCell);
+    					fn(tempCell, headItemColList[startColIndex + j].get('sort'), headItemRowList[startRowIndex + i].get('sort'));
     				}
     			}
     		},
     		
-    		getFullOperationRegion: function(region) {
+    		getFullOperationRegion: function(startColIndex, startRowIndex, endColIndex, endRowIndex) {
     			var headItemRowList = headItemRows.models,
     				headItemColList = headItemCols.models,
-    				startColIndex = region.startColIndex,
-    				startRowIndex = region.startRowIndex,
-    				endColIndex = region.endColIndex,
-    				endRowIndex = region.endRowIndex,
     				tempCellList,
     				cellStartColIndex,
     				cellStartRowIndex,
     				cellEndColIndex,
     				cellEndRowIndex,
-    				cache,
+    				temp,
     				flag = true,
     				i = 0;
     
+    			if (endColIndex === 'MAX') {
+    				return {
+    					startRowIndex: startRowIndex,
+    					startColIndex: startColIndex,
+    					endRowIndex: endRowIndex,
+    					endColIndex: headItemCols.length - 1
+    				};
+    			}
+    			if (endRowIndex === 'MAX') {
+    				return {
+    					startRowIndex: startRowIndex,
+    					startColIndex: startColIndex,
+    					endColIndex: endColIndex,
+    					endRowIndex: headItemRows.length - 1
+    				};
+    			}
     			if (startColIndex > endColIndex) {
-    				cache = startColIndex;
+    				temp = startColIndex;
     				startColIndex = endColIndex;
-    				endColIndex = cache;
+    				endColIndex = temp;
     			}
     			if (startRowIndex > endRowIndex) {
-    				cache = startRowIndex;
+    				temp = startRowIndex;
     				startRowIndex = endRowIndex;
-    				endRowIndex = cache;
+    				endRowIndex = temp;
     			}
     			while (flag) {
     				flag = false;
     				tempCellList = this.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
     				for (; i < tempCellList.length; i++) {
-    					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, headItemRowList, 'top', 'height', 0, headItemRowList.length - 1);
-    					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, headItemColList, 'left', 'width', 0, headItemColList.length - 1);
-    					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, headItemRowList, 'top', 'height', 0, headItemRowList.length - 1);
-    					cellEndColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left + tempCellList[i].get('physicsBox').width, headItemColList, 'left', 'width', 0, headItemColList.length - 1);
+    					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, headItemRowList, 'top', 'height');
+    					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, headItemColList, 'left', 'width');
+    					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, headItemRowList, 'top', 'height');
+    					cellEndColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left + tempCellList[i].get('physicsBox').width, headItemColList, 'left', 'width');
     					if (cellStartColIndex < startColIndex) {
     						startColIndex = cellStartColIndex;
     						flag = true;
@@ -15192,17 +15216,18 @@ define('lib/jquery',function() {
     					}
     				}
     			}
-    			region.startRowIndex = startRowIndex;
-    			region.startColIndex = startColIndex;
-    			region.endRowIndex = endRowIndex;
-    			region.endColIndex = endColIndex;
-    			return region;
+    			return {
+    				startRowIndex: startRowIndex,
+    				startColIndex: startColIndex,
+    				endRowIndex: endRowIndex,
+    				endColIndex: endColIndex
+    			};
     		},
     	});
     	return new Cells();
     });
     define('basic/tools/original',function() {
-      	
+    	
     	var $ = require('lib/jquery'),
     		config = require('spreadsheet/config'),
     		binary = require('basic/util/binary'),
@@ -15210,16 +15235,15 @@ define('lib/jquery',function() {
     		send = require('basic/tools/send'),
     		loadRecorder = require('basic/tools/loadrecorder'),
     		buildAlias = require('basic/tools/buildalias'),
-    		LineRow = require('models/lineRow'),
-    		LineCol = require('models/lineCol'),
-    		Cell = require('models/cell'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
     		siderLineCols = require('collections/siderLineCol'),
     		siderLineRows = require('collections/siderLineRow'),
     		selectRegions = require('collections/selectRegion'),
     		sheets = require('collections/sheets'),
-    		cells = require('collections/cells');
+    		cells = require('collections/cells'),
+    		headItemColList = headItemCols.models,
+    		headItemRowList = headItemRows.models;
     
     	
     	return {
@@ -15260,7 +15284,6 @@ define('lib/jquery',function() {
     			var tempHeadRow,
     				index, //插入Rows中的索引值
     				i;
-    
     			for (i = 0; i < rows.length; i++) {
     				index = binary.indexModelBinary(rows[i].top, headItemRows.models, 'top', 'height');
     				//待修改：判定是否已存在加载类，应使用二分查询进行判定
@@ -15268,13 +15291,14 @@ define('lib/jquery',function() {
     					index++;
     					continue;
     				}
-    				tempHeadRow = new LineRow();
-    				tempHeadRow.set('sort', startRowSort + i);
-    				tempHeadRow.set('top', rows[i].top);
-    				tempHeadRow.set('height', rows[i].height);
-    				tempHeadRow.set('alias', rows[i].aliasY);
-    				tempHeadRow.set('operProp', rows[i].operProp);
-    				tempHeadRow.set('displayName', buildAlias.buildRowAlias(startRowSort + i));
+    				tempHeadRow = {
+    					sort: startRowSort + i,
+    					top: rows[i].top,
+    					height: rows[i].height,
+    					alias: rows[i].aliasY,
+    					operProp: rows[i].operProp,
+    					displayName: buildAlias.buildRowAlias(startRowSort + i)
+    				};
     				headItemRows.push(tempHeadRow, {
     					at: index
     				});
@@ -15291,28 +15315,30 @@ define('lib/jquery',function() {
     				if (headItemCols.getIndexByAlias(cols[i].aliasY) !== -1) {
     					continue;
     				}
-    				tempHeadCol = new LineCol();
-    				tempHeadCol.set('sort', startColSort + i);
-    				tempHeadCol.set('left', cols[i].left);
-    				tempHeadCol.set('width', cols[i].width);
-    				tempHeadCol.set('alias', cols[i].aliasX);
-    				tempHeadCol.set('hidden', cols[i].hidden);
-    				tempHeadCol.set('originalWidth', cols[i].originWidth);
+    				tempHeadCol = {
+    					sort: startColSort + i,
+    					left: cols[i].left,
+    					width: cols[i].width,
+    					alias: cols[i].aliasX,
+    					hidden: cols[i].hidden,
+    					originalWidth: cols[i].originWidth,
+    					operProp: {}
+    				};
     				if (!isEmptyObject(cols[i].operProp.content)) {
-    					tempHeadCol.set('operProp.content', cols[i].operProp.content);
+    					tempHeadCol.operProp.content = cols[i].operProp.content;
     				}
     				if (!isEmptyObject(cols[i].operProp.customProp)) {
-    					tempHeadCol.set('operProp.customProp', cols[i].operProp.customProp);
+    					tempHeadCol.operProp.customProp = cols[i].operProp.customProp;
     				}
     				if (!isEmptyObject(cols[i].operProp.border)) {
-    					tempHeadCol.set('operProp.border', cols[i].operProp.border);
+    					tempHeadCol.operProp.border = cols[i].operProp.border;
     				}
-    				tempHeadCol.set('displayName', buildAlias.buildColAlias(startColSort + i));
+    				tempHeadCol.displayName = buildAlias.buildColAlias(startColSort + i);
     				if (cols[i].hidden && i > 0) {
     					headItemCols.models[i - 1].set('isRightAjacentHide', true);
     				}
     				if (i > 0 && cols[i - 1].hidden) {
-    					tempHeadCol.set('isLeftAjacentHide', true);
+    					tempHeadCol.isLeftAjacentHide = true;
     				}
     				headItemCols.add(tempHeadCol);
     			}
@@ -15322,12 +15348,13 @@ define('lib/jquery',function() {
     				len = config.User.initColNum - headItemCols.length;
     				collen = headItemCols.length;
     				for (j = 0; j < len; j++) {
-    					tempHeadCol = new LineCol();
-    					tempHeadCol.set('sort', collen + j);
-    					tempHeadCol.set('left', headItemCols.models[collen + j - 1].get('left') + headItemCols.models[collen + j - 1].get('width') + 1);
-    					tempHeadCol.set('width', 71);
-    					tempHeadCol.set('alias', (headItemCols.length + 1).toString());
-    					tempHeadCol.set('displayName', buildAlias.buildColAlias(collen + j));
+    					tempHeadCol = {
+    						sort: collen + j,
+    						left: headItemCols.models[collen + j - 1].get('left') + headItemCols.models[collen + j - 1].get('width') + 1,
+    						width: config.User.cellWidth,
+    						alias: (headItemCols.length + 1).toString(),
+    						displayName: buildAlias.buildColAlias(collen + j),
+    					};
     					headItemCols.add(tempHeadCol);
     				}
     			}
@@ -15344,8 +15371,7 @@ define('lib/jquery',function() {
     		analysisCellData: function(cellsData) {
     			var j, k, //循环变量
     				tempCell = null,
-    				gridLineColList,
-    				gridLineRowList,
+    				limitRowIndex = headItemRows.length - 1,
     				cellAttributes, //cell模型属性 
     				physicsBox = {},
     				gridAliasColList, //cell列索引list
@@ -15354,14 +15380,12 @@ define('lib/jquery',function() {
     				cellStartColIndex, //cell起始col索引
     				cellEndRowIndex, //cell结束row索引
     				cellEndColIndex, //cell结束row索引
-    				cellsPositionX,
-    				width,
-    				height,
+    				cellsPositionX = cache.CellsPosition.strandX,
+    				colSort, rowSort,
+    				width = 0,
+    				height = 0,
     				i,
     				model; //gridrow加载数量
-    
-    			gridLineColList = headItemCols.models;
-    			gridLineRowList = headItemRows.models;
     
     
     			//解析cell
@@ -15373,49 +15397,42 @@ define('lib/jquery',function() {
     
     				gridAliasColList = cellAttributes.occupy.x;
     				gridAliasRowList = cellAttributes.occupy.y;
-    				width = 0;
-    				height = 0;
-    				//获取已加载行模型内，cell起始索引，结束索引
-    				for (j = 0; j < gridAliasRowList.length; j++) {
-    					if (headItemRows.getIndexByAlias(gridAliasRowList[j]) !== -1) {
-    						cellStartRowIndex = headItemRows.getIndexByAlias(gridAliasRowList[j]);
-    						break;
-    					}
+    				colSort = cellAttributes.occupy.col;
+    				rowSort = cellAttributes.occupy.row;
+    				delete cellAttributes.occupy.col;
+    				delete cellAttributes.occupy.row;
+    
+    				cellStartRowIndex = binary.indexAttrBinary(rowSort, headItemRowList, 'sort');
+    				cellEndRowIndex = cellStartRowIndex + gridAliasRowList.length - 1;
+    				if (cellEndRowIndex > limitRowIndex) {
+    					cellEndRowIndex = limitRowIndex;
     				}
-    				for (j = gridAliasRowList.length - 1; j > -1; j--) {
-    					if (headItemRows.getIndexByAlias(gridAliasRowList[j]) !== -1) {
-    						cellEndRowIndex = headItemRows.getIndexByAlias(gridAliasRowList[j]);
-    						break;
-    					}
-    				}
-    				if (cellStartRowIndex === -1 || cellEndRowIndex === -1) {
+    				if (cellStartRowIndex === -1) {
     					continue;
     				}
-    				//列模型未涉及动态加载功能，直接使用cell模型列索引
-    				cellStartColIndex = headItemCols.getIndexByAlias(gridAliasColList[0]);
-    				cellEndColIndex = headItemCols.getIndexByAlias(gridAliasColList[gridAliasColList.length - 1]);
+    				cellStartColIndex = binary.indexAttrBinary(colSort, headItemColList, 'sort');
+    				cellEndColIndex = cellStartColIndex + gridAliasColList.length - 1;
     
     				//判断cell模型是否已加载
-    				cellsPositionX = cache.CellsPosition.strandX;
-    				if (cellsPositionX[gridAliasColList[0]] !== undefined &&
+    				if (cellsPositionX[gridAliasColList[0]] &&
     					cellsPositionX[gridAliasColList[0]][gridAliasRowList[0]] !== undefined) {
     					tempCell = cells.models[cellsPositionX[gridAliasColList[0]][gridAliasRowList[0]]];
     				}
     
     				//计算cell模型宽高
     				for (j = cellStartColIndex; j < cellEndColIndex + 1; j++) {
-    					model = gridLineColList[j];
+    					model = headItemColList[j];
     					if (!model.get('hidden')) {
     						width += model.get('width') + 1;
     					}
     				}
     				for (j = cellStartRowIndex; j < cellEndRowIndex + 1; j++) {
-    					model = gridLineRowList[j];
+    					model = headItemRowList[j];
     					height += model.get('height') + 1;
     				}
     				physicsBox = {
-    					top: gridLineRowList[cellStartRowIndex].get('top'),
-    					left: gridLineColList[cellStartColIndex].get('left'),
+    					top: headItemRowList[cellStartRowIndex].get('top'),
+    					left: headItemColList[cellStartColIndex].get('left'),
     					width: width - 1,
     					height: height - 1
     				};
@@ -15423,9 +15440,8 @@ define('lib/jquery',function() {
     					//重新渲染cell模型宽高
     					tempCell.set('physicsBox', physicsBox);
     				} else {
-    					tempCell = new Cell(cellAttributes);
-    					tempCell.set('physicsBox', physicsBox);
-    					cells.add(tempCell);
+    					cellAttributes.physicsBox = physicsBox;
+    					cells.add(cellAttributes);
     					//维护postion
     					for (j = 0; j < gridAliasColList.length; j++) {
     						for (k = 0; k < gridAliasRowList.length; k++) {
@@ -15434,6 +15450,8 @@ define('lib/jquery',function() {
     					}
     				}
     				tempCell = null;
+    				width = 0;
+    				height = 0;
     			}
     		},
     		analysisSheetData: function(sheetsData) {
@@ -15500,11 +15518,9 @@ define('lib/jquery',function() {
     				startRowIndex = headItemRows.getIndexByAlias(rowAlias);
     
     				selectRegionModel = {
-    					physicsPosi: {
-    						top: cell.get('physicsBox').top,
-    						left: cell.get('physicsBox').left
-    					},
     					physicsBox: {
+    						top: cell.get('physicsBox').top,
+    						left: cell.get('physicsBox').left,
     						width: cell.get('physicsBox').width,
     						height: cell.get('physicsBox').height
     					},
@@ -15552,13 +15568,11 @@ define('lib/jquery',function() {
     				}
     			} else {
     				selectRegionModel = {
-    					physicsPosi: {
-    						top: headItemRowModel.get('top'),
-    						left: headItemColModel.get('left')
-    					},
     					physicsBox: {
     						width: headItemColModel.get('width'),
-    						height: headItemRowModel.get('height')
+    						height: headItemRowModel.get('height'),
+    						top: headItemRowModel.get('top'),
+    						left: headItemColModel.get('left')
     					},
     					wholePosi: {
     						startX: colAlias,
@@ -15596,12 +15610,12 @@ define('lib/jquery',function() {
     
     			//containerHeight,通知后台,加载高度
     			send.PackAjax({
-    				//ps:修改id
-    				url: 'excel.htm?m=position',
+    				url: config.url.table.reload,
     				async: false,
     				isPublic: false,
     				data: JSON.stringify({
-    					containerHeight: $('#' + domId).height() + config.System.prestrainHeight
+    					top: 0,
+    					bottom: $('#' + domId).height() + config.System.prestrainHeight
     				}),
     				dataType: 'json',
     				success: function(data) {
@@ -15635,7 +15649,7 @@ define('lib/jquery',function() {
     					var cellModels = data.spreadSheet[0].sheet.cells;
     					var rows = data.spreadSheet[0].sheet.glY;
     					var cols = data.spreadSheet[0].sheet.glX;
-    					
+    
     					self.analysisSheetData(sheetNames);
     					self.analysisRowData(rows, startRowSort);
     					self.analysisColData(cols, startColSort);
@@ -15650,47 +15664,6 @@ define('lib/jquery',function() {
     
     		}
     	};
-    });
-    
-    
-    define('basic/tools/template',function() {
-    	var $ = require('lib/jquery'),
-    		loadHtml;
-    
-    	loadHtml = function(id) {
-    		var mainDomString = '',
-    			tailDomString = '';
-    
-    		mainDomString += '<div class="main-layout">';
-    		mainDomString += '<table class="cui-grid" cellspacing="0" cellpadding="0" id="tableContainer">';
-    		mainDomString += '<tbody><tr><td><div class="left-corner"></div></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></tbody>';
-    		mainDomString += '</table><div class="input"></div></div>';
-    		mainDomString += '<div class="sheet-layout"><div class="sheet-body">';
-    		mainDomString += '<div class="sheet-cf-box glyphicons glyphicon-plus"></div>';
-    		mainDomString += '<div class="sheet-cf-box active glyphicons glyphicon-th-list"></div>';
-    		mainDomString += '<div class="sheet-cf-list">';
-    		mainDomString += '</div></div>';
-    
-    		tailDomString += '<script type="text/x-handlebars-template" id="colsPanelContainer"></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="rowsPanelContainer"></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="mainContainer"></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="contentList"></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="tempSheetContainer"><span>{{name}}</span></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="tempRowHeadItem"><div class="item">{{displayName}}</div></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="tempColHeadItem"><div class="item">{{displayName}}</div></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="multiselect"><div class="dragItem" style="top:{{top}}px;left:{{left}}px;width:{{width}}px;height:{{height}}px;"></div></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="data">{{content.text}}</script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="textarea"><div class="textarea"><textarea class="input-container"></textarea><div></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="tempSelectContainer"><div class="box"><div class="expand"></div><div class="bg"></div></div></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="tempItemCell"><div class="bg" style="display:table-cell">{{cotent.texts}}</div></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="comment"><div></div></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="coltemp"><div class="col" style="left:{{left}}px;"></div></script>';
-    		tailDomString += '<script type="text/x-handlebars-template" id="rowtemp"><div class="row" style="top:{{top}}px;"></div></script>';
-    
-    		$('#' + id)[0].innerHTML = mainDomString;
-    		$('#' + id).after(tailDomString);
-    	};
-    	return loadHtml;
     });
     
     define('basic/util/listener',function() {
@@ -15878,7 +15851,7 @@ define('lib/jquery',function() {
     			headItemRowList = headItemRows.models;
     
     		if (label === undefined) {
-    			select = selects.getModelByType('operation')[0];
+    			select = selects.getModelByType('selected');
     			startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
     			endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
     			startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
@@ -15928,10 +15901,10 @@ define('lib/jquery',function() {
     
     		return {
     			sendRegion: {
-    				startSortX: startColSort,
-    				endSortX: endColSort,
-    				startSortY: startRowSort,
-    				endSortY: endRowSort
+    				startCol: startColSort,
+    				endCol: endColSort,
+    				startRow: startRowSort,
+    				endRow: endRowSort
     			},
     			operRegion: {
     				startColIndex: startColIndex,
@@ -15945,6 +15918,55 @@ define('lib/jquery',function() {
     
     	};
     	return getOperRegion;
+    });
+    
+    define('basic/tools/history',function() {
+    	var historyList = [{}],
+    		historyIndex = 0,
+    		history;
+    
+    	history = {
+    		next: function() {
+    			if (historyIndex === historyList.length - 1) {
+    				return false;
+    			}
+    			return historyList[++historyIndex];
+    		},
+    		previous: function() {
+    			if (historyIndex === 0) {
+    				return false;
+    			}
+    			return historyList[historyIndex--];
+    		},
+    		
+    		addUpdateAction: function(propName, propValue, region, originalData) {
+    			historyList = historyList.slice(0, historyIndex + 1);
+    			historyList.push({
+    				type: 'update',
+    				propName: propName,
+    				propValue: propValue,
+    				region:region,
+    				originalData: originalData,
+    			});
+    			historyIndex++;
+    		},
+    		
+    		addCoverAction: function(currentModelIndexs, originalModelIndexs) {
+    			historyList = historyList.slice(0, historyIndex + 1);
+    			historyList.push({
+    				type: 'cover',
+    				currentModelIndexs: currentModelIndexs,
+    				originalModelIndexs: originalModelIndexs,
+    			});
+    			historyIndex++;
+    		},
+    		
+    		clear:function(){
+    			historyIndex = 0;
+    			historyList=[];
+    		}
+    	};
+    	return history;
     });
     
     define('entrance/row/rowoperation',function() {
@@ -16120,8 +16142,12 @@ define('lib/jquery',function() {
     define('entrance/tool/setfontcolor',function() {
     	var send = require('basic/tools/send'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
     		getOperRegion = require('basic/tools/getoperregion'),
+    		history = require('basic/tools/history'),
     		cells = require('collections/cells'),
     		rowOperate = require('entrance/row/rowoperation'),
     		colOperate = require('entrance/col/coloperation');
@@ -16131,8 +16157,11 @@ define('lib/jquery',function() {
     		var clip,
     			region,
     			operRegion,
-    			sendRegion;
-    		clip = selectRegions.getModelByType('clip')[0];
+    			sendRegion,
+    			headItemRowList = headItemRows.models,
+    			headItemColList = headItemCols.models,
+    			changeModelList = [];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -16150,15 +16179,30 @@ define('lib/jquery',function() {
     		} else if (operRegion.endRowIndex === 'MAX') {
     			colOperate.colPropOper(operRegion.startColIndex, 'content.color', color);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell) {
-    				cell.set('content.color', color);
+    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				if (cell.get('content').color !== color) {
+    					changeModelList.push({
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: cell.get('content').color
+    					});
+    					cell.set('content.color', color);
+    				}
     			});
+    			history.addUpdateAction('content.color', color, {
+    				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    			}, changeModelList);
     		}
     		sendData();
+    
     		function sendData() {
     			send.PackAjax({
-    				url: 'text.htm?m=font_color',
+    				url: config.url.cell.font_color,
     				data: JSON.stringify({
+    					sheetId: '1',
     					coordinate: sendRegion,
     					color: color
     				})
@@ -16171,9 +16215,11 @@ define('lib/jquery',function() {
     define('entrance/tool/setfillcolor',function() {
     	var send = require('basic/tools/send'),
     		binary = require('basic/util/binary'),
+    		config = require('spreadsheet/config'),
     		cache = require('basic/tools/cache'),
     		cells = require('collections/cells'),
     		Point = require('basic/tools/point'),
+    		history = require('basic/tools/history'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
     		selectRegions = require('collections/selectRegion'),
@@ -16186,17 +16232,15 @@ define('lib/jquery',function() {
     		var clip,
     			operRegion,
     			sendRegion,
-    			HeadItemRowList,
-    			HeadItemColList,
+    			headItemRowList = headItemRows.models,
+    			headItemColList = headItemCols.models,
     			len, i;
     
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
     		}
-    		HeadItemRowList = headItemCols.models;
-    		HeadItemColList = headItemRows.models;
     		if (arrOpr !== undefined) {
     			if (arrOpr.constructor === Array) {
     				len = arrOpr.length;
@@ -16216,21 +16260,35 @@ define('lib/jquery',function() {
     		}
     
     		function innerOper(operRegion, sendRegion) {
+    			var changeModelList = [];
     			if (operRegion.endColIndex === 'MAX') { //整行操作
     				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.background', color);
     			} else if (operRegion.endRowIndex === 'MAX') {
     				colOperate.colPropOper(operRegion.startColIndex, 'customProp.background', color);
     			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('customProp.background', color);
+    				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    					if (cell.get('customProp').background !== color) {
+    						changeModelList.push({
+    							colSort: colSort,
+    							rowSort: rowSort,
+    							value: cell.get('customProp').background
+    						});
+    						cell.set('customProp.background', color);
+    					}
     				});
+    				history.addUpdateAction('customProp.background', color, {
+    					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    				}, changeModelList);
     			}
     			send.PackAjax({
-    				url: 'text.htm?m=fill_bgcolor',
-    				// url: 'text.htm/fill_bgcolor',
+    				url: config.url.cell.bg,
     				data: JSON.stringify({
+    					sheetId: '1',
     					coordinate: sendRegion,
-    					bgcolor: color
+    					color: color
     				})
     			});
     		}
@@ -16386,6 +16444,10 @@ define('lib/jquery',function() {
     	var send = require('basic/tools/send'),
     		cells = require('collections/cells'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
+    		history = require('basic/tools/history'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
     		selectRegions = require('collections/selectRegion'),
     		getOperRegion = require('basic/tools/getoperregion'),
     		colOperate = require('entrance/col/coloperation'),
@@ -16396,8 +16458,11 @@ define('lib/jquery',function() {
     			region,
     			operRegion,
     			sendRegion,
-    			tempCellList;
-    		clip = selectRegions.getModelByType('clip')[0];
+    			tempCellList, 
+    			headItemRowList = headItemRows.models,
+    			headItemColList = headItemCols.models,
+    			changeModelList = [];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -16416,15 +16481,28 @@ define('lib/jquery',function() {
     		} else if (operRegion.endRowIndex === 'MAX') {
     			colOperate.colPropOper(operRegion.startColIndex, 'content.family', fontFamily);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell) {
-    				cell.set('content.family', fontFamily);
+    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				if (cell.get('content').family !== fontFamily) {
+    					changeModelList.push({
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: cell.get('content').family
+    					});
+    					cell.set('content.family', fontFamily);
+    				}
     			});
+    			history.addUpdateAction('content.family', fontFamily, {
+    				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    			}, changeModelList);
     		}
     		sendData();
     
     		function sendData() {
     			send.PackAjax({
-    				url: 'text.htm?m=font_family',
+    				url: config.url.cell.font_family,
     				data: JSON.stringify({
     					coordinate: sendRegion,
     					family: fontFamily
@@ -16496,13 +16574,13 @@ define('lib/jquery',function() {
     			region = analysisLabel(label);
     			region = cells.getFullOperationRegion(region);
     		} else {
-    			select = selectRegions.getModelByType('operation')[0];
+    			select = selectRegions.getModelByType('selected');
     			region.startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
     			region.startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
     		}
-    		if (region.startColIndex < 0 || 
-    			region.startRowIndex < 0 || 
-    			region.endColIndex < 0 || 
+    		if (region.startColIndex < 0 ||
+    			region.startRowIndex < 0 ||
+    			region.endColIndex < 0 ||
     			region.endRowIndex < 0) {
     			return;
     		}
@@ -16525,12 +16603,9 @@ define('lib/jquery',function() {
     				mouseX: endColIndex,
     				mouseY: endRowIndex
     			},
-    			physicsPosi: {
-    				top: headItemRowList[startRowIndex].get('top'),
-    				left: headItemColList[startColIndex].get('left')
-    
-    			},
     			physicsBox: {
+    				top: headItemRowList[startRowIndex].get('top'),
+    				left: headItemColList[startColIndex].get('left'),
     				width: width - 1,
     				height: height - 1
     			},
@@ -16581,9 +16656,12 @@ define('lib/jquery',function() {
     define('entrance/tool/mergecell',function() {
     	var send = require('basic/tools/send'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
+    		history = require('basic/tools/history'),
     		cells = require('collections/cells'),
     		Cell = require('models/cell'),
+    		config = require('spreadsheet/config'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
     		getOperRegion = require('basic/tools/getoperregion'),
@@ -16601,18 +16679,22 @@ define('lib/jquery',function() {
     			operRegion,
     			sendRegion,
     			clip,
+    			originalCellsIndex = [],
+    			currentCellsIndex = [],
     			cacheCell,
     			cellList,
     			occupyX = [],
     			occupyY = [],
     			aliasCol,
     			aliasRow,
+    			sortCol,
+    			sortRow,
     			width = 0,
     			height = 0,
     			len, i = 0,
     			j = 0;
     
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -16635,6 +16717,7 @@ define('lib/jquery',function() {
     		endColIndex = operRegion.endColIndex;
     		
     		cellList = cells.getCellByTransverse(startRowIndex, startColIndex, endRowIndex, endColIndex);
+    
     		len = cellList.length;
     		for (i = 0; i < len; i++) {
     			if (cellList[i].get('content').texts !== '') {
@@ -16642,6 +16725,7 @@ define('lib/jquery',function() {
     				break;
     			}
     		}
+    
     		if (cacheCell === undefined) {
     			cacheCell = cells.getCellByTransverse(startRowIndex, startColIndex)[0];
     			if (cacheCell !== undefined) {
@@ -16651,19 +16735,11 @@ define('lib/jquery',function() {
     		if (cacheCell === undefined) {
     			cacheCell = new Cell();
     		}
-    
-    		if (len) {
-    			for (i = 0; i < len; i++) {
-    				cellList[i].set('isDestroy', true);
-    			}
-    		}
-    		//删除position索引
-    		for (i = startColIndex; i < endColIndex + 1; i++) {
-    			for (j = startRowIndex; j < endRowIndex + 1; j++) {
-    				aliasCol = gridLineColList[i].get('alias');
-    				aliasRow = gridLineRowList[j].get('alias');
-    				cache.deletePosi(aliasRow, aliasCol);
-    			}
+    		for (i = 0; i < len; i++) {
+    			aliasCol = cellList[i].get('occupy').x[0];
+    			aliasRow = cellList[i].get('occupy').y[0];
+    			originalCellsIndex.push(cache.CellsPosition.strandX[aliasCol][aliasRow]);
+    			cellList[i].set('isDestroy', true);
     		}
     		//获取occupy信息
     		for (i = 0; i < endColIndex - startColIndex + 1; i++) {
@@ -16692,10 +16768,12 @@ define('lib/jquery',function() {
     				cache.cachePosition(aliasRow, aliasCol, cells.length - 1);
     			}
     		}
+    		history.addCoverAction([cells.length - 1],originalCellsIndex);
     		sendData();
+    
     		function sendData() {
     			send.PackAjax({
-    				url: 'cells.htm?m=merge',
+    				url: config.url.cell.merge,
     				data: JSON.stringify({
     					coordinate: sendRegion
     				}),
@@ -16710,15 +16788,19 @@ define('lib/jquery',function() {
     define('entrance/tool/splitcell',function() {
     	var send = require('basic/tools/send'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
     		getOperRegion = require('basic/tools/getoperregion'),
+    		history = require('basic/tools/history'),
     		cells = require('collections/cells'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
     		splitCell;
     
     	splitCell = function(sheetId, label) {
-    		var region,
+    		var headLineColList = headItemCols.models,
+    			headLineRowList = headItemRows.models,
+    			region,
     			operRegion,
     			sendRegion,
     			startColIndex,
@@ -16727,14 +16809,16 @@ define('lib/jquery',function() {
     			endRowIndex,
     			selectRegionCells,
     			cacheCell,
+    			occupy,
+    			cellPosi,
+    			originalCellIndexs = [],
+    			currentCellIndexs = [],
     			clip,
-    			headLineColList,
-    			headLineRowList,
     			i, j, len,
     			aliasCol,
     			aliasRow;
     		//选中区域内开始坐标，结束坐标
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -16756,8 +16840,15 @@ define('lib/jquery',function() {
     
     		//选中区域内所有单元格对象
     		selectRegionCells = cells.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
-    		headLineColList = headItemCols.models;
-    		headLineRowList = headItemRows.models;
+    		len = selectRegionCells.length;
+    
+    		
+    		cellPosi = cache.CellsPosition.strandX;
+    		for (i = 0; i < len; i++) {
+    			occupy=selectRegionCells[i].get('occupy');
+    			originalCellIndexs.push(cellPosi[occupy.x[0]][occupy.y[0]]);
+    		}
+    
     		//删除position索引
     		for (i = 0; i < endColIndex - startColIndex + 1; i++) {
     			for (j = 0; j < endRowIndex - startRowIndex + 1; j++) {
@@ -16766,17 +16857,20 @@ define('lib/jquery',function() {
     				cache.deletePosi(aliasRow, aliasCol);
     			}
     		}
-    		len = selectRegionCells.length;
+    
+    		
     		for (i = 0; i < len; i++) {
     			cacheCell = selectRegionCells[i].clone();
     			selectRegionCells[i].set('isDestroy', true);
     			modifyCell(cacheCell);
+    			currentCellIndexs.push(cells.length - 1);
     		}
+    		history.addCoverAction(currentCellIndexs, originalCellIndexs);
     		sendData();
     
     		function sendData() {
     			send.PackAjax({
-    				url: 'cells.htm?m=merge_delete',
+    				url: config.url.cell.split,
     				data: JSON.stringify({
     					coordinate: sendRegion
     				}),
@@ -16815,6 +16909,7 @@ define('lib/jquery',function() {
     define('entrance/tool/setcellcontent',function() {
     	var send = require('basic/tools/send'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
     		cells = require('collections/cells'),
     		getOperRegion = require('basic/tools/getoperregion');
@@ -16827,7 +16922,7 @@ define('lib/jquery',function() {
     			startColSort,
     			startRowSort;
     
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -16850,12 +16945,10 @@ define('lib/jquery',function() {
     
     		function sendData() {
     			send.PackAjax({
-    				url: 'text.htm?m=data',
+    				url: config.url.cell.content,
     				data: JSON.stringify({
-    					coordinate: {
-    						startSortX: sendRegion.startSortX,
-    						startSortY: sendRegion.startSortY,
-    					},
+    					sheetId: "1",
+    					coordinate: sendRegion,
     					content: text
     				})
     			});
@@ -16867,140 +16960,36 @@ define('lib/jquery',function() {
     define('entrance/cell/selectcellcols',function() {
     	var cache = require('basic/tools/cache'),
     		config = require('spreadsheet/config'),
-    		listener = require('basic/util/listener'),
     		selectRegions = require('collections/selectRegion'),
     		SelectRegionModel = require('models/selectRegion'),
-    		headItemCols = require('collections/headItemCol'),
-    		headItemRows = require('collections/headItemRow'),
-    		siderLineCols = require('collections/siderLineCol'),
-    		siderLineRows = require('collections/siderLineRow');
+    		headItemRows = require('collections/headItemRow');
     
     	
     	var selectCellCols = function(sheetId, displayName, index) {
-    		var modelIndexRow,
-    			headModelRow,
-    			headLineColModelList,
-    			headLineRowModelList,
-    			colDisplayNames = [],
-    			rowDisplayNames = [],
-    			dataSourceRegion,
-    			rowAlias,
-    			colAlias,
-    			left,
-    			top,
-    			width,
-    			height,
-    			point,
-    			len, i,
-    			e = {};
+    		var modelIndex,
+    			selectModel;
     
     		if (displayName !== null) {
-    			modelIndexRow = headItemRows.getIndexByDisplayname(displayName);
+    			modelIndex = headItemRows.getIndexByDisplayname(displayName);
     		} else {
-    			modelIndexRow = index;
+    			modelIndex = index;
     		}
-    		//headColModels,headRowModels list
-    		headLineRowModelList = headItemRows.models;
-    		headLineColModelList = headItemCols.models;
-    		//this model index of headline
-    		//head model information
-    		headModelRow = headLineRowModelList[modelIndexRow];
-    
-    		len = headLineColModelList.length;
-    		width = headLineColModelList[len - 1].get('left') + headLineColModelList[len - 1].get('width');
-    		top = headModelRow.toJSON().top;
-    		height = headModelRow.toJSON().height;
-    		left = 0;
-    		//ps:开放参数问题
-    		colDisplayNames.push('A');
-    		colDisplayNames.push(headLineColModelList[len - 1].get('displayName'));
-    		rowDisplayNames.push(headLineRowModelList[modelIndexRow].get('displayName'));
-    
-    		e.point = {
-    			col: colDisplayNames,
-    			row: rowDisplayNames
-    		};
-    		listener.excute('regionChange', e);
     		if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
-    			dataSourceRegion = selectRegions.getModelByType('dataSource')[0];
-    			if (dataSourceRegion === undefined) {
-    				dataSourceRegion = new SelectRegionModel();
-    				dataSourceRegion.set('selectType', 'dataSource');
-    				selectRegions.add(dataSourceRegion);
+    			selectModel = selectRegions.getModelByType('dataSource');
+    			if (selectModel === undefined) {
+    				selectModel = new SelectRegionModel();
+    				selectModel.set('selectType', 'dataSource');
+    				selectRegions.add(selectModel);
     			}
-    			dataSourceRegion.set({
-    				physicsPosi: {
-    					left: left,
-    					top: top
-    				},
-    				physicsBox: {
-    					width: width,
-    					height: height
-    				}
-    			});
-    			selectRegions.add(dataSourceRegion);
-    
-    			selectRegions.getModelByType('dataSource')[0].set({
-    				physicsPosi: {
-    					left: left,
-    					top: top
-    				},
-    				physicsBox: {
-    					width: width,
-    					height: height
-    				}
-    			});
-    			e.point = point;
-    			listener.excute('dataSourceRegionChange', e);
-    			listener.excute('regionChange', e);
     		} else {
-    			len = headLineRowModelList.length;
-    			for (i = 0; i < len; i++) {
-    				if (i === modelIndexRow) {
-    					headLineRowModelList[i].set({
-    						activeState: true
-    					});
-    					continue;
-    				}
-    				headLineRowModelList[i].set({
-    					activeState: false
-    				});
-    			}
-    			len = headLineColModelList.length;
-    			for (i = 0; i < len; i++) {
-    				headLineColModelList[i].set({
-    					activeState: true
-    				});
-    			}
-    			rowAlias = headModelRow.get('alias');
-    			colAlias = headLineColModelList[0].get('alias');
-    			//select region
-    			selectRegions.models[0].set({
-    				physicsPosi: {
-    					left: left,
-    					top: top
-    				},
-    				physicsBox: {
-    					width: width,
-    					height: height
-    				},
-    				wholePosi: {
-    					startX: colAlias,
-    					startY: rowAlias,
-    					endX: 'MAX',
-    					endY: rowAlias
-    				}
-    			});
-    			//siderline effect
-    			siderLineCols.models[0].set({
-    				left: left,
-    				width: width
-    			});
-    			siderLineRows.models[0].set({
-    				top: top,
-    				height: height
-    			});
+    			selectModel = selectRegions.getModelByType('selected');
     		}
+    		selectModel.set('tempPosi', {
+    			initColIndex: 0,
+    			initRowIndex: modelIndex,
+    			mouseColIndex: 'MAX',
+    			mouseRowIndex: modelIndex
+    		});
     	};
     	return selectCellCols;
     });
@@ -17008,138 +16997,35 @@ define('lib/jquery',function() {
     define('entrance/cell/selectcellrows',function() {
     	var cache = require('basic/tools/cache'),
     		config = require('spreadsheet/config'),
-    		listener = require('basic/util/listener'),
     		selectRegions = require('collections/selectRegion'),
     		SelectRegionModel = require('models/selectRegion'),
-    		headItemCols = require('collections/headItemCol'),
-    		headItemRows = require('collections/headItemRow'),
-    		siderLineCols = require('collections/siderLineCol'),
-    		siderLineRows = require('collections/siderLineRow');
+    		headItemCols = require('collections/headItemCol');
     
-    	var selectCellRows = function(sheetId, displayName, index, e) {
-    		var modelIndexCol,
-    			headModelCol,
-    			headLineColModelList,
-    			headLineRowModelList,
-    			colDisplayNames = [],
-    			rowDisplayNames = [],
-    			dataSourceRegion,
-    			rowAlias,
-    			colAlias,
-    			select,
-    			left,
-    			top,
-    			width,
-    			height,
-    			point,
-    			len, i;
-    
+    	var selectCellRows = function(sheetId, displayName, index) {
+    		var modelIndex,
+    			selectModel;
     		if (displayName !== null) {
-    			modelIndexCol = headItemCols.getIndexByDisplayname(displayName);
+    			modelIndex = headItemCols.getIndexByDisplayname(displayName);
     		} else {
-    			modelIndexCol = index;
+    			modelIndex = index;
     		}
-    		//headColModels,headRowModels list
-    		headLineRowModelList = headItemRows.models;
-    		headLineColModelList = headItemCols.models;
-    		//this model index of headline
-    		//head model information
-    		headModelCol = headLineColModelList[modelIndexCol];
-    
-    		len = headLineRowModelList.length;
-    		left = headModelCol.toJSON().left;
-    		top = 0;
-    		width = headModelCol.toJSON().width;
-    		height = headLineRowModelList[len - 1].get('top') + headLineRowModelList[len - 1].get('height');
-    
-    		rowDisplayNames.push('1');
-    		rowDisplayNames.push(headLineRowModelList[len - 1].get('displayName'));
-    		colDisplayNames.push(headLineColModelList[modelIndexCol].get('displayName'));
-    
-    		point = {
-    			col: colDisplayNames,
-    			row: rowDisplayNames
-    		};
     
     		if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
-    			dataSourceRegion = selectRegions.getModelByType('dataSource')[0];
-    			if (dataSourceRegion === undefined) {
-    				dataSourceRegion = new SelectRegionModel();
-    				dataSourceRegion.set('selectType', 'dataSource');
-    				selectRegions.add(dataSourceRegion);
-    			}
-    			dataSourceRegion.set({
-    				physicsPosi: {
-    					left: left,
-    					top: top
-    				},
-    				physicsBox: {
-    					width: width,
-    					height: height
-    				}
-    			});
-    			if (e !== undefined) {
-    				e = {};
-    				e.point = point;
-    				listener.excute('dataSourceRegionChange', e);
-    				listener.excute('regionChange', e);
-    				listener.excute('mousedown', e);
+    			selectModel = selectRegions.getModelByType('dataSource');
+    			if (selectModel === undefined) {
+    				selectModel = new SelectRegionModel();
+    				selectModel.set('selectType', 'dataSource');
+    				selectRegions.add(selectModel);
     			}
     		} else {
-    			select = selectRegions.getModelByType('operation')[0];
-    			for (i = 0; i < len; i++) {
-    				headLineRowModelList[i].set({
-    					activeState: true
-    				});
-    			}
-    			len = headLineColModelList.length;
-    			for (i = 0; i < len; i++) {
-    				if (i === modelIndexCol) {
-    					headLineColModelList[i].set({
-    						activeState: true
-    					});
-    					continue;
-    				}
-    				headLineColModelList[i].set({
-    					activeState: false
-    				});
-    			}
-    			rowAlias = headLineRowModelList[0].get('alias');
-    			colAlias = headLineColModelList[modelIndexCol].get('alias');
-    			//selectregion effect
-    			select.set({
-    				physicsPosi: {
-    					left: left,
-    					top: top
-    				},
-    				physicsBox: {
-    					width: width,
-    					height: height
-    				},
-    				wholePosi: {
-    					startX: colAlias,
-    					startY: rowAlias,
-    					endX: colAlias,
-    					endY: 'MAX'
-    				}
-    			});
-    			//siderline effect
-    			siderLineCols.models[0].set({
-    				left: left,
-    				width: width
-    			});
-    			siderLineRows.models[0].set({
-    				top: top,
-    				height: height
-    			});
-    			if (e !== undefined) {
-    				e = {};
-    				e.point = point;
-    				listener.excute('selectRegionChange', e);
-    				listener.excute('regionChange', e);
-    				listener.excute('mousedown', e);
-    			}
+    			selectModel = selectRegions.getModelByType('selected');
     		}
+    		selectModel.set('tempPosi', {
+    			initColIndex: modelIndex,
+    			initRowIndex: 0,
+    			mouseColIndex: modelIndex,
+    			mouseRowIndex: 'MAX'
+    		});
     	};
     	return selectCellRows;
     });
@@ -17148,6 +17034,10 @@ define('lib/jquery',function() {
     	var send = require('basic/tools/send'),
     		cells = require('collections/cells'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
+    		history = require('basic/tools/history'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
     		selectRegions = require('collections/selectRegion'),
     		getOperRegion = require('basic/tools/getoperregion'),
     		rowOperate = require('entrance/row/rowoperation'),
@@ -17157,9 +17047,11 @@ define('lib/jquery',function() {
     		var clip,
     			region,
     			operRegion,
-    			sendRegion;
+    			sendRegion,
+    			headItemRowList = headItemRows.models,
+    			headItemColList = headItemCols.models;
     
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -17200,158 +17092,287 @@ define('lib/jquery',function() {
     
     		function sendData() {
     			send.PackAjax({
-    				url: 'cells.htm?m=frame',
+    				url: config.url.cell.border,
     				data: JSON.stringify({
     					coordinate: sendRegion,
-    					frameStyle: border
+    					direction: border
     				})
     			});
     		}
     
     		
     		function setNone() {
+    			var changeModelList = [],
+    				border = {
+    					left: false,
+    					right: false,
+    					bottom: false,
+    					top: false
+    				};
     			if (operRegion.endColIndex === 'MAX') {
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.left', false);
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.right', false);
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', false);
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', false);
+    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border', border);
     			} else if (operRegion.endRowIndex === 'MAX') {
-    				colOperate.colPropOper(operRegion.startColIndex, 'border.left', false);
-    				colOperate.colPropOper(operRegion.startColIndex, 'border.right', false);
-    				colOperate.colPropOper(operRegion.startColIndex, 'border.top', false);
-    				colOperate.colPropOper(operRegion.startColIndex, 'border.bottom', false);
+    				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
     			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('border.left', false);
-    					cell.set('border.right', false);
-    					cell.set('border.top', false);
-    					cell.set('border.bottom', false);
+    				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    					changeModelList.push({
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: cell.get('border')
+    					});
+    					cell.set('border', border);
     				});
+    
+    				history.addUpdateAction('border', border, {
+    						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    					},
+    					changeModelList
+    				);
     			}
     		}
     		
     		function setAll() {
+    			var changeModelList = [],
+    				border = {
+    					left: true,
+    					right: true,
+    					bottom: true,
+    					top: true
+    				};
     			if (operRegion.endColIndex === 'MAX') {
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.left', true);
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.right', true);
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
+    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border', border);
     			} else if (operRegion.endRowIndex === 'MAX') {
-    				colOperate.colPropOper(operRegion.startColIndex, 'border.left', true);
-    				colOperate.colPropOper(operRegion.startColIndex, 'border.right', true);
-    				colOperate.colPropOper(operRegion.startColIndex, 'border.top', true);
-    				colOperate.colPropOper(operRegion.startColIndex, 'border.bottom', true);
+    				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
     			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('border.left', true);
-    					cell.set('border.right', true);
-    					cell.set('border.top', true);
-    					cell.set('border.bottom', true);
+    				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    					changeModelList.push({
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: cell.get('border')
+    					});
+    					cell.set('border', border);
     				});
+    				history.addUpdateAction('border', border, {
+    						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    					},
+    					changeModelList
+    				);
     			}
     		}
     		
     		function setTop() {
-    			var cellList, i;
+    			var cellList, i, changeModelList = [];
     			if (operRegion.endColIndex === 'MAX') {
     				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
     			} else if (operRegion.endRowIndex === 'MAX') {
     				colOperate.colPropOper(operRegion.startColIndex, 'border.top', true);
     			} else {
-    				cellList = cells.getTopHeadModelByIndex(operRegion.startColIndex,
+    				cells.operTopHeadModel(operRegion.startColIndex,
     					operRegion.startRowIndex,
     					operRegion.endColIndex,
-    					operRegion.endRowIndex);
-    				for (i in cellList) {
-    					cellList[i].set('border.top', true);
-    				}
+    					operRegion.endRowIndex,
+    					function(cell, colSort, rowSort) {
+    						changeModelList.push({
+    							colSort: colSort,
+    							rowSort: rowSort,
+    							value: cell.get('border').top
+    						});
+    						cell.set('border.top', true);
+    					});
+    				history.addUpdateAction('border.top', true, {
+    						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    					},
+    					changeModelList
+    				);
     			}
     		}
     		
     		function setLeft() {
-    			var cellList, i;
+    			var cellList, i, changeModelList = [];
     			if (operRegion.endColIndex === 'MAX') {
     				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.left', true);
     			} else if (operRegion.endRowIndex === 'MAX') {
     				colOperate.colPropOper(operRegion.startColIndex, 'border.left', true);
     			} else {
-    				cellList = cells.getLeftHeadModelByIndex(operRegion.startColIndex,
+    				cells.operLeftHeadModel(operRegion.startColIndex,
     					operRegion.startRowIndex,
     					operRegion.endColIndex,
-    					operRegion.endRowIndex);
-    				for (i in cellList) {
-    					cellList[i].set('border.left', true);
-    				}
+    					operRegion.endRowIndex,
+    					function(cell, colSort, rowSort) {
+    						changeModelList.push({
+    							colSort: colSort,
+    							rowSort: rowSort,
+    							value: cell.get('border').left
+    						});
+    						cell.set('border.left', true);
+    					});
+    				history.addUpdateAction('border.left', true, {
+    						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    					},
+    					changeModelList
+    				);
     			}
     		}
     		
     		function setBottom() {
-    			var cellList, i;
+    			var cellList, i, changeModelList = [];
     			if (operRegion.endColIndex === 'MAX') {
     				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
     			} else if (operRegion.endRowIndex === 'MAX') {
     				colOperate.colPropOper(operRegion.startColIndex, 'border.bottom', true);
     			} else {
-    				cellList = cells.getBottomHeadModelByIndex(operRegion.startColIndex,
+    				cells.operBottomHeadModel(operRegion.startColIndex,
     					operRegion.startRowIndex,
     					operRegion.endColIndex,
-    					operRegion.endRowIndex);
-    				for (i in cellList) {
-    					cellList[i].set('border.bottom', true);
-    				}
+    					operRegion.endRowIndex,
+    					function(cell, colSort, rowSort) {
+    						changeModelList.push({
+    							colSort: colSort,
+    							rowSort: rowSort,
+    							value: cell.get('border').bottom
+    						});
+    						cell.set('border.bottom', true);
+    					});
+    				history.addUpdateAction('border.bottom', true, {
+    						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    					},
+    					changeModelList
+    				);
     			}
     		}
     		
     		function setRight() {
-    			var cellList, i;
+    			var cellList, i, changeModelList = [];
     			if (operRegion.endColIndex === 'MAX') {
     				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.right', true);
     			} else if (operRegion.endRowIndex === 'MAX') {
     				colOperate.colPropOper(operRegion.startColIndex, 'border.right', true);
     			} else {
-    				cellList = cells.getRightHeadModelByIndex(operRegion.startColIndex,
+    				cells.operRightHeadModel(operRegion.startColIndex,
     					operRegion.startRowIndex,
     					operRegion.endColIndex,
-    					operRegion.endRowIndex);
-    				for (i in cellList) {
-    					cellList[i].set('border.right', true);
-    				}
+    					operRegion.endRowIndex,
+    					function(cell, colSort, rowSort) {
+    						changeModelList.push({
+    							colSort: colSort,
+    							rowSort: rowSort,
+    							value: cell.get('border').right
+    						});
+    						cell.set('border.right', true);
+    					});
+    				history.addUpdateAction('border.right', true, {
+    						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    					},
+    					changeModelList
+    				);
     			}
     		}
     		
     		function setOuter() {
-    			if (region.endRowIndex !== 'MAX') {
-    				setTop(region);
-    				setBottom(region);
+    			var cellList, i, changeModelList = [],cachePosi={};
+    			if (operRegion.endColIndex === 'MAX') {
+    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
+    				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
+    			} else if (operRegion.endRowIndex === 'MAX') {
+    				colOperate.colPropOper(operRegion.startColIndex, 'border.right', true);
+    				colOperate.colPropOper(operRegion.startColIndex, 'border.left', true);
+    			} else {
+    				cells.operOuterHeadModel(operRegion.startColIndex,
+    					operRegion.startRowIndex,
+    					operRegion.endColIndex,
+    					operRegion.endRowIndex,
+    					function(cell, colSort, rowSort) {
+    						changeModelList.push({
+    							colSort: colSort,
+    							rowSort: rowSort,
+    							value: cell.get('border')
+    						});
+    					});
+    				cells.operRightHeadModel(operRegion.startColIndex,
+    					operRegion.startRowIndex,
+    					operRegion.endColIndex,
+    					operRegion.endRowIndex,
+    					function(cell, colSort, rowSort) {
+    						cell.set('border.right', true);
+    					});
+    				cells.operLeftHeadModel(operRegion.startColIndex,
+    					operRegion.startRowIndex,
+    					operRegion.endColIndex,
+    					operRegion.endRowIndex,
+    					function(cell, colSort, rowSort) {
+    						cell.set('border.left', true);
+    					});
+    				cells.operTopHeadModel(operRegion.startColIndex,
+    					operRegion.startRowIndex,
+    					operRegion.endColIndex,
+    					operRegion.endRowIndex,
+    					function(cell, colSort, rowSort) {
+    						cell.set('border.top', true);
+    					});
+    				cells.operBottomHeadModel(operRegion.startColIndex,
+    					operRegion.startRowIndex,
+    					operRegion.endColIndex,
+    					operRegion.endRowIndex,
+    					function(cell, colSort, rowSort) {
+    						cell.set('border.bottom', true);
+    					});
+    				history.addUpdateAction('border', true, {
+    						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    					},
+    					changeModelList
+    				);
     			}
-    			if (region.endColIndex !== 'MAX') {
-    				setLeft(region);
-    				setRight(region);
-    			}
-    
     		}
     
     	};
     	return setCellBorder;
     });
     
-    define('entrance/tool/setfontfamilysize',function() {
+    define('entrance/tool/setfontsize',function() {
     	var send = require('basic/tools/send'),
     		cells = require('collections/cells'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
+    		history = require('basic/tools/history'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
     		selectRegions = require('collections/selectRegion'),
     		getOperRegion = require('basic/tools/getoperregion'),
     		rowOperate = require('entrance/row/rowoperation'),
     		colOperate = require('entrance/col/coloperation');
     
     
-    	var setFontFamilySize = function(sheetId, fontSize, label) {
+    	var setFontSize = function(sheetId, fontSize, label) {
     		var clip,
     			region,
     			operRegion,
-    			sendRegion;
+    			sendRegion,
+    			headItemRowList = headItemRows.models,
+    			headItemColList = headItemCols.models,
+    			changeModelList = [];
     
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -17370,15 +17391,30 @@ define('lib/jquery',function() {
     		} else if (operRegion.endColIndex === 'MAX') { //整行操作
     			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.size', fontSize);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell) {
-    				cell.set('content.size', fontSize);
+    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				if (cell.get('content').size !== fontSize) {
+    					changeModelList.push({
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: cell.get('content').size
+    					});
+    					cell.set('content.size', fontSize);
+    				}
     			});
+    			history.addUpdateAction('content.size', fontSize, {
+    				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    			}, changeModelList);
     		}
     		sendData();
+    
     		function sendData() {
     			send.PackAjax({
-    				url: 'text.htm?m=font_size',
+    				url: config.url.cell.font_size,
     				data: JSON.stringify({
+    					sheetId: "1",
     					coordinate: sendRegion,
     					size: fontSize
     				})
@@ -17386,14 +17422,18 @@ define('lib/jquery',function() {
     		}
     
     	};
-    	return setFontFamilySize;
+    	return setFontSize;
     });
     
     define('entrance/tool/setfontweight',function() {
     	var send = require('basic/tools/send'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
     		getOperRegion = require('basic/tools/getoperregion'),
+    		history = require('basic/tools/history'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
     		cells = require('collections/cells'),
     		colOperate = require('entrance/col/coloperation'),
     		rowOperate = require('entrance/row/rowoperation');
@@ -17403,8 +17443,11 @@ define('lib/jquery',function() {
     			region,
     			operRegion,
     			sendRegion,
-    			tempCellList;
-    		clip = selectRegions.getModelByType('clip')[0];
+    			tempCellList,
+    			headItemRowList = headItemRows.models,
+    			headItemColList = headItemCols.models,
+    			changeModelList = [];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -17418,7 +17461,7 @@ define('lib/jquery',function() {
     			return;
     		}
     
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -17443,17 +17486,30 @@ define('lib/jquery',function() {
     		} else if (operRegion.endColIndex === 'MAX') { //整行操作
     			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.bd', bold);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell) {
-    				cell.set('content.bd', bold);
+    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				if (cell.get('content').bd !== bold) {
+    					changeModelList.push({
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: cell.get('content').bd
+    					});
+    					cell.set('content.bd', bold);
+    				}
     			});
+    			history.addUpdateAction('content.bd', bold, {
+    				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    			}, changeModelList);
     		}
     		sendData();
     		function sendData() {
     			send.PackAjax({
-    				url: 'text.htm?m=font_weight',
+    				url: config.url.cell.font_weight,
     				data: JSON.stringify({
     					coordinate: sendRegion,
-    					isBold: bold || true
+    					weight: bold
     				})
     			});
     		}
@@ -17464,7 +17520,11 @@ define('lib/jquery',function() {
     define('entrance/tool/setfontstyle',function() {
     	var send = require('basic/tools/send'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
+    		history = require('basic/tools/history'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
     		cells = require('collections/cells'),
     		getOperRegion = require('basic/tools/getoperregion'),
     		rowOperate = require('entrance/row/rowoperation'),
@@ -17476,8 +17536,11 @@ define('lib/jquery',function() {
     			region,
     			operRegion,
     			sendRegion,
-    			tempCellList;
-    		clip = selectRegions.getModelByType('clip')[0];
+    			tempCellList,
+    			headItemRowList = headItemRows.models,
+    			headItemColList = headItemCols.models,
+    			changeModelList = [];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -17510,14 +17573,28 @@ define('lib/jquery',function() {
     		} else if (operRegion.endRowIndex === 'MAX') {
     			colOperate.colPropOper(operRegion.startColIndex, 'content.italic', italic);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell) {
-    				cell.set('content.italic', italic);
+    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				if (cell.get('content').italic !== italic) {
+    					changeModelList.push({
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: cell.get('content').italic
+    					});
+    					cell.set('content.italic', italic);
+    				}
     			});
+    			history.addUpdateAction('content.italic', italic, {
+    				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    			}, changeModelList);
     		}
     		sendData();
+    
     		function sendData() {
     			send.PackAjax({
-    				url: 'text.htm?m=font_italic',
+    				url: config.url.cell.font_italic,
     				data: JSON.stringify({
     					coordinate: sendRegion,
     					italic: italic
@@ -17533,6 +17610,7 @@ define('lib/jquery',function() {
     	var Backbone = require('lib/backbone'),
     		send = require('basic/tools/send'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
@@ -17547,7 +17625,7 @@ define('lib/jquery',function() {
     			operRegion,
     			sendRegion;
     
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -17663,19 +17741,19 @@ define('lib/jquery',function() {
     		var startColSort = headItemCols.getModelByAlias(cache.UserView.colAlias).get('sort'),
     			startRowSort = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('sort');
     		send.PackAjax({
-    			url: 'sheet.htm?m=frozen',
+    			url: config.url.sheet.frozen,
     			data: JSON.stringify({
-    				frozenSortX: frozenColSort,
-    				frozenSortY: frozenRowSort,
-    				startSortX: startColSort,
-    				startSortY: startRowSort
+    				orignalCol: frozenColSort,
+    				orignalRow: frozenRowSort,
+    				viewCol: startColSort,
+    				viewRow: startRowSort
     			})
     		});
     	};
     	
     	var requestUnfrozen = function() {
     		send.PackAjax({
-    			url: 'sheet.htm?m=unFrozen'
+    			url: config.url.sheet.unfrozen
     		});
     	};
     	return setFrozen;
@@ -17683,6 +17761,10 @@ define('lib/jquery',function() {
     
     define('entrance/tool/setalign',function() {
     	var send = require('basic/tools/send'),
+    		config = require('spreadsheet/config'),
+    		history = require('basic/tools/history'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
     		selectRegions = require('collections/selectRegion'),
     		cells = require('collections/cells'),
     		cache = require('basic/tools/cache'),
@@ -17699,9 +17781,14 @@ define('lib/jquery',function() {
     			clip,
     			region,
     			operRegion,
-    			sendRegion;
+    			sendRegion,
+    			propName,
+    			propValue,
+    			changeModelList = [],
+    			headItemRowList = headItemRows.models,
+    			headItemColList = headItemCols.models;
     
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -17713,27 +17800,27 @@ define('lib/jquery',function() {
     
     		switch (alignType) {
     			case 'left':
-    				url = 'cells.htm?m=align_level';
+    				url = config.url.cell.align_transverse;
     				transverse = 'left';
     				break;
     			case 'center':
-    				url = 'cells.htm?m=align_level';
+    				url = config.url.cell.align_transverse;
     				transverse = 'center';
     				break;
     			case 'right':
-    				url = 'cells.htm?m=align_level';
+    				url = config.url.cell.align_transverse;
     				transverse = 'right';
     				break;
     			case 'top':
-    				url = 'cells.htm?m=align_vertical';
+    				url = config.url.cell.align_vertical;
     				vertical = 'top';
     				break;
     			case 'middle':
-    				url = 'cells.htm?m=align_vertical';
+    				url = config.url.cell.align_vertical;
     				vertical = 'middle';
     				break;
     			case 'bottom':
-    				url = 'cells.htm?m=align_vertical';
+    				url = config.url.cell.align_vertical;
     				vertical = 'bottom';
     				break;
     			default:
@@ -17757,14 +17844,38 @@ define('lib/jquery',function() {
     				colOperate.colPropOper(operRegion.startColIndex, 'content.alignCol', vertical);
     			}
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell) {
+    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     				if (transverse !== undefined) {
-    					cell.set('content.alignRow', transverse);
+    					propName = 'content.alignRow';
+    					propValue = transverse;
+    					if (cell.get('content.alignRow') !== transverse) {
+    						changeModelList.push({
+    							colSort: colSort,
+    							rowSort: rowSort,
+    							value: cell.get('content').alignRow
+    						});
+    						cell.set('content.alignRow', transverse);
+    					}
     				} else {
-    					cell.set('content.alignCol', vertical);
+    					propName = 'content.alignCol';
+    					propValue = vertical;
+    					if (cell.get('content.alignCol') !== vertical) {
+    						changeModelList.push({
+    							colSort: colSort,
+    							rowSort: rowSort,
+    							value: cell.get('content').alignCol
+    						});
+    						cell.set('content.alignCol', vertical);
+    					}
     				}
-    			});
     
+    			});
+    			history.addUpdateAction(propName, propValue, {
+    				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    			}, changeModelList);
     		}
     		type = transverse || vertical;
     		sendData();
@@ -17774,7 +17885,7 @@ define('lib/jquery',function() {
     				url: url,
     				data: JSON.stringify({
     					coordinate: sendRegion,
-    					alignStyle: type
+    					align: type
     				})
     			});
     		}
@@ -17783,21 +17894,22 @@ define('lib/jquery',function() {
     });
     
     define('entrance/selectregion/datasourceregionoperation',function() {
-    	var cache = require('basic/tools/cache'),
+    	var Backbone = require('lib/backbone'),
     		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
+    
     		operation;
     
     	operation = {
     		setDataSourceRegion: function() {
-    			cache.mouseOperateState = config.mouseOperateState.dataSource;
+    			Backbone.trigger('event:cellsContainer:setMouseState', 'locatedState' , 'dataSourceLocatedState');
     		},
     		setSelectRegion: function() {
-    			cache.mouseOperateState = config.mouseOperateState.select;
+    			Backbone.trigger('event:cellsContainer:setMouseState', 'locatedState' , 'selectLocatedState');
     		},
     		destroyDataSoureRegion: function() {
-    			if (selectRegions.getModelByType('dataSource')[0] !== undefined) {
-    				selectRegions.getModelByType('dataSource')[0].destroy();
+    			if (selectRegions.getModelByType('datasource') !== undefined) {
+    				selectRegions.getModelByType('datasource').destroy();
     			}
     		}
     	};
@@ -17815,7 +17927,7 @@ define('lib/jquery',function() {
     				result.point = callback;
     			};
     		};
-    		Backbone.trigger('event:cellsContainer:getCoordinate', getResult(), mouseColPosi, mouseRowPosi);
+    		Backbone.trigger('event:cellsContainer:getCoordinateDisplayName', mouseColPosi, mouseRowPosi , getResult());
     		if (result.point === undefined) {
     			result.point = {
     				col: '',
@@ -17834,6 +17946,10 @@ define('lib/jquery',function() {
     		selectRegions = require('collections/selectRegion'),
     		cells = require('collections/cells'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
+    		history = require('basic/tools/history'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
     		getOperRegion = require('basic/tools/getoperregion'),
     		colOperate = require('entrance/col/coloperation'),
     		rowOperate = require('entrance/row/rowoperation');
@@ -17843,8 +17959,11 @@ define('lib/jquery',function() {
     			region,
     			operRegion,
     			sendRegion,
-    			tempCellList;
-    		clip = selectRegions.getModelByType('clip')[0];
+    			tempCellList,
+    			headItemRowList = headItemRows.models,
+    			headItemColList = headItemCols.models,
+    			changeModelList = [];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -17879,15 +17998,28 @@ define('lib/jquery',function() {
     		} else if (operRegion.endColIndex === 'MAX') {
     			colOperate.colPropOper(region.startColIndex, 'wordWrap', wordWrap);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell) {
-    				cell.set('wordWrap', wordWrap);
+    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				if (cell.get('wordWrap') !== wordWrap) {
+    					changeModelList.push({
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: cell.get('wordWrap')
+    					});
+    					cell.set('wordWrap', wordWrap);
+    				}
     			});
+    			history.addUpdateAction('wordWrap', wordWrap, {
+    				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    			}, changeModelList);
     		}
     		sendData();
     
     		function sendData() {
     			send.PackAjax({
-    				url: 'text.htm?m=wordwrap',
+    				url: config.url.cell.wordwrap,
     				data: JSON.stringify({
     					coordinate: sendRegion,
     					wordWrap: wordWrap || 'true'
@@ -17982,7 +18114,7 @@ define('lib/jquery',function() {
     			endRowIndex, i;
     
     		selectRegion = selectRegions.findWhere({
-    			'selectType': 'operation'
+    			'selectType': 'selected'
     		});
     		startColAlias = selectRegion.get('wholePosi').startX;
     		startRowAlias = selectRegion.get('wholePosi').startY;
@@ -18009,721 +18141,743 @@ define('lib/jquery',function() {
     	return getSelectRegion;
     });
     
-    define('entrance/extention/highlight',function() {
-    	var Backbone = require('lib/backbone'),
-    		cache = require('basic/tools/cache');
-    	return {
-    		startHighlight: function() {
-    			Backbone.trigger('event:cellsContainer:startHighlight');
-    		},
-    		stopHighlight: function() {
-    			Backbone.trigger('event:cellsContainer:stopHighlight');
-    		},
-    		getHighlightDirection: function(){
-    			return cache.highlightDirection;
-    		}
-    	};
-    });
-    
     define('entrance/cell/reloadcells',function() {
     	var Backbone = require('lib/backbone');
     
     	function reloadCells() {
     		Backbone.trigger('event:contentCellsContainer:reloadCells');
-    		Backbone.trigger('event:cellsContainer:adaptSelectRegion');
+    		Backbone.trigger('event:selectRegionContainer:adapt');
     	}
     	return reloadCells;
     });
+      
+      define('entrance/tool/settexttype',function() {
+        var send = require('basic/tools/send'),
+          cells = require('collections/cells'),
+          config = require('spreadsheet/config'),
+          getOperRegion = require('basic/tools/getoperregion'),
+          selectRegions = require('collections/selectRegion'),
+          headItemRows = require('collections/headItemRow'),
+          headItemCols = require('collections/headItemCol'),
+          rowOperate = require('entrance/row/rowoperation'),
+          colOperate = require('entrance/col/coloperation'),
+          history = require('basic/tools/history'),
+          cache = require('basic/tools/cache'),
+          textTypeHandler;
     
-    define('entrance/tool/settexttype',function() {
-    	var send = require('basic/tools/send'),
-    		cells = require('collections/cells'),
-    		config = require('spreadsheet/config'),
-    		getOperRegion = require('basic/tools/getoperregion'),
-    		selectRegions = require('collections/selectRegion'),
-    		rowOperate = require('entrance/row/rowoperation'),
-    		colOperate = require('entrance/col/coloperation'),
-    		cache = require('basic/tools/cache'),
-    		textTypeHandler;
+        textTypeHandler = {
+          
+          typeRecognize: function(model) {
+            var text = model.get('content').texts,
+              type = model.get('format').type;
+            if (type === 'normal' && this.isDate(text)) {
+              model.set('format.dateFormat', this.getDateFormat(text));
+              model.set('format.type', 'date');
+              this.generateDisplayText(model);
+            }
+          },
+          
+          setNormal: function(sheetId, label) {
+            var self,
+              clip,
+              region,
+              operRegion,
+              sendRegion,
+              format;
     
-    	textTypeHandler = {
-    		
-    		typeRecognize: function(model) {
-    			var text = model.get('content').texts,
-    				type = model.get('format').type;
-    			if (type === 'normal' && this.isDate(text)) {
-    				model.set('format.dateFormat', this.getDateFormat(text));
-    				model.set('format.type', 'date');
-    				this.generateDisplayText(model);
-    			}
-    		},
-    		
-    		setNormal: function(sheetId, label) {
-    			var self,
-    				clip,
-    				region,
-    				operRegion,
-    				sendRegion,
-    				format;
+            self = this;
     
-    			self = this;
-    			clip = selectRegions.getModelByType('clip')[0];
-    			if (clip !== undefined) {
-    				cache.clipState = 'null';
-    				clip.destroy();
-    			}
-    			region = getOperRegion(label);
-    			operRegion = region.operRegion;
-    			sendRegion = region.sendRegion;
-    			format = {
-    				type: 'normal',
-    				isValid: false,
-    				decimal: null,
-    				thousands: null,
-    				dateFormat: null,
-    				currencySign: null,
-    				currencyValid: false
-    			};
-    			//处理第三方调用，操作超出已加载区域
-    			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-    				this.sendData(format, sendRegion);
-    				return;
-    			}
-    			if (operRegion.endColIndex === 'MAX') { //整行操作
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
-    					self.typeRecognize(cell);
-    					self.generateDisplayText(cell);
-    				});
-    			} else if (operRegion.endRowIndex === 'MAX') {
-    				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
-    					self.typeRecognize(cell);
-    					self.generateDisplayText(cell);
-    				});
-    			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('format', format);
-    					self.typeRecognize(cell);
-    					self.generateDisplayText(cell);
-    				});
-    			}
-    			this.sendData(format, sendRegion);
-    		},
-    		setText: function(sheetId, label) {
-    			var self= this,
-    				clip,
-    				region,
-    				operRegion,
-    				sendRegion,
-    				format;
+            clip = selectRegions.getModelByType('clip');
+            if (clip !== undefined) {
+              cache.clipState = 'null';
+              clip.destroy();
+            }
+            region = getOperRegion(label);
+            operRegion = region.operRegion;
+            sendRegion = region.sendRegion;
+            format = {
+              type: 'normal',
+              isValid: false,
+              decimal: null,
+              thousands: null,
+              dateFormat: null,
+              currencySign: null,
+              currencyValid: false
+            };
+            //处理第三方调用，操作超出已加载区域
+            if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
+              this.sendData(format, sendRegion);
+              return;
+            }
+            if (operRegion.endColIndex === 'MAX') { //整行操作
+              rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format);
+            } else if (operRegion.endRowIndex === 'MAX') {
+              colOperate.colPropOper(operRegion.startColIndex, 'format', format);
+            } else {
+              cells.operateCellsByRegion(operRegion, function(cell) {
+                cell.set('format', format);
+              });
+            }
+            this.sendData(format, sendRegion);
+          },
+          setText: function(sheetId, label) {
+            var self = this,
+              clip,
+              region,
+              operRegion,
+              sendRegion,
+              format;
     
-    			clip = selectRegions.getModelByType('clip')[0];
-    			if (clip !== undefined) {
-    				cache.clipState = 'null';
-    				clip.destroy();
-    			}
-    			region = getOperRegion(label);
-    			operRegion = region.operRegion;
-    			sendRegion = region.sendRegion;
-    			format = {
-    				type: 'text',
-    				isValid: false,
-    				decimal: null,
-    				thousands: null,
-    				dateFormat: null,
-    				currencySign: null,
-    				currencyValid: false
-    			};
-    			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-    				this.sendData(format, sendRegion);
-    				return;
-    			}
-    			if (operRegion.endColIndex === 'MAX') { //整行操作
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
-    			} else if (operRegion.endRowIndex === 'MAX') {
-    				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
-    			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('format', format);
-    					self.generateDisplayText(cell);
-    				});
-    			}
     
-    			this.sendData(format, sendRegion);
-    		},
-    		setNum: function(sheetId, thousands, decimal, label) {
-    			var self,
-    				clip,
-    				region,
-    				operRegion,
-    				sendRegion,
-    				format;
+            clip = selectRegions.getModelByType('clip');
+            if (clip !== undefined) {
+              cache.clipState = 'null';
+              clip.destroy();
+            }
+            region = getOperRegion(label);
+            operRegion = region.operRegion;
+            sendRegion = region.sendRegion;
+            format = {
+              type: 'text',
+              isValid: false,
+              decimal: null,
+              thousands: null,
+              dateFormat: null,
+              currencySign: null,
+              currencyValid: false
+            };
+            if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
+              this.sendData(format, sendRegion);
+              return;
+            }
+            if (operRegion.endColIndex === 'MAX') { //整行操作
+              rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format);
+            } else if (operRegion.endRowIndex === 'MAX') {
+              colOperate.colPropOper(operRegion.startColIndex, 'format', format);
+            } else {
+              cells.operateCellsByRegion(operRegion, function(cell) {
+                cell.set('format', format);
+              });
+            }
     
-    			clip = selectRegions.getModelByType('clip')[0];
-    			if (clip !== undefined) {
-    				cache.clipState = 'null';
-    				clip.destroy();
-    			}
-    			self = this;
-    			region = getOperRegion(label);
-    			operRegion = region.operRegion;
-    			sendRegion = region.sendRegion;
-    			format = {
-    				type: 'number',
-    				isValid: false,
-    				decimal: decimal,
-    				thousands: thousands,
-    				dateFormat: null,
-    				currencySign: null,
-    				currencyValid: false
-    			};
-    			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-    				this.sendData(format, sendRegion);
-    				return;
-    			}
-    			if (operRegion.endColIndex === 'MAX') { //整行操作
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
-    			} else if (operRegion.endRowIndex === 'MAX') { //整行操作
-    				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
-    			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('format', format);
-    					self.generateDisplayText(cell);
-    				});
-    			}
-    			this.sendData(format, sendRegion);
-    		},
-    		setDate: function(sheetId, dateFormat, label) {
-    			var self,
-    				clip,
-    				region,
-    				operRegion,
-    				sendRegion,
-    				format;
+            this.sendData(format, sendRegion);
+          },
+          setNum: function(sheetId, thousands, decimal, label) {
+            var self,
+              clip,
+              region,
+              operRegion,
+              sendRegion,
+              changeModelList = [],
+              headItemRowList = headItemRows.models,
+              headItemColList = headItemCols.models,
+              format;
     
-    			clip = selectRegions.getModelByType('clip')[0];
-    			if (clip !== undefined) {
-    				cache.clipState = 'null';
-    				clip.destroy();
-    			}
-    			format = {
-    				type: 'date',
-    				isValid: false,
-    				decimal: null,
-    				thousands: null,
-    				dateFormat: dateFormat,
-    				currencySign: null,
-    				currencyValid: false
-    			};
-    			region = getOperRegion(label);
-    			operRegion = region.operRegion;
-    			sendRegion = region.sendRegion;
-    			self = this;
-    			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-    				this.sendData(format, sendRegion);
-    				return;
-    			}
-    			if (operRegion.endColIndex === 'MAX') { //整行操作
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
-    			} else if (operRegion.endRowIndex === 'MAX') { //整列操作
-    				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
-    			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('format', format);
-    					self.generateDisplayText(cell);
-    				});
-    			}
-    			this.sendData(format, sendRegion);
-    		},
-    		setPercent: function(sheetId, decimal, label) {
-    			var self,
-    				clip,
-    				region,
-    				operRegion,
-    				sendRegion,
-    				format;
+            clip = selectRegions.getModelByType('clip');
+            if (clip !== undefined) {
+              cache.clipState = 'null';
+              clip.destroy();
+            }
+            self = this;
+            region = getOperRegion(label);
+            operRegion = region.operRegion;
+            sendRegion = region.sendRegion;
+            format = {
+              type: 'number',
+              isValid: false,
+              decimal: decimal,
+              thousands: thousands,
+              dateFormat: null,
+              currencySign: null,
+              currencyValid: false
+            };
+            if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
+              this.sendData(format, sendRegion);
+              return;
+            }
+            if (operRegion.endColIndex === 'MAX') { //整行操作
+              rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format);
+            } else if (operRegion.endRowIndex === 'MAX') { //整行操作
+              colOperate.colPropOper(operRegion.startColIndex, 'format', format);
+            } else {
+              cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+                changeModelList.push({
+                  colSort: colSort,
+                  rowSort: rowSort,
+                  value: cell.get('format')
+                });
+                cell.set('format', format);
+              });
+              history.addUpdateAction('format', format, {
+                startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+                startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+                endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+                endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+              }, changeModelList);
+            }
+            this.sendData(format, sendRegion);
+          },
+          setDate: function(sheetId, dateFormat, label) {
+            var self,
+              clip,
+              region,
+              operRegion,
+              sendRegion,
+              changeModelList = [],
+              headItemRowList = headItemRows.models,
+              headItemColList = headItemCols.models,
+              format;
+            clip = selectRegions.getModelByType('clip');
+            if (clip !== undefined) {
+              cache.clipState = 'null';
+              clip.destroy();
+            }
+            format = {
+              type: 'date',
+              isValid: false,
+              decimal: null,
+              thousands: null,
+              dateFormat: dateFormat,
+              currencySign: null,
+              currencyValid: false
+            };
+            region = getOperRegion(label);
+            operRegion = region.operRegion;
+            sendRegion = region.sendRegion;
+            self = this;
+            if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
+              this.sendData(format, sendRegion);
+              return;
+            }
+            if (operRegion.endColIndex === 'MAX') { //整行操作
+              rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format);
+            } else if (operRegion.endRowIndex === 'MAX') { //整列操作
+              colOperate.colPropOper(operRegion.startColIndex, 'format', format);
+            } else {
+              cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+                changeModelList.push({
+                  colSort: colSort,
+                  rowSort: rowSort,
+                  value: cell.get('format')
+                });
+                cell.set('format', format);
+              });
+              history.addUpdateAction('format', format, {
+                startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+                startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+                endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+                endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+              }, changeModelList);
+            }
+            this.sendData(format, sendRegion);
+          },
+          setPercent: function(sheetId, decimal, label) {
+            var self,
+              clip,
+              region,
+              operRegion,
+              sendRegion,
+              changeModelList = [],
+              headItemRowList = headItemRows.models,
+              headItemColList = headItemCols.models,
+              format;
     
-    			self = this;
-    			clip = selectRegions.getModelByType('clip')[0];
-    			if (clip !== undefined) {
-    				cache.clipState = 'null';
-    				clip.destroy();
-    			}
-    			format = {
-    				type: 'percent',
-    				isValid: false,
-    				decimal: decimal,
-    				thousands: false,
-    				dateFormat: null,
-    				currencySign: null,
-    				currencyValid: false
-    			};
-    			region = getOperRegion(label);
-    			operRegion = region.operRegion;
-    			sendRegion = region.sendRegion;
-    			self = this;
-    			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-    				this.sendData(format, sendRegion);
-    				return;
-    			}
-    			if (operRegion.endColIndex === 'MAX') { //整行操作
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
+            self = this;
+            clip = selectRegions.getModelByType('clip');
+            if (clip !== undefined) {
+              cache.clipState = 'null';
+              clip.destroy();
+            }
+            format = {
+              type: 'percent',
+              isValid: false,
+              decimal: decimal,
+              thousands: false,
+              dateFormat: null,
+              currencySign: null,
+              currencyValid: false
+            };
+            region = getOperRegion(label);
+            operRegion = region.operRegion;
+            sendRegion = region.sendRegion;
+            self = this;
+            if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
+              this.sendData(format, sendRegion);
+              return;
+            }
+            if (operRegion.endColIndex === 'MAX') { //整行操作
+              rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format, function(cell) {
+                self.generateDisplayText(cell);
+              });
     
-    			} else if (operRegion.endRowIndex === 'MAX') { //整列操作
-    				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
-    			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('format', format);
-    					self.generateDisplayText(cell);
-    				});
-    			}
-    			this.sendData(format, sendRegion);
-    		},
-    		setCurrency: function(sheetId, decimal, sign, label) {
-    			var clip,
-    				self,
-    				format,
-    				region,
-    				operRegion,
-    				sendRegion;
+            } else if (operRegion.endRowIndex === 'MAX') { //整列操作
+              colOperate.colPropOper(operRegion.startColIndex, 'format', format, function(cell) {
+                self.generateDisplayText(cell);
+              });
+            } else {
+              cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+                changeModelList.push({
+                  colSort: colSort,
+                  rowSort: rowSort,
+                  value: cell.get('format')
+                });
+                cell.set('format', format);
+              });
+              history.addUpdateAction('format', format, {
+                startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+                startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+                endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+                endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+              }, changeModelList);
+            }
+            this.sendData(format, sendRegion);
+          },
+          setCurrency: function(sheetId, decimal, sign, label) {
+            var clip,
+              self,
+              format,
+              region,
+              changeModelList = [],
+              headItemRowList = headItemRows.models,
+              headItemColList = headItemCols.models,
+              operRegion,
+              sendRegion;
     
-    			clip = selectRegions.getModelByType('clip')[0];
-    			if (clip !== undefined) {
-    				cache.clipState = 'null';
-    				clip.destroy();
-    			}
-    			region = getOperRegion(label);
-    			operRegion = region.operRegion;
-    			sendRegion = region.sendRegion;
-    			self = this;
-    			format = {
-    				type: 'currency',
-    				isValid: false,
-    				decimal: decimal,
-    				thousands: false,
-    				dateFormat: null,
-    				currencySign: sign,
-    				currencyValid: false
-    			};
-    			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-    				this.sendData(format, sendRegion);
-    				return;
-    			}
-    			if (operRegion.endColIndex === 'MAX') { //整行操作
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
-    			} else if (operRegion.endRowIndex === 'MAX') { //整行操作
-    				colOperate.colPropOper(operRegion.startColIndex, 'format', format,function(cell){
-    					self.generateDisplayText(cell);
-    				});
-    			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('format', format);
-    					self.generateDisplayText(cell);
-    				});
-    			}
-    			this.sendData(format, sendRegion);
-    		},
-    		sendData: function(format, sendRegion) {
-    			var data;
-    			data = {
-    				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
-    				sheetId: '1',
-    				coordinate: sendRegion,
-    				format: format.type
-    			};
-    			switch (format.type) {
-    				case 'number':
-    					data.decimalPoint = format.decimal || 0;
-    					data.thousandPoint = format.thousands || false;
-    					break;
-    				case 'date':
-    					data.dateFormat = format.dateFormat || '';
-    					break;
-    				case 'currency':
-    					data.decimalPoint = format.decimal || 0;
-    					data.currencySymbol = format.currencySign;
-    					break;
-    				case 'percent':
-    					data.decimalPoint = format.decimal || 0;
-    					break;
-    			}
-    			send.PackAjax({
-    				url: 'text.htm?m=data_format',
-    				data: JSON.stringify(data)
-    			});
-    		},
-    		
-    		isNum: function(value) {
-    			var reg;
-    			if (value === '') {
-    				return false;
-    			}
-    			if (value.indexOf(',') === -1) {
-    				reg = /^(\-|\+)?[0-9]+(\.[0-9]+)?$/;
-    			} else {
-    				reg = /^(\-|\+)?([1-9][0-9]{0,2})+(,\d{3})*(\.[0-9]+)?$/;
-    			}
-    			return reg.test(value);
-    		},
-    		
-    		trimZero: function(value) {
-    			var head,
-    				tail,
-    				values;
-    			if (!this.isNum(value)) {
-    				return value;
-    			}
-    			values = value.split('.');
-    			head = values[0];
-    			tail = values[1];
+            clip = selectRegions.getModelByType('clip');
+            if (clip !== undefined) {
+              cache.clipState = 'null';
+              clip.destroy();
+            }
+            region = getOperRegion(label);
+            operRegion = region.operRegion;
+            sendRegion = region.sendRegion;
+            self = this;
+            format = {
+              type: 'currency',
+              isValid: false,
+              decimal: decimal,
+              thousands: false,
+              dateFormat: null,
+              currencySign: sign,
+              currencyValid: false
+            };
+            if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
+              this.sendData(format, sendRegion);
+              return;
+            }
+            if (operRegion.endColIndex === 'MAX') { //整行操作
+              rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format, function(cell) {
+                self.generateDisplayText(cell);
+              });
+            } else if (operRegion.endRowIndex === 'MAX') { //整行操作
+              colOperate.colPropOper(operRegion.startColIndex, 'format', format, function(cell) {
+                self.generateDisplayText(cell);
+              });
+            } else {
+              cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+                changeModelList.push({
+                  colSort: colSort,
+                  rowSort: rowSort,
+                  value: cell.get('format')
+                });
+                cell.set('format', format);
+              });
+              history.addUpdateAction('format', format, {
+                startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+                startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+                endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+                endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+              }, changeModelList);
+            }
+            this.sendData(format, sendRegion);
+          },
+          sendData: function(format, sendRegion) {
+            var data;
+            data = {
+              excelId: window.SPREADSHEET_AUTHENTIC_KEY,
+              sheetId: '1',
+              coordinate: sendRegion,
+              format: format.type
+            };
+            switch (format.type) {
+              case 'number':
+                data.decimalPoint = format.decimal || 0;
+                data.thousandPoint = format.thousands || false;
+                break;
+              case 'date':
+                data.dateFormat = format.dateFormat || '';
+                break;
+              case 'currency':
+                data.decimalPoint = format.decimal || 0;
+                data.currencySymbol = format.currencySign;
+                break;
+              case 'percent':
+                data.decimalPoint = format.decimal || 0;
+                break;
+            }
+            send.PackAjax({
+              url: config.url.cell.format,
+              data: JSON.stringify(data)
+            });
+          },
+          
+          isNum: function(value) {
+            var reg;
+            if (value === '') {
+              return false;
+            }
+            if (value.indexOf(',') === -1) {
+              reg = /^(\-|\+)?[0-9]+(\.[0-9]+)?$/;
+            } else {
+              reg = /^(\-|\+)?([1-9][0-9]{0,2})+(,\d{3})*(\.[0-9]+)?$/;
+            }
+            return reg.test(value);
+          },
+          
+          trimZero: function(value) {
+            var head,
+              tail,
+              values;
+            if (!this.isNum(value)) {
+              return value;
+            }
+            values = value.split('.');
+            head = values[0];
+            tail = values[1];
     
-    			head = head.replace(/^0*/, '');
-    			head = head === '' ? '0' : head;
-    			if (typeof tail !== 'undefined') {
-    				tail = tail.replace(/0*$/, '');
-    				if (tail.length !== 0) {
-    					head += '.';
-    				}
-    				head += tail;
-    			}
-    			return head;
-    		},
-    		
-    		getFormatNumber: function(value, thousands, decimal) {
-    			var num,
-    				values,
-    				remainder,
-    				head,
-    				tail,
-    				sign='',
-    				temp,
-    				len, i;
-    			//需要去除末尾无效的0字符
-    			if (!this.isNum(value)) {
-    				return value;
-    			}
-    			value = this.trimZero(value);
-    			//含有千分位的，先去除千分位，进行处理
-    			value = value.replace(/,/g, '');
-    			num = parseFloat(value);
-    			num = num * Math.pow(10, decimal);
-    			num = Math.round(num);
-    			value = (num / Math.pow(10, decimal)).toString();
-    			if (thousands) {
-    				values = value.split('.');
-    				head = values[0];
-    				if(head.charAt(0)==='-' || head.indexOf('+')===0){
-    					sign = head.charAt(0);
-    					head = head.substring(1,head.length);
-    				}
-    				len = Math.ceil(head.length / 3);
-    				remainder = head.length % 3 > 0 ? head.length % 3 : 3;
-    				temp = head;
-    				head = '';
-    				for (i = len - 1; i > -1; i--) {
-    					if (i === 0) {
-    						head = temp.substring(0, remainder) + head;
-    					} else {
-    						head = ',' + temp.substring(3 * (i - 1) + remainder, 3 * i + remainder) + head;
-    					}
-    				}
-    				value =sign+head;
-    				if (typeof values[1] !== 'undefined') {
-    					value += '.' + values[1];
-    				}
-    			}
-    			values = value.split('.');
-    			//补零
-    			if (decimal && (typeof values[1] === 'undefined' || values[1].length < decimal)) {
-    				head = values[0];
-    				tail = values[1] || '';
-    				for (i = 0, len = decimal - tail.length; i < len; i++) {
-    					tail += '0';
-    				}
-    				value = head + '.' + tail;
-    			}
-    			return value;
+            head = head.replace(/^0*/, '');
+            head = head === '' ? '0' : head;
+            if (typeof tail !== 'undefined') {
+              tail = tail.replace(/0*$/, '');
+              if (tail.length !== 0) {
+                head += '.';
+              }
+              head += tail;
+            }
+            return head;
+          },
+          
+          getFormatNumber: function(value, thousands, decimal) {
+            var num,
+              values,
+              remainder,
+              head,
+              tail,
+              sign = '',
+              temp,
+              len, i;
+            //需要去除末尾无效的0字符
+            if (!this.isNum(value)) {
+              return value;
+            }
+            value = this.trimZero(value);
+            //含有千分位的，先去除千分位，进行处理
+            value = value.replace(/,/g, '');
+            num = parseFloat(value);
+            num = num * Math.pow(10, decimal);
+            num = Math.round(num);
+            value = (num / Math.pow(10, decimal)).toString();
+            if (thousands) {
+              values = value.split('.');
+              head = values[0];
+              if (head.charAt(0) === '-' || head.indexOf('+') === 0) {
+                sign = head.charAt(0);
+                head = head.substring(1, head.length);
+              }
+              len = Math.ceil(head.length / 3);
+              remainder = head.length % 3 > 0 ? head.length % 3 : 3;
+              temp = head;
+              head = '';
+              for (i = len - 1; i > -1; i--) {
+                if (i === 0) {
+                  head = temp.substring(0, remainder) + head;
+                } else {
+                  head = ',' + temp.substring(3 * (i - 1) + remainder, 3 * i + remainder) + head;
+                }
+              }
+              value = sign + head;
+              if (typeof values[1] !== 'undefined') {
+                value += '.' + values[1];
+              }
+            }
+            values = value.split('.');
+            //补零
+            if (decimal && (typeof values[1] === 'undefined' || values[1].length < decimal)) {
+              head = values[0];
+              tail = values[1] || '';
+              for (i = 0, len = decimal - tail.length; i < len; i++) {
+                tail += '0';
+              }
+              value = head + '.' + tail;
+            }
+            return value;
     
-    		},
-    		isDate: function(value) {
-    			var regularLine = /^\d{4}\/\d{1,2}\/\d{1,2}$/,
-    				regularWord = /^\d{4}\u5e74\d{1,2}\u6708(\d{1,2}\u65e5)?$/,
-    				year,
-    				month,
-    				day,
-    				date;
-    			if (value === '') {
-    				return false;
-    			}
-    			if (!regularLine.test(value) && !regularWord.test(value)) {
-    				return false;
-    			}
-    			year = value.match(/\d{4}/)[0];
-    			month = value.match(/(\/|\u5e74)\d{1,2}(\/|\u6708)/);
-    			if (month !== null) {
-    				month = month[0].substring(1, month[0].length - 1);
-    			}
-    			day = value.match(/\d{1,2}\u65e5/);
+          },
+          isDate: function(value) {
+            var regularLine = /^\d{4}\/\d{1,2}\/\d{1,2}$/,
+              regularWord = /^\d{4}\u5e74\d{1,2}\u6708(\d{1,2}\u65e5)?$/,
+              year,
+              month,
+              day,
+              date;
+            if (value === '') {
+              return false;
+            }
+            if (!regularLine.test(value) && !regularWord.test(value)) {
+              return false;
+            }
+            year = value.match(/\d{4}/)[0];
+            month = value.match(/(\/|\u5e74)\d{1,2}(\/|\u6708)/);
+            if (month !== null) {
+              month = month[0].substring(1, month[0].length - 1);
+            }
+            day = value.match(/\d{1,2}\u65e5/);
     
-    			if (day === null) {
-    				day = value.match(/\d{1,2}$/);
-    			}
-    			if (day !== null) {
-    				day = day[0].substring(0, day[0].length);
-    			}
-    			if (day !== null && day.indexOf('日') !== -1) {
-    				day = day.substring(0, day.length - 1);
-    			}
+            if (day === null) {
+              day = value.match(/\d{1,2}$/);
+            }
+            if (day !== null) {
+              day = day[0].substring(0, day[0].length);
+            }
+            if (day !== null && day.indexOf('日') !== -1) {
+              day = day.substring(0, day.length - 1);
+            }
     
-    			date = new Date(year + '/' + (month || '01') + '/' + (day || '01'));
-    			if (parseInt(year) !== date.getFullYear()) {
-    				return false;
-    			}
-    			if (month !== null && parseInt(month) !== date.getMonth() + 1) {
-    				return false;
-    			}
-    			if (day !== null && parseInt(day) !== date.getDate()) {
-    				return false;
-    			}
-    			return true;
-    		},
-    		getFormatDate: function(value, formatType) {
-    			var year,
-    				month,
-    				day,
-    				result;
-    			if (!this.isDate(value) || value === '') {
-    				return value;
-    			}
-    			year = value.match(/\d{4}/)[0];
-    			month = value.match(/(\/|\u5e74)\d{1,2}(\/|\u6708)/);
-    			if (month !== null) {
-    				month = month[0].substring(1, month[0].length - 1);
-    			} else {
-    				month = '01';
-    			}
-    			day = value.match(/\d{1,2}\u65e5/);
-    			if (day === null) {
-    				day = value.match(/\d{1,2}$/);
-    			}
-    			if (day !== null) {
-    				day = day[0].substring(0, day[0].length);
-    			}
-    			if (day !== null && day.indexOf('日') !== -1) {
-    				day = day.substring(0, day.length - 1);
-    			}
-    			if (day === null) {
-    				day = '01';
-    			}
-    			switch (formatType) {
-    				case config.dateFormatType.frist:
-    					result = year + '/' + month + '/' + day;
-    					break;
-    				case config.dateFormatType.second:
-    					result = year + '/' + month;
-    					break;
-    				case config.dateFormatType.third:
-    					result = year;
-    					break;
-    				case config.dateFormatType.fourth:
-    					result = year + '年' + month + '月' + day + '日';
-    					break;
-    				case config.dateFormatType.fifth:
-    					result = year + '年' + month + '月';
-    					break;
-    				case config.dateFormatType.sixth:
-    					result = year + '年';
-    					break;
-    				default:
-    					result = value;
-    					break;
-    			}
-    			return result;
-    		},
-    		
-    		getDateFormat: function(value) {
-    			var regular1 = /^\d{4}\/\d{1,2}\/\d{1,2}$/, // 1999/01/01
-    				regular2 = /^\d{4}\u5e74\d{1,2}\u6708$/, // 1999年1月
-    				regular3 = /^\d{4}\u5e74\d{1,2}\u6708\d{1,2}\u65e5$/; // 1999年1月1日
-    			if (regular1.test(value)) {
-    				return config.dateFormatType.frist;
-    			}
-    			if (regular2.test(value)) {
-    				return config.dateFormatType.fifth;
-    			}
-    			if (regular3.test(value)) {
-    				return config.dateFormatType.fourth;
-    			}
-    			return null;
-    		},
-    		isCurrency: function(value) {
-    			if (value.charAt(0) === '¥' || value.charAt(0) === '$') {
-    				value = value.substring(1, value.length);
-    			}
-    			return this.isNum(value);
-    		},
-    		isLossCurrency: function(value) {
-    			if (value.charAt(0) === '¥' || value.charAt(0) === '$') {
-    				value = value.substring(1, value.length);
-    			}
-    			if (value.charAt(0) === '-') {
-    				return true;
-    			} else {
-    				return false;
-    			}
-    		},
-    		getFormatCurrency: function(value, decimal, sign) {
-    			var temp = value,
-    				result;
-    			if (value === '') {
-    				return value;
-    			}
-    			if (this.isCurrency(value)) {
-    				if (value.charAt(0) === '¥' || value.charAt(0) === '$') {
-    					value = value.substring(1, value.length);
-    				}
-    				sign = sign || '$';
-    				//货币千分位
-    				result = sign + this.getFormatNumber(value, true, decimal);
-    				return result;
-    			}
-    			return temp;
-    		},
-    		isPercent: function(value) {
-    			if (value.charAt(value.length - 1) === '%') {
-    				value = value.substring(0, value.length - 1);
-    			}
-    			return this.isNum(value);
-    		},
-    		getFormatPercent: function(value, decimal) {
-    			var temp = value;
-    			if (value === '') {
-    				return value;
-    			}
-    			if (value.charAt(value.length - 1) === '%') {
-    				value = value.substring(0, value.length - 1);
-    				if (this.isNum(value)) {
-    					value = this.getFormatNumber(value, false, decimal);
-    					return value + '%';
-    				}
-    			} else {
-    				if (this.isNum(value)) {
-    					value = value.replace(/,/g, '');
-    					value = (Number(value) * 100).toString();
-    					value = this.getFormatNumber(value, false, decimal);
-    					return value + '%';
-    				}
-    			}
-    			return temp;
-    		},
-    		
-    		generateDisplayText: function(model) {
-    			var displayText,
-    				isValid,
-    				text = model.get('content.texts'),
-    				format = model.get('format'),
-    				type = format.type,
-    				decimal = format.decimal,
-    				thousands = format.thousands,
-    				dateFormat = format.dateFormat,
-    				currencySign = format.currencySign;
+            date = new Date(year + '/' + (month || '01') + '/' + (day || '01'));
+            if (parseInt(year) !== date.getFullYear()) {
+              return false;
+            }
+            if (month !== null && parseInt(month) !== date.getMonth() + 1) {
+              return false;
+            }
+            if (day !== null && parseInt(day) !== date.getDate()) {
+              return false;
+            }
+            return true;
+          },
+          getFormatDate: function(value, formatType) {
+            var year,
+              month,
+              day,
+              result;
+            if (!this.isDate(value) || value === '') {
+              return value;
+            }
+            year = value.match(/\d{4}/)[0];
+            month = value.match(/(\/|\u5e74)\d{1,2}(\/|\u6708)/);
+            if (month !== null) {
+              month = month[0].substring(1, month[0].length - 1);
+            } else {
+              month = '01';
+            }
+            day = value.match(/\d{1,2}\u65e5/);
+            if (day === null) {
+              day = value.match(/\d{1,2}$/);
+            }
+            if (day !== null) {
+              day = day[0].substring(0, day[0].length);
+            }
+            if (day !== null && day.indexOf('日') !== -1) {
+              day = day.substring(0, day.length - 1);
+            }
+            if (day === null) {
+              day = '01';
+            }
+            switch (formatType) {
+              case config.dateFormatType.frist:
+                result = year + '/' + month + '/' + day;
+                break;
+              case config.dateFormatType.second:
+                result = year + '/' + month;
+                break;
+              case config.dateFormatType.third:
+                result = year;
+                break;
+              case config.dateFormatType.fourth:
+                result = year + '年' + month + '月' + day + '日';
+                break;
+              case config.dateFormatType.fifth:
+                result = year + '年' + month + '月';
+                break;
+              case config.dateFormatType.sixth:
+                result = year + '年';
+                break;
+              default:
+                result = value;
+                break;
+            }
+            return result;
+          },
+          
+          getDateFormat: function(value) {
+            var regular1 = /^\d{4}\/\d{1,2}\/\d{1,2}$/, // 1999/01/01
+              regular2 = /^\d{4}\u5e74\d{1,2}\u6708$/, // 1999年1月
+              regular3 = /^\d{4}\u5e74\d{1,2}\u6708\d{1,2}\u65e5$/; // 1999年1月1日
+            if (regular1.test(value)) {
+              return config.dateFormatType.frist;
+            }
+            if (regular2.test(value)) {
+              return config.dateFormatType.fifth;
+            }
+            if (regular3.test(value)) {
+              return config.dateFormatType.fourth;
+            }
+            return null;
+          },
+          isCurrency: function(value) {
+            if (value.charAt(0) === '¥' || value.charAt(0) === '$') {
+              value = value.substring(1, value.length);
+            }
+            return this.isNum(value);
+          },
+          isLossCurrency: function(value) {
+            if (value.charAt(0) === '¥' || value.charAt(0) === '$') {
+              value = value.substring(1, value.length);
+            }
+            if (value.charAt(0) === '-') {
+              return true;
+            } else {
+              return false;
+            }
+          },
+          getFormatCurrency: function(value, decimal, sign) {
+            var temp = value,
+              result;
+            if (value === '') {
+              return value;
+            }
+            if (this.isCurrency(value)) {
+              if (value.charAt(0) === '¥' || value.charAt(0) === '$') {
+                value = value.substring(1, value.length);
+              }
+              sign = sign || '$';
+              //货币千分位
+              result = sign + this.getFormatNumber(value, true, decimal);
+              return result;
+            }
+            return temp;
+          },
+          isPercent: function(value) {
+            if (value.charAt(value.length - 1) === '%') {
+              value = value.substring(0, value.length - 1);
+            }
+            return this.isNum(value);
+          },
+          getFormatPercent: function(value, decimal) {
+            var temp = value;
+            if (value === '') {
+              return value;
+            }
+            if (value.charAt(value.length - 1) === '%') {
+              value = value.substring(0, value.length - 1);
+              if (this.isNum(value)) {
+                value = this.getFormatNumber(value, false, decimal);
+                return value + '%';
+              }
+            } else {
+              if (this.isNum(value)) {
+                value = value.replace(/,/g, '');
+                value = (Number(value) * 100).toString();
+                value = this.getFormatNumber(value, false, decimal);
+                return value + '%';
+              }
+            }
+            return temp;
+          },
+          
+          generateDisplayText: function(model) {
+            var displayText,
+              isValid,
+              text = model.get('content.texts'),
+              format = model.get('format'),
+              type = format.type,
+              decimal = format.decimal,
+              thousands = format.thousands,
+              dateFormat = format.dateFormat,
+              currencySign = format.currencySign;
     
-    			switch (type) {
-    				case 'normal':
-    					if (this.isNum(text)) {
-    						isValid =true;
-    						if(text.indexOf(',')!==-1){
-    							thousands =true;
-    							model.set('content.texts', text.replace(/,/g,''));
-    						}
-    						displayText = this.getFormatNumber(text, thousands, config.defaultNumberFormat.decimal);
-    						displayText = this.trimZero(displayText);
-    						model.set('content.displayTexts', displayText);
-    						model.set('format.thousands', thousands);
-    					} else {
-    						model.set('content.displayTexts', text);
-    					}
-    					break;
-    				case 'date':
-    					isValid = this.isDate(text);
-    					if (isValid) {
-    						model.set('content.displayTexts', textTypeHandler.getFormatDate(text, dateFormat));
-    					} else {
-    						model.set('content.displayTexts', text);
-    					}
-    					break;
-    				case 'number':
-    					isValid = this.isNum(text);
-    					if (isValid) {
-    						if(text.indexOf(',')!==-1){
-    							thousands =true;
-    							model.set('content.texts', text.replace(/,/g,''));
-    						}
-    						model.set('content.displayTexts', textTypeHandler.getFormatNumber(text, thousands, decimal));
-    					} else {
-    						model.set('content.displayTexts', text);
-    					}
-    					break;
-    				case 'currency':
-    					isValid = this.isCurrency(text);
-    					if (isValid) {
-    						if(text.indexOf(',')!==-1){
-    							thousands =true;
-    							model.set('content.texts', text.replace(/,/g,''));	
-    						}
-    						if(text.indexOf('$')!==-1 || text.indexOf('¥')!==-1){
-    							model.set('content.texts', text.replace(/¥/g,''));	
-    						}
-    						model.set('content.displayTexts', textTypeHandler.getFormatCurrency(text, decimal, currencySign));
-    					} else {
-    						model.set('content.displayTexts', text);
-    					}
-    					break;
-    				case 'percent':
-    					isValid = this.isPercent(text);
-    					if (isValid) {
-    						if(text.indexOf(',')!==-1){
-    							thousands =true;
-    							model.set('content.texts', text.replace(/,/g,''));	
-    						}
-    						if(text.indexOf('%')!==-1){
-    							text = text.replace(/%/g,'');
-    							text = (parseInt(text)/100).toString();
-    							model.set('content.texts', text);	
-    						}
-    						model.set('content.displayTexts', textTypeHandler.getFormatPercent(text, decimal));
-    					} else {
-    						model.set('content.displayTexts', text);
-    					}
-    					break;
-    				default:
-    					model.set('content.displayTexts', text);
-    					isValid = true;
-    					break;
-    			}
-    			model.set('format.isValid', isValid);
-    		}
-    	};
-    	return textTypeHandler;
-    });
-    
+            switch (type) {
+              case 'normal':
+                if (this.isNum(text)) {
+                  isValid = true;
+                  if (text.indexOf(',') !== -1) {
+                    thousands = true;
+                    model.set('content.texts', text.replace(/,/g, ''));
+                  }
+                  displayText = this.getFormatNumber(text, thousands, config.defaultNumberFormat.decimal);
+                  displayText = this.trimZero(displayText);
+                  model.set('content.displayTexts', displayText);
+                  if (model.get('format').thousands !== thousands) {
+                    model.set('format.thousands', thousands);
+                  }
+                } else {
+                  model.set('content.displayTexts', text);
+                }
+                break;
+              case 'date':
+                isValid = this.isDate(text);
+                if (isValid) {
+                  model.set('content.displayTexts', textTypeHandler.getFormatDate(text, dateFormat));
+                } else {
+                  model.set('content.displayTexts', text);
+                }
+                break;
+              case 'number':
+                isValid = this.isNum(text);
+                if (isValid) {
+                  if (text.indexOf(',') !== -1) {
+                    thousands = true;
+                    model.set('content.texts', text.replace(/,/g, ''));
+                  }
+                  model.set('content.displayTexts', textTypeHandler.getFormatNumber(text, thousands, decimal));
+                } else {
+                  model.set('content.displayTexts', text);
+                }
+                break;
+              case 'currency':
+                isValid = this.isCurrency(text);
+                if (isValid) {
+                  if (text.indexOf(',') !== -1) {
+                    thousands = true;
+                    model.set('content.texts', text.replace(/,/g, ''));
+                  }
+                  if (text.indexOf('$') !== -1 || text.indexOf('¥') !== -1) {
+                    model.set('content.texts', text.replace(/¥/g, ''));
+                  }
+                  model.set('content.displayTexts', textTypeHandler.getFormatCurrency(text, decimal, currencySign));
+                } else {
+                  model.set('content.displayTexts', text);
+                }
+                break;
+              case 'percent':
+                isValid = this.isPercent(text);
+                if (isValid) {
+                  if (text.indexOf(',') !== -1) {
+                    thousands = true;
+                    model.set('content.texts', text.replace(/,/g, ''));
+                  }
+                  if (text.indexOf('%') !== -1) {
+                    text = text.replace(/%/g, '');
+                    text = (parseInt(text) / 100).toString();
+                    model.set('content.texts', text);
+                  }
+                  model.set('content.displayTexts', textTypeHandler.getFormatPercent(text, decimal));
+                } else {
+                  model.set('content.displayTexts', text);
+                }
+                break;
+              default:
+                model.set('content.displayTexts', text);
+                isValid = true;
+                break;
+            }
+            if (model.get('format').isValid !== isValid) {
+              model.set('format.isValid', isValid);
+            }
+          }
+        };
+        return textTypeHandler;
+      });
     
     define('entrance/tool/addrow',function() {
     
@@ -18749,7 +18903,7 @@ define('lib/jquery',function() {
     				index,
     				height;
     
-    			clip = selectRegions.getModelByType('clip')[0];
+    			clip = selectRegions.getModelByType('clip');
     			if (clip !== undefined) {
     				cache.clipState = 'null';
     				clip.destroy();
@@ -18773,9 +18927,10 @@ define('lib/jquery',function() {
     
     			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, config.User.cellHeight);
     			send.PackAjax({
-    				url: 'cells.htm?m=rows_insert',
+    				url: config.url.row.plus,
     				data: JSON.stringify({
-    					rowSort: sendRegion.startSortY
+    					sheetId: '1',
+    					row: sendRegion.startRow
     				})
     			});
     		},
@@ -18818,7 +18973,7 @@ define('lib/jquery',function() {
     				height,
     				top,
     				endRowIndex;
-    			select = selectRegions.getModelByType('operation')[0];
+    			select = selectRegions.getModelByType('selected');
     			startRowAlias = select.get('wholePosi').startY;
     			endRowAlias = select.get('wholePosi').endY;
     			startRowIndex = headItemRows.getIndexByAlias(startRowAlias);
@@ -18828,9 +18983,9 @@ define('lib/jquery',function() {
     				return;
     			}
     			if (startRowIndex >= index) {
-    				top = select.get('physicsPosi').top;
+    				top = select.get('physicsBox').top;
     				top += config.User.cellHeight;
-    				select.set('physicsPosi.top', top);
+    				select.set('physicsBox.top', top);
     				siderLineRows.models[0].set('top', top);
     				startRowIndex++;
     			}
@@ -18978,7 +19133,7 @@ define('lib/jquery',function() {
     				operRegion,
     				sendRegion;
     
-    			clip = selectRegions.getModelByType('clip')[0];
+    			clip = selectRegions.getModelByType('clip');
     			if (clip !== undefined) {
     				cache.clipState = 'null';
     				clip.destroy();
@@ -19001,9 +19156,10 @@ define('lib/jquery',function() {
     			this._removeLastColItem();
     			this._frozenHandle(operRegion.startColIndex);
     			send.PackAjax({
-    				url: 'cells.htm?m=cols_insert',
+    				url: config.url.col.plus,
     				data: JSON.stringify({
-    					colSort: sendRegion.startSortX,
+    					sheetId: '1',
+    					col: sendRegion.startCol,
     				}),
     			});
     		},
@@ -19069,7 +19225,7 @@ define('lib/jquery',function() {
     				width,
     				left;
     
-    			select = selectRegions.getModelByType('operation')[0];
+    			select = selectRegions.getModelByType('selected');
     
     			startColAlias = select.get('wholePosi').startX;
     			endColAlias = select.get('wholePosi').endX;
@@ -19089,7 +19245,7 @@ define('lib/jquery',function() {
     					left = insertModel.get('left');
     					width = insertModel.get('width');
     					startColAlias = insertModel.get('alias');
-    					select.set('physicsPosi.left', left);
+    					select.set('physicsBox.left', left);
     					select.set('physicsBox.width', width);
     					select.set('wholePosi.startX', startColAlias);
     					select.set('wholePosi.endX', startColAlias);
@@ -19097,12 +19253,12 @@ define('lib/jquery',function() {
     					siderLineCols.models[0].set('width', width);
     					headItemCols.models[lastIndex - 1].set('activeState', true);
     				} else {
-    					left = select.get('physicsPosi').left;
+    					left = select.get('physicsBox').left;
     					left += config.User.cellWidth;
     					width = select.get('physicsBox').width;
     					width -= headItemCols.models[lastIndex].get('width');
     					endColAlias = insertModel.get('alias');
-    					select.set('physicsPosi.left', left);
+    					select.set('physicsBox.left', left);
     					select.set('physicsBox.width', width);
     					endColAlias = headItemCols.models[endColIndex - 1].get('alias');
     					select.set('wholePosi.endX', endColAlias);
@@ -19112,9 +19268,9 @@ define('lib/jquery',function() {
     				}
     				return;
     			}
-    			left = select.get('physicsPosi').left;
+    			left = select.get('physicsBox').left;
     			left += config.User.cellWidth;
-    			select.set('physicsPosi.left', left);
+    			select.set('physicsBox.left', left);
     			siderLineCols.models[0].set('left', left);
     		},
     		
@@ -19205,6 +19361,7 @@ define('lib/jquery',function() {
     define('entrance/tool/deleterow',function() {
     	var Backbone = require('lib/backbone'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
     		headItemRows = require('collections/headItemRow'),
     		cells = require('collections/cells'),
     		getOperRegion = require('basic/tools/getoperregion'),
@@ -19223,7 +19380,7 @@ define('lib/jquery',function() {
     				posi,
     				height;
     
-    			clip = selectRegions.getModelByType('clip')[0];
+    			clip = selectRegions.getModelByType('clip');
     			if (clip !== undefined) {
     				cache.clipState = 'null';
     				clip.destroy();
@@ -19254,9 +19411,9 @@ define('lib/jquery',function() {
     			sendData();
     			function sendData() {
     				send.PackAjax({
-    					url: 'cells.htm?m=rows_delete',
+    					url: config.url.row.reduce ,
     					data: JSON.stringify({
-    						rowSort: sendRegion.startSortY,
+    						row: sendRegion.startSortY,
     					}),
     				});
     			}
@@ -19293,10 +19450,10 @@ define('lib/jquery',function() {
     				height,
     				top,
     				endRowIndex;
-    			select = selectRegions.getModelByType('operation')[0];
+    			select = selectRegions.getModelByType('selected');
     			startRowAlias = select.get('wholePosi').startY;
     			endRowAlias = select.get('wholePosi').endY;
-    			top = select.get('physicsPosi').top;
+    			top = select.get('physicsBox').top;
     			height = select.get('physicsBox').height;
     			startRowIndex = headItemRows.getIndexByAlias(startRowAlias);
     			endRowIndex = headItemRows.getIndexByAlias(endRowAlias);
@@ -19332,7 +19489,7 @@ define('lib/jquery',function() {
     
     			if (startRowIndex > index) {
     				top = top - headItemRows.models[index].get('height') - 1;
-    				select.set('physicsPosi.top', top);
+    				select.set('physicsBox.top', top);
     			}
     			siderLineRows.models[0].set('height', height);
     		},
@@ -19432,7 +19589,7 @@ define('lib/jquery',function() {
     				sendRegion,
     				index;
     
-    			clip = selectRegions.getModelByType('clip')[0];
+    			clip = selectRegions.getModelByType('clip');
     			if (clip !== undefined) {
     				cache.clipState = 'null';
     				clip.destroy();
@@ -19464,9 +19621,9 @@ define('lib/jquery',function() {
     			sendData();
     			function sendData(){
     				send.PackAjax({
-    					url: 'cells.htm?m=cols_delete',
+    					url: config.url.col.reduce,
     					data: JSON.stringify({
-    						colSort: sendRegion.startSortX,
+    						col: sendRegion.startSortX,
     					}),
     				});
     			}
@@ -19516,12 +19673,12 @@ define('lib/jquery',function() {
     				width,
     				left;
     
-    			select = selectRegions.getModelByType('operation')[0];
+    			select = selectRegions.getModelByType('selected');
     			startColAlias = select.get('wholePosi').startX;
     			endColAlias = select.get('wholePosi').endX;
     			startColIndex = headItemCols.getIndexByAlias(startColAlias);
     			endColIndex = headItemCols.getIndexByAlias(endColAlias);
-    			left = select.get('physicsPosi').left;
+    			left = select.get('physicsBox').left;
     			width = select.get('physicsBox').width;
     
     			if (endColIndex < index) {
@@ -19556,7 +19713,7 @@ define('lib/jquery',function() {
     
     			if (startColIndex > index) {
     				left = left - headItemCols.models[index].get('width') - 1;
-    				select.set('physicsPosi.left', left);
+    				select.set('physicsBox.left', left);
     			}
     			siderLineCols.models[0].set('width', width);
     		},
@@ -19654,7 +19811,7 @@ define('lib/jquery',function() {
     			operRegion,
     			sendRegion;
     
-    		clip = selectRegions.getModelByType('clip')[0];
+    		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
@@ -19690,6 +19847,7 @@ define('lib/jquery',function() {
     
     define('entrance/col/colhide',function() {
     	var send = require('basic/tools/send'),
+    		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
@@ -19703,22 +19861,25 @@ define('lib/jquery',function() {
     		hide: function(sheetId, label) {
     			var clip,
     				region,
-    				sendRegion,
     				colindex,
     				colSort,
     				adjustWidth,
     				headItemColList,
     				len;
     
-    			clip = selectRegions.getModelByType('clip')[0];
+    			clip = selectRegions.getModelByType('clip');
     			if (clip !== undefined) {
     				cache.clipState = 'null';
     				clip.destroy();
+    			}
+    			if (cache.TempProp.isFrozen) {
+    				return;
     			}
     			region = getOperRegion(label);
     			if (region.operRegion.endRowIndex !== 'MAX') {
     				return;
     			}
+    
     			headItemColList = headItemCols.models;
     			len = headItemColList.length;
     
@@ -19741,10 +19902,10 @@ define('lib/jquery',function() {
     			Backbone.trigger('event:cellsContainer:adaptWidth');
     
     			send.PackAjax({
-    				url: 'cells.htm?m=cols_hide',
+    				url: config.url.col.hide,
     				data: JSON.stringify({
-    					colSort: headItemColList[colindex].get('sort'),
-    					'hide': true
+    					sheetId: '1',
+    					col: headItemColList[colindex].get('sort')
     				})
     			});
     
@@ -19804,7 +19965,7 @@ define('lib/jquery',function() {
     				height,
     				left, i;
     
-    			select = selectRegions.getModelByType('operation')[0];
+    			select = selectRegions.getModelByType('selected');
     			lastHeadItemLeft = headItemColList[colLen - 1].get('left');
     			left = headItemColList[index].get('left');
     			//处理只剩一列情况
@@ -19833,33 +19994,12 @@ define('lib/jquery',function() {
     			width = headItemModel.get('width');
     			left = headItemModel.get('left');
     
-    			select.set({
-    				initPosi: {
-    					startX: i,
-    					startY: 0,
-    				},
-    				mousePosi: {
-    					mouseX: i,
-    					mouseY: 0
-    				},
-    				physicsPosi: {
-    					top: 0,
-    					left: left,
-    				},
-    				physicsBox: {
-    					width: width,
-    					height: height
-    				},
-    				wholePosi: {
-    					startX: colAlias,
-    					startY: rowStartAlias,
-    					endX: colAlias,
-    					endY: 'MAX'
-    				},
-    				selectType: 'operation'
+    			select.set('tempPosi', {
+    				initColIndex: i,
+    				initRowIndex: 0,
+    				mouseColIndex: i,
+    				mouseRowIndex: 'MAX'
     			});
-    			siderLineCols.models[0].set('left', left);
-    			siderLineCols.models[0].set('width', width - 1);
     		},
     		_adjustHideHeadItemCols: function(index) {
     			var headItemColList = headItemCols.models,
@@ -19888,27 +20028,28 @@ define('lib/jquery',function() {
     				headItemColList[i].set('left', left - width - 1);
     			}
     		},
-    		cancelHide: function(sheetId, label) {
+    		cancelHide: function(sheetId) {
     			var headItemColList = headItemCols.models,
     				len = headItemColList.length,
     				hidden,
-    				select,
     				cellList,
     				cellLen,
     				cellWidth,
     				cellLeft,
-    				headItemModel,
     				headItemLeft,
     				headItemAlias,
-    				selectLeft,
     				moveWidth = 0, //取消隐藏时，单元格，列对象，向右移动宽度
-    				colAlias,
     				width,
     				i = 0,
     				j;
     
     			if (cache.TempProp.isFrozen) {
     				return;
+    			}
+    			clip = selectRegions.getModelByType('clip');
+    			if (clip !== undefined) {
+    				cache.clipState = 'null';
+    				clip.destroy();
     			}
     			Backbone.trigger('event:restoreHideCellView');
     			Backbone.trigger('event:restoreHideCols');
@@ -19964,7 +20105,8 @@ define('lib/jquery',function() {
     			Backbone.trigger('event:cellsContainer:adaptWidth');
     			Backbone.trigger('event:colsAllHeadContainer:adaptWidth');
     			send.PackAjax({
-    				url: 'sheet.htm?m=cols_cancelhide'
+    				sheetId: '1',
+    				url: config.url.col.show
     			});
     
     		},
@@ -19975,7 +20117,7 @@ define('lib/jquery',function() {
     				select,
     				left,
     				width = 0;
-    			select = selectRegions.getModelByType('operation')[0];
+    			select = selectRegions.getModelByType('selected');
     			startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
     			endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
     			left = headItemColList[startColIndex].get('left');
@@ -19983,7 +20125,7 @@ define('lib/jquery',function() {
     				width += (headItemColList[i].get('width') + 1);
     			}
     			select.set('physicsBox.width', width - 1);
-    			select.set('physicsPosi.left', left);
+    			select.set('physicsBox.left', left);
     			siderLineCols.models[0].set('left', left);
     			siderLineCols.models[0].set('width', width - 1);
     		}
@@ -20011,11 +20153,11 @@ define('lib/jquery',function() {
     			i,
     			j;
     
-    		clipModel = selectRegions.getModelByType('clip')[0];
+    		clipModel = selectRegions.getModelByType('clip');
     		if (clipModel !== undefined) {
     			clipModel.destroy();
     		}
-    		selectRegion = selectRegions.getModelByType('operation')[0];
+    		selectRegion = selectRegions.getModelByType('selected');
     		//整行整列，禁止复制
     		if(selectRegion.get('wholePosi').endX === 'MAX' ||
     			selectRegion.get('wholePosi').endY === 'MAX'){
@@ -20099,9 +20241,11 @@ define('lib/jquery',function() {
     	
     	var Backbone = require('lib/backbone'),
     		cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
     		cells = require('collections/cells'),
     		Cell = require('models/cell'),
     		send = require('basic/tools/send'),
+    		history = require('basic/tools/history'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
     		selectRegions = require('collections/selectRegion'),
@@ -20118,7 +20262,10 @@ define('lib/jquery',function() {
     	}
     
     	function excelDataPaste(type) {
-    		var clipRegion,
+    		var originalModelIndexs = [],
+    			currentModelIndexs = [],
+    			cellOccupy = cache.CellsPosition.strandX,
+    			clipRegion,
     			selectRegion,
     			startColIndex,
     			startRowIndex,
@@ -20138,44 +20285,48 @@ define('lib/jquery',function() {
     			headItemRowList,
     			sendData = [],
     			text = "",
+    			URL = '',
     			i,
     			j;
     
-    		clipRegion = selectRegions.getModelByType("clip")[0];
-    		selectRegion = selectRegions.getModelByType("operation")[0];
+    		clipRegion = selectRegions.getModelByType('clip');
+    		selectRegion = selectRegions.getModelByType('selected');
     
     		headItemRowList = headItemRows.models;
     		headItemColList = headItemCols.models;
     
-    		startColIndex = headItemCols.getIndexByAlias(clipRegion.get("wholePosi").startX);
-    		startRowIndex = headItemRows.getIndexByAlias(clipRegion.get("wholePosi").startY);
-    		endColIndex = headItemCols.getIndexByAlias(clipRegion.get("wholePosi").endX);
-    		endRowIndex = headItemRows.getIndexByAlias(clipRegion.get("wholePosi").endY);
+    		startColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').startX);
+    		startRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').startY);
+    		endColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').endX);
+    		endRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').endY);
     
-    		relativeColIndex = startColIndex - headItemCols.getIndexByAlias(selectRegion.get("wholePosi").startX);
-    		relativeRowIndex = startRowIndex - headItemRows.getIndexByAlias(selectRegion.get("wholePosi").startY);
+    		relativeColIndex = startColIndex - headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
+    		relativeRowIndex = startRowIndex - headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
     
-    
+    		if (type === 'cut') {
+    			URL = config.url.sheet.cut;
+    		} else {
+    			URL = config.url.sheet.copy;
+    		}
     		send.PackAjax({
-    			url: 'plate.htm?m=' + type,
+    			url: URL,
     			async: false,
     			data: JSON.stringify({
     				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
     				sheetId: '1',
     				orignal: {
-    					startColSort: headItemColList[startColIndex].get('sort'),
-    					endColSort: headItemColList[endColIndex].get('sort'),
-    					startRowSort: headItemRowList[startRowIndex].get('sort'),
-    					endRowSort: headItemRowList[endRowIndex].get('sort'),
+    					startCol: headItemColList[startColIndex].get('sort'),
+    					endCol: headItemColList[endColIndex].get('sort'),
+    					startRow: headItemRowList[startRowIndex].get('sort'),
+    					endRow: headItemRowList[endRowIndex].get('sort'),
     				},
     				target: {
-    					colSort: headItemColList[startColIndex - relativeColIndex].get('sort'),
-    					rowSort: headItemRowList[startRowIndex - relativeRowIndex].get('sort')
+    					orignalCol: headItemColList[startColIndex - relativeColIndex].get('sort'),
+    					orignalRow: headItemRowList[startRowIndex - relativeRowIndex].get('sort')
     				}
     			}),
     			success: function(data) {
-    				var isable = data.returndata;
-    				if (isable) {
+    				if (data && data.isLegal) {
     					for (i = startRowIndex; i < endRowIndex + 1; i++) {
     						for (j = startColIndex; j < endColIndex + 1; j++) {
     							if (j - relativeColIndex > headItemCols.models.length - 1) continue;
@@ -20184,6 +20335,7 @@ define('lib/jquery',function() {
     							selectRowAlias = headItemRows.models[i - relativeRowIndex].get('alias');
     							tempCellModel = cells.getCellByAlias(selectColAlias, selectRowAlias);
     							if (tempCellModel !== null) {
+    								originalModelIndexs.push(cellOccupy[selectColAlias][selectRowAlias]);
     								tempCellModel.set('isDestroy', true);
     								deletePosi(selectColAlias, selectRowAlias);
     							}
@@ -20199,7 +20351,10 @@ define('lib/jquery',function() {
     							if (i - relativeRowIndex > headItemRows.models.length - 1) continue;
     							CellModel = cells.getCellByAlias(clipColAlias, clipRowAlias);
     
-    							if (type === "cut") deletePosi(clipColAlias, clipRowAlias);
+    							if (typeof CellModel !== 'null' && type === "cut") {
+    								originalModelIndexs.push(cellOccupy[clipColAlias][clipRowAlias]);
+    								deletePosi(clipColAlias, clipRowAlias);
+    							}
     							if (CellModel !== null && CellModel.get('occupy').x[0] === clipColAlias && CellModel.get('occupy').y[0] === clipRowAlias) {
     								tempCopyCellModel = CellModel.clone();
     								if (type === "cut") {
@@ -20207,17 +20362,19 @@ define('lib/jquery',function() {
     								}
     								adaptCell(tempCopyCellModel, relativeColIndex, relativeRowIndex);
     								cacheCellPosition(tempCopyCellModel);
+    								currentModelIndexs.push(cells.length);
     								cells.add(tempCopyCellModel);
     							}
     						}
     					}
+    					history.addCoverAction(currentModelIndexs, originalModelIndexs);
     					//修改:对模型直接进行修改
-    					Backbone.trigger('event:cellsContainer:adjustSelectRegion', {
+    					selectRegion.set('tempPosi', {
     						initColIndex: startColIndex - relativeColIndex,
     						initRowIndex: startRowIndex - relativeRowIndex,
     						mouseColIndex: endColIndex - relativeColIndex < headItemCols.models.length - 1 ? endColIndex - relativeColIndex : headItemCols.models.length - 1,
     						mouseRowIndex: endRowIndex - relativeRowIndex < headItemRows.models.length - 1 ? endRowIndex - relativeRowIndex : headItemRows.models.length - 1
-    					})
+    					});
     					if (type === 'cut') {
     						cache.clipState = "null";
     						clipRegion.destroy();
@@ -20225,7 +20382,9 @@ define('lib/jquery',function() {
     					if (startColIndex - relativeColIndex > endColIndex ||
     						endColIndex - relativeColIndex < startColIndex ||
     						startRowIndex - relativeRowIndex > endRowIndex ||
-    						endRowIndex - relativeRowIndex < startRowIndex) {} else {
+    						endRowIndex - relativeRowIndex < startRowIndex) {
+    
+    					} else {
     						cache.clipState = "null";
     						clipRegion.destroy();
     					}
@@ -20316,7 +20475,10 @@ define('lib/jquery',function() {
     	}
     	
     	function clipBoardDataPaste(pasteText) {
-    		var headItemColList,
+    		var originalModelIndexs = [],
+    			currentModelIndexs = [],
+    			cellOccupy = cache.CellsPosition.starndX,
+    			headItemColList,
     			headItemRowList,
     			encodeText,
     			rowData = [],
@@ -20340,7 +20502,7 @@ define('lib/jquery',function() {
     			colLen,
     			tempCell;
     		//清楚选中复制区域视图
-    		clipRegion = selectRegions.getModelByType('clip')[0];
+    		clipRegion = selectRegions.getModelByType('clip');
     		if (clipRegion !== null && clipRegion !== undefined) {
     			clipRegion.destroy();
     		}
@@ -20358,7 +20520,7 @@ define('lib/jquery',function() {
     		headItemRowList = headItemRows.models;
     
     		colLen = rowData[0].split('%09').length;
-    		selectRegion = selectRegions.getModelByType('operation')[0];
+    		selectRegion = selectRegions.getModelByType('selected');
     		startRowAlias = selectRegion.get('wholePosi').startY;
     		startColAlias = selectRegion.get('wholePosi').startX;
     		startRowIndex = headItemRows.getIndexByAlias(startRowAlias);
@@ -20390,26 +20552,25 @@ define('lib/jquery',function() {
     		}
     
     		send.PackAjax({
-    			url: 'plate.htm?m=paste',
+    			url: config.url.sheet.paste,
     			async: false,
     			data: JSON.stringify({
-    				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
     				sheetId: '1',
-    				startColSort: startColSort,
-    				startRowSort: startRowSort,
+    				col: startColSort,
+    				row: startRowSort,
     				colLen: colLen,
     				rowLen: rowLen,
     				pasteData: sendData
     			}),
     			success: function(data) {
-    				var isable = data.returndata;
-    				if (isable === true) {
+    				if (data && data.isLegal) {
     					for (i = 0; i < rowLen; i++) {
     						for (j = 0; j < colLen; j++) {
     							rowAlias = headItemRowList[startRowIndex + i].get('alias');
     							colAlias = headItemColList[startColIndex + j].get('alias');
     							tempCell = cells.getCellByVertical(startColIndex + j, startRowIndex + i)[0];
     							if (tempCell !== undefined && tempCell.get("isDestroy") === false) {
+    								originalModelIndexs.push(cellOccupy[colAlias][rowAlias]);
     								tempCell.set("isDestroy", true);
     							}
     							cache.deletePosi(rowAlias, colAlias);
@@ -20417,8 +20578,10 @@ define('lib/jquery',function() {
     					}
     					for (i = 0; i < cellData.length; i++) {
     						textToCell(cellData[i]);
+    						currentModelIndexs.push(cells.length - 1);
     					}
     				}
+    				history.addCoverAction(currentModelIndexs, originalModelIndexs);
     			}
     		});
     
@@ -20503,32 +20666,41 @@ define('lib/jquery',function() {
     	var send = require('basic/tools/send'),
     		cells = require('collections/cells'),
     		Backbone = require('lib/backbone'),
+    		config = require('spreadsheet/config'),
     		selectRegions = require('collections/selectRegion'),
     		getOperRegion = require('basic/tools/getoperregion'),
+    		history = require('basic/tools/history'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
     		rowOperate = require('entrance/row/rowoperation'),
     		colOperate = require('entrance/col/coloperation'),
     		cache = require('basic/tools/cache'),
     		commentHandler;
     
     	commentHandler = {
-    		modifyComment: function(sheetId, comment, label) {
-    
-    			var clip,
-    				region,
-    				operRegion,
-    				sendRegion;
-    
-    			clip = selectRegions.getModelByType('clip')[0];
+    		removeClip: function() {
+    			var clip = selectRegions.getModelByType('clip');
     			if (clip !== undefined) {
     				cache.clipState = 'null';
     				clip.destroy();
     			}
+    		},
+    		modifyComment: function(sheetId, comment, label) {
+    			var clip,
+    				region,
+    				operRegion,
+    				sendRegion,
+    				headItemRowList = headItemRows.models,
+    				headItemColList = headItemCols.models,
+    				changeModelList = [];
+    
+    			this.removeClip();
     			region = getOperRegion(label);
     			operRegion = region.operRegion;
     			sendRegion = region.sendRegion;
     
     			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-    				this.sendData(sendRegion, comment, 'text.htm?m=comment_set');
+    				this.sendData(sendRegion, comment, config.url.cell.comment_plus);
     				return;
     			}
     
@@ -20537,37 +20709,42 @@ define('lib/jquery',function() {
     			} else if (operRegion.endRowIndex === 'MAX') {
     				colOperate.colPropOper(operRegion.startColIndex, 'customProp.comment', comment);
     			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell) {
-    					cell.set('customProp.comment', comment);
+    				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    					if (cell.get('customProp').comment !== comment) {
+    						changeModelList.push({
+    							colSort: colSort,
+    							rowSort: rowSort,
+    							value: cell.get('customProp').comment
+    						});
+    						cell.set('customProp.comment', comment);
+    					}
     				});
+    				history.addUpdateAction('customProp.comment', comment, {
+    					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    				}, changeModelList);
     			}
-    
-    			this.sendData(sendRegion, comment, 'text.htm?m=comment_set');
+    			this.sendData(sendRegion, comment, config.url.cell.comment_plus);
     		},
     
     		createAddCommentView: function(sheetId) {
-    			var clip = selectRegions.getModelByType('clip')[0];
-    			if (clip !== undefined) {
-    				cache.clipState = 'null';
-    				clip.destroy();
-    			}
-    			Backbone.trigger('event:commentContainer:show', {
-    				'state': 'add',
+    			this.removeClip();
+    			Backbone.trigger('event:bodyContainer:handleComment', {
+    				'action': 'add',
     			});
     		},
     
     		createEditComment: function(sheetId) {
-    			var clip = selectRegions.getModelByType('clip')[0];
-    			if (clip !== undefined) {
-    				cache.clipState = 'null';
-    				clip.destroy();
-    			}
-    			Backbone.trigger('event:commentContainer:show', {
-    				'state': 'edit'
+    			this.removeClip();
+    			Backbone.trigger('event:bodyContainer:handleComment', {
+    				'action': 'edit'
     			});
     		},
     
     		deleteComment: function(sheetId, label) {
+    			this.removeClip();
     			this.modifyComment('1', null, label);
     		},
     		sendData: function(sendRegion, comment, url) {
@@ -20586,63 +20763,7 @@ define('lib/jquery',function() {
     	return commentHandler;
     });
     
-    define('basic/util/observer.pattern',function() {
-    	
-    	var observer = {
-    		
-    		publisher: {
-    			subscribers: {
-    				any: [] //事件类型：订阅者（subscribers）
-    			},
-    			subscribe: function(fn, type) {
-    				type = type || 'any';
-    				if (typeof this.subscribers[type] === 'undefined') {
-    					this.subscribers[type] = [];
-    				}
-    				this.subscribers[type].push(fn);
-    			},
-    			unsubscribe: function(fn, type) {
-    				this.visitSubscribers('unsubscribe', fn, type);
-    			},
-    			publish: function(publication, type) {
-    				this.visitSubscribers('publish', publication, type);
-    			},
-    			
-    			visitSubscribers: function(action, arg, type) {
-    				var pubtype = type || 'any',
-    					subscribers = this.subscribers[pubtype],
-    					subscriber,
-    					i,
-    					max;
-    				max = subscribers !== undefined ? subscribers.length : 0;
-    				for (i = 0; i < max; i++) {
-    					if (action === 'publish') {
-    						subscriber = subscribers[i];
-    						subscriber.master[subscriber.behavior](arg, subscriber.args);
-    					} else {
-    						if (subscribers[i] === arg) {
-    							subscribers.splice(i, 1);
-    						}
-    					}
-    				}
-    			}
-    		},
-    		
-    		buildPublisher: function(obj) {
-    			for (var i in this.publisher) {
-    				if (this.publisher.hasOwnProperty(i) && typeof this.publisher[i] === 'function') {
-    					obj[i] = this.publisher[i];
-    				}
-    			}
-    			obj.subscribers = {
-    				any: []
-    			};
-    		}
-    	};
-    	return observer;
-    });
-    
-define('lib/handlebars',function() {
+    define('lib/handlebars',function() {
     	return  (function(modules) { // webpackBootstrap
     			 // The module cache
     			
@@ -27054,11 +27175,114 @@ define('lib/handlebars',function() {
     			
     		])
     });
+    
+    define('basic/tools/template',function() {
+    	var Handlebars = require('lib/handlebars'),
+    		templatesHTML = {},
+    		template = {};
+    
+    	templatesHTML.BODYTEMPLATE = '<div class="main-layout">';
+    	templatesHTML.BODYTEMPLATE += '<table class="cui-grid" cellspacing="0" cellpadding="0" id="tableContainer">';
+    	templatesHTML.BODYTEMPLATE += '<tbody><tr><td><div class="left-corner"></div></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></tbody>';
+    	templatesHTML.BODYTEMPLATE += '</table><div class="input"></div></div>';
+    	templatesHTML.BODYTEMPLATE += '<div class="sheet-layout"><div class="sheet-body">';
+    	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-box glyphicons glyphicon-plus"></div>';
+    	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-box active glyphicons glyphicon-th-list"></div>';
+    	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-list"></div>';
+    	templatesHTML.BODYTEMPLATE += '</div>';
+    
+    	templatesHTML.SHEETTEMPLATE = '<span>{{name}}</span>';
+    
+    	templatesHTML.ROWHEADTEMPLATE = '<div class="item">{{displayName}}</div>';
+    	templatesHTML.COLHEADTEMPLATE = '<div class="item">{{displayName}}</div>';
+    
+    	templatesHTML.INPUTTEMPLATE = '<div class="textarea"><textarea class="input-container"></textarea><div>';
+    
+    	templatesHTML.SELECTTEMPLATE = '<div class="box"><div class="expand"></div><div class="bg"></div></div>';
+    
+    	templatesHTML.CELLTEMPLATE = '<div class="bg" style="display:table-cell;">{{content.texts}}</div>';
+    
+    	templatesHTML.COLGRIDTEMPLATE = '<div class="col" style="left:{{left}}px;"></div>';
+    	templatesHTML.ROWGRIDTEMPLATE = '<div class="row" style="top:{{top}}px;"></div>';
+    
+    	templatesHTML.COMMENTTEMPLAET = '<div></div>';
+    
+    
+    	function getTemplate(type) {
+    		var tmpType;
+    		if (tmpType = template[type]) {
+    			return tmpType;
+    		}
+    		tmpType = template[type] = Handlebars.compile(templatesHTML[type]);
+    		return tmpType;
+    	}
+    	return getTemplate;
+    });
+    
+    define('basic/util/observer.pattern',function() {
+    	
+    	var observer = {
+    		
+    		publisher: {
+    			subscribers: {
+    				any: [] //事件类型：订阅者（subscribers）
+    			},
+    			subscribe: function(fn, type) {
+    				type = type || 'any';
+    				if (typeof this.subscribers[type] === 'undefined') {
+    					this.subscribers[type] = [];
+    				}
+    				this.subscribers[type].push(fn);
+    			},
+    			unsubscribe: function(fn, type) {
+    				this.visitSubscribers('unsubscribe', fn, type);
+    			},
+    			publish: function(publication, type) {
+    				this.visitSubscribers('publish', publication, type);
+    			},
+    			
+    			visitSubscribers: function(action, arg, type) {
+    				var pubtype = type || 'any',
+    					subscribers = this.subscribers[pubtype],
+    					subscriber,
+    					i,
+    					max;
+    				max = subscribers !== undefined ? subscribers.length : 0;
+    				for (i = 0; i < max; i++) {
+    					if (action === 'publish') {
+    						subscriber = subscribers[i];
+    						if(typeof subscriber === 'object'){
+    							subscriber.master[subscriber.behavior](arg, subscriber.args);
+    						}else if(typeof subscriber === 'function'){
+    							subscriber(arg);
+    						}
+    					} else {
+    						if (subscribers[i] === arg) {
+    							subscribers.splice(i, 1);
+    						}
+    					}
+    				}
+    			}
+    		},
+    		
+    		buildPublisher: function(obj) {
+    			for (var i in this.publisher) {
+    				if (this.publisher.hasOwnProperty(i) && typeof this.publisher[i] === 'function') {
+    					obj[i] = this.publisher[i];
+    				}
+    			}
+    			obj.subscribers = {
+    				any: []
+    			};
+    		}
+    	};
+    	return observer;
+    });
     define('views/sheetContainer',function() {
     	
     	var $ = require('lib/jquery'),
     		Backbone = require('lib/backbone'),
-    		Handlebars = require('lib/handlebars');
+    		getTemplate = require('basic/tools/template');
     	
     	var sheetContainer = Backbone.View.extend({
     		tagName: 'li',
@@ -27066,7 +27290,7 @@ define('lib/handlebars',function() {
     		initialize: function(option) {
     			var modelJSON = this.model.toJSON();
     			this.listenTo(this.model, 'destroy', this.destroy);
-    			this.template=Handlebars.compile($('#tempSheetContainer').html());
+    			this.template = getTemplate('SHEETTEMPLATE');
     			this.$el.html(this.template(modelJSON));
     			if(option.active ===true){
     				this.$el.addClass('active');
@@ -27299,7 +27523,8 @@ define('lib/handlebars',function() {
     define('views/cellContainer',function() {
     	
     	var $ = require('lib/jquery'),
-    		Handlebars = require('lib/handlebars'),
+    		_ = require('lib/underscore'),
+    		getTemplate = require('basic/tools/template'),
     		binary = require('basic/util/binary'),
     		Backbone = require('lib/backbone'),
     		headItemRows = require('collections/headItemRow'),
@@ -27309,164 +27534,113 @@ define('lib/handlebars',function() {
     		config = require('spreadsheet/config'),
     		getTextBox = require('basic/tools/gettextbox'),
     		setCellHeight = require('entrance/cell/setcellheight'),
-    		textTypeHandler = require('entrance/tool/settexttype'),
+    		formatHandler = require('entrance/tool/settexttype'),
+    		headItemColList = headItemCols.models,
     		CellContainer;
     
     	
     	CellContainer = Backbone.View.extend({
     		
     		className: 'item',
-    		events: {
-    			'mouseenter': 'overHandle',
-    			'mouseleave': 'outHandle'
-    		},
     		
     		initialize: function(options) {
     
     			var modelRowList = headItemRows,
     				modelColList = headItemCols;
     
-    			Backbone.on('event:destroyCellView', this.clear, this);
-    			this.listenTo(this.model, 'change:physicsBox', this.render);
-    			this.listenTo(this.model, 'change:content', this.render);
-    			this.listenTo(this.model, 'change:border', this.render);
-    			this.listenTo(this.model, 'change:format', this.render);
-    			this.listenTo(this.model, 'change:customProp', this.render);
-    			this.listenTo(this.model, 'change:highlight', this.render);
-    			this.listenTo(this.model, 'change:wordWrap', this.adaptCellHight);
-    			this.listenTo(this.model, 'change:content', this.adaptCellHight);
-    			this.listenTo(this.model, 'change:isDestroy', this.destroy);
-    			this.listenTo(this.model, 'change:commentShowState', this.commentViewHandler);
-    			this.listenTo(this.model, 'change:hidden', this.destroy);
-    			this.listenTo(this.model, 'destroy', this.clear);
+    			this.listenTo(this.model, 'change:physicsBox.width', this.changeWidth);
+    			this.listenTo(this.model, 'change:physicsBox.height', this.changeHeight);
+    			this.listenTo(this.model, 'change:physicsBox.left', this.changeLeft);
+    			this.listenTo(this.model, 'change:physicsBox.top', this.changeTop);
+    
+    			this.listenTo(this.model, 'change:content.size', this.changeFontSize);
+    			this.listenTo(this.model, 'change:content.family', this.changeFontFamily);
+    			this.listenTo(this.model, 'change:content.italic', this.changeItalic);
+    			this.listenTo(this.model, 'change:content.bd', this.changeBold);
+    			this.listenTo(this.model, 'change:content.color', this.changeColor);
+    			this.listenTo(this.model, 'change:content.alignRow', this.changeTransverseAlign);
+    			this.listenTo(this.model, 'change:content.alignCol', this.changeVerticalAlign);
+    			this.listenTo(this.model, 'change:content.texts', this.generateDisplayText);
+    
+    			this.listenTo(this.model, 'change:border.left', this.changeLeftBorder);
+    			this.listenTo(this.model, 'change:border.right', this.changeRightBorder);
+    			this.listenTo(this.model, 'change:border.top', this.changeTopBorder);
+    			this.listenTo(this.model, 'change:border.bottom', this.changeBottomBorder);
+    
+    			this.listenTo(this.model, 'change:customProp.background', this.changeBackground);
+    
+    			this.listenTo(this.model, 'change:customProp.comment', this.showCommentSign);
+    			//初始化不走该方法，直接将显示文本贴到html中
+    			this.listenTo(this.model, 'change:format', this.generateDisplayText);
+    
+    			this.listenTo(this.model, 'change:wordWrap', this.changeWordWrap);
     
     			this.currentRule = options.currentRule;
     			if (cache.TempProp.isFrozen !== true ||
     				this.currentRule.displayPosition.endRowIndex === undefined) {
-    				this.listenTo(this.model, 'change:showState', this.changeShowState);
+    				this.listenTo(this.model, 'change:showState', this.destroy);
     			}
-    			this.currentRule = options.currentRule;
+    			//待修改：需要验证现删除DOM，视图对象是否得到了释放
+    			this.listenTo(this.model, 'change:isDestroy', this.destroy);
+    			this.listenTo(this.model, 'change:hidden', this.destroy);
+    			this.listenTo(this.model, 'destroy', this.remove);
     
     			this.offsetLeft = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetLeft || 0) : 0;
     			this.offsetTop = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetTop || 0) : 0;
     
     			this.userViewLeft = cache.TempProp.isFrozen ? modelColList.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
     			this.userViewTop = cache.TempProp.isFrozen ? modelRowList.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
-    
-    			_.bindAll(this, 'overHandle', 'outHandle');
-    			this.mouseOverEventId = null;
-    		},
-    		overHandle: function() {
-    			var self = this,
-    				model = this.model;
-    			if (cache.commentEditState) {
-    				return;
-    			}
-    			if ($('.comment').length === 0 && typeof model.get('customProp').comment === 'string') {
-    				this.mouseOverEventId = setTimeout(function() {
-    					self.model.set('commentShowState', true);
-    				}, 1000);
-    			}
-    		},
-    
-    		outHandle: function() {
-    			clearTimeout(this.mouseOverEventId);
-    			this.model.set('commentShowState', false);
-    		},
-    		commentViewHandler: function() {
-    			if (this.model.get('commentShowState') === true) {
-    				this.showComment();
-    			} else {
-    				this.hideComment();
-    			}
-    		},
-    		
-    		showComment: function() {
-    			var rowAlias,
-    				colAlias,
-    				rowIndex,
-    				colIndex,
-    				occupy = this.model.get('occupy'),
-    				comment = this.model.get('customProp').comment,
-    				options;
-    			rowAlias = occupy.y[0];
-    			colAlias = occupy.x[occupy.x.length - 1];
-    			rowIndex = headItemRows.getIndexByAlias(rowAlias);
-    			colIndex = headItemCols.getIndexByAlias(colAlias);
-    			options = {
-    				colIndex: colIndex,
-    				rowIndex: rowIndex,
-    				comment: comment,
-    				state: 'show'
-    			};
-    			Backbone.trigger('event:commentContainer:show', options);
-    		},
-    		hideComment: function() {
-    			Backbone.trigger('event:commentContainer:remove');
     		},
     		
     		render: function() {
-    			var modelJSON = this.model.toJSON();
+    			var modelAttr = this.model.attributes;
+    			this.template = getTemplate('CELLTEMPLATE');
     
-    			this.template = Handlebars.compile($('#tempItemCell').html());
-    			// this.$el.removeAttr('style');
-    			this.$el.css({
-    				'width': modelJSON.physicsBox.width,
-    				'height': modelJSON.physicsBox.height,
-    				'left': modelJSON.physicsBox.left - this.offsetLeft - this.userViewLeft - 1,
-    				'top': modelJSON.physicsBox.top - this.offsetTop - this.userViewTop - 1
-    			}).html(this.template(modelJSON));
+    			this.$el.html(this.template({
+    				content: modelAttr.content,
+    				text: this.getHtmlText(modelAttr)
+    			}));
     
-    			// "color": modelJSON.content.color
-    			// this is improve poiont , marinottejs itemview function can be replace this bug
-    			this.$contentBody = $('.bg', this.$el);
-    			this.$contentBody.css({
-    				"color": modelJSON.content.color,
-    				"font-family": modelJSON.content.family,
-    				"font-size": modelJSON.content.size + 'pt'
-    			}).html(this.getDisplayText(modelJSON));
+    			this.$contentBody = this.$contentBody = $('.bg', this.$el);
     
-    			this.changeTopBorder(modelJSON);
-    			this.changeLeftBorder(modelJSON);
-    			this.changeBottomBorder(modelJSON);
-    			this.changeRightBorder(modelJSON);
-    			this.changeBackground(modelJSON);
-    			this.setTransverseAlign(modelJSON);
-    			this.setVerticalAlign(modelJSON);
-    			this.setBold(modelJSON);
-    			this.setItalic(modelJSON);
-    			this.wordWrap(modelJSON);
-    			this.showCommentSign(modelJSON);
+    			this.changeFontFamily(modelAttr);
+    			this.changeFontSize(modelAttr);
+    			this.changeColor(modelAttr);
+    
+    			this.changeWidth(modelAttr);
+    			this.changeHeight(modelAttr);
+    			this.changeLeft(modelAttr);
+    			this.changeTop(modelAttr);
+    
+    			this.changeItalic(modelAttr);
+    			this.changeBold(modelAttr);
+    			this.changeTransverseAlign(modelAttr);
+    			this.changeVerticalAlign(modelAttr);
+    
+    			this.changeTopBorder(modelAttr);
+    			this.changeLeftBorder(modelAttr);
+    			this.changeBottomBorder(modelAttr);
+    			this.changeRightBorder(modelAttr);
+    
+    			this.changeBackground(modelAttr);
+    			this.changeWordWrap(modelAttr);
+    			this.showCommentSign(modelAttr);
     			return this;
     		},
-    		
-    		changeShowState: function() {
-    			if (this.model.get('showState') === false) {
-    				this.remove();
-    			}
-    		},
-    		
-    		showCommentSign: function(modelJSON) {
-    			if (modelJSON.customProp.comment !== null &&
-    				modelJSON.customProp.comment !== undefined) {
-    				this.$el.prepend('<div class="comment-ico"><div class="triangle"></div></div>');
-    			}
-    		},
-    		
-    		// getFormatText: function(modelJSON) {
-    		// },
-    		getDisplayText: function(modelJSON) {
-    			var inputText,
+    		getHtmlText: function(modelAttr) {
+    			var text,
     				texts,
-    				text,
     				temp,
     				i = 0,
     				height;
-    			text = modelJSON.content.displayTexts;
-    			text = text || '';
-    			temp = text;
+    
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			text = modelAttr.content.displayTexts || '';
     			texts = text.split('\n');
     			text = '';
+    
     			if (this.model.get('wordWrap') === false) {
     				for (i = 0; i < texts.length; i++) {
     					text += texts[i];
@@ -27478,6 +27652,252 @@ define('lib/handlebars',function() {
     			}
     			text = text.replace(/\u0020/g, '&nbsp;');
     			return text;
+    		},
+    		changeWidth: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			this.$el.css({
+    				width: modelAttr.physicsBox.width
+    			});
+    		},
+    		changeHeight: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			this.$el.css({
+    				height: modelAttr.physicsBox.height
+    			});
+    		},
+    		changeLeft: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			this.$el.css({
+    				left: modelAttr.physicsBox.left - this.offsetLeft - this.userViewLeft - 1
+    			});
+    		},
+    		changeTop: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			this.$el.css({
+    				top: modelAttr.physicsBox.top - this.offsetTop - this.userViewTop - 1
+    			});
+    		},
+    		changeBold: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			if (modelAttr.content.bd) {
+    				this.$contentBody.css({
+    					'fontWeight': 'bold'
+    				});
+    			} else {
+    				this.$contentBody.css({
+    					'fontWeight': 'normal'
+    				});
+    			}
+    		},
+    		
+    		changeItalic: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			if (modelAttr.content.italic) {
+    				this.$contentBody.css({
+    					'fontStyle': 'italic'
+    				});
+    			} else {
+    				this.$contentBody.css({
+    					'fontStyle': 'normal'
+    				});
+    			}
+    		},
+    		changeTransverseAlign: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			var format = modelAttr.format,
+    				isValid = format.isValid,
+    				type = format.type,
+    				text = modelAttr.content.texts,
+    				alignRow = modelAttr.content.alignRow;
+    			if (alignRow) {
+    				this.$contentBody.css({
+    					'textAlign': alignRow
+    				});
+    				return;
+    			}
+    			if (type !== 'text' && type !== 'normal' && isValid === true) {
+    				this.$contentBody.css({
+    					'textAlign': 'right'
+    				});
+    				return;
+    			}
+    			if (type === 'normal' && formatHandler.isNum(text)) {
+    				this.$contentBody.css({
+    					'textAlign': 'right'
+    				});
+    				return;
+    			}
+    			this.$contentBody.css({
+    				'textAlign': 'left'
+    			});
+    		},
+    		
+    		changeVerticalAlign: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			this.$contentBody.css({
+    				'verticalAlign': this.model.attributes.content.alignCol
+    			});
+    		},
+    		
+    		changeTopBorder: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			if (modelAttr.border.top) {
+    				this.$el.css({
+    					'borderTopColor': '#000'
+    				});
+    			} else {
+    				this.$el.css({
+    					'borderTopColor': 'transparent'
+    				});
+    			}
+    		},
+    		
+    		changeBottomBorder: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			if (modelAttr.border.bottom) {
+    				this.$el.css({
+    					'borderBottomColor': '#000'
+    				});
+    			} else {
+    				this.$el.css({
+    					'borderBottomColor': 'transparent'
+    				});
+    			}
+    		},
+    		
+    		changeLeftBorder: function(modelAttr) {
+    			var headItemModel;
+    
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			if (!modelAttr.border.left) {
+    				this.$el.css({
+    					'borderLeftColor': 'transparent'
+    				});
+    			} else {
+    				headItemModel = headItemCols.getModelByAlias(modelAttr.occupy.x[0]);
+    				if (headItemModel.attributes.isLeftAjacentHide) {
+    					this.$el.css({
+    						'borderLeftColor': 'transparent'
+    					});
+    				} else {
+    					this.$el.css({
+    						'borderLeftColor': '#000'
+    					});
+    				}
+    			}
+    		},
+    		
+    		changeRightBorder: function(modelAttr) {
+    			var headItemModel,
+    				occupyX;
+    
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			occupyX = modelAttr.occupy.x;
+    			if (!modelAttr.border.right) {
+    				this.$el.css({
+    					'borderRightColor': 'transparent'
+    				});
+    			} else {
+    				headItemModel = headItemCols.getModelByAlias(occupyX[occupyX.length - 1]);
+    				if (headItemModel.attributes.isRightAjacentHide) {
+    					this.$el.css({
+    						'borderRightColor': 'transparent'
+    					});
+    				} else {
+    					this.$el.css({
+    						'borderRightColor': '#000'
+    					});
+    				}
+    			}
+    		},
+    		
+    		changeBackground: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			if (modelAttr.customProp.background !== '') {
+    				this.$contentBody.css({
+    					'backgroundColor': modelAttr.customProp.background
+    				});
+    			} else {
+    				this.$contentBody.css({
+    					'backgroundColor': '#fff'
+    				});
+    			}
+    		},
+    		changeWordWrap: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			if (modelAttr.wordWrap === true) {
+    				this.$contentBody.css({
+    					'wordBreak': 'break-word',
+    					'whiteSpace': 'normal'
+    				});
+    			} else {
+    				this.$contentBody.css({
+    					'whiteSpace': 'nowrap'
+    				});
+    			}
+    		},
+    		
+    		showCommentSign: function(modelAttr) {
+    			if (modelAttr.attributes) {
+    				modelAttr = this.model.attributes;
+    			}
+    			if (modelAttr.customProp.comment !== null &&
+    				modelAttr.customProp.comment !== undefined) {
+    				this.$el.prepend('<div class="comment-ico"><div class="triangle"></div></div>');
+    			} else {
+    				var commentSign = this.$el.find('.comment-ico');
+    				commentSign.remove();
+    			}
+    		},
+    		generateDisplayText: function() {
+    			formatHandler.typeRecognize(this.model);
+    			formatHandler.generateDisplayText(this.model);
+    			var modelAttr = this.model.attributes;
+    			this.changeTransverseAlign(modelAttr);
+    			this.$contentBody.html(this.getHtmlText(modelAttr));
+    		},
+    		changeFontFamily: function() {
+    			this.$contentBody.css({
+    				'fontFamily': this.model.attributes.content.family,
+    			});
+    		},
+    		changeFontSize: function() {
+    			this.$contentBody.css({
+    				'fontSize': this.model.attributes.content.size + 'pt',
+    			});
+    		},
+    		changeColor: function() {
+    			this.$contentBody.css({
+    				'color': this.model.attributes.content.color,
+    			});
     		},
     		adaptCellHight: function() {
     			var text,
@@ -27520,171 +27940,12 @@ define('lib/handlebars',function() {
     			}
     		},
     		
-    		setItalic: function(modelJSON) {
-    			if (modelJSON.content.italic) {
-    				this.$contentBody.css({
-    					'font-style': 'italic'
-    				});
-    			} else {
-    				this.$contentBody.css({
-    					'font-style': 'normal'
-    				});
-    			}
-    		},
-    		
-    		setBold: function(modelJSON) {
-    			if (modelJSON.content.bd) {
-    				this.$contentBody.css({
-    					'font-weight': 'bold'
-    				});
-    			} else {
-    				this.$contentBody.css({
-    					'font-weight': 'normal'
-    				});
-    			}
-    
-    		},
-    		
-    		setTransverseAlign: function(modelJSON) {
-    			var format = modelJSON.format,
-    				type = format.type,
-    				text = modelJSON.content.texts,
-    				isValid = format.isValid,
-    				alignRowPosi = modelJSON.content.alignRow;
-    			//分离操作
-    			if (alignRowPosi === 'center' || alignRowPosi === 'right' || alignRowPosi === 'left') {
-    				this.$contentBody.css({
-    					'text-align': alignRowPosi
-    				});
-    				return;
-    			}
-    			if (type !== 'text' && type !== 'normal' && isValid === true) {
-    				this.$contentBody.css({
-    					'text-align': 'right'
-    				});
-    				return;
-    			}
-    			if (type === 'normal' && textTypeHandler.isNum(text)) {
-    				this.$contentBody.css({
-    					'text-align': 'right'
-    				});
-    				return;
-    			}
-    			this.$contentBody.css({
-    				'text-align': 'left'
-    			});
-    		},
-    		
-    		setVerticalAlign: function(modelJSON) {
-    			if (modelJSON.content.alignCol === 'middle') {
-    				this.$contentBody.css({
-    					"vertical-align": "middle",
-    				});
-    			} else if (modelJSON.content.alignCol === 'bottom') {
-    				this.$contentBody.css({
-    					"vertical-align": "bottom"
-    				});
-    			} else {
-    				this.$contentBody.css({
-    					"vertical-align": "top"
-    				});
-    			}
-    		},
-    		
-    		changeTopBorder: function(modelJSON) {
-    			if (modelJSON.border.top) {
-    				this.$el.css({
-    					'borderTopColor': '#000'
-    				});
-    			} else {
-    				this.$el.css({
-    					'borderTopColor': 'transparent'
-    				});
-    			}
-    		},
-    		
-    		changeLeftBorder: function(modelJSON) {
-    			var left = modelJSON.physicsBox.left,
-    				headItemColList = headItemCols.models,
-    				index;
-    
-    			index = binary.indexModelBinary(left + 1, headItemColList, 'left', 'width');
-    			if (headItemColList[index].get('isLeftAjacentHide') || !modelJSON.border.left) {
-    				this.$el.css({
-    					'borderLeftColor': 'transparent'
-    				});
-    			} else {
-    				this.$el.css({
-    					'borderLeftColor': '#000'
-    				});
-    			}
-    
-    		},
-    		
-    		changeBottomBorder: function(modelJSON) {
-    			if (modelJSON.border.bottom) {
-    				this.$el.css({
-    					'borderBottomColor': '#000'
-    				});
-    			} else {
-    				this.$el.css({
-    					'borderBottomColor': 'transparent'
-    				});
-    			}
-    		},
-    		
-    		changeRightBorder: function(modelJSON) {
-    			var right = modelJSON.physicsBox.left + modelJSON.physicsBox.width,
-    				headItemColList = headItemCols.models,
-    				index;
-    			index = binary.indexModelBinary(right, headItemColList, 'left', 'width');
-    			//边框处理
-    			if (headItemColList[index].get('isRightAjacentHide') || !modelJSON.border.right) {
-    				this.$el.css({
-    					'borderRightColor': 'transparent'
-    				});
-    			} else {
-    				this.$el.css({
-    					'borderRightColor': '#000'
-    				});
-    			}
-    		},
-    		
-    		changeBackground: function(modelJSON) {
-    			if (modelJSON.customProp.background !== '') {
-    				this.$contentBody.css({
-    					'backgroundColor': modelJSON.customProp.background
-    				});
-    			} else {
-    				this.$contentBody.css({
-    					'backgroundColor': '#fff'
-    				});
-    			}
-    		},
-    		wordWrap: function(modelJSON) {
-    			if (modelJSON.wordWrap === true) {
-    				this.$contentBody.css({
-    					'wordBreak': 'break-word',
-    					'whiteSpace': 'normal'
-    				});
-    			} else {
-    				this.$contentBody.css({
-    					'whiteSpace': 'nowrap'
-    				});
-    			}
-    		},
-    		
     		destroy: function() {
-    			Backbone.off('event:destroyCellView', this.destroy, this);
-    			if (this.model.get('isDestroy') || this.model.get('hidden')) {
+    			var attr = this.model.attributes;
+    			if (attr.hidden || !attr.showState || attr.isDestroy) {
     				this.remove();
     			}
     		},
-    		
-    		clear: function() {
-    			Backbone.off('event:destroyCellView', this.destroy, this);
-    			this.remove();
-    		}
     	});
     	return CellContainer;
     });
@@ -27767,7 +28028,7 @@ define('lib/handlebars',function() {
     	return RowsGridContainer;
     });
     
-define('views/gridLineColContainer',function() {
+    define('views/gridLineColContainer',function() {
     	
     	var Backbone = require('lib/backbone');
     	var headItemCols = require('collections/headItemCol');
@@ -27941,9 +28202,7 @@ define('views/gridLineColContainer',function() {
     });
     define('views/contentCellsContainer',function() {
     	
-    	var $ = require('lib/jquery'),
-    		_ = require('lib/underscore'),
-    		Backbone = require('lib/backbone'),
+    	var Backbone = require('lib/backbone'),
     		cache = require('basic/tools/cache'),
     		config = require('spreadsheet/config'),
     		util = require('basic/util/clone'),
@@ -27965,7 +28224,9 @@ define('views/gridLineColContainer',function() {
     		initialize: function() {
     			this.currentRule = util.clone(cache.CurrentRule);
     			//考虑冻结情况
+    			Backbone.on('event:restoreHideCellView', this.restoreHideCellView, this);
     			Backbone.on('event:contentCellsContainer:reloadCells', this.reloadCells, this);
+    			Backbone.on('event:contentCellsContainer:restoreCell', this.addCell, this);
     			//还原
     			this.listenTo(cells, 'add', this.addCell);
     		},
@@ -28017,8 +28278,9 @@ define('views/gridLineColContainer',function() {
     				rowLen,
     				i = 0,
     				j;
-    			startRowIndex = headItemRows.getIndexByAlias(cache.UserView.rowAlias);
-    			endRowIndex = headItemRows.getIndexByAlias(cache.UserView.rowEndAlias);
+    
+    			startRowIndex = headItemRows.getIndexByPosi(cache.viewRegion.top);
+    			endRowIndex = headItemRows.getIndexByPosi(cache.viewRegion.bottom);
     			strandX = cache.CellsPosition.strandX;
     			if (endRowIndex > startRowIndex) {
     				rowLen = endRowIndex + 1;
@@ -28043,14 +28305,13 @@ define('views/gridLineColContainer',function() {
     		},
     		getCells: function(top, bottom) {
     			send.PackAjax({
-    				url: 'excel.htm?m=openexcel',
+    				url: config.url.sheet.load,
     				isPublic: false,
     				async: false,
     				data: JSON.stringify({
-    					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
     					sheetId: '1',
-    					rowBegin: top,
-    					rowEnd: bottom
+    					top: top,
+    					bottom: bottom
     				}),
     				success: function(data) {
     					if (data === '') {
@@ -28108,15 +28369,20 @@ define('views/gridLineColContainer',function() {
     	
     	var $ = require('lib/jquery'),
     		Backbone = require('lib/backbone'),
-    		Handlebars = require('lib/handlebars'),
+    		getTemplate = require('basic/tools/template'),
     		util = require('basic/util/clone'),
     		binary = require('basic/util/binary'),
     		cache = require('basic/tools/cache'),
     		send = require('basic/tools/send'),
     		Cell = require('models/cell'),
+    		listener = require('basic/util/listener'),
     		headItemRows = require('collections/headItemRow'),
     		headItemCols = require('collections/headItemCol'),
+    		siderLineRows = require('collections/siderLineRow'),
+    		siderLineCols = require('collections/siderLineCol'),
     		cells = require('collections/cells'),
+    		rowModelList = headItemRows.models,
+    		colModelList = headItemCols.models,
     		SelectRegion;
     
     	
@@ -28127,17 +28393,17 @@ define('views/gridLineColContainer',function() {
     		
     		events: {
     			'dblclick': 'editState',
-    			'mousemove': 'moveHandle',
-    			'mouseout': 'outHandle'
     		},
     		
     		initialize: function(options) {
     			this.viewCellsContainer = options.parentView;
-    			if (this.model.get("selectType") === "operation") {
+    			if (this.model.get('selectType') === 'selected') {
     				Backbone.on('event:selectRegion:patchOprCell', this.patchOprCell, this);
     			}
+    			Backbone.on('event:selectRegionContainer:adapt', this.adapt, this);
     			//添加视图
-    			this.listenTo(this.model, 'change', this.changePosition);
+    			this.listenTo(this.model, 'change:tempPosi', this.changePosi);
+    			this.listenTo(this.model, 'change:physicsBox', this.changeBox);
     			this.listenTo(this.model, 'destroy', this.destroy);
     			if (options.currentRule !== undefined) {
     				this.currentRule = options.currentRule;
@@ -28148,70 +28414,21 @@ define('views/gridLineColContainer',function() {
     			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
     			this.offsetLeft = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetLeft || 0) : 0;
     			this.offsetTop = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetTop || 0) : 0;
-    			this.mouseOverModel = null;
-    			this.mouseOverEventId = null;
-    			_.bindAll(this, 'moveHandle', 'outHandle');
     		},
     		
     		render: function() {
-    			this.changePosition();
-    			this.template = Handlebars.compile($('#tempSelectContainer').html());
+    			this.template = getTemplate('SELECTTEMPLATE');
     			this.$el.html(this.template());
+    			this.changeBox();
     			return this;
     		},
-    		moveHandle: function(event) {
-    			var modelJSON = this.model.toJSON(),
-    				headItemRowList = headItemRows.models,
-    				headItemColList = headItemCols.models,
-    				relativeTop = event.offsetY,
-    				relativeLeft = event.offsetX,
-    				colIndex,
-    				rowIndex,
-    				cellModel,
-    				top, left;		
-    			if (cache.commentEidtState) {
-    				return;
-    			}
-    
-    			if (relativeTop < 0 || relativeLeft < 0 ||
-    				relativeTop > modelJSON.physicsBox.height ||
-    				relativeLeft > modelJSON.physicsBox.width) {
-    				return;
-    			}
-    			top = relativeTop + modelJSON.physicsPosi.top;
-    			left = relativeLeft + modelJSON.physicsPosi.left;
-    			rowIndex = binary.modelBinary(top, headItemRowList, 'top', 'height');
-    			colIndex = binary.modelBinary(left, headItemColList, 'left', 'width');
-    			cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
-    
-    			if (this.mouseOverModel !== cellModel) {
-    				clearTimeout(this.mouseOverEventId);
-    				if (typeof cellModel !== 'undefined' &&
-    					typeof cellModel.get('customProp').comment === 'string') {
-    					this.mouseOverEventId = setTimeout(function() {
-    						cellModel.set('commentShowState', true);
-    					}, 1000);
-    				}
-    				if (this.mouseOverModel !== null) {
-    					this.mouseOverModel.set('commentShowState', false);
-    				}
-    				this.mouseOverModel = cellModel || null;
-    			}
-    		},
-    		outHandle: function() {
-    			clearTimeout(this.mouseOverEventId);
-    			if (this.mouseOverModel !== null) {
-    				this.mouseOverModel.set('commentShowState', false);
-    			}
-    			this.mouseOverModel = null;
-    		},
     		
-    		changePosition: function() {
+    		changeBox: function() {
     			var modelJSON = this.model.toJSON(),
     				height = modelJSON.physicsBox.height,
     				width = modelJSON.physicsBox.width,
-    				left = modelJSON.physicsPosi.left,
-    				top = modelJSON.physicsPosi.top;
+    				left = modelJSON.physicsBox.left,
+    				top = modelJSON.physicsBox.top;
     			if (left === 0) {
     				left = left - 1;
     				width = width - 1;
@@ -28236,6 +28453,126 @@ define('views/gridLineColContainer',function() {
     			return function(callback) {
     				object[name] = callback;
     			};
+    		},
+    		
+    		changePosi: function() {
+    			var modelJSON = this.model.toJSON(),
+    				colDisplayNames = [],
+    				rowDisplayNames = [],
+    				startColIndex,
+    				startRowIndex,
+    				endColIndex,
+    				endRowIndex,
+    				region,
+    				width,
+    				height,
+    				e = {},
+    				i;
+    
+    			region = cells.getFullOperationRegion(
+    				modelJSON.tempPosi.initColIndex,
+    				modelJSON.tempPosi.initRowIndex,
+    				modelJSON.tempPosi.mouseColIndex,
+    				modelJSON.tempPosi.mouseRowIndex
+    			);
+    			startColIndex = region.startColIndex;
+    			startRowIndex = region.startRowIndex;
+    			endColIndex = region.endColIndex;
+    			endRowIndex = region.endRowIndex;
+    
+    			width = colModelList[endColIndex].get('width') + colModelList[endColIndex].get('left') - colModelList[startColIndex].get('left');
+    			height = rowModelList[endRowIndex].get('height') + rowModelList[endRowIndex].get('top') - rowModelList[startRowIndex].get('top');
+    
+    			if (this.model.get('selectType') === 'selected') {
+    				this.changeHeadLineModel(startColIndex, startRowIndex, endColIndex, endRowIndex);
+    				siderLineRows.models[0].set({
+    					top: rowModelList[startRowIndex].get('top'),
+    					height: height
+    				});
+    				siderLineCols.models[0].set({
+    					left: colModelList[startColIndex].get('left'),
+    					width: width
+    				});
+    			}
+    
+    			this.model.set('physicsBox', {
+    				top: rowModelList[startRowIndex].get('top'),
+    				left: colModelList[startColIndex].get('left'),
+    				width: width,
+    				height: height
+    			});
+    			this.model.set('wholePosi', {
+    				startX: colModelList[startColIndex].get('alias'),
+    				startY: rowModelList[startRowIndex].get('alias'),
+    				endX: colModelList[endColIndex].get('alias'),
+    				endY: rowModelList[endRowIndex].get('alias')
+    			});
+    			//判断是否为整行或整列操作
+    			if (modelJSON.tempPosi.mouseColIndex === 'MAX') {
+    				this.model.set('wholePosi.endX', 'MAX');
+    				colDisplayNames.push('A');
+    				colDisplayNames.push(colModelList[endColIndex].get('displayName'));
+    				rowDisplayNames.push(rowModelList[startRowIndex].get('displayName'));
+    			} else if (modelJSON.tempPosi.mouseRowIndex === 'MAX') {
+    				this.model.set('wholePosi.endY', 'MAX');
+    				rowDisplayNames.push('1');
+    				rowDisplayNames.push(rowModelList[endRowIndex].get('displayName'));
+    				colDisplayNames.push(colModelList[startColIndex].get('displayName'));
+    			} else {
+    				for (i = startColIndex; i < endColIndex + 1; i++) {
+    					colDisplayNames.push(colModelList[i].get('displayName'));
+    				}
+    				for (i = startRowIndex; i < endRowIndex + 1; i++) {
+    					rowDisplayNames.push(rowModelList[i].get('displayName'));
+    				}
+    			}
+    			e.point = {
+    				col: colDisplayNames,
+    				row: rowDisplayNames
+    			};
+    			listener.excute('regionChange', e);
+    			if (modelJSON.selectType === 'selected') {
+    				listener.excute('selectRegionChange', e);
+    			} else {
+    				listener.excute('dataSourceRegionChange', e);
+    			}
+    
+    		},
+    		changeHeadLineModel: function(currentStartCol, currentStartRow, currentEndCol, currentEndRow) {
+    			var modelJSON = this.model.toJSON(),
+    				originalStartRow,
+    				originalStartCol,
+    				originalEndRow,
+    				originalEndCol, i;
+    
+    			originalStartRow = headItemRows.getIndexByAlias(modelJSON.wholePosi.startY);
+    			originalStartCol = headItemCols.getIndexByAlias(modelJSON.wholePosi.startX);
+    			originalEndRow = headItemRows.getIndexByAlias(modelJSON.wholePosi.endY);
+    			originalEndCol = headItemCols.getIndexByAlias(modelJSON.wholePosi.endX);
+    
+    			originalEndRow = originalEndRow !== 'MAX' ? originalEndRow : headItemRows.length - 1;
+    			originalEndCol = originalEndCol !== 'MAX' ? originalEndCol : headItemCols.length - 1;
+    			for (i = originalStartRow; i <= originalEndRow; i++) {
+    				rowModelList[i].set({
+    					activeState: false
+    				});
+    			}
+    
+    			for (i = originalStartCol; i <= originalEndCol; i++) {
+    				colModelList[i].set({
+    					activeState: false
+    				});
+    			}
+    			for (i = currentStartRow; i <= currentEndRow; i++) {
+    				rowModelList[i].set({
+    					activeState: true
+    				});
+    			}
+    			for (i = currentStartCol; i <= currentEndCol; i++) {
+    				colModelList[i].set({
+    					activeState: true
+    				});
+    			}
     		},
     		
     		patchOprCell: function(cycleCallback, appointList) {
@@ -28290,9 +28627,10 @@ define('views/gridLineColContainer',function() {
     		},
     		
     		destroy: function() {
-    			if (this.model.get("selectType") === "operation") {
+    			if (this.model.get('selectType') === 'selected') {
     				Backbone.off('event:selectRegion:patchOprCell');
     			}
+    			Backbone.off('event:selectRegionContainer:adapt');
     			this.remove();
     		}
     	});
@@ -28307,94 +28645,148 @@ define('views/gridLineColContainer',function() {
     		cache = require('basic/tools/cache'),
     		config = require('spreadsheet/config'),
     		util = require('basic/util/clone'),
+    		Cell = require('models/cell'),
     		listener = require('basic/util/listener'),
     		SelectRegionModel = require('models/selectRegion'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
     		selectRegions = require('collections/selectRegion'),
-    		siderLineRows = require('collections/siderLineRow'),
-    		siderLineCols = require('collections/siderLineCol'),
     		cells = require('collections/cells'),
     		GridLineContainer = require('views/gridLineContainer'),
     		ContentCellsContainer = require('views/contentCellsContainer'),
-    		SelectRegionView = require('views/selectRegion');
+    		SelectRegionView = require('views/selectRegion'),
+    		headItemColList = headItemCols.models,
+    		headItemRowList = headItemRows.models;
     
     
     	
-    
-    	//ps:index修改为alias,选中区域移动操作，需要修改
     	var CellsContainer = Backbone.View.extend({
     		
     		className: 'cells-container',
+    
+    		currentState: null,
     		
     		events: {
-    			'mousedown': 'located',
-    			//	'mouseup' : 'hideInputContainer',
-    			// 'dragover': 'onDragOver',
-    			// 'dragleave': 'onDragLeave',
-    			// 'drop': 'onDrop',
+    			'mousedown': 'mouseDownHandle',
+    			'mousemove': 'mouseMoveHandle',
+    			'mouseout': 'outHandle'
     		},
+    		locatedState: null,
+    		moveState: null,
     		
     		initialize: function(options) {
     
-    			Backbone.on('call:cellsContainer', this.callCellsContainer, this);
-    			//修改对集合的监听
-    			// Backbone.on('event:cellsContainer:createDataSourceRegion', this.createDataSourceRegion, this);
-    			// Backbone.on('event:cellsContainer:addClipRegionView', this.addClipRegionView, this);
-    
-    			Backbone.on('event:cellsContainer:adjustSelectRegion', this.adjustSelectRegion, this);
-    			//
-    			Backbone.on('event:cellsContainer:adaptSelectRegion', this.adaptSelectRegion, this);
-    
     			Backbone.on('event:cellsContainer:adaptWidth', this.adaptWidth, this);
+    			Backbone.on('event:cellsContainer:adaptHeight', this.adaptHeight, this);
+    
+    			//鼠标拖动事件绑定与解绑（解决冻结拆分情况下拖动绑定问题）
+    			Backbone.on('event:cellsContainer:unBindDrag', this.unBindDragSelect, this);
+    			Backbone.on('event:cellsContainer:bindDrag', this.bindDragSelect, this);
+    
+    			//像素点转换为excel的坐标点
+    			Backbone.on('event:cellsContainer:getCoordinateDisplayName', this.getCoordinateDisplayName, this);
     
     			Backbone.on('event:cellsContainer:destroy', this.destroy, this);
-    			Backbone.on('event:cellsContainer:unBindDrag', this.unBindDrag, this);
-    			Backbone.on('event:cellsContainer:bindDrag', this.bindDrag, this);
-    			Backbone.on('event:cellsContainer:getCoordinate', this.getCoordinate, this);
-    			//使用extend+订阅模式分离
-    			Backbone.on('event:cellsContainer:startHighlight', this.startHighlight, this);
-    			Backbone.on('event:cellsContainer:stopHighlight', this.stopHighlight, this);
-    			//-----------------------------
-    			this.listenTo(selectRegions, 'add', this.addSelectRegionView);
-    			_.bindAll(this, 'callView', 'drag', 'highlightRegionMove');
+    
+    			Backbone.on('event:cellsContainer:setMouseState', this.setMouseState, this);
+    
     			this.currentRule = util.clone(cache.CurrentRule);
+    			//记录冻结情况下导致视图移动大小
+    			if (cache.TempProp.isFrozen === true) {
+    				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
+    				this.userViewLeft = headItemCols.getModelByAlias(cache.UserView.colAlias).get('left');
+    				this.offsetTop = this.currentRule.displayPosition.offsetTop;
+    				this.offsetLeft = this.currentRule.displayPosition.offsetLeft;
+    			} else {
+    				this.userViewTop = 0;
+    				this.userViewLeft = 0;
+    				this.offsetTop = 0;
+    				this.offsetLeft = 0;
+    			}
+    
+    			//监听剪切板选中区域创建
+    			this.listenTo(selectRegions, 'add', this.addSelectRegionView);
+    			_.bindAll(this, 'mouseDownHandle', 'mouseMoveHandle');
+    
     			this.boxAttributes = options.boxAttributes;
+    			//需要保留对父级视图的引用，需要父级视图的滚动像素，进行定位 
     			this.parentView = options.parentView;
-    			//处理冻结情况,只有主区域能够进行滚动
+    			//避免冻结情况下多个视图绑定该事件
     			if (!cache.TempProp.isFrozen ||
     				(this.currentRule.displayPosition.endRowIndex &&
     					this.currentRule.displayPosition.endColIndex)) {
-    				Backbone.on('event:cellsContainer:selectRegionChange', this.selectRegionChange, this);
+    				Backbone.on('event:cellsContainer:moveSelectRegion', this.moveSelectRegion, this);
     			}
+    			this.locatedState = this.selectLocatedState;
+    			this.moveState = this.commonMoveState;
+    			this.mouseCoordinate = {};
+    			this.mouseLastCell = null;
+    			this.mouseOverEventId = null;
+    
+    		},
+    		mouseDownHandle: function(event) {
+    			var temp = $('.comment');
+    			if (temp.length && temp.attr('disabled') === undefined) {
+    				return;
+    			}
+    			if ($(event.target).attr('class') === 'edit-frame') {
+    				return;
+    			}
+    			this.locatedState(event);
+    		},
+    		mouseMoveHandle: function(event) {
+    			var temp = $('.comment');
+    			if (temp.length && temp.attr('disabled') === undefined) {
+    				return;
+    			}
+    			if ($(event.target).attr('class') === 'edit-frame') {
+    				return;
+    			}
+    			this.moveState(event);
+    		},
+    		outHandle: function() {
+    			var temp = $('.comment');
+    			if (temp.length && temp.attr('disabled') === undefined) {
+    				return;
+    			}
+    			clearTimeout(this.mouseOverEventId);
+    			this.mouseCoordinate = {};
+    			this.mouseLastCell = null;
+    			Backbone.trigger('event:bodyContainer:handleComment', {
+    				action: 'hide'
+    			});
     		},
     		
     		render: function() {
     			var modelList = selectRegions.models,
+    				contentCellsContainer,
+    				gridLineContainer,
     				len,
     				i;
-    			this.attributesRender(this.boxAttributes);
     
+    			this.$el.css({
+    				'width': this.boxAttributes.width,
+    				'height': this.boxAttributes.height
+    			});
+    			//待修改：父类不保存子类的引用（修改还原行列方式为订阅方式后，再进行修改）
     			this.gridLineContainer = new GridLineContainer();
-    			this.$el.append(this.gridLineContainer.render().el);
-    
     			this.contentCellsContainer = new ContentCellsContainer();
+    			this.$el.append(this.gridLineContainer.render().el);
     			this.$el.append(this.contentCellsContainer.render().el);
     			len = modelList.length;
     			for (i = 0; i < len; i++) {
     				this.addSelectRegionView(modelList[i]);
     			}
-    			this.triggerCallback();
     			return this;
     		},
+    		
     		adaptWidth: function() {
-    			var headItemColList = headItemCols.models,
-    				len = headItemColList.length,
-    				index,
-    				left,
-    				width, i;
+    			var width = 0,
+    				left = 0,
+    				len, i;
     
-    			for (i = len - 1; i > -1; i--) {
+    			len = this.currentRule.displayPosition.endColIndex || headItemColList.length - 1;
+    			for (i = len; i > -1; i--) {
     				if (!headItemColList[i].get('hidden')) {
     					left = headItemColList[i].get('left');
     					width = headItemColList[i].get('width');
@@ -28403,335 +28795,198 @@ define('views/gridLineColContainer',function() {
     			}
     			this.$el.css('width', left + width);
     		},
-    		onDragOver: function(event) {
-    			event.preventDefault();
-    			var coordinate,
-    				aliasGridRow,
-    				aliasGridCol;
-    			coordinate = this.getCoordinateByMouseEvent(event);
-    			this.adjustDragRegion(coordinate);
+    		
+    		adaptHeight: function() {
+    			var height = 0,
+    				top = 0,
+    				len, i;
+    
+    			len = this.currentRule.displayPosition.endRowIndex || headItemRowList.length - 1;
+    			for (i = len; i > -1; i--) {
+    				if (!headItemRowList[i].get('hidden')) {
+    					top = headItemRowList[i].get('top');
+    					height = headItemRowList[i].get('height');
+    					break;
+    				}
+    			}
+    			this.$el.css('height', top + height);
     		},
-    		onDrop: function(event) {
-    			var headItemRowList = headItemRows.models,
-    				headItemColList = headItemCols.models,
-    				dragRegions,
+    		
+    		setMouseState: function(type, state) {
+    			this[type] = this[state];
+    		},
+    		selectLocatedState: function(event) {
+    			var selectModel = selectRegions.getModelByType('selected');
+    			this.located(event.clientX, event.clientY, selectModel);
+    			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'selectMoveState');
+    		},
+    		dataSourceLocatedState: function(event) {
+    			var selectModel = selectRegions.getModelByType('datasource');
+    			if (typeof selectModel === 'undefined') {
+    				selectModel = new SelectRegionModel();
+    				selectModel.set('selectType', 'datasource');
+    				selectRegions.add(selectModel);
+    			}
+    			this.located(event.clientX, event.clientY, selectModel);
+    			this.moveState = this.dataSourceMoveState;
+    			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
+    		},
+    		selectMoveState: function(event) {
+    			var selectModel = selectRegions.getModelByType('selected');
+    			this.select(event.clientX, event.clientY, selectModel);
+    		},
+    		dataSourceMoveState: function(event) {
+    			var selectModel = selectRegions.getModelByType('datasource');
+    			this.select(event.clientX, event.clientY, selectModel);
+    		},
+    		commonMoveState: function(event) {
+    			var cell,
+    				colIndex,
+    				rowIndex,
+    				colAlias,
+    				rowAlias,
+    				startRowIndex,
     				coordinate,
-    				aliasGridCol,
-    				aliasGridRow,
-    				point,
-    				data,
-    				cellsPositionX,
-    				modelCell,
-    				i, e = {};
-    			dragRegions = selectRegions.getModelByType('drag');
-    			for (i = 0; i < dragRegions.length; i++) {
-    				dragRegions[i].destroy();
-    			}
+    				options,
+    				occupyX,
+    				occupyY,
+    				comment;
+    
     			coordinate = this.getCoordinateByMouseEvent(event);
+    			rowIndex = coordinate.rowIndex;
+    			colIndex = coordinate.colIndex;
+    			rowAlias = headItemRowList[rowIndex].get('alias');
+    			colAlias = headItemColList[colIndex].get('alias');
     
-    			point = {
-    				Col: [headItemColList[coordinate.startColIndex].get('displayName')],
-    				Row: [headItemRowList[coordinate.startRowIndex].get('displayName')],
+    			if (this.mouseCoordinate.colAlias === colAlias && this.mouseCoordinate.rowAlias === rowAlias) {
+    				return;
+    			}
+    			cell = cells.getCellByVertical(colIndex, rowIndex)[0];
+    			cell = cell || null;
+    			if (this.mouseLastCell === cell) {
+    				return;
+    			}
+    			this.mouseLastCell = cell;
+    			if (cell && (comment = cell.get('customProp').comment) !== null && comment !== undefined) {
+    				occupyX = cell.get('occupy').x;
+    				occupyY = cell.get('occupy').y;
+    				options = {
+    					colIndex: colIndex + occupyX.length - occupyX.indexOf(colAlias) - 1,
+    					rowIndex: rowIndex - occupyY.indexOf(rowAlias),
+    					comment: cell.get('customProp').comment,
+    					action: 'show'
+    				};
+    			} else {
+    				options = {
+    					action: 'hide'
+    				};
+    			}
+    			clearTimeout(this.mouseOverEventId);
+    			if (options.action === 'hide') {
+    				Backbone.trigger('event:bodyContainer:handleComment', options);
+    			} else {
+    				this.mouseOverEventId = setTimeout(function() {
+    					Backbone.trigger('event:bodyContainer:handleComment', options);
+    				}, 400);
+    			}
+    			this.mouseCoordinate = {
+    				colAlias: colAlias,
+    				rowAlias: rowAlias
     			};
-    			e.point = point;
-    
-    
-    			if (event.isDefaultPrevented() === false) {
-    				data = event.originalEvent.dataTransfer.getData("text");
-    				e.text = data;
-    				event.originalEvent.dataTransfer.clearData();
-    				if (data === "") return;
-    
-    				if (modelCell === undefined) {
-    					modelCell = cells.createCellModel(coordinate.startColIndex, coordinate.startRowIndex, coordinate.endColIndex, coordinate.endRowIndex);
-    				}
-    				modelCell.set("content.texts", data);
-    			}
-    			listener.excute('dataDrag', e);
-    		},
-    		// onDragLeave: function(event) {
-    		// 	var width = this.viewMainContainer.el.clientWidth,
-    		// 		height = this.viewMainContainer.el.clientHeight,
-    		// 		//ps:修改id
-    		// 		clientX = event.originalEvent.clientX - config.System.outerLeft - $('#spreadSheet').offset().left,
-    		// 		clientY = event.originalEvent.clientY - config.System.outerTop - $('#spreadSheet').offset().top;
-    
-    		// 	if (clientX < 0 || clientY < 0 || clientX > width || clientY > height) {
-    		// 		var dragRegions, i;
-    		// 		dragRegions = selectRegions.getModelByType('drag');
-    		// 		for (i = 0; i < dragRegions.length; i++) {
-    		// 			dragRegions[i].destroy();
-    		// 		}
-    		// 	}
-    		// },
-    		getCoordinate: function(callback, mouseColPosi, mouseRowPosi) {
-    			var currentRowModel = headItemRows.getModelByAlias(cache.TempProp.rowAlias),
-    				currentColModel = headItemCols.getModelByAlias(cache.TempProp.colAlias),
-    				headLineRowModelList = headItemRows.models,
-    				headLineColModelList = headItemCols.models,
-    				containerId = cache.containerId,
-    				reduceLeftValue,
-    				reduceTopValue,
-    				clientX,
-    				clientY,
-    				maxMousePosiX,
-    				maxMousePosiY,
-    				mainMousePosiX,
-    				mainMousePosiY,
-    				modelIndexCol,
-    				modelIndexRow,
-    				coordinate = {};
-    
-    			this.userViewTop = cache.TempProp.isFrozen ? headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
-    			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
-    			//if this offset value equal 0 ,that position isn't consider frozen point
-    			if (this.currentRule.displayPosition.offsetLeft === 0) {
-    				reduceLeftValue = this.userViewLeft;
-    			} else {
-    				reduceLeftValue = currentColModel.get('left');
-    			}
-    			if (this.currentRule.displayPosition.offsetTop === 0) {
-    				reduceTopValue = this.userViewTop;
-    			} else {
-    				reduceTopValue = currentRowModel.get('top');
-    			}
-    			//ps:增加过滤
-    			clientX = mouseColPosi - config.System.outerLeft - $('#' + containerId).offset().left;
-    			clientY = mouseRowPosi - config.System.outerTop - $('#' + containerId).offset().top;
-    			// maxMousePosiX = $('#' + containerId).width() + $('#' + containerId).offset().left;
-    			// maxMousePosiY = $('#' + containerId).height() + $('#' + containerId).offset().top;
-    
-    			if (clientX < 0 || clientY < 0) {
-    				return;
-    			}
-    			// if (clientX > maxMousePosiX || clientY > maxMousePosiY) {
-    			// 	return;
-    			// }
-    			//position of mouse in mainContainer
-    			mainMousePosiX = clientX + this.parentView.el.scrollLeft - this.currentRule.displayPosition.offsetLeft + reduceLeftValue;
-    			mainMousePosiY = clientY + this.parentView.el.scrollTop - this.currentRule.displayPosition.offsetTop + reduceTopValue;
-    
-    			//
-    			if (mainMousePosiX < 0 || mainMousePosiY < 0) return;
-    
-    
-    			//this model index of gridline
-    			modelIndexCol = binary.modelBinary(mainMousePosiX, headLineColModelList, 'left', 'width', 0, headLineColModelList.length - 1);
-    			modelIndexRow = binary.modelBinary(mainMousePosiY, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
-    			coordinate.col = headLineColModelList[modelIndexCol].get('displayName');
-    			coordinate.row = headLineRowModelList[modelIndexRow].get('displayName');
-    			callback(coordinate);
     		},
     		
-    		startHighlight: function() {
-    			//鼠标移动阻止原有事件（mousedown,mousemove）
-    			this.undelegateEvents();
-    			this.$el.off('mousemove', this.drag);
-    			//监听鼠标移动事件
-    			this.$el.on('mousemove', this.highlightRegionMove);
-    		},
-    		
-    		highlightRegionMove: function(event) {
-    			var self = this,
-    				cellModel,
-    				selectBox,
-    				startColPosi,
+    		getCoordinate: function(colPosi, rowPosi) {
+    			var containerId = cache.containerId,
+    				clientColPosi,
+    				clientRowPosi,
+    				relativeColPosi,
+    				relativeRowPosi,
+    				endColIndex,
+    				endRowIndex,
     				endColPosi,
-    				startRowPosi,
     				endRowPosi,
-    				direction,
-    				hightlightModel,
-    				left, top, width, right, height, bottom;
+    				colIndex,
+    				rowIndex,
+    				coordinate;
     
-    			selectBox = this.getCoordinateByMouseEvent(event);
-    			cellModel = selectBox.model;
-    			if (cellModel !== undefined && cellModel.get("highlight") === true) {
-    				left = cellModel.get('physicsBox').left;
-    				top = cellModel.get('physicsBox').top;
-    				height = cellModel.get('physicsBox').height;
-    				width = cellModel.get('physicsBox').width;
-    				right = left + width;
-    				bottom = top + height;
-    			} else {
-    				cache.highlightDirection = 'null';
-    				if (this.hightlightView !== null && this.hightlightView !== undefined) {
-    					this.hightlightModel.destroy();
-    					this.hightlightView = null;
+    			//相对于父级容器的坐标
+    			clientColPosi = colPosi - config.System.outerLeft - $('#' + containerId).offset().left;
+    			clientRowPosi = rowPosi - config.System.outerTop - $('#' + containerId).offset().top;
+    
+    			//过滤掉不在当前视图区域的坐标点
+    			if (cache.TempProp.isFrozen === true) {
+    				endColIndex = this.currentRule.displayPosition.endColIndex;
+    				endRowIndex = this.currentRule.displayPosition.endRowIndex;
+    				endColPosi = endColIndex && headItemColList[endColIndex].get('left') + headItemColList[endColIndex].get('width') - this.userViewLeft;
+    				endRowPosi = endRowIndex && headItemRowList[endRowIndex].get('top') + headItemRowList[endRowIndex].get('height') - this.userViewTop;
+    
+    				if (clientColPosi < this.offsetLeft || (endColIndex && clientColPosi > endColPosi)) {
+    					return;
     				}
-    				return;
-    			}
-    			direction = getLightDirection();
-    			if (this.hightlightView === null || this.hightlightView === undefined) {
-    				hightlightModel = new SelectRegionModel();
-    				this.hightlightModel = hightlightModel;
-    				hightlightModel.set("selectType", "extend");
-    				this.hightlightView = new SelectRegionView({
-    					model: hightlightModel,
-    					className: 'highlight-container',
-    					parentView: this
-    				});
-    				this.$el.append(this.hightlightView.render().el);
-    			}
-    
-    			this.hightlightModel.set("physicsPosi", {
-    				left: left,
-    				top: top,
-    				bottom: bottom,
-    				right: right
-    			});
-    			this.hightlightModel.set("physicsBox", {
-    				height: height,
-    				width: width
-    			});
-    			clearHighlight();
-    			this.hightlightView.$el.addClass('highlight-' + direction);
-    			cache.highlightDirection = direction;
-    
-    			function getLightDirection() {
-    				var mouseColPosi = self.getMouseColRelativePosi(event),
-    					mouseRowPosi = self.getMouseRowRelativePosi(event),
-    					rightDistance = right - mouseColPosi,
-    					leftDistance = mouseColPosi - left,
-    					topDistance = mouseRowPosi - top,
-    					bottomDistance = bottom - mouseRowPosi,
-    					temp = rightDistance,
-    					direction = "right";
-    
-    				if (temp > leftDistance) {
-    					temp = leftDistance;
-    					direction = "left";
+    				if (clientRowPosi < this.offsetTop || (endRowIndex && clientRowPosi > endRowPosi)) {
+    					return;
     				}
-    				if (temp > topDistance) {
-    					temp = topDistance;
-    					direction = "top";
-    				}
-    				if (temp > bottomDistance) {
-    					temp = bottomDistance;
-    					direction = "bottom";
-    				}
-    				return direction;
     			}
+    			relativeColPosi = clientColPosi + this.parentView.el.scrollLeft + this.userViewLeft;
+    			relativeRowPosi = clientRowPosi + this.parentView.el.scrollTop + this.userViewTop;
     
-    			function clearHighlight() {
-    				self.hightlightView.$el.removeClass("highlight-right");
-    				self.hightlightView.$el.removeClass("highlight-left");
-    				self.hightlightView.$el.removeClass("highlight-top");
-    				self.hightlightView.$el.removeClass("highlight-bottom");
+    			colIndex = binary.modelBinary(relativeColPosi, headItemColList, 'left', 'width');
+    			rowIndex = binary.modelBinary(relativeRowPosi, headItemRowList, 'top', 'height');
+    			return {
+    				colIndex: colIndex,
+    				rowIndex: rowIndex,
+    				relativeRowPosi: relativeRowPosi,
+    				relativeColPosi: relativeColPosi
     			}
-    		},
-    		
-    		stopHighlight: function() {
-    			//移除鼠标事件监听
-    			this.$el.off('mousemove', this.highlightRegionMove);
-    			//绑定视图原有事件
-    			this.delegateEvents();
-    			if (this.hightlightView !== null && this.hightlightView !== undefined) {
-    				this.hightlightModel.destroy();
-    				this.hightlightView = null;
-    			}
-    		},
-    		getMouseColRelativePosi: function(event) {
-    			var currentColModel = headItemCols.getModelByAlias(cache.TempProp.colAlias),
-    				headLineColModelList = headItemCols.models,
-    				containerId = cache.containerId,
-    				reduceLeftValue,
-    				mainMousePosiX;
-    
-    			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
-    			//if this offset value equal 0 ,that position isn't consider frozen point
-    			if (this.currentRule.displayPosition.offsetLeft === 0) {
-    				reduceLeftValue = this.userViewLeft;
-    			} else {
-    				reduceLeftValue = currentColModel.get('left');
-    			}
-    			if (event.clientX === undefined) {
-    				event.clientX = event.originalEvent.clientX;
-    			}
-    			//position of mouse in mainContainer
-    			mainMousePosiX = event.clientX - config.System.outerLeft - $('#' + containerId).offset().left + this.parentView.el.scrollLeft - this.currentRule.displayPosition.offsetLeft + reduceLeftValue;
-    			return mainMousePosiX;
-    		},
-    		getMouseRowRelativePosi: function(event) {
-    			var currentRowModel = headItemRows.getModelByAlias(cache.TempProp.rowAlias),
-    				headLineRowModelList = headItemRows.models,
-    				containerId = cache.containerId,
-    				reduceTopValue,
-    				mainMousePosiY,
-    				modelIndexRow,
-    				aliasGridRow;
-    
-    			this.userViewTop = cache.TempProp.isFrozen ? headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
-    			//if this offset value equal 0 ,that position isn't consider frozen point
-    			if (this.currentRule.displayPosition.offsetTop === 0) {
-    				reduceTopValue = this.userViewTop;
-    			} else {
-    				reduceTopValue = currentRowModel.get('top');
-    			}
-    			if (event.clientY === undefined) {
-    				event.clientY = event.originalEvent.clientY;
-    			}
-    
-    			//position of mouse in mainContainer
-    			//
-    			mainMousePosiY = event.clientY - config.System.outerTop - $('#' + containerId).offset().top + this.parentView.el.scrollTop - this.currentRule.displayPosition.offsetTop + reduceTopValue;
-    			return mainMousePosiY;
     		},
     		
     		getCoordinateByMouseEvent: function(event) {
-    			var headLineRowModelList = headItemRows.models,
-    				headLineColModelList = headItemCols.models,
-    				mainMousePosiX,
-    				mainMousePosiY,
-    				modelIndexCol,
-    				modelIndexRow,
-    				aliasGridRow,
-    				aliasGridCol,
-    				cellsPositionX,
-    				modelCell,
-    				startPosiX, startPosiY, endPosiX, endPosiY,
-    				occupyX, occupyY,indexX,indexY;
-    			// left, width, top, height;
-    
-    			mainMousePosiX = this.getMouseColRelativePosi(event);
-    			mainMousePosiY = this.getMouseRowRelativePosi(event);
-    
-    			//this model index of gridline
-    			modelIndexCol = binary.modelBinary(mainMousePosiX, headLineColModelList, 'left', 'width', 0, headLineColModelList.length - 1);
-    			modelIndexRow = binary.modelBinary(mainMousePosiY, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
-    
-    			aliasGridCol = headLineColModelList[modelIndexCol].get('alias');
-    			aliasGridRow = headLineRowModelList[modelIndexRow].get('alias');
-    
-    			cellsPositionX = cache.CellsPosition.strandX;
-    			if (cellsPositionX[aliasGridCol] !== undefined &&
-    				cellsPositionX[aliasGridCol][aliasGridRow] !== undefined) {
-    				modelCell = cells.models[cellsPositionX[aliasGridCol][aliasGridRow]];
-    			}
-    
-    			//if model is exist , cell information reset
-    			//if model is not exist , cell information default
-    			if (modelCell) {
-    				occupyX = modelCell.get('occupy').x;
-    				occupyY = modelCell.get('occupy').y;
-    				indexX = occupyX.indexOf(aliasGridCol);
-    				indexY = occupyY.indexOf(aliasGridRow);
-    				startPosiX = modelIndexCol - indexX;
-    				startPosiY = modelIndexRow - indexY;
-    				endPosiX = modelIndexCol + occupyX.length - indexX-1;
-    				endPosiY = modelIndexRow + occupyY.length - indexY-1;
-    			} else {
-    				startPosiX = endPosiX = modelIndexCol;
-    				startPosiY = endPosiY = modelIndexRow;
-    			}
-    			return {
-    				startColIndex: startPosiX,
-    				startRowIndex: startPosiY,
-    				endColIndex: endPosiX,
-    				endRowIndex: endPosiY,
-    				model: modelCell
-    			};
+    			var mouseColPosi = event.clientX,
+    				mouseRowPosi = event.clientY;
+    			return this.getCoordinate(mouseColPosi, mouseRowPosi);
     		},
-    		selectRegionChange: function(direction) {
+    		
+    		getCoordinateDisplayName: function(colPosi, rowPosi, fn) {
+    			var containerId = cache.containerId,
+    				region = this.currentRule.displayPosition,
+    				coordinate,
+    				clientColPosi,
+    				clientRowPosi,
+    				limitLeft = 0,
+    				limitTop = 0,
+    				limitRight,
+    				limitBottom;
+    
+    			limitLeft = headItemColList[region.startColIndex].get('left');
+    			limitTop = headItemRowList[region.startRowIndex].get('top');
+    
+    			if (typeof region.endColIndex !== 'undefined') {
+    				limitRight = headItemColList[region.endColIndex].get('left') +
+    					headItemColList[region.endColIndex].get('width');
+    			}
+    			if (typeof region.endRowIndex !== 'undefined') {
+    				limitTop = headItemRowList[region.endRowIndex].get('top') +
+    					headItemRowList[region.endRowIndex].get('height');
+    			}
+    
+    			clientColPosi = colPosi - config.System.outerLeft - $('#' + containerId).offset().left;
+    			clientRowPosi = rowPosi - config.System.outerTop - $('#' + containerId).offset().top;
+    			//判断坐标是否在当前的视图区域内
+    			if (clientColPosi > limitRight || clientColPosi < limitLeft ||
+    				clientRowPosi > limitBottom || clientRowPosi < limitTop) {
+    				return;
+    			}
+    
+    			var coordinate = this.getCoordinate(colPosi, rowPosi);
+    			if (typeof fn === 'function' && typeof coordinate !== 'undefined') {
+    				fn({
+    					col: headItemColList[coordinate.colIndex].get('displayName'),
+    					row: headItemRowList[coordinate.rowIndex].get('displayName')
+    				});
+    			}
+    		},
+    		
+    		moveSelectRegion: function(direction) {
     			switch (direction) {
     				case 'LEFT':
     					break;
@@ -28750,738 +29005,180 @@ define('views/gridLineColContainer',function() {
     			var endRowIndex,
     				startColIndex,
     				modelCell,
-    				startPosiX,
-    				startPosiY,
-    				endPosiX,
-    				endPosiY,
-    				cellsPositionX,
-    				aliasGridRow,
-    				aliasGridCol,
-    				options,
-    				left, top, height, width;
+    				bottomIndex,
+    				selectModel;
     
-    			this.userViewTop = cache.TempProp.isFrozen ? headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
-    			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
+    			selectModel = selectRegions.getModelByType('selected');
     
-    			endRowIndex = headItemRows.getIndexByAlias(selectRegions.models[0].get('wholePosi').endY);
-    			startColIndex = headItemCols.getIndexByAlias(selectRegions.models[0].get('wholePosi').startX);
+    			endRowIndex = headItemRows.getIndexByAlias(selectModel.get('wholePosi').endY);
+    			startColIndex = headItemCols.getIndexByAlias(selectModel.get('wholePosi').startX);
     
-    			aliasGridRow = headItemRows.models[endRowIndex + 1].get('alias');
-    			aliasGridCol = selectRegions.models[0].get('wholePosi').startX;
-    
-    			cellsPositionX = cache.CellsPosition.strandX;
-    
-    			if (cellsPositionX[aliasGridCol] !== undefined &&
-    				cellsPositionX[aliasGridCol][aliasGridRow] !== undefined) {
-    				modelCell = cells.models[cellsPositionX[aliasGridCol][aliasGridRow]];
+    			//向下移动超出已加载区域，不进行滚动操作
+    			if (endRowIndex === headItemRows.length - 1) {
+    				return;
     			}
-    
-    			if (modelCell) {
-    				left = modelCell.get('physicsBox').left;
-    				top = modelCell.get('physicsBox').top;
-    				width = modelCell.get('physicsBox').width;
-    				height = modelCell.get('physicsBox').height;
-    				startPosiX = binary.modelBinary(left, headItemCols.models, 'left', 'width', 0, headItemCols.models.length - 1);
-    				startPosiY = binary.modelBinary(top, headItemRows.models, 'top', 'height', 0, headItemRows.models.length - 1);
-    				endPosiX = binary.modelBinary(left + width, headItemCols.models, 'left', 'width', 0, headItemCols.models.length - 1);
-    				endPosiY = binary.modelBinary(top + height, headItemRows.models, 'top', 'height', 0, headItemRows.models.length - 1);
-    			} else {
-    				startPosiX = endPosiX = startColIndex;
-    				startPosiY = endPosiY = endRowIndex + 1;
-    			}
-    			options = {
-    				initColIndex: startPosiX,
-    				initRowIndex: startPosiY,
-    				mouseColIndex: endPosiX,
-    				mouseRowIndex: endPosiY,
-    			};
-    			this.adjustOperationRegion(options);
-    		},
-    		
-    		destoryDelegate: function() {
-    			this.$el.off('mousemove', self.drag);
-    		},
-    		
-    		triggerCallback: function() {
-    			Backbone.trigger('call:mainContainer', this.callView('viewMainContainer'));
-    		},
-    		
-    		callCellsContainer: function(receiveFunc) {
-    			receiveFunc(this);
-    		},
-    		
-    		attributesRender: function(newAttributes) {
-    			this.$el.css({
-    				'width': newAttributes.width,
-    				'height': newAttributes.height
+    			selectModel.set('tempPosi', {
+    				initColIndex: startColIndex,
+    				initRowIndex: endRowIndex + 1,
+    				mouseColIndex: startColIndex,
+    				mouseRowIndex: endRowIndex + 1
     			});
+    			Backbone.trigger('event:mainContainer:showSelectRegion', 'DOWN');
     		},
-    		
-    		// addClipRegionView: function() {
-    		// 	var clipModel,
-    		// 		clipView,
-    		// 		selectModel;
-    
-    		// 	clipModel = selectRegions.getModelByType('clip')[0];
-    		// 	clipView = new SelectRegionView({
-    		// 		model: clipModel,
-    		// 		className: 'clip-container',
-    		// 		currentRule: this.currentRule,
-    		// 		parentView: this
-    		// 	});
-    		// 	this.clipView = clipView;
-    		// 	this.$el.append(clipView.render().el);
-    		// },
     		
     		addSelectRegionView: function(model) {
-    			var className;
-    			if (model.get("selectType") === "operation") {
-    				className = "selected-container";
-    			} else {
-    				className = "datasource-container";
-    			}
-    			this.selectRegion = new SelectRegionView({
+    			var className,
+    				selectRegionView,
+    				type = model.get('selectType');
+    
+    			className = type + '-container';
+    			selectRegionView = new SelectRegionView({
     				model: model,
     				className: className,
     				currentRule: this.currentRule,
     				parentView: this
     			});
-    			this.$el.append(this.selectRegion.render().el);
+    			this.$el.append(selectRegionView.render().el);
     		},
     		
-    		newSelectRegion: function() {
-    			var headItemColModelList,
-    				headItemRowModelList,
-    				aliasGridRow,
-    				aliasGridCol,
-    				cellsPositionX,
-    				initCell;
-    
-    			headItemColModelList = headItemCols.models;
-    			headItemRowModelList = headItemRows.models;
-    
-    			aliasGridRow = headItemColModelList[0].get('alias');
-    			aliasGridCol = headItemRowModelList[0].get('alias');
-    
-    			cellsPositionX = cache.CellsPosition.strandX;
-    
-    			if (cellsPositionX[aliasGridCol] !== undefined &&
-    				cellsPositionX[aliasGridCol][aliasGridRow] !== undefined) {
-    				initCell = cells.models[cellsPositionX[aliasGridCol][aliasGridRow]];
-    			}
-    			if (initCell === undefined) {
-    				return {
-    					physicsPosi: {
-    						top: 0,
-    						left: 0
-    					},
-    					physicsBox: {
-    						width: headItemColModelList[0].get('width'),
-    						height: headItemRowModelList[0].get('height')
-    					}
-    				};
-    			} else {
-    				this.changeSelectHeadLine(initCell);
-    				return {
-    					physicsPosi: {
-    						top: 0,
-    						left: 0
-    					},
-    					physicsBox: {
-    						width: initCell.get("physicsBox").width,
-    						height: initCell.get("physicsBox").height
-    					}
-    				};
-    			}
-    		},
-    		
-    		changeSelectHeadLine: function(initCell) {
-    			var headLineRowModelList,
-    				headLineColModelList,
-    				startX,
-    				startY,
-    				endX,
-    				endY,
-    				width,
-    				height;
-    
-    			headLineRowModelList = headItemRows.models;
-    			headLineColModelList = headItemCols.models;
-    
-    			// startY = binary.modelBinary(initCell.get("physicsBox").top, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
-    			// startX = binary.modelBinary(initCell.get("physicsBox").left, headLineColModelList, 'left', 'width', 0, headLineColModelList.length - 1);
-    			startX = 0;
-    			startY = 0;
-    			endX = binary.modelBinary(initCell.get("physicsBox").left + initCell.get("physicsBox").width, headLineColModelList, 'left', 'width', 0, headLineColModelList.length - 1);
-    			endY = binary.modelBinary(initCell.get("physicsBox").top + initCell.get("physicsBox").height, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
-    
-    			siderLineRows.models[0].set({
-    				top: initCell.get("physicsBox").top,
-    				height: initCell.get("physicsBox").height
-    			});
-    
-    			siderLineCols.models[0].set({
-    				left: initCell.get("physicsBox").left,
-    				width: initCell.get("physicsBox").width
-    			});
-    			var len = headLineRowModelList.length,
-    				i;
-    
-    			for (i = 0; i < len; i++) {
-    				headLineRowModelList[i].set({
-    					activeState: false
-    				});
-    			}
-    			len = headLineColModelList.length;
-    			for (i = 0; i < len; i++) {
-    				headLineColModelList[i].set({
-    					activeState: false
-    				});
-    			}
-    			for (i = 0; i < endX - startX + 1; i++) {
-    				headLineColModelList[startX + i].set({
-    					activeState: true
-    				});
-    			}
-    			for (i = 0; i < endY - startY + 1; i++) {
-    				headLineRowModelList[startY + i].set({
-    					activeState: true
-    				});
-    			}
-    		},
-    		
-    		callView: function(name) {
-    			var object = this;
-    			return function(callback) {
-    				object[name] = callback;
-    			};
-    		},
-    		located: function(event) {
-    			// this is question , need deprecated
-    			// when input data time avoid trigger this effect.
+    		located: function(colPosi, rowPosi, selectModel) {
     			if (cache.commentEditState) {
     				return;
     			}
     			if ($(event.target).attr('class') === 'edit-frame') {
     				return;
     			}
-    			this.changePosi(event);
-    			Backbone.trigger('event:cellsContainer:bindDrag');
+    			this.changePosi(colPosi, rowPosi, selectModel);
     		},
-    		// hideInputContainer:function(){
-    		// 	Backbone.trigger('event:InputContainer:hide');
-    		// },
     		
-    		//ps:合并此方法
-    		changePosi: function(event) {
-    			var selectBox,
+    		changePosi: function(colPosi, rowPosi, selectModel) {
+    			var strandCol = cache.CellsPosition.strandX,
+    				occupyCol,
+    				occupyRow,
+    				coordinate,
     				modelCell,
-    				headLineColModelList = headItemCols.models,
-    				headLineRowModelList = headItemRows.models,
     				startColIndex,
     				startRowIndex,
     				endColIndex,
     				endRowIndex,
     				colDisplayNames = [],
     				rowDisplayNames = [],
-    				point,
+    				aliasCol,
+    				aliasRow,
     				text = '',
-    				options,
-    				left, top, width, height, i, len;
+    				i;
     
     			//获取点击位置信息
-    			selectBox = this.getCoordinateByMouseEvent(event);
+    			coordinate = this.getCoordinate(colPosi, rowPosi);
+    			endColIndex = startColIndex = coordinate.colIndex;
+    			endRowIndex = startRowIndex = coordinate.rowIndex;
+    			aliasCol = headItemColList[startColIndex].get('alias');
+    			aliasRow = headItemRowList[startRowIndex].get('alias');
     
-    			//if model is exist , cell information reset
-    			//if model is not exist , cell information default
-    			modelCell = selectBox.model;
-    			startColIndex = selectBox.startColIndex;
-    			startRowIndex = selectBox.startRowIndex;
-    			endColIndex = selectBox.endColIndex;
-    			endRowIndex = selectBox.endRowIndex;
-    
-    			if (modelCell !== undefined) {
-    				left = modelCell.get('physicsBox').left;
-    				top = modelCell.get('physicsBox').top;
-    				width = modelCell.get('physicsBox').width;
-    				height = modelCell.get('physicsBox').height;
-    				text = modelCell.get('content').texts;
+    			if (strandCol[aliasCol] && typeof strandCol[aliasCol][aliasRow] !== 'undefined') {
+    				modelCell = cells.models[strandCol[aliasCol][aliasRow]];
+    				occupyCol = modelCell.get('occupy').x;
+    				occupyRow = modelCell.get('occupy').y;
+    				startColIndex = startColIndex - occupyCol.indexOf(aliasCol);
+    				startRowIndex = startRowIndex - occupyRow.indexOf(aliasRow);
+    				endColIndex = endColIndex + occupyCol.length - occupyCol.indexOf(aliasCol) - 1;
+    				endRowIndex = endRowIndex + occupyRow.length - occupyRow.indexOf(aliasRow) - 1;
+    				//对单元格未完全加载做处理
+    				endRowIndex = endRowIndex < headItemRows.length ? endRowIndex : headItemRows.length - 1;
+    				text = modelCell.get('content.texts');
     			}
-    			options = {
+    
+    			selectModel.set('tempPosi', {
     				initColIndex: startColIndex,
     				initRowIndex: startRowIndex,
-    				mouseColIndex: startColIndex,
-    				mouseRowIndex: startRowIndex,
-    			};
-    			this.adjustOperationRegion(options);
+    				mouseColIndex: endColIndex,
+    				mouseRowIndex: endRowIndex
+    			});
     
-    			//待修改：对外监听事件，返回值格式存在问题
     			var result = {};
     			for (i = startColIndex; i < endColIndex + 1; i++) {
-    				colDisplayNames.push(headLineColModelList[i].get('displayName'));
+    				colDisplayNames.push(headItemColList[i].get('displayName'));
     			}
     			for (i = startRowIndex; i < endRowIndex + 1; i++) {
-    				rowDisplayNames.push(headLineRowModelList[i].get('displayName'));
+    				rowDisplayNames.push(headItemRowList[i].get('displayName'));
     			}
     			result.point = {
     				col: colDisplayNames,
     				row: rowDisplayNames
     			};
-    
     			result.text = text;
-    			result.property = {
-    				size: modelCell ? modelCell.get('content').size : '11pt',
-    				family: modelCell ? modelCell.get('content').family : "SimSun",
-    				bd: modelCell ? modelCell.get('content').bd : false,
-    				italic: modelCell ? modelCell.get('content').italic : false,
-    				color: modelCell ? modelCell.get('content').color : "#000",
-    				alignRow: modelCell ? modelCell.get('content').alignRow : 'left',
-    				alignCol: modelCell ? modelCell.get('content').alignCol : 'middle',
-    				background: modelCell ? modelCell.get('customProp').background : "#fff",
-    				format: modelCell ? modelCell.get('customProp').format : 'text',
-    				wordWrap: modelCell ? modelCell.get('wordWrap') : false
-    			};
-    			result.border = {
-    				top: modelCell ? modelCell.get('border').top : false,
-    				right: modelCell ? modelCell.get('border').right : false,
-    				bottom: modelCell ? modelCell.get('border').bottom : false,
-    				left: modelCell ? modelCell.get('border').left : false
-    			};
+    			result.property = fillCellProperty(modelCell);
     			listener.excute('mousedown', result);
-    		},
-    		
-    		bindDrag: function() {
-    			this.$el.on('mousemove', this.drag);
-    		},
-    		
-    		unBindDrag: function() {
-    			this.$el.off('mousemove', this.drag);
-    		},
-    		
-    		drag: function(event) {
-    			var headItemRowList = headItemRows.models,
-    				headItemColList = headItemCols.models,
-    				mainMousePosiX,
-    				mainMousePosiY,
-    				modelIndexCol,
-    				modelIndexRow,
-    				initIndexCol,
-    				initIndexRow,
-    				lastMouseCol,
-    				lastMouseRow,
-    				regionModel,
-    				options;
     
-    			mainMousePosiX = this.getMouseColRelativePosi(event);
-    			mainMousePosiY = this.getMouseRowRelativePosi(event);
-    
-    			//this model index of gridline
-    			modelIndexCol = binary.modelBinary(mainMousePosiX, headItemColList, 'left', 'width', 0, headItemColList.length - 1);
-    			modelIndexRow = binary.modelBinary(mainMousePosiY, headItemRowList, 'top', 'height', 0, headItemRowList.length - 1);
-    
-    
-    			if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
-    				regionModel = selectRegions.getModelByType("dataSource")[0];
-    			} else {
-    				regionModel = selectRegions.getModelByType("operation")[0];
+    			function fillCellProperty(model) {
+    				var modelJSON;
+    				if (typeof model === 'undefined') {
+    					model = new Cell();
+    				}
+    				modelJSON = model.toJSON();
+    				return {
+    					size: modelJSON.content.size,
+    					family: modelJSON.content.family,
+    					bd: modelJSON.content.bd,
+    					italic: modelJSON.content.italic,
+    					color: modelJSON.content.color,
+    					alignRow: modelJSON.content.alignRow,
+    					alignCol: modelJSON.content.alignCol,
+    					background: modelJSON.customProp.background,
+    					format: modelJSON.customProp.format,
+    					wordWrap: modelJSON.wordWrap
+    				}
     			}
+    		},
+    		
+    		select: function(colPosi, rowPosi, selectModel) {
+    			var initColIndex,
+    				initRowIndex,
+    				lastColMouse,
+    				lastRowMouse,
+    				mouseColIndex,
+    				mouseRowIndex,
+    				selectModel,
+    				coordinate,
+    				colIndex,
+    				rowIndex;
+    
+    
+    			coordinate = this.getCoordinate(colPosi, rowPosi);
+    			mouseColIndex = coordinate.colIndex;
+    			mouseRowIndex = coordinate.rowIndex;
     
     			//鼠标开始移动索引
-    			initIndexCol = regionModel.get('initPosi').startX;
-    			initIndexRow = regionModel.get('initPosi').startY;
+    			initColIndex = selectModel.get('tempPosi').initColIndex;
+    			initRowIndex = selectModel.get('tempPosi').initRowIndex;
     			//上次移动鼠标坐标
-    			lastMouseCol = regionModel.get('mousePosi').mouseX;
-    			lastMouseRow = regionModel.get('mousePosi').mouseY;
+    			lastColMouse = selectModel.get('tempPosi').mouseColIndex;
+    			lastRowMouse = selectModel.get('tempPosi').mouseRowIndex;
     
     			//判断是否需要渲染
-    			if (lastMouseCol === modelIndexCol && lastMouseRow === modelIndexRow) {
+    			if (lastColMouse === mouseColIndex && lastRowMouse === mouseRowIndex) {
     				return;
     			}
-    			options = {
-    				initColIndex: initIndexCol,
-    				initRowIndex: initIndexRow,
-    				mouseColIndex: modelIndexCol,
-    				mouseRowIndex: modelIndexRow,
-    			};
-    			this.adjustOperationRegion(options);
-    		},
-    		
-    		adaptSelectRegion: function() {
-    			var headLineRowModelList = headItemRows.models,
-    				headLineColModelList = headItemCols.models,
-    				selectRegionModel,
-    				startRowAlias,
-    				startColAlias,
-    				endRowAlias,
-    				endColAlias,
-    				startX,
-    				startY,
-    				endX,
-    				endY,
-    				len,
-    				region,
-    				options,
-    				flag = true,
-    				i;
-    
-    			//修改：没有起到自动调整的作用
-    			selectRegionModel = selectRegions.getModelByType("operation")[0];
-    
-    			startRowAlias = selectRegionModel.get("wholePosi").startY;
-    			startColAlias = selectRegionModel.get("wholePosi").startX;
-    			endRowAlias = selectRegionModel.get("wholePosi").endY;
-    			endColAlias = selectRegionModel.get("wholePosi").endX;
-    
-    			startX = headItemCols.getIndexByAlias(startColAlias);
-    			startY = headItemRows.getIndexByAlias(startRowAlias);
-    			endX = headItemCols.getIndexByAlias(endColAlias);
-    			endY = headItemRows.getIndexByAlias(endRowAlias);
-    
-    
-    			region = {
-    				startColIndex: startX,
-    				startRowIndex: startY,
-    				endColIndex: endX,
-    				endRowIndex: endY,
-    			};
-    			options = {
-    				initColIndex: region.startColIndex,
-    				initRowIndex: region.startRowIndex,
-    				mouseColIndex: region.endColIndex,
-    				mouseRowIndex: region.endRowIndex
-    			};
-    			this.adjustOperationRegion(options);
-    		},
-    		adjustOperationRegion: function(options) {
-    			if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
-    				this.adjustDataSourceRegion(options);
-    			} else {
-    				this.adjustSelectRegion(options);
-    			}
-    		},
-    		adjustDragRegion: function(options) {
-    			var startColIndex = options.startColIndex,
-    				startRowIndex = options.startRowIndex,
-    				endColIndex = options.endColIndex,
-    				endRowIndex = options.endRowIndex,
-    				headItemColList = headItemCols.models,
-    				headItemRowList = headItemRows.models,
-    				dragRegions,
-    				dragRegion,
-    				width = 0,
-    				height = 0,
-    				left = 0,
-    				top = 0;
-    			dragRegions = selectRegions.getModelByType('drag');
-    			if (dragRegions.length === 0) {
-    				this.createDragRegion(options);
-    				dragRegions = selectRegions.getModelByType('drag');
-    			}
-    			dragRegion = dragRegions[0];
-    
-    			if (this.dragView === undefined || this.dragView === null) {
-    				this.dragView = new SelectRegionView({
-    					model: dragRegion,
-    					className: 'datasource-container',
-    					currentRule: this.currentRule,
-    					parentView: this
-    				});
-    				this.$el.append(this.dragView.render().el);
-    			}
-    
-    			left = headItemColList[startColIndex].get('left');
-    			top = headItemRowList[startRowIndex].get('top');
-    			width = headItemColList[endColIndex].get('width') + headItemColList[endColIndex].get('left') - headItemColList[startColIndex].get('left');
-    			height = headItemRowList[endRowIndex].get('height') + headItemRowList[endRowIndex].get('top') - headItemRowList[startRowIndex].get('top');
-    
-    			dragRegion.set({
-    				physicsPosi: {
-    					top: headItemRowList[startRowIndex].get('top'),
-    					left: headItemColList[startColIndex].get('left')
-    				},
-    				physicsBox: {
-    					width: width - 1,
-    					height: height - 1
-    				},
+    			selectModel.set('tempPosi', {
+    				initColIndex: initColIndex,
+    				initRowIndex: initRowIndex,
+    				mouseColIndex: mouseColIndex,
+    				mouseRowIndex: mouseRowIndex
     			});
     		},
-    		
-    		adjustSelectRegion: function(options) {
-    			var region,
-    				headItemColList = headItemCols.models,
-    				headItemRowList = headItemRows.models,
-    				colDisplayNames = [],
-    				rowDisplayNames = [],
-    				startColIndex,
-    				startRowIndex,
-    				endColIndex,
-    				endRowIndex,
-    				width = 0,
-    				height = 0,
-    				len, i;
-    			//获取完整的选中区域(处理合并单元格情况)
-    			region = cells.getFullOperationRegion({
-    				startColIndex: options.initColIndex,
-    				startRowIndex: options.initRowIndex,
-    				endColIndex: options.mouseColIndex,
-    				endRowIndex: options.mouseRowIndex
-    			});
-    
-    			startColIndex = region.startColIndex;
-    			startRowIndex = region.startRowIndex;
-    			endColIndex = region.endColIndex;
-    			endRowIndex = region.endRowIndex;
-    
-    			var e = {};
-    
-    			for (i = startColIndex; i < endColIndex + 1; i++) {
-    				colDisplayNames.push(headItemColList[i].get('displayName'));
-    			}
-    			for (i = startRowIndex; i < endRowIndex + 1; i++) {
-    				rowDisplayNames.push(headItemRowList[i].get('displayName'));
-    			}
-    			e.point = {
-    				col: colDisplayNames,
-    				row: rowDisplayNames
-    			};
-    			listener.excute('regionChange', e);
-    			listener.excute('selectRegionChange', e);
-    
-    			width = headItemColList[endColIndex].get('width') + headItemColList[endColIndex].get('left') - headItemColList[startColIndex].get('left');
-    			height = headItemRowList[endRowIndex].get('height') + headItemRowList[endRowIndex].get('top') - headItemRowList[startRowIndex].get('top');
-    
-    			selectRegions.models[0].set({
-    				initPosi: {
-    					startX: options.initColIndex,
-    					startY: options.initRowIndex
-    				},
-    				mousePosi: {
-    					mouseX: options.mouseColIndex,
-    					mouseY: options.mouseRowIndex
-    				},
-    				physicsPosi: {
-    					top: headItemRowList[startRowIndex].get('top'),
-    					left: headItemColList[startColIndex].get('left')
-    				},
-    				physicsBox: {
-    					width: width,
-    					height: height
-    				},
-    				wholePosi: {
-    					startX: headItemColList[startColIndex].get('alias'),
-    					startY: headItemRowList[startRowIndex].get('alias'),
-    					endX: headItemColList[endColIndex].get('alias'),
-    					endY: headItemRowList[endRowIndex].get('alias')
-    				}
-    			});
-    			siderLineRows.models[0].set({
-    				top: headItemRowList[startRowIndex].get('top'),
-    				height: height - 1
-    			});
-    			siderLineCols.models[0].set({
-    				left: headItemColList[startColIndex].get('left'),
-    				width: width - 1
-    
-    			});
-    
-    			len = headItemRowList.length;
-    
-    			for (i = 0; i < len; i++) {
-    				headItemRowList[i].set({
-    					activeState: false
-    				});
-    			}
-    
-    			len = headItemColList.length;
-    			for (i = 0; i < len; i++) {
-    				headItemColList[i].set({
-    					activeState: false
-    				});
-    			}
-    			for (i = 0; i < endColIndex - startColIndex + 1; i++) {
-    				width += headItemColList[startColIndex + i].set({
-    					activeState: true
-    				});
-    			}
-    			for (i = 0; i < endRowIndex - startRowIndex + 1; i++) {
-    				height += headItemRowList[startRowIndex + i].set({
-    					activeState: true
-    				});
-    			}
-    		},
-    		
-    		adjustDataSourceRegion: function(options) {
-    			var region,
-    				startColIndex,
-    				startRowIndex,
-    				endColIndex,
-    				endRowIndex,
-    				headItemColList = headItemCols.models,
-    				headItemRowList = headItemRows.models,
-    				rowDisplayNames = [],
-    				colDisplayNames = [],
-    				dataSourceRegion,
-    				width, height, i;
-    			//获取完整的选中区域(处理合并单元格情况)
-    			region = cells.getFullOperationRegion({
-    				startColIndex: options.initColIndex,
-    				startRowIndex: options.initRowIndex,
-    				endColIndex: options.mouseColIndex,
-    				endRowIndex: options.mouseRowIndex
-    			});
-    
-    			startColIndex = region.startColIndex;
-    			startRowIndex = region.startRowIndex;
-    			endColIndex = region.endColIndex;
-    			endRowIndex = region.endRowIndex;
-    
-    			var e = {};
-    			for (i = startColIndex; i < endColIndex + 1; i++) {
-    				colDisplayNames.push(headItemColList[i].get('displayName'));
-    			}
-    			for (i = startRowIndex; i < endRowIndex + 1; i++) {
-    				rowDisplayNames.push(headItemRowList[i].get('displayName'));
-    			}
-    			e.point = {
-    				col: colDisplayNames,
-    				row: rowDisplayNames
-    			};
-    			listener.excute('regionChange', e);
-    			listener.excute('dataSourceRegionChange', e);
-    
-    			dataSourceRegion = selectRegions.getModelByType("dataSource")[0];
-    
-    			if (dataSourceRegion === undefined) {
-    				dataSourceRegion = new SelectRegionModel();
-    				dataSourceRegion.set('selectType', 'dataSource');
-    				selectRegions.add(dataSourceRegion);
-    			}
-    			width = headItemColList[endColIndex].get('width') + headItemColList[endColIndex].get('left') - headItemColList[startColIndex].get('left');
-    			height = headItemRowList[endRowIndex].get('height') + headItemRowList[endRowIndex].get('top') - headItemRowList[startRowIndex].get('top');
-    			dataSourceRegion.set({
-    				initPosi: {
-    					startX: options.initColIndex,
-    					startY: options.initRowIndex
-    				},
-    				mousePosi: {
-    					mouseX: options.mouseColIndex,
-    					mouseY: options.mouseRowIndex
-    				},
-    				physicsPosi: {
-    					top: headItemRowList[startRowIndex].get('top'),
-    					left: headItemColList[startColIndex].get('left')
-    				},
-    				physicsBox: {
-    					width: width,
-    					height: height
-    				},
-    				wholePosi: {
-    					startX: headItemColList[startColIndex].get('alias'),
-    					startY: headItemRowList[startRowIndex].get('alias'),
-    					endX: headItemColList[endColIndex].get('alias'),
-    					endY: headItemRowList[endRowIndex].get('alias')
-    				}
-    			});
-    
-    		},
-    		createDragRegion: function(options) {
-    			var startColIndex = options.startColIndex || 0,
-    				startRowIndex = options.startRowIndex || 0,
-    				endColIndex = options.endColIndex || 0,
-    				endRowIndex = options.endRowIndex || 0,
-    				headItemColList = headItemCols.models,
-    				headItemRowList = headItemRows.models,
-    				width,
-    				height;
-    
-    			width = headItemColList[endColIndex].get('width') + headItemColList[endColIndex].get('left') - headItemColList[startColIndex].get('left');
-    			height = headItemRowList[endRowIndex].get('height') + headItemRowList[endRowIndex].get('top') - headItemRowList[startRowIndex].get('top');
-    			selectRegions.add({
-    				physicsPosi: {
-    					top: headItemRowList[startRowIndex].get('top'),
-    					left: headItemColList[startColIndex].get('left')
-    				},
-    				physicsBox: {
-    					width: width - 1,
-    					height: height - 1
-    				},
-    				selectType: 'drag'
-    			});
-    		},
-    		addSelectRegion: function() {
-    
-    		},
-    		//修改：监听集合
-    		// createDataSourceRegion: function(options) {
-    		// 	var startColIndex = options.startColIndex || 0,
-    		// 		startRowIndex = options.startRowIndex || 0,
-    		// 		endColIndex = options.endColIndex || 0,
-    		// 		endRowIndex = options.endRowIndex || 0,
-    		// 		headItemColList = headItemCols.models,
-    		// 		headItemRowList = headItemRows.models,
-    		// 		width, height;
-    
-    		// 	width = headItemColList[endColIndex].get('width') + headItemColList[endColIndex].get('left') - headItemColList[startColIndex].get('left');
-    		// 	height = headItemRowList[endRowIndex].get('height') + headItemRowList[endRowIndex].get('top') - headItemRowList[startRowIndex].get('top');
-    		// 	selectRegions.add({
-    		// 		mousePosi: {
-    		// 			mouseX: startColIndex,
-    		// 			mouseY: startRowIndex
-    		// 		},
-    		// 		initPosi: {
-    		// 			startX: startColIndex,
-    		// 			startY: startRowIndex
-    		// 		},
-    		// 		physicsPosi: {
-    		// 			top: headItemRowList[startRowIndex].get('top'),
-    		// 			left: headItemColList[startColIndex].get('left')
-    		// 		},
-    		// 		physicsBox: {
-    		// 			width: width - 1,
-    		// 			height: height - 1
-    		// 		},
-    		// 		wholePosi: {
-    		// 			startX: startColIndex,
-    		// 			startY: startRowIndex,
-    		// 			endX: endColIndex,
-    		// 			endY: endRowIndex
-    		// 		},
-    		// 		selectType: 'dataSource'
-    		// 	});
-    		// 	if (this.dataSoureRegionView === undefined || this.dataSoureRegionView === null) {
-    		// 		this.dataSoureRegionView = new SelectRegionView({
-    		// 			model: selectRegions.getModelByType("dataSource")[0],
-    		// 			className: 'datasource-container',
-    		// 			currentRule: this.currentRule,
-    		// 			parentView: this
-    		// 		});
-    		// 		this.$el.append(this.dataSoureRegionView.render().el);
-    		// 	}
-    		// 	return selectRegions.getModelByType("dataSource")[0];
-    		// },
     		
     		destroy: function() {
     			var i = 0,
     				len,
     				selectModelList;
-    			Backbone.off('call:cellsContainer');
     			Backbone.off('event:cellsContainer:destroy');
-    			Backbone.off('event:cellsContainer:selectRegionChange');
-    			Backbone.off('event:cellsContainer:adjustSelectRegion');
-    			Backbone.off('event:cellsContainer:adaptSelectRegion');
-    			Backbone.off('event:cellsContainer:destroy');
-    			Backbone.off('event:cellsContainer:unBindDrag');
-    			Backbone.off('event:cellsContainer:bindDrag');
-    			Backbone.off('event:cellsContainer:getCoordinate');
-    			Backbone.off('event:cellsContainer:startHighlight');
-    			Backbone.off('event:cellsContainer:stopHighlight');
     			Backbone.off('event:cellsContainer:adaptWidth');
-    			this.contentCellsContainer.destroy();
-    			this.selectRegion.destroy();
+    			Backbone.off('event:cellsContainer:adaptHeight');
+    			//待修改：需要销毁包含视图
     			selectModelList = selectRegions.models;
     			len = selectModelList.length;
     			for (; i < len; i++) {
-    				if (selectModelList[i].get('selectType') !== 'operation') {
+    				if (selectModelList[i].get('selectType') !== 'selected') {
     					selectModelList[i].destroy();
     				}
     			}
@@ -29491,7 +29188,7 @@ define('views/gridLineColContainer',function() {
     	return CellsContainer;
     });
     
-define('views/mainContainer',function() {
+    define('views/mainContainer',function() {
     	
     	var $ = require('lib/jquery'),
     		_ = require('lib/underscore'),
@@ -29511,7 +29208,9 @@ define('views/mainContainer',function() {
     		selectRegions = require('collections/selectRegion'),
     		GridLineRowContainer = require('views/gridLineRowContainer'),
     		CellContainer = require('views/cellContainer'),
-    		CellsContainer = require('views/cellsContainer');
+    		CellsContainer = require('views/cellsContainer'),
+    		headItemRowList = headItemRows.models,
+    		headItemColList = headItemCols.models;
     
     	
     	var MainContainer = Backbone.View.extend({
@@ -29524,7 +29223,9 @@ define('views/mainContainer',function() {
     				modelsHeadLineColRegionList,
     				modelLastHeadLineRow,
     				modelLastHeadLineCol,
+    				userViewBottomIndex,
     				len;
+    
     
     			Backbone.on('event:mainContainer:destroy', this.destroy, this);
     			Backbone.on('event:mainContainer:attributesRender', this.attributesRender, this);
@@ -29532,23 +29233,6 @@ define('views/mainContainer',function() {
     
     			this.currentRule = clone.clone(cache.CurrentRule);
     
-    			if (this.currentRule.eventScroll) {
-    				
-    				this.delegateEvents({
-    					'scroll': 'syncScroll'
-    				});
-    				Backbone.on('call:mainContainer', this.callMainContainer, this);
-    				Backbone.on('event:mainContainer:nextCellPosition', this.nextCellPosition, this);
-    				// Backbone.on('event:mainContainer:addBottom', this.addBottom, this);
-    				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
-    			}
-    			if (cache.TempProp.isFrozen === true) {
-    				this.offsetTop = this.currentRule.displayPosition.offsetTop;
-    				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
-    			} else {
-    				this.offsetTop = 0;
-    				this.userViewTop = 0;
-    			}
     			if (cache.TempProp.isFrozen === true) {
     				this.offsetTop = this.currentRule.displayPosition.offsetTop;
     				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
@@ -29583,12 +29267,24 @@ define('views/mainContainer',function() {
     			len = modelsHeadLineColRegionList.length;
     			modelLastHeadLineCol = modelsHeadLineColRegionList[len - 1];
     
-    			this.boxModel.height = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height') - modelsHeadLineRowRegionList[0].get('top');
-    			this.boxModel.width = modelLastHeadLineCol.get('left') + modelLastHeadLineCol.get('width') - modelsHeadLineColRegionList[0].get('left');
+    			this.boxModel.height = modelLastHeadLineRow.get('top') +
+    				modelLastHeadLineRow.get('height') - modelsHeadLineRowRegionList[0].get('top');
+    			this.boxModel.width = modelLastHeadLineCol.get('left') +
+    				modelLastHeadLineCol.get('width') - modelsHeadLineColRegionList[0].get('left');
     
-    			//待考虑，是否将起始高度算在内
-    			cache.viewRegion.top = 0;
-    			cache.viewRegion.bottom = this.boxModel.height;
+    			if (this.currentRule.eventScroll) {
+    				
+    				this.delegateEvents({
+    					'scroll': 'syncScroll'
+    				});
+    				Backbone.on('call:mainContainer', this.callMainContainer, this);
+    				Backbone.on('event:mainContainer:showSelectRegion', this.showSelectRegion, this);
+    				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
+    				cache.viewRegion.top = modelsHeadLineRowRegionList[0].get('top');
+    				cache.viewRegion.bottom = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height');
+    				cache.viewRegion.scrollTop = 0;
+    				cache.viewRegion.scrollLeft = 0;
+    			}
     		},
     		
     		addBackGround: function() {
@@ -29647,6 +29343,7 @@ define('views/mainContainer',function() {
     			bottom = cellModel.get('physicsBox').top + cellModel.get('physicsBox').height;
     			left = cellModel.get('physicsBox').left;
     			right = cellModel.get('physicsBox').left + cellModel.get('physicsBox').width;
+    
     			if (bottom < headItemRowList[startRowIndex].get('top') ||
     				(typeof endRowIndex === 'number' && top > headItemRowList[endRowIndex].get('top')) ||
     				right < headItemColList[startColIndex].get('left') ||
@@ -29716,7 +29413,7 @@ define('views/mainContainer',function() {
     				this.$el.addClass(newAttributes.style);
     			}
     		},
-    		nextCellPosition: function(direction) {
+    		showSelectRegion: function(direction) {
     			switch (direction) {
     				case 'LEFT':
     					break;
@@ -29725,65 +29422,30 @@ define('views/mainContainer',function() {
     				case 'UP':
     					break;
     				case 'DOWN':
-    					this.downCellPosition();
+    					this.downScroll();
     					break;
     				default:
     					break;
     			}
     		},
     		
-    		downCellPosition: function() {
-    			var rowAliasArray = [],
-    				loadStartAlias = [],
-    				loadEndAlias,
-    				offsetTop,
-    				userViewTop,
+    		downScroll: function() {
+    			var limitBottomPosi,
+    				bottomRowModel,
+    				userViewBottom,
+    				userViewBottomPosi,
     				recordScrollTop,
-    				cellModel,
-    				bottomHeadRowItem,
-    				top,
-    				i, len;
+    				selectModel,
+    				adjustPosi;
     
+    			selectModel = selectRegions.getModelByType('selected');
+    			bottomRowModel = headItemRows.getModelByAlias(selectModel.get('wholePosi').startY);
+    			limitBottomPosi = selectModel.get('physicsBox').top + bottomRowModel.get('height');
     
-    			//处理冻结情况,只有主区域能够进行滚动
-    			if (cache.TempProp.isFrozen &&
-    				(this.currentRule.displayPosition.endRowIndex ||
-    					this.currentRule.displayPosition.endColIndex)) {
-    				return;
-    			}
-    
-    			//判断是否存在单元格未全部初始化
-    			cellModel = cells.getCellsByWholeSelectRegion()[0];
-    			if (cellModel === null) {
-    				rowAliasArray.push(selectRegions.models[0].get('wholePosi').startY);
-    			} else {
-    				rowAliasArray = cellModel.get('occupy').y;
-    			}
-    
-    			len = rowAliasArray.length;
-    			for (i = 0; i < len; i++) {
-    				if (headItemRows.getIndexByAlias(rowAliasArray[i]) === -1) {
-    					loadStartAlias = rowAliasArray[i];
-    					break;
-    				}
-    			}
-    			if (loadStartAlias !== undefined) {
-    				loadEndAlias = rowAliasArray[len - 1];
-    			}
-    			bottomHeadRowItem = headItemRows.getModelByAlias(rowAliasArray[len - 1]);
-    			//判断Excel冻结状态，非冻结状态(冻结高度为0，用户可视起点高度为0)
-    			if (cache.TempProp.isFrozen === true) {
-    				offsetTop = this.currentRule.displayPosition.offsetTop;
-    				userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
-    			} else {
-    				offsetTop = 0;
-    				userViewTop = 0;
-    			}
-    			//重新定位，可视区域底部高度值
-    			top = bottomHeadRowItem.get('top') + bottomHeadRowItem.get('height') + config.User.cellHeight + 10 - offsetTop - userViewTop;
-    
-    			if (top < this.el.scrollTop + this.el.offsetHeight) {
-    				return;
+    			adjustPosi = limitBottomPosi - this.offsetTop - this.userViewTop -
+    				this.el.scrollTop - this.el.offsetHeight;
+    			if (adjustPosi > 0) {
+    				this.el.scrollTop += adjustPosi + 17;
     			}
     			recordScrollTop = this.el.scrollTop;
     			this.el.scrollTop = (top - this.el.offsetHeight);
@@ -29793,12 +29455,12 @@ define('views/mainContainer',function() {
     		
     		syncScroll: function(e, direction) {
     			var verticalDirection,
-    				transverseDirection,
     				userViewRowModel,
     				userViewColModel,
     				userViewEndRowModel,
     				userViewEndColModel,
-    				currentViewTop = cache.viewRegion.top;
+    				currentViewTop = cache.viewRegion.top,
+    				currentViewBottom = cache.viewRegion.bottom;
     
     			this.preventAutoScroll();
     			verticalDirection = currentViewTop - this.el.scrollTop - this.offsetTop - this.userViewTop;
@@ -29811,23 +29473,23 @@ define('views/mainContainer',function() {
     
     				userViewColModel = headItemCols.getModelByPosition(this.recordScrollLeft);
     				userViewEndColModel = headItemCols.getModelByPosition(this.recordScrollLeft + this.el.offsetWidth);
-    
     				cache.UserView.colAlias = userViewColModel.get('alias');
     				cache.UserView.colEndAlias = userViewEndColModel.get('alias');
     			}
-    
     			//as scrollbar scroll up
-    
     			if (verticalDirection > 0 || direction === 'up') {
     				this.addTop(currentViewTop);
-    				this.deleteBottom(cache.viewRegion.bottom);
+    				this.deleteBottom(currentViewBottom);
+    				cache.viewRegion.scrollTop = this.el.scrollTop;
     			}
     			//as scrollbar scroll down
     			if (verticalDirection < 0 || direction === 'down') {
     				//delete top row
-    				this.addBottom(cache.viewRegion.bottom);
+    				this.addBottom(currentViewBottom);
     				this.deleteTop(currentViewTop);
+    				cache.viewRegion.scrollTop = this.el.scrollTop;
     			}
+    			cache.viewRegion.scrollLeft = this.el.scrollLeft;
     		},
     		
     		deleteTop: function(recordTop) {
@@ -29836,9 +29498,7 @@ define('views/mainContainer',function() {
     				limitTop, //预加载区域边界高度
     				limitAlias, //预加载区域边界别名
     				recordIndex,
-    				recordTop,
     				tempCells, //区域内单元格数组
-    				maxRowIndex,
     				cellPositionArray,
     				offsetTop,
     				userViewTop,
@@ -29848,9 +29508,12 @@ define('views/mainContainer',function() {
     			userViewTop = this.userViewTop;
     			//当前状态预加载标线高度
     			limitTop = this.el.scrollTop - config.System.prestrainHeight + offsetTop + userViewTop;
-    			//修改
-    			if (recordTop < 0) recordTop = 0;
-    			if (limitTop < 0) limitTop = 0;
+    			if (recordTop < 0) {
+    				recordTop = 0;
+    			}
+    			if (limitTop < 0) {
+    				limitTop = 0;
+    			}
     
     			limitIndex = binary.indexModelBinary(limitTop, headItemRowList, 'top', 'height');
     			recordIndex = binary.indexModelBinary(recordTop, headItemRowList, 'top', 'height');
@@ -29866,24 +29529,21 @@ define('views/mainContainer',function() {
     			limitAlias = headItemRowList[i].get('alias');
     			for (i = 0, len = tempCells.length; i < len; i++) {
     				//判断cell最下端是否超出了显示界限
-    				cellPositionArray = tempCells[i].get("occupy").y;
+    				cellPositionArray = tempCells[i].get('occupy').y;
     				if (cellPositionArray.indexOf(limitAlias) === -1) {
     					tempCells[i].hide();
     				}
     			}
-    			cache.viewRegion.top = headItemRowList[limitIndex].get("top");
+    			cache.viewRegion.top = headItemRowList[limitIndex].get('top');
     		},
     		
     		addTop: function(recordTop) {
     			var headItemRowList = headItemRows.models,
-    				recordTop,
     				recordIndex,
     				limitTopPosi,
     				limitTopIndex,
     				limitBottomPosi,
-    				limitBottomIndex,
     				headItemRowModel,
-    				headItemRowContainer,
     				tempCells,
     				offsetTop,
     				userViewTop,
@@ -29924,11 +29584,12 @@ define('views/mainContainer',function() {
     				}
     			}
     			this.adjustColPropCell(limitTopIndex, recordIndex);
-    			cache.viewRegion.top = headItemRowList[limitTopIndex].get("top");
+    			cache.viewRegion.top = headItemRowList[limitTopIndex].get('top');
     		},
     		
     		deleteBottom: function(recordPosi) {
     			var headItemRowList = headItemRows.models,
+    				cellRowAliasArray,
     				recordIndex,
     				limitPosi,
     				limitIndex,
@@ -29943,6 +29604,7 @@ define('views/mainContainer',function() {
     			userViewTop = this.userViewTop;
     
     			recordIndex = binary.indexModelBinary(recordPosi, headItemRowList, 'top', 'height');
+    
     			limitPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
     			limitIndex = binary.indexModelBinary(limitPosi, headItemRowList, 'top', 'height');
     			for (i = limitIndex + 1; i <= recordIndex; i++) {
@@ -29951,7 +29613,7 @@ define('views/mainContainer',function() {
     			//删除超过加载区域cell视图对象
     			tempCells = cells.getCellByRow(limitIndex + 1, localViewIndex);
     			for (i = 0, len = tempCells.length; i < len; i++) {
-    				cellRowAliasArray = tempCells[i].get("occupy").y;
+    				cellRowAliasArray = tempCells[i].get('occupy').y;
     				if (cellRowAliasArray.indexOf(limitAlias) === -1) {
     					tempCells[i].hide();
     				}
@@ -29977,7 +29639,7 @@ define('views/mainContainer',function() {
     			offsetTop = this.offsetTop;
     			userViewTop = this.userViewTop;
     			limitTopPosi = this.el.scrollTop - config.System.prestrainHeight + offsetTop + userViewTop;
-    			limitBottomPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
+    			limitBottomPosi = limitTopPosi + this.el.offsetHeight + config.System.prestrainHeight * 2;
     			//自动增长行或者是后台请求数据，已将加载高度可能会超过新的预加载区
     			if (recordPosi > limitBottomPosi) {
     				return;
@@ -29997,14 +29659,13 @@ define('views/mainContainer',function() {
     				}
     			}
     			tempCells = cells.getCellByRow(recordIndex, limitBottomIndex);
-    			for (var i = 0, len = tempCells.length; i < len; i++) {
+    			for (i = 0, len = tempCells.length; i < len; i++) {
     				if (tempCells[i].get('showState') === false) {
     					tempCells[i].set('showState', true);
     					this.addCellView(tempCells[i]);
     					this.addCellViewPublish(tempCells[i]);
     				}
     			}
-    			loadBottomPosi = loadBottomPosi || limitBottomPosi;
     			limitBottomPosi = limitBottomPosi > loadBottomPosi ? limitBottomPosi : loadBottomPosi;
     			limitBottomPosi = limitBottomPosi > addRowBottomPosi ? limitBottomPosi : addRowBottomPosi;
     			limitBottomIndex = binary.indexModelBinary(limitBottomPosi, headItemRowList, 'top', 'height');
@@ -30018,9 +29679,7 @@ define('views/mainContainer',function() {
     				isUnloadCells,
     				topIndex,
     				bottomIndex,
-    				rowLoadBottom,
-    				height,
-    				i = 0;
+    				height;
     			if (top > cache.localRowPosi || cache.localRowPosi === 0) {
     				return bottom;
     			}
@@ -30032,18 +29691,16 @@ define('views/mainContainer',function() {
     				bottom = bottom + cache.scrollBufferHeight;
     			}
     			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
+    			//需要保存准备值
     			if (isUnloadRows) {
     				this.requestRows(top, bottom);
     				height = headItemRows.getMaxDistanceHeight();
-    				this.adjustContainerHeight(height);
-    				this.publish(height, 'adjustHeadItemContainerPublish');
-    				this.publish(height, 'adjustContainerHeightPublish');
+    				this.adjustContainerHeight();
     				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
     				bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
     				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
     					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'),
     					cache.rowRegionPosi);
-    				rowLoadBottom = bottom;
     			}
     			if (isUnloadCells) {
     				this.requestCells(top, bottom);
@@ -30052,18 +29709,17 @@ define('views/mainContainer',function() {
     				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
     					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
     			}
-    			return rowLoadBottom;
+    			return bottom;
     		},
     		requestRows: function(top, bottom) {
     			send.PackAjax({
-    				url: 'excel.htm?m=openexcel',
+    				url: config.url.sheet.load,
     				async: false,
     				isPublic: false,
     				data: JSON.stringify({
-    					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
     					sheetId: '1',
-    					rowBegin: top,
-    					rowEnd: bottom
+    					top: top,
+    					bottom: bottom
     				}),
     				success: function(data) {
     					if (data === '') {
@@ -30079,14 +29735,13 @@ define('views/mainContainer',function() {
     		},
     		requestCells: function(top, bottom) {
     			send.PackAjax({
-    				url: 'excel.htm?m=openexcel',
+    				url: config.url.sheet.load,
     				async: false,
     				isPublic: false,
     				data: JSON.stringify({
-    					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
     					sheetId: '1',
-    					rowBegin: top,
-    					rowEnd: bottom
+    					top: top,
+    					bottom: bottom
     				}),
     				success: function(data) {
     					if (data === '') {
@@ -30099,7 +29754,7 @@ define('views/mainContainer',function() {
     		},
     		
     		adaptSelectRegion: function() {
-    			var select = selectRegions.getModelByType("operation")[0],
+    			var select = selectRegions.getModelByType('selected'),
     				headLineRowModelList = headItemRows.models,
     				endColAlias = select.get('wholePosi').endX,
     				endRowAlias = select.get('wholePosi').endY,
@@ -30132,9 +29787,7 @@ define('views/mainContainer',function() {
     			var distanceLeft,
     				distanceRight,
     				distanceTop,
-    				distanceBottom,
-    				localRecordScrollTop,
-    				localRecordScrollLeft;
+    				distanceBottom;
     			if (this.isPreventScroll) {
     				//for get this offsetleft value , because of this div in table . so this offsetleft equal 0 ,
     				//then we get other method get it's offsetleft value
@@ -30173,8 +29826,7 @@ define('views/mainContainer',function() {
     			this.isPreventScroll = true;
     		},
     		adaptRowHeightChange: function(startPosi, diffDistance) {
-    			var flag = false,
-    				userViewRowModel,
+    			var userViewRowModel,
     				userViewEndRowModel;
     			if (cache.viewRegion.top > startPosi) {
     				cache.viewRegion.top += diffDistance;
@@ -30230,7 +29882,6 @@ define('views/mainContainer',function() {
     			var maxheadItemHeight = headItemRows.getMaxDistanceHeight(),
     				maxLocalHeight = cache.localRowPosi,
     				startIndex = headItemRows.length,
-    				distance,
     				len;
     
     			if (height <= maxheadItemHeight || height <= maxLocalHeight) {
@@ -30240,16 +29891,14 @@ define('views/mainContainer',function() {
     			len = Math.ceil((height + cache.scrollBufferHeight - maxheadItemHeight) / config.User.cellHeight);
     			headItemRows.generate(len);
     			send.PackAjax({
-    				url: 'sheet.htm?m=addrowline',
+    				url: config.url.row.plus_batch,
     				data: JSON.stringify({
-    					rowNum: len
+    					num: len
     				})
     			});
     			this.adjustColPropCell(startIndex, startIndex + len - 1);
     			height = headItemRows.getMaxDistanceHeight();
-    			this.adjustContainerHeight(height);
-    			this.publish(height, 'adjustHeadItemContainerPublish');
-    			this.publish(height, 'adjustContainerHeightPublish');
+    			this.adjustContainerHeight();
     			return height;
     		},
     		
@@ -30259,10 +29908,8 @@ define('views/mainContainer',function() {
     				headItemModel,
     				aliasCol,
     				aliasRow,
-    				cellModel,
     				occupyCol,
     				colProp,
-    				cellProp,
     				len, i = 0,
     				j;
     			headItemColList = headItemCols.models;
@@ -30285,9 +29932,8 @@ define('views/mainContainer',function() {
     			}
     		},
     		adjustContainerHeight: function(height) {
-    			this.cellsContainer.attributesRender({
-    				height: height
-    			});
+    			Backbone.trigger('event:cellsContainer:adaptHeight');
+    			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
     		},
     		
     		destroy: function() {
@@ -30304,7 +29950,7 @@ define('views/mainContainer',function() {
     define('views/headItemColContainer',function() {
     	var $ = require('lib/jquery'),
     		Backbone = require('lib/backbone'),
-    		Handlebars = require('lib/handlebars'),
+    		getTemplate = require('basic/tools/template'),
     		headItemCols = require('collections/headItemCol'),
     		cache = require('basic/tools/cache'),
     		util = require('basic/util/clone'),
@@ -30333,7 +29979,7 @@ define('views/mainContainer',function() {
     		render: function() {
     
     			
-    			this.template = Handlebars.compile($('#tempColHeadItem').html());
+    			this.template = getTemplate('COLHEADTEMPLATE');
     			this.changeLeft();
     			// this.changeWidth();
     			this.changeRightAjacentHide();
@@ -30595,7 +30241,6 @@ define('views/mainContainer',function() {
     			if (!this.$lockData) {
     				return;
     			}
-    			// this.requstAdjust();
     			itemElIndex = headItemCols.getIndexByAlias(this.$itemEl.data('alias'));
     			diffDistance = this.itemEl.offsetWidth - this.cacheItemElOffsetWidth;
     			width = diffDistance + headItemCols.models[itemElIndex].get('width');
@@ -30610,14 +30255,9 @@ define('views/mainContainer',function() {
     			this.adjustHeadLine(itemElIndex, diffDistance);
     			this.adjustCells(itemElIndex, diffDistance);
     			this.adjustSelectRegion(itemElIndex, diffDistance);
-    			this.requstAdjust(itemElIndex, diffDistance);
+    			this.requstAdjust(itemElIndex, width);
     			this.triggerCallback();
-    
-    			this.viewCellsContainer.attributesRender({
-    				width: headItemCols.getMaxDistanceWidth(),
-    				height: headItemRows.getMaxDistanceHeight()
-    			});
-    
+    			Backbone.trigger('event:cellsContainer:adaptWidth');
     			this.viewColsAllHeadContainer.$el.css({
     				width: headItemCols.getMaxDistanceWidth()
     			});
@@ -30636,11 +30276,12 @@ define('views/mainContainer',function() {
     		requstAdjust: function(colIndex, offset) {
     			var colSort = headItemCols.models[colIndex].get('sort');
     			send.PackAjax({
-    				url: 'cells.htm?m=cols_width',
+    				url: config.url.col.adjust,
     				data: JSON.stringify({
-    					colSort: colSort,
+    					sheetId: '1',
+    					col: colSort,
     					offset: offset
-    				}),
+    				})
     			});
     		},
     		
@@ -30776,8 +30417,8 @@ define('views/mainContainer',function() {
     				selectRegionModel.set("physicsBox.width", cacheWidth + pixel);
     				siderLineColModel.set("width", cacheWidth + pixel);
     			} else {
-    				cacheLeft = selectRegionModel.get("physicsPosi").left;
-    				selectRegionModel.set("physicsPosi.left", cacheLeft + pixel);
+    				cacheLeft = selectRegionModel.get("physicsBox").left;
+    				selectRegionModel.set("physicsBox.left", cacheLeft + pixel);
     				siderLineColModel.set("left", cacheLeft + pixel);
     			}
     		},
@@ -31044,7 +30685,7 @@ define('views/mainContainer',function() {
     	var $ = require('lib/jquery'),
     		_ = require('lib/underscore'),
     		Backbone = require('lib/backbone'),
-    		Handlebars = require('lib/handlebars'),
+    		getTemplate = require('basic/tools/template'),
     		headItemRows = require('collections/headItemRow'),
     		cache = require('basic/tools/cache'),
     		util = require('basic/util/clone'),
@@ -31070,7 +30711,7 @@ define('views/mainContainer',function() {
     		},
     		
     		render: function() {
-    			this.template = Handlebars.compile($('#tempRowHeadItem').html());
+    			this.template = getTemplate('ROWHEADTEMPLATE');
     			this.changeTop();
     			this.changeHeight();
     			this.$el.html(this.template(this.model.toJSON())).data('alias', this.model.get('alias'));
@@ -31191,7 +30832,6 @@ define('views/mainContainer',function() {
     			Backbone.trigger('call:screenContainer', this.callView('viewScreenContainer'));
     			Backbone.trigger('call:mainContainer', this.callView('viewMainContainer'));
     			Backbone.trigger('call:cellsContainer', this.callView('viewCellsContainer'));
-    			Backbone.trigger('call:rowsAllHeadContainer', this.callView('viewRowsAllHeadContainer'));
     		},
     		
     		callRowsHeadContainer: function(receiveFunc) {
@@ -31235,6 +30875,7 @@ define('views/mainContainer',function() {
     				offsetTopByBottom: this.itemEl.clientHeight + this.$itemEl.offset().top,
     				self: this
     			}, this.moveEvent);
+    
     			this.rowsSpaceLineContainer = new RowsSpaceLineContainer({
     				boxAttributes: {
     					top: this.itemEl.offsetTop + this.itemEl.clientHeight
@@ -31268,7 +30909,6 @@ define('views/mainContainer',function() {
     			if (!this.$lockData) {
     				return;
     			}
-    			// this.requstAdjust();
     			modelList = headItemRows.models;
     			len = modelList.length;
     			itemElIndex = headItemRows.getIndexByAlias(this.$itemEl.data('alias'));
@@ -31282,33 +30922,23 @@ define('views/mainContainer',function() {
     			this.itemEl = this.$itemEl = this.$lockData = null;
     		},
     		rowHeightAdjust: function(itemElIndex, height) {
-    
     			var diffDistance = height - headItemRows.models[itemElIndex].get('height');
     			this.adjustHeadLine(itemElIndex, diffDistance);
     			this.adjustCells(itemElIndex, diffDistance);
     			this.adjustSelectRegion(itemElIndex, diffDistance);
-    			this.requstAdjust(itemElIndex, diffDistance);
-    
-    			if (this.viewCellsContainer === undefined || this.viewRowsAllHeadContainer === undefined) {
-    				this.triggerCallback();
-    			}
-    			
-    			this.viewCellsContainer.attributesRender({
-    				width: headItemCols.getMaxDistanceWidth(),
-    				height: headItemRows.getMaxDistanceHeight()
-    			});
-    			this.viewRowsAllHeadContainer.$el.css({
-    				height: headItemRows.getMaxDistanceHeight()
-    			});
-    			Backbone.trigger('event:mainContainer:adaptRowHeightChange',headItemRows.models[itemElIndex].get('top'),diffDistance);
+    			this.requstAdjust(itemElIndex, height);
+    			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
+    			Backbone.trigger('event:cellsContainer:adaptHeight');
+    			Backbone.trigger('event:mainContainer:adaptRowHeightChange');
     		},
     		
     		requstAdjust: function(rowIndex, offset) {
     			var rowSort = headItemRows.models[rowIndex].get('sort');
     			send.PackAjax({
-    				url: 'cells.htm?m=rows_height',
+    				url: config.url.row.adjust,
     				data: JSON.stringify({
-    					rowSort: rowSort,
+    					sheetId: '1',
+    					row: rowSort,
     					offset: offset
     				})
     			});
@@ -31429,8 +31059,8 @@ define('views/mainContainer',function() {
     				selectRegionModel.set("physicsBox.height", cacheHeight + pixel);
     				siderLineRowModel.set("height", cacheHeight + pixel);
     			} else {
-    				cacheTop = selectRegionModel.get("physicsPosi").top;
-    				selectRegionModel.set("physicsPosi.top", cacheTop + pixel);
+    				cacheTop = selectRegionModel.get("physicsBox").top;
+    				selectRegionModel.set("physicsBox.top", cacheTop + pixel);
     				siderLineRowModel.set("top", cacheTop + pixel);
     			}
     
@@ -31485,10 +31115,14 @@ define('views/mainContainer',function() {
     	
     	var $ = require('lib/jquery'),
     		_ = require('lib/underscore'),
+    		clone = require('basic/util/clone'),
+    		cache = require('basic/tools/cache'),
     		Backbone = require('lib/backbone'),
+    		headItemRows = require('collections/headItemRow'),
     		siderLineRows = require('collections/siderLineRow'),
     		RowsHeadContainer = require('views/rowsHeadContainer'),
-    		SiderLineRowContainer = require('views/siderLineRowContainer');
+    		SiderLineRowContainer = require('views/siderLineRowContainer'),
+    		headItemRowList = headItemRows.models;
     
     	
     
@@ -31498,6 +31132,8 @@ define('views/mainContainer',function() {
     		
     		initialize: function(options) {
     			Backbone.on('call:rowsAllHeadContainer', this.callRowsAllHeadContainer, this);
+    			Backbone.on('event:rowsAllHeadContainer:adaptHeight', this.adaptHeight, this);
+    			this.currentRule = clone.clone(cache.CurrentRule);
     			this.listenTo(siderLineRows, 'add', this.addSiderLineRow);
     			this.boxAttributes = options.boxAttributes;
     		},
@@ -31519,6 +31155,26 @@ define('views/mainContainer',function() {
     
     			}
     			return this;
+    		},
+    		adaptHeight: function() {
+    			var bottom = 0,
+    				top = 0,
+    				len, i,
+    				start;
+    
+    			len = this.currentRule.displayPosition.endRowIndex || headItemRowList.length - 1;
+    			start = this.currentRule.displayPosition.startRowIndex || 0;
+    			for (i = len; i >= start; i--) {
+    				if (!headItemRowList[i].get('hidden')) {
+    					top = headItemRowList[i].get('top') + headItemRowList[i].get('height');
+    					bottom = headItemRowList[start].get('top');
+    					this.$el.css({
+    						'height': top - bottom
+    					});
+    					break;
+    				}
+    			}
+    
     		},
     		
     		callRowsAllHeadContainer: function(receiveFunc) {
@@ -31659,6 +31315,7 @@ define('views/mainContainer',function() {
     	var Backbone = require('lib/backbone'),
     		cache = require('basic/tools/cache'),
     		getTextBox = require('basic/tools/gettextbox'),
+    		history = require('basic/tools/history'),
     		config = require('spreadsheet/config'),
     		send = require('basic/tools/send'),
     		Cell = require('models/cell'),
@@ -31707,12 +31364,12 @@ define('views/mainContainer',function() {
     				top,
     				cell;
     
-    			clip = selectRegions.getModelByType('clip')[0];
+    			clip = selectRegions.getModelByType('clip');
     			if (clip !== undefined) {
     				cache.clipState = 'null';
     				clip.destroy();
     			}
-    			select = selectRegions.getModelByType('operation')[0];
+    			select = selectRegions.getModelByType('selected');
     			colAlias = select.get('wholePosi').startX;
     			colIndex = headItemCols.getIndexByAlias(colAlias);
     			rowAlias = select.get('wholePosi').startY;
@@ -31740,26 +31397,26 @@ define('views/mainContainer',function() {
     			modelJSON = this.model.toJSON();
     			if (modelJSON.content.bd === true) {
     				this.$el.css({
-    					'font-weight': 'bold'
+    					'fontWeight': 'bold'
     				});
     			} else {
     				this.$el.css({
-    					'font-weight': 'normal'
+    					'fontWeight': 'normal'
     				});
     			}
     			if (modelJSON.content.italic === true) {
     				this.$el.css({
-    					'font-style': 'italic'
+    					'fontStyle': 'italic'
     				});
     			} else {
     				this.$el.css({
-    					'font-style': 'normal'
+    					'fontStyle': 'normal'
     				});
     			}
     			this.$el.css({
     				'color': modelJSON.content.color,
-    				'font-size': modelJSON.content.size + 'pt',
-    				'font-family': modelJSON.content.family,
+    				'fontSize': modelJSON.content.size + 'pt',
+    				'fontFamily': modelJSON.content.family,
     				'left': left,
     				'top': top,
     			});
@@ -31827,6 +31484,11 @@ define('views/mainContainer',function() {
     		},
     		
     		hide: function(event) {
+    			var headItemRowList = headItemRows.models,
+    				headItemColList = headItemCols.models,
+    				modelJSON,
+    				rowSort,
+    				colSort;
     			if (this.showState === true) {
     				this.$el.css({
     					'left': -1000,
@@ -31835,10 +31497,25 @@ define('views/mainContainer',function() {
     					'height': 0,
     					'z-index': -100
     				});
+    				rowSort = headItemRowList[this.rowIndex].get('sort');
+    				colSort = headItemColList[this.colIndex].get('sort');
+    				modelJSON = this.model.toJSON();
     				//进行输入文本的修改
-    				this.model.set('content.texts', this.$el.val());
-    				setTextType.typeRecognize(this.model);
-    				setTextType.generateDisplayText(this.model);
+    				if (this.model.get('content').texts !== this.$el.val()) {
+    					this.model.set('content.texts', this.$el.val());
+    					setTextType.typeRecognize(this.model);
+    					setTextType.generateDisplayText(this.model);
+    					history.addUpdateAction('content', this.model.get('content'), {
+    						startColSort: colSort,
+    						startRowSort: rowSort,
+    						endColSort: colSort,
+    						endRowSort: rowSort
+    					}, [{
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: modelJSON.content
+    					}]);
+    				}
     				this.sendData();
     			}
     			this.$el.val('');
@@ -32099,7 +31776,7 @@ define('views/mainContainer',function() {
     			width = getTextBox.getInputWidth(inputText, fontSize) + 20;
     
     			width = width > minWidth ? width : minWidth;
-    			if(init!==true){
+    			if (init !== true) {
     				width = width > currentWidth ? width : currentWidth;
     			}
     			if (width < maxWidth) {
@@ -32123,17 +31800,18 @@ define('views/mainContainer',function() {
     			colAlias = this.model.get('occupy').x[0];
     			rowAlias = this.model.get('occupy').y[0];
     
-    			rowSort=headItemRows.getModelByAlias(rowAlias).get('sort');
-    			colSort=headItemCols.getModelByAlias(colAlias).get('sort');
+    			rowSort = headItemRows.getModelByAlias(rowAlias).get('sort');
+    			colSort = headItemCols.getModelByAlias(colAlias).get('sort');
     
     			send.PackAjax({
-    				url: 'text.htm?m=data',
+    				url: config.url.cell.content,
     				data: JSON.stringify({
-    					excelId: window.SPREADSHEET_AUTHENTIC_KEY,
     					sheetId: '1',
     					coordinate: {
-    						startSortY: rowSort,
-    						startSortX: colSort
+    						startRow: rowSort,
+    						startCol: colSort,
+    						endRow: rowSort,
+    						endCol: colSort
     					},
     					content: encodeURIComponent(text)
     				})
@@ -32146,7 +31824,6 @@ define('views/mainContainer',function() {
     				send.PackAjax({
     					url: 'text.htm?m=wordwrap',
     					data: JSON.stringify({
-    						excelId: window.SPREADSHEET_AUTHENTIC_KEY,
     						sheetId: '1',
     						coordinate: {
     							startX: colAlias,
@@ -32179,8 +31856,7 @@ define('views/mainContainer',function() {
     				if (config.shortcuts.enter &&
     					e.altKey === false &&
     					e.keyCode === keyboard.enter) {
-    					Backbone.trigger('event:mainContainer:nextCellPosition', 'DOWN');
-    					Backbone.trigger('event:cellsContainer:selectRegionChange', 'DOWN');
+    					Backbone.trigger('event:cellsContainer:moveSelectRegion', 'DOWN');
     					if (this.showState === true) {
     						this.hide();
     					}
@@ -32267,197 +31943,155 @@ define('views/mainContainer',function() {
     		getOperRegion = require('basic/tools/getoperregion'),
     		config = require('spreadsheet/config'),
     		cells = require('collections/cells'),
-    		send = require('basic/tools/send'),
     		cache = require('basic/tools/cache'),
+    		commentHandler = require('entrance/tool/comment'),
     		rowOperate = require('entrance/row/rowoperation'),
     		colOperate = require('entrance/col/coloperation'),
     		commentContainer;
     
     	commentContainer = Backbone.View.extend({
+    
     		tagName: 'textarea',
     
     		className: 'comment',
     
-    		state: 'show', // show:显示状态   edit: 编辑状态  
+    		isTransverseScroll: false,
+    
+    		isVerticalScroll: false,
     
     		events: {
     			'blur': 'close'
     		},
     
-    		initialize: function(options) {
-    			var mainContainer,
-    				colAliasLen,
-    				colAlias,
-    				rowAlias,
-    				colIndex,
-    				rowIndex,
-    				endRowAlias,
-    				endColAlias,
-    				select,
-    				model;
+    		initialize: function() {},
     
-    			if (options.colIndex !== undefined) {
-    				this.colIndex = options.colIndex;
-    				this.rowIndex = options.rowIndex;
-    				this.comment = options.comment;
-    			} else {
-    				select = selectRegions.getModelByType('operation')[0];
-    				colAlias = select.get('wholePosi').endX;
-    				rowAlias = select.get('wholePosi').startY;
-    
-    				this.colIndex = headItemCols.getIndexByAlias(colAlias);
-    				this.rowIndex = headItemRows.getIndexByAlias(rowAlias);
-    				if (options.state === 'edit') {
-    					if (select.get('wholePosi').endX === select.get('wholePosi').startX &&
-    						select.get('wholePosi').endY === select.get('wholePosi').startY) {
-    						model = cells.getCellByVertical(this.colIndex, this.rowIndex);
-    						if (model.length > 0) {
-    							this.comment = model[0].get('customProp').comment || '';
-    						}
-    					} else { //含有多个单元格
-    						this.comment = '';
-    					}
-    				} else {
-    					this.comment = '';
-    				}
-    			}
-    			this.parentNode = options.parentNode;
-    			this.state = options.state;
-    			if (this.state !== 'show') {
-    				cache.commentEditState = true;
-    			}
-    			Backbone.trigger('call:mainContainer', function(container) {
-    				mainContainer = container;
-    			});
-    			this.mainContainer = mainContainer;
-    		},
     		render: function() {
-    			var left,
-    				top;
-    			left = this.getAbsoluteLeft();
-    			top = this.getAbsoluteTop();
-    			this.adjustZIndex();
     			this.$el.css({
-    				left: left,
-    				top: top,
+    				left: -1000,
+    				top: -1000,
     				width: config.User.commentWidth + 'px',
     				height: config.User.commentHeight + 'px'
     			});
-    			this.$el.val(this.comment);
-    			if (this.state === 'show') {
-    				this.$el.attr('disabled', true);
-    			}
     			return this;
     		},
-    		
-    		transverseScroll: function() {
-    			var left;
-    			left = this.getAbsoluteLeft();
-    			this.$el.css({
-    				'left': left
-    			});
+    		add: function(options) {
+    			this.edit(options);
+    			this.$el.val('');
     		},
-    		
-    		verticalScroll: function() {
-    			var top;
-    			top = this.getAbsoluteTop();
-    			this.$el.css({
-    				'top': top
-    			});
+    		edit: function(options) {
+    			this.show(options);
+    			this.$el.removeAttr('disabled');
+    			this.$el.focus();
     		},
-    		
-    		getAbsoluteLeft: function() {
-    			var outLeft,
-    				scrollLeft,
-    				userViewLeft,
-    				userViewIndex,
+    
+    		show: function(options) {
+    			var colIndex = options.colIndex,
+    				rowIndex = options.rowIndex,
+    				comment = options.comment,
     				frozenColIndex,
-    				headItemLeft,
-    				mainContainer,
-    				limitRight,
-    				right,
-    				tempLeft,
-    				colIndex,
-    				result;
-    
-    			colIndex = this.colIndex;
-    			mainContainer = this.mainContainer;
-    
-    			outLeft = config.System.outerLeft;
-    			scrollLeft = mainContainer.$el.scrollLeft();
-    			//判断边界值
-    			if (colIndex === 'MAX') {
-    				headItemLeft = 0;
-    			} else {
-    				headItemLeft = headItemCols.models[colIndex].get('left') + headItemCols.models[colIndex].get('width');
-    			}
-    
-    			if (cache.TempProp.colFrozen) { //冻结情况
-    				frozenColIndex = headItemCols.getIndexByAlias(cache.TempProp.colAlias);
-    				if (frozenColIndex > colIndex) {
-    					scrollLeft = 0;
-    				}
-    				userViewIndex = headItemCols.getIndexByAlias(cache.UserView.colAlias);
-    				userViewLeft = headItemCols.models[userViewIndex].get('left');
-    				headItemLeft = headItemLeft - userViewLeft + outLeft - scrollLeft + 1;
-    			} else { //非冻结情况
-    				headItemLeft = headItemLeft + outLeft - scrollLeft + 1;
-    			}
-    
-    			//判断备注是否超过了显示区域
-    			right = headItemLeft + config.User.commentWidth + 1;
-    
-    			limitRight = this.parentNode.$el.width();
-    
-    			if (right > limitRight) {
-    				tempLeft = headItemLeft - config.User.commentWidth - headItemCols.models[colIndex].get('width') - 10;
-    				if (tempLeft > 0) {
-    					headItemLeft = tempLeft;
-    				}
-    			}
-    			return headItemLeft;
-    		},
-    		getAbsoluteTop: function() {
-    			var outTop,
-    				scrollTop,
-    				userViewTop,
-    				userViewIndex,
     				frozenRowIndex,
-    				mainContainer,
-    				rowIndex,
-    				headItemTop,
-    				result;
+    				selectModel,
+    				cellList,
+    				frozen;
     
-    			rowIndex = this.rowIndex;
-    			mainContainer = this.mainContainer;
-    
-    			outTop = config.System.outerTop;
-    			scrollTop = mainContainer.$el.scrollTop();
-    
-    			headItemTop = headItemRows.models[rowIndex].get('top');
-    
-    			if (cache.TempProp.rowFrozen) { //冻结情况
-    				frozenRowIndex = headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
-    				if (frozenRowIndex > rowIndex) {
-    					scrollTop = 0;
+    			if (typeof colIndex === 'undefined') {
+    				selectModel = selectRegions.getModelByType('selected');
+    				colIndex = headItemCols.getIndexByAlias(selectModel.get('wholePosi').endX);
+    				rowIndex = headItemRows.getIndexByAlias(selectModel.get('wholePosi').startY);
+    				cellList = cells.getCellByVertical(colIndex, rowIndex);
+    				if (cellList.length === 1) {
+    					comment = cellList[0].get('customProp').comment;
     				}
-    				userViewIndex = headItemRows.getIndexByAlias(cache.UserView.rowAlias);
-    				userViewTop = headItemRows.models[userViewIndex].get('top');
-    				result = headItemTop - userViewTop + outTop - scrollTop + 1;
-    				return result;
-    			} else { //非冻结情况
-    				result = headItemTop + outTop - scrollTop + 1;
-    				return result;
     			}
+    			frozenColIndex = cache.TempProp.colFrozen || headItemCols.getIndexByAlias(cache.TempProp.colAlias);
+    			frozenRowIndex = cache.TempProp.rowFrozen || headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
+    
+    			if (frozenColIndex && frozenColIndex > colIndex) {
+    				this.isTransverseScroll = false;
+    			} else {
+    				this.isTransverseScroll = true;
+    			}
+    			if (frozenRowIndex && frozenRowIndex > rowIndex) {
+    				this.isVerticalScroll = false;
+    			} else {
+    				this.isVerticalScroll = true;
+    			}
+    
+    			this.left = this.getAbsoluteLeft(colIndex);
+    			this.top = this.getAbsoluteTop(rowIndex);
+    			this.adjustZIndex(colIndex, rowIndex);
+    			this.$el.css({
+    				left: this.left + 5,
+    				top: this.top,
+    				display: true
+    			});
+    			this.$el.attr('disabled', 'disabled');
+    			this.$el.css('display', 'block');
+    			this.$el.val(comment);
     		},
-    		adjustZIndex: function() {
+    
+    		hide: function() {
+    			this.$el.css('display', 'none');
+    			this.$el.attr('disabled', 'disabled');
+    			this.isTransverseScroll = false;
+    			this.isVerticalScroll = false;
+    		},
+    		
+    		transverseScroll: function(value) {
+    			if (!this.isTransverseScroll) {
+    				return;
+    			}
+    			this.$el.css({
+    				'left': this.left + value
+    			});
+    		},
+    		
+    		verticalScroll: function(value) {
+    			if (!this.isVerticalScroll) {
+    				return;
+    			}
+    			this.$el.css({
+    				'top': this.top + value
+    			});
+    		},
+    		
+    		getAbsoluteLeft: function(colIndex) {
+    			var left,
+    				colModel;
+    			left = config.System.outerLeft;
+    
+    			if (colIndex === 'MAX') {
+    				return left;
+    			}
+    			if (cache.TempProp.colFrozen) {
+    				left += headItemCols.getModelByAlias(cache.UserView.colAlias).get('left');
+    			}
+    
+    			colModel = headItemCols.models[colIndex];
+    			left += colModel.get('left') + colModel.get('width');
+    			return left;
+    		},
+    		getAbsoluteTop: function(rowIndex) {
+    			var top,
+    				rowModel;
+    			top = config.System.outerTop;
+    
+    			if (rowIndex === 'MAX') {
+    				return top;
+    			}
+    			if (cache.TempProp.rowIndex) {
+    				left += headItemRows.getModelByAlias(cache.UserView.rowAlias).get('left');
+    			}
+    
+    			rowModel = headItemRows.models[rowIndex];
+    			top += rowModel.get('top');
+    			return top;
+    		},
+    		adjustZIndex: function(colIndex, rowIndex) {
     			var colIndex,
     				rowIndex,
     				frozenColIndex,
     				frozenRowIndex;
-    
-    			colIndex = this.colIndex;
-    			rowIndex = this.rowIndex;
     
     			if (cache.TempProp.colFrozen && cache.TempProp.rowFrozen) { //冻结情况
     				frozenColIndex = headItemCols.getIndexByAlias(cache.TempProp.colAlias);
@@ -32504,57 +32138,11 @@ define('views/mainContainer',function() {
     			}
     		},
     		close: function() {
-    			var comment,
-    				select,
-    				cellsList,
-    				startColIndex,
-    				startRowIndex,
-    				endColIndex,
-    				endRowIndex,
-    				i;
-    
-    			if (this.state !== 'show') {
-    				comment = this.$el.val();
-    				comment = comment || '';
-    				select = selectRegions.getModelByType('operation')[0];
-    				startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
-    				startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
-    				if (select.get('wholePosi').endX === 'MAX') {
-    					endColIndex = 'MAX';
-    					endRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').endY);
-    					rowOperate.rowPropOper(startRowIndex, 'customProp.comment', comment);
-    				} else if (select.get('wholePosi').endY === 'MAX') {
-    					endRowIndex = 'MAX';
-    					endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
-    					colOperate.colPropOper(startColIndex, 'customProp.comment', comment);
-    				} else {
-    					endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
-    					endRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').endY);
-    					cellsList = cells.getFillCellsByRegion(
-    						startRowIndex,
-    						startColIndex,
-    						endRowIndex,
-    						endColIndex
-    					);
-    					for (i in cellsList) {
-    						cellsList[i].set('customProp.comment', comment);
-    					}
-    				}
-    				this.sendData(comment);
-    			}
-    			cache.commentEditState = false;
-    			this.remove();
-    		},
-    		sendData: function(comment) {
-    			var sendData;
-    			sendData = getOperRegion().sendRegion;
-    			send.PackAjax({
-    				url: 'text.htm?m=comment_set',
-    				data: JSON.stringify({
-    					coordinate: sendData,
-    					comment: comment
-    				})
-    			});
+    			var comment;
+    			comment = this.$el.val();
+    			comment = comment || '';
+    			commentHandler.modifyComment('1', comment);
+    			this.hide();
     		}
     	});
     	return commentContainer;
@@ -32566,6 +32154,7 @@ define('views/mainContainer',function() {
     		send = require('basic/tools/send'),
     		config = require('spreadsheet/config'),
     		cache = require('basic/tools/cache'),
+    		getTemplate = require('basic/tools/template'),
     		observerPattern = require('basic/util/observer.pattern'),
     		headItemRows = require('collections/headItemRow'),
     		headItemCols = require('collections/headItemCol'),
@@ -32589,13 +32178,13 @@ define('views/mainContainer',function() {
     		initialize: function() {
     			Backbone.on('call:bodyContainer', this.callBodyContainer, this);
     			Backbone.on('event:bodyContainer:executiveFrozen', this.executiveFrozen, this);
-    			Backbone.on('event:commentContainer:show', this.showCommentContainer, this);
-    			Backbone.on('event:commentContainer:remove', this.removeCommentContainer, this);
-    			_.bindAll(this, 'executiveFrozen', 'showCommentContainer', 'removeCommentContainer');
+    			Backbone.on('event:bodyContainer:handleComment', this.handleComment, this);
+    			// _.bindAll(this, 'executiveFrozen');
     			this.commentContainer = null;
     		},
     		
     		render: function() {
+    			this.$el.html(getTemplate('BODYTEMPLATE'));
     			this.inputContainer = new InputContainer();
     			this.$el.find('.main-layout').append(this.inputContainer.render().el);
     			this.calculation();
@@ -32607,13 +32196,12 @@ define('views/mainContainer',function() {
     			});
     			this.inputContainer.$el.focus();
     		},
-    		showCommentContainer: function(options) {
-    			if (cache.commentEditState) {
-    				return;
+    		handleComment: function(options) {
+    			var action = options.action;
+    			if (!this.commentContainer) {
+    				this.commentContainer = new CommentContainer();
+    				this.$el.find('.main-layout').append(this.commentContainer.render().el);
     			}
-    			options.parentNode = this;
-    			this.commentContainer = new CommentContainer(options);
-    			//不进行滚动订阅，滚动操作，视图destory
     			this.publisherList['mainContainer'].subscribe({
     				master: this.commentContainer,
     				behavior: 'transverseScroll'
@@ -32623,27 +32211,15 @@ define('views/mainContainer',function() {
     				behavior: 'verticalScroll'
     			}, 'verticalPublish');
     
-    			this.$el.find('.main-layout').append(this.commentContainer.render().el);
-    			if (options.state !== 'show') {
-    				this.commentContainer.$el.focus();
+    			if (action === 'hide') {
+    				this.commentContainer.hide();
+    			} else if (action === 'edit') {
+    				this.commentContainer.edit(options);
+    			} else if(action==='add'){
+    				this.commentContainer.add(options);
+    			}else {
+    				this.commentContainer.show(options);
     			}
-    		},
-    		removeCommentContainer: function(model) {
-    			if (this.commentContainer === null ||
-    				this.commentContainer.state !== 'show') {
-    				return;
-    			}
-    			this.publisherList['mainContainer'].unsubscribe({
-    				master: this.commentContainer,
-    				behavior: 'transverseScroll'
-    			}, 'transversePublish');
-    			this.publisherList['mainContainer'].unsubscribe({
-    				master: this.commentContainer,
-    				behavior: 'verticalScroll'
-    			}, 'verticalPublish');
-    			//判断状态
-    			this.commentContainer.close();
-    			this.commentContainer = null;
     		},
     		generateSheet: function() {
     			var sheetsView = new SheetsContainer();
@@ -33236,7 +32812,7 @@ define('views/mainContainer',function() {
     			this.triggerCallback();
     		},
     		transAction: function(e) {
-    			this.toolbar(e);
+    			// this.toolbar(e);
     		},
     		
     		toolbar: function(e) {
@@ -33350,7 +32926,7 @@ define('views/mainContainer',function() {
     		
     		realseDrag: function(e) {
     			this.triggerCallback();
-    			Backbone.trigger('event:cellsContainer:unBindDrag');
+    			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'commonMoveState');
     			//release events of cols
     			Backbone.trigger('event:colsHeadContainer:relaseSpaceEffect');
     			//release events of rows
@@ -33471,7 +33047,7 @@ define('views/mainContainer',function() {
     		Backbone = require('lib/backbone'),
     		send = require('basic/tools/send'),
     		selectRegions = require('collections/selectRegion'),
-    		setFontFamilySize = require('entrance/tool/setfontfamilysize'),
+    		setFontSize = require('entrance/tool/setfontsize'),
     		setCellHeight = require('entrance/cell/setcellheight');
     
     
@@ -33494,7 +33070,7 @@ define('views/mainContainer',function() {
     			fontSize = $currentTarget.data('size');
     			text = $currentTarget.text();
     			$("#fontSizeShow").text(text);
-    			setFontFamilySize('1', fontSize);
+    			setFontSize('1', fontSize);
     		}
     	});
     	return FontSizeContainer;
@@ -34045,9 +33621,340 @@ define('views/mainContainer',function() {
     	return regionDel;
     });
     
+    define('entrance/sheet/redoundo',function() {
+    	var Backbone = require('lib/backbone'),
+    		history = require('basic/tools/history'),
+    		cache = require('basic/tools/cache'),
+    		binary = require('basic/util/binary'),
+    		send = require('basic/tools/send'),
+    		config = require('spreadsheet/config'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
+    		cells = require('collections/cells'),
+    		redoUndo;
+    
+    	redoUndo = {
+    		redo: function() {
+    			var headItemRowList = headItemRows.models,
+    				headItemColList = headItemCols.models,
+    				action = history.next(),
+    				cellList = cells.models,
+    				originalModelIndexs,
+    				currentModelIndexs,
+    				startColIndex,
+    				startRowIndex,
+    				endColIndex,
+    				endRowIndex,
+    				propValue,
+    				propName,
+    				region,
+    				occupyCol,
+    				occupyRow,
+    				occupyColLen,
+    				occupyRowLen,
+    				index,
+    				len,
+    				i, j, k;
+    
+    			if (!action) {
+    				return;
+    			}
+    			if (action.type === 'update') {
+    				propName = action.propName;
+    				propValue = action.propValue;
+    				region = action.region;
+    				startColIndex = binary.indexAttrBinary(region.startColSort, headItemColList, 'sort');
+    				startRowIndex = binary.indexAttrBinary(region.startRowSort, headItemRowList, 'sort');
+    				endColIndex = binary.indexAttrBinary(region.endColSort, headItemColList, 'sort');
+    				endRowIndex = binary.indexAttrBinary(region.endRowSort, headItemRowList, 'sort');
+    				cells.operateCellsByRegion({
+    					startColIndex: startColIndex,
+    					startRowIndex: startRowIndex,
+    					endColIndex: endColIndex,
+    					endRowIndex: endRowIndex
+    				}, function(cell) {
+    					cell.set(propName, propValue);
+    				});
+    			} else {
+    				originalModelIndexs = action.originalModelIndexs;
+    				currentModelIndexs = action.currentModelIndexs;
+    				for (i = 0, len = originalModelIndexs.length; i < len; i++) {
+    					index = originalModelIndexs[i];
+    					cellList[index].set('isDestroy', true);
+    					occupyCol = cellList[index].get('occupy').x;
+    					occupyRow = cellList[index].get('occupy').y;
+    					for (j = 0, occupyColLen = occupyCol.length; j < occupyColLen; j++) {
+    						for (k = 0, occupyRowLen = occupyRow.length; k < occupyRowLen; k++) {
+    							cache.deletePosi(occupyRow[k], occupyCol[j]);
+    						}
+    					}
+    				}
+    				for (i = 0, len = currentModelIndexs.length; i < len; i++) {
+    					index =currentModelIndexs[i];
+    					cellList[index].set('isDestroy', false);
+    					Backbone.trigger('event:contentCellsContainer:restoreCell', cellList[index]);
+    					occupyCol = cellList[index].get('occupy').x;
+    					occupyRow = cellList[index].get('occupy').y;
+    					for (j = 0, occupyColLen = occupyCol.length; j < occupyColLen; j++) {
+    						for (k = 0, occupyRowLen = occupyRow.length; k < occupyRowLen; k++) {
+    							cache.cachePosition(occupyRow[k], occupyCol[j],index);
+    						}
+    					}
+    				}
+    			}
+    			this.sendData(config.url.sheet.redo);
+    		},
+    		undo: function() {
+    			var headItemRowList = headItemRows.models,
+    				headItemColList = headItemCols.models,
+    				action = history.previous(),
+    				cellList = cells.models,
+    				originalModelIndexs,
+    				currentModelIndexs,
+    				originalData,
+    				propName,
+    				tempModel,
+    				colIndex,
+    				rowIndex,
+    				occupyCol,
+    				occupyRow,
+    				occupyColLen,
+    				occupyRowLen,
+    				index,
+    				len,
+    				i, j, k;
+    
+    			if (!action) {
+    				return;
+    			}
+    			if (action.type === 'update') {
+    				originalData = action.originalData;
+    				propName = action.propName;
+    				for (i = 0, len = originalData.length; i < len; i++) {
+    					colIndex = binary.indexAttrBinary(originalData[i].colSort, headItemColList, 'sort');
+    					rowIndex = binary.indexAttrBinary(originalData[i].rowSort, headItemRowList, 'sort');
+    					tempModel = cells.getCellByVertical(colIndex, rowIndex)[0];
+    					if (typeof tempModel !== 'undefined') {
+    						tempModel.set(propName, originalData[i].value);
+    					}
+    				}
+    			} else {
+    				originalModelIndexs = action.originalModelIndexs;
+    				currentModelIndexs = action.currentModelIndexs;
+    				for (i = 0, len = currentModelIndexs.length; i < len; i++) {
+    					index =currentModelIndexs[i];
+    					cellList[index].set('isDestroy', true);
+    					occupyCol = cellList[index].get('occupy').x;
+    					occupyRow = cellList[index].get('occupy').y;
+    					for (j = 0, occupyColLen = occupyCol.length; j < occupyColLen; j++) {
+    						for (k = 0, occupyRowLen = occupyRow.length; k < occupyRowLen; k++) {
+    							cache.deletePosi(occupyRow[k], occupyCol[j]);
+    						}
+    					}
+    				}
+    				for (i = 0, len = originalModelIndexs.length; i < len; i++) {
+    					index =originalModelIndexs[i];
+    					cellList[index].set('isDestroy', false);
+    					Backbone.trigger('event:contentCellsContainer:restoreCell', cellList[index]);
+    					occupyCol = cellList[index].get('occupy').x;
+    					occupyRow = cellList[index].get('occupy').y;
+    					for (j = 0, occupyColLen = occupyCol.length; j < occupyColLen; j++) {
+    						for (k = 0, occupyRowLen = occupyRow.length; k < occupyRowLen; k++) {
+    							cache.cachePosition(occupyRow[k], occupyCol[j],index);
+    						}
+    					}
+    				}
+    			}
+    			this.sendData(config.url.sheet.undo);
+    		},
+    		sendData: function(url) {
+    			send.PackAjax({
+    				url: url,
+    			});
+    		}
+    	}
+    	return redoUndo;
+    });
+    	define('widgets/undoredo/undoredocontainer',function() {
+    		
+    		var $ = require('lib/jquery'),
+    			cache = require('basic/tools/cache'),
+    			Backbone = require('lib/backbone'),
+    			done = require('entrance/sheet/redoundo');
+    
+    		
+    		var undoredoContainer = Backbone.View.extend({
+    			
+    			el: "#undoredoContainer",
+    			events: {
+    				'mousedown div': 'undoRedo'
+    			},
+    			undoRedo: function(e) {
+    				var action;
+    				action = $(e.currentTarget).data('toolbar');
+    				switch (action) {
+    					case 'redo':
+    						done.redo();
+    						break;
+    					case 'undo':
+    						done.undo();
+    						break;
+    					default:
+    						break;
+    				}
+    			}
+    		});
+    		return undoredoContainer;
+    	});
+    define('extension/highlight',function() {
+    	
+    
+    	var Backbone = require('lib/backbone'),
+    		cache = require('basic/tools/cache'),
+    		SelectRegionModel = require('models/selectRegion'),
+    		selectRegions = require('collections/selectRegion'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
+    		cells = require('collections/cells'),
+    		CellsContainerView = require('views/cellsContainer'),
+    		SelectRegionView = require('views/selectRegion'),
+    		headItemColList = headItemCols.models,
+    		headItemRowList = headItemRows.models,
+    		highlightAction,
+    		highlightRender,
+    		extend,
+    		initialize;
+    
+    	extend = function(target, options) {
+    		var name;
+    		for (name in options) {
+    			target[name] = options[name];
+    		}
+    	}
+    
+    	highlightAction = {
+    		hightlightMoveState: function() {
+    			var strandCol = cache.CellsPosition.strandX,
+    				cellModel,
+    				selectModel,
+    				relativeRowPosi,
+    				relativeColPosi,
+    				colIndex,
+    				rowIndex,
+    				colAlias,
+    				rowAlias,
+    				direction,
+    				select,
+    				left,
+    				top,
+    				right,
+    				bottom;
+    
+    			select = this.getCoordinateByMouseEvent(event);
+    			colIndex = select.colIndex;
+    			rowIndex = select.rowIndex;
+    			relativeRowPosi = select.relativeRowPosi;
+    			relativeColPosi = select.relativeColPosi;
+    			colAlias = headItemColList[colIndex].get('alias');
+    			rowAlias = headItemRowList[rowIndex].get('alias');
+    
+    			selectModel = selectRegions.getModelByType('highlight');
+    			cellModel = cells.getCellByVertical(colIndex, rowIndex)[0];
+    
+    			if (typeof cellModel !== 'undefined' && cellModel.get('highlight')) {
+    				left = cellModel.get('physicsBox').left;
+    				top = cellModel.get('physicsBox').top;
+    				right = left + cellModel.get('physicsBox').width;
+    				bottom = top + cellModel.get('physicsBox').height;
+    			} else {
+    				cache.highlightDirection = 'null';
+    				selectModel && selectModel.set('highlightDirection', null);
+    				return;
+    			}
+    
+    			if (typeof selectModel === 'undefined') {
+    				selectModel = new SelectRegionModel();
+    				selectModel.set('selectType', 'highlight');
+    				selectRegions.add(selectModel);
+    			}
+    			selectModel.set('tempPosi', {
+    				initColIndex: colIndex,
+    				initRowIndex: rowIndex,
+    				mouseColIndex: colIndex,
+    				mouseRowIndex: rowIndex
+    			});
+    			direction = getLightDirection();
+    			selectModel.set(
+    				'highlightDirection', direction
+    			);
+    			cache.highlightDirection = direction;
+    
+    			function getLightDirection() {
+    				var rightDistance = right - relativeColPosi,
+    					leftDistance = relativeColPosi - left,
+    					topDistance = relativeRowPosi - top,
+    					bottomDistance = bottom - relativeRowPosi,
+    					temp = rightDistance,
+    					direction = "right";
+    
+    				if (temp > leftDistance) {
+    					temp = leftDistance;
+    					direction = "left";
+    				}
+    				if (temp > topDistance) {
+    					temp = topDistance;
+    					direction = "top";
+    				}
+    				if (temp > bottomDistance) {
+    					temp = bottomDistance;
+    					direction = "bottom";
+    				}
+    				return direction;
+    			}
+    		}
+    	}
+    
+    	highlightRender = {
+    		highlight: function() {
+    			var direction = this.model.get('highlightDirection');
+    			this.$el.removeClass("highlight-right");
+    			this.$el.removeClass("highlight-left");
+    			this.$el.removeClass("highlight-top");
+    			this.$el.removeClass("highlight-bottom");
+    			if(direction){
+    				this.$el.addClass('highlight-' + direction);
+    			}	
+    		}
+    	}
+    
+    	extend(CellsContainerView.prototype, highlightAction);
+    	extend(SelectRegionView.prototype, highlightRender);
+    
+    	initialize = SelectRegionView.prototype.initialize;
+    	SelectRegionView.prototype.initialize = function(options) {
+    		initialize.call(this, options);
+    		if (this.model.get('selectType') === 'highlight') {
+    			this.listenTo(this.model, 'change:highlightDirection', this.highlight);
+    		}
+    	}
+    	return {
+    		startHighlight: function() {
+    			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'hightlightMoveState');
+    		},
+    		stopHighlight: function() {
+    			if (selectRegions.getModelByType('highlight') !== undefined) {
+    				selectRegions.getModelByType('highlight').destroy();
+    			}
+    			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'commonMoveState');
+    		},
+    		getLightDirection: function() {
+    			return cache.highlightDirection;
+    		}
+    	}
+    });
+    
     define('spreadsheet/excelbuild',function() {
     	var original = require('basic/tools/original'),
-    		domloader = require('basic/tools/template'),
     		listener = require('basic/util/listener'),
     		cache = require('basic/tools/cache'),
     		setFontColor = require('entrance/tool/setfontcolor'),
@@ -34062,7 +33969,7 @@ define('views/mainContainer',function() {
     		selectCellCols = require('entrance/cell/selectcellcols'),
     		selectCellRows = require('entrance/cell/selectcellrows'),
     		setCellBorder = require('entrance/tool/setcellborder'),
-    		setFontFamilySize = require('entrance/tool/setfontfamilysize'),
+    		setFontSize = require('entrance/tool/setfontsize'),
     		setFontWeight = require('entrance/tool/setfontweight'),
     		setFontStyle = require('entrance/tool/setfontstyle'),
     		setFrozen = require('entrance/sheet/setfrozen'),
@@ -34074,7 +33981,6 @@ define('views/mainContainer',function() {
     		adaptScreen = require('entrance/sheet/adaptscreen'),
     		getFrozenState = require('entrance/sheet/getfrozenstate'),
     		getSelectRegion = require('entrance/sheet/getselectregion'),
-    		highlight = require('entrance/extention/highlight'),
     		reloadCells = require('entrance/cell/reloadcells'),
     		setTextType = require('entrance/tool/settexttype'),
     		addRow = require('entrance/tool/addrow'),
@@ -34089,9 +33995,6 @@ define('views/mainContainer',function() {
     
     
     	var excelBuild = {
-    		buildDom: function(id) {
-    			domloader(id);
-    		},
     		buildExcelOriginalData: function(domId) {
     			original.restoreExcel(domId);
     		},
@@ -34116,7 +34019,8 @@ define('views/mainContainer',function() {
     				CommentContainer = require('widgets/celloperation/commentcontainer'),
     				WordWrapContainer = require('widgets/celloperation/wordwrapcontainer'),
     				ColHide = require('widgets/hidecol/colhidecontainer'),
-    				RegionDelContainer = require('widgets/celldel/regiondel');
+    				RegionDelContainer = require('widgets/celldel/regiondel'),
+    				UndoredoContainer = require('widgets/undoredo/undoredocontainer');
     			new ShearPlateContainer();
     			new FontFamilyContainer();
     			new FontSizeContainer();
@@ -34134,6 +34038,7 @@ define('views/mainContainer',function() {
     			new WordWrapContainer();
     			new RegionDelContainer();
     			new ColHide();
+    			new UndoredoContainer();
     		},
     		buildExcelPublicAPI: function(SpreadSheet) {
     			SpreadSheet.prototype.setFontColor = setFontColor;
@@ -34149,7 +34054,7 @@ define('views/mainContainer',function() {
     			SpreadSheet.prototype.selectCellCols = selectCellCols;
     			SpreadSheet.prototype.selectCellRows = selectCellRows;
     			SpreadSheet.prototype.setCellWidth = setCellWidth;
-    			SpreadSheet.prototype.setFontSize = setFontFamilySize;
+    			SpreadSheet.prototype.setFontSize = setFontSize;
     			SpreadSheet.prototype.setFontStyle = setFontStyle;
     			SpreadSheet.prototype.setFontWeight = setFontWeight;
     			SpreadSheet.prototype.setFrozen = setFrozen;
@@ -34209,6 +34114,7 @@ define('views/mainContainer',function() {
     			SpreadSheet.prototype.removeEventListener = listener.removeEventListener;
     		},
     		buildExcelExtend: function(SpreadSheet) {
+    			var highlight = require('extension/highlight');
     			SpreadSheet.prototype.startHighlight = highlight.startHighlight;
     			SpreadSheet.prototype.stopHighlight = highlight.stopHighlight;
     			SpreadSheet.prototype.getHighlightDirection = highlight.getHighlightDirection;
@@ -34237,7 +34143,6 @@ define('views/mainContainer',function() {
     			config.User.maxRowNum = cfg.maxRowNum || config.User.maxRowNum;
     		}
     		cache.containerId = id;
-    		excelBuild.buildDom(id);
     		excelBuild.buildExcelOriginalData(id);
     		excelBuild.buildExcelView(id);
     		excelBuild.buildExcelToolbar();
@@ -34245,6 +34150,7 @@ define('views/mainContainer',function() {
     		excelBuild.buildDataSourceOperation(SpreadSheet);
     		excelBuild.buildExcelEventListener(SpreadSheet);
     		excelBuild.buildExcelExtend(SpreadSheet);
+    
     	}
     	SpreadSheet.Point = Point;
     	return SpreadSheet;
