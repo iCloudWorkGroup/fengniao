@@ -20,7 +20,6 @@ define(function(require) {
 		PackAjax: function(cfg) {
 			var config = {},
 				NULLFUNC = function() {},
-				containerId = cache.containerId,
 				count = 0;
 			if (!cfg.url) {
 				return;
