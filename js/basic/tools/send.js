@@ -44,12 +44,10 @@ define(function(require) {
 				$.ajax({
 					url: config.url,
 					beforeSend: function(request) {
-						if (count > 0) {
+						if (count > 0 || !config.isPublic) {
 							request.setRequestHeader('step', cache.sendQueueStep);
-						} else if (config.isPublic === true) {
+						} else {
 							request.setRequestHeader('step', ++cache.sendQueueStep);
-						} else if (config.url.indexOf(systemConfig.url.sheet.load) !== -1) {
-							request.setRequestHeader('step', cache.sendQueueStep);
 						}
 						request.setRequestHeader('excelId', window.SPREADSHEET_AUTHENTIC_KEY);
 						request.setRequestHeader('sheetId', '1');
@@ -70,7 +68,7 @@ define(function(require) {
 							}
 							return;
 						}
-						config.success(data);
+						config.success.apply(this, arguments);
 					}
 				});
 			}
