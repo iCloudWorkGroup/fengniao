@@ -17,6 +17,9 @@ li { list-style: none; }
 .excel-name .textarea { width: 134px; height: 16px; padding: 4px 12px; margin: 3px 0; overflow: hidden; }
 .fui-cf-ico { background: url('../img/funcBg.png'); }
 .fui-cf-extend-ico { background: url('../img/funcExtend.png'); }
+.fui-cf-bg-extend-ico { background: url('../img/funcBgExtend.png'); }
+.fui-cf-comment-ico { background: url('../img/comment.png'); }
+.fui-cf-bg-extend2-ico { background: url('../img/funcBgExtend2.png'); }
 .fui-section { border: 1px solid #fafafa; }
 .caret { display: inline-block; width: 0; height: 0; vertical-align: middle; border-top: 3px dashed; border-right: 3px solid transparent; border-left: 3px solid transparent; }
 .fui-group { display: inline-block; }
@@ -48,7 +51,14 @@ span { display: inline-block; }
 .ico-aligncenter { width: 16px; height: 16px; background-position: -73px -137px; }
 .ico-alignright { width: 16px; height: 16px; background-position: -173px -55px; }
 .ico-wordwrap { width: 16px; height: 16px; background-position: -180px -126px; }
-
+.ico-undo{width: 16px; height: 16px; background-position: -114px -170px; }
+.ico-redo{width: 16px; height: 16px; background-position: -96px -170px; }
+.ico-commentadd {width: 32px; height: 32px; background-position: -1px -35px; }
+.ico-commentedit {width: 32px; height: 32px; background-position: -1px -1px; }
+.ico-commentremove {width: 32px; height: 32px; background-position: -35px -1px; }
+.ico-insert{width: 32px; height: 32px; background-position: -137px -69px; }
+.ico-delete{width: 32px; height: 32px; background-position: -35px -1px; }
+.ico-regiondelete{width: 16px; height: 16px; background-position: -163px -189px; }
 /*.ico-text {
     width: 32px;
     height: 32px;
@@ -63,6 +73,7 @@ span { display: inline-block; }
 .ico-date { width: 32px; height: 32px; background-position: -103px -69px; }
 .ico-numeric { width: 32px; height: 32px; background-position: -69px -1px; }
 .ico-routine { width: 32px; height: 32px; background-position: -35px -1px; }
+.ico-text { width: 32px; height: 32px; background-position: -1px -103px; }
 .fui-alone { margin: 6px 0 0 0; }
 .fui-transverse { margin: 6px 0 2px 0; }
 .fui-transverse-model { padding: 2px; }
