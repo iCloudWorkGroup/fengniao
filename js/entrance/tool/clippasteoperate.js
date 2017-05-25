@@ -10,7 +10,9 @@ define(function(require) {
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
-		setTextType = require('entrance/tool/settexttype');
+		setTextType = require('entrance/tool/settexttype'),
+		headItemRowList = headItemRows.models,
+		headItemColList = headItemCols.models;
 
 	function clipPasteOperate(pasteText) {
 		if (cache.clipState === 'copy') {
@@ -42,8 +44,6 @@ define(function(require) {
 			selectCells,
 			tempCellModel,
 			CellModel,
-			headItemColList,
-			headItemRowList,
 			sendData = [],
 			text = "",
 			URL = '',
@@ -52,9 +52,6 @@ define(function(require) {
 
 		clipRegion = selectRegions.getModelByType('clip');
 		selectRegion = selectRegions.getModelByType('selected');
-
-		headItemRowList = headItemRows.models;
-		headItemColList = headItemCols.models;
 
 		startColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').startX);
 		startRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').startY);
@@ -69,6 +66,7 @@ define(function(require) {
 		} else {
 			URL = config.url.sheet.copy;
 		}
+
 		send.PackAjax({
 			url: URL,
 			async: false,
@@ -82,76 +80,84 @@ define(function(require) {
 					endRow: headItemRowList[endRowIndex].get('sort'),
 				},
 				target: {
-					orignalCol: headItemColList[startColIndex - relativeColIndex].get('sort'),
-					orignalRow: headItemRowList[startRowIndex - relativeRowIndex].get('sort')
+					// orignalCol: headItemColList[startColIndex - relativeColIndex].get('sort'),
+					// orignalRow: headItemRowList[startRowIndex - relativeRowIndex].get('sort')
+					oprCol: headItemColList[startColIndex - relativeColIndex].get('sort'),
+					oprRow: headItemRowList[startRowIndex - relativeRowIndex].get('sort')
 				}
 			}),
 			success: function(data) {
 				if (data && data.isLegal) {
-					for (i = startRowIndex; i < endRowIndex + 1; i++) {
-						for (j = startColIndex; j < endColIndex + 1; j++) {
-							if (j - relativeColIndex > headItemCols.models.length - 1) continue;
-							if (i - relativeRowIndex > headItemRows.models.length - 1) continue;
-							selectColAlias = headItemCols.models[j - relativeColIndex].get('alias');
-							selectRowAlias = headItemRows.models[i - relativeRowIndex].get('alias');
-							tempCellModel = cells.getCellByAlias(selectColAlias, selectRowAlias);
-							if (tempCellModel !== null) {
-								originalModelIndexs.push(cellOccupy[selectColAlias][selectRowAlias]);
-								tempCellModel.set('isDestroy', true);
-								deletePosi(selectColAlias, selectRowAlias);
-							}
-						}
-					}
-
-					//超出已加载区域处理
-					for (i = startRowIndex; i < endRowIndex + 1; i++) {
-						for (j = startColIndex; j < endColIndex + 1; j++) {
-							clipColAlias = headItemCols.models[j].get('alias');
-							clipRowAlias = headItemRows.models[i].get('alias');
-							if (j - relativeColIndex > headItemCols.models.length - 1) continue;
-							if (i - relativeRowIndex > headItemRows.models.length - 1) continue;
-							CellModel = cells.getCellByAlias(clipColAlias, clipRowAlias);
-
-							if (typeof CellModel !== 'null' && type === "cut") {
-								originalModelIndexs.push(cellOccupy[clipColAlias][clipRowAlias]);
-								deletePosi(clipColAlias, clipRowAlias);
-							}
-							if (CellModel !== null && CellModel.get('occupy').x[0] === clipColAlias && CellModel.get('occupy').y[0] === clipRowAlias) {
-								tempCopyCellModel = CellModel.clone();
-								if (type === "cut") {
-									CellModel.set('isDestroy', true);
-								}
-								adaptCell(tempCopyCellModel, relativeColIndex, relativeRowIndex);
-								cacheCellPosition(tempCopyCellModel);
-								currentModelIndexs.push(cells.length);
-								cells.add(tempCopyCellModel);
-							}
-						}
-					}
-					history.addCoverAction(currentModelIndexs, originalModelIndexs);
-					//修改:对模型直接进行修改
-					selectRegion.set('tempPosi', {
-						initColIndex: startColIndex - relativeColIndex,
-						initRowIndex: startRowIndex - relativeRowIndex,
-						mouseColIndex: endColIndex - relativeColIndex < headItemCols.models.length - 1 ? endColIndex - relativeColIndex : headItemCols.models.length - 1,
-						mouseRowIndex: endRowIndex - relativeRowIndex < headItemRows.models.length - 1 ? endRowIndex - relativeRowIndex : headItemRows.models.length - 1
-					});
-					if (type === 'cut') {
-						cache.clipState = "null";
-						clipRegion.destroy();
-					} //进行区域判断，判断复制区域与目标区域是否重叠 
-					if (startColIndex - relativeColIndex > endColIndex ||
-						endColIndex - relativeColIndex < startColIndex ||
-						startRowIndex - relativeRowIndex > endRowIndex ||
-						endRowIndex - relativeRowIndex < startRowIndex) {
-
-					} else {
-						cache.clipState = "null";
-						clipRegion.destroy();
-					}
+					fillData();
 				}
 			}
 		});
+
+		function fillData() {
+			var i, j,
+				rowLen = headItemRows.length,
+				colLen = headItemCols.length;
+
+			for (i = startRowIndex; i <= endRowIndex; i++) {
+				for (j = startColIndex; j <= endColIndex; j++) {
+					selectColAlias = headItemCols.models[j - relativeColIndex].get('alias');
+					selectRowAlias = headItemRows.models[i - relativeRowIndex].get('alias');
+					tempCellModel = cells.getCellByAlias(selectColAlias, selectRowAlias);
+					if (tempCellModel !== null) {
+						originalModelIndexs.push(cellOccupy[selectColAlias][selectRowAlias]);
+						tempCellModel.set('isDestroy', true);
+						deletePosi(selectColAlias, selectRowAlias);
+					}
+				}
+			}
+
+			//超出已加载区域处理
+			for (i = startRowIndex; i < endRowIndex + 1; i++) {
+				for (j = startColIndex; j < endColIndex + 1; j++) {
+					clipColAlias = headItemCols.models[j].get('alias');
+					clipRowAlias = headItemRows.models[i].get('alias');
+					if (j - relativeColIndex > headItemCols.models.length - 1) continue;
+					if (i - relativeRowIndex > headItemRows.models.length - 1) continue;
+					CellModel = cells.getCellByAlias(clipColAlias, clipRowAlias);
+
+					if (typeof CellModel !== 'null' && type === "cut") {
+						originalModelIndexs.push(cellOccupy[clipColAlias][clipRowAlias]);
+						deletePosi(clipColAlias, clipRowAlias);
+					}
+					if (CellModel !== null && CellModel.get('occupy').x[0] === clipColAlias && CellModel.get('occupy').y[0] === clipRowAlias) {
+						tempCopyCellModel = CellModel.clone();
+						if (type === "cut") {
+							CellModel.set('isDestroy', true);
+						}
+						adaptCell(tempCopyCellModel, relativeColIndex, relativeRowIndex);
+						cacheCellPosition(tempCopyCellModel);
+						currentModelIndexs.push(cells.length);
+						cells.add(tempCopyCellModel);
+					}
+				}
+			}
+			history.addCoverAction(currentModelIndexs, originalModelIndexs);
+			//修改:对模型直接进行修改
+			selectRegion.set('tempPosi', {
+				initColIndex: startColIndex - relativeColIndex,
+				initRowIndex: startRowIndex - relativeRowIndex,
+				mouseColIndex: endColIndex - relativeColIndex < headItemCols.models.length - 1 ? endColIndex - relativeColIndex : headItemCols.models.length - 1,
+				mouseRowIndex: endRowIndex - relativeRowIndex < headItemRows.models.length - 1 ? endRowIndex - relativeRowIndex : headItemRows.models.length - 1
+			});
+			if (type === 'cut') {
+				cache.clipState = "null";
+				clipRegion.destroy();
+			} //进行区域判断，判断复制区域与目标区域是否重叠 
+			if (startColIndex - relativeColIndex > endColIndex ||
+				endColIndex - relativeColIndex < startColIndex ||
+				startRowIndex - relativeRowIndex > endRowIndex ||
+				endRowIndex - relativeRowIndex < startRowIndex) {
+
+			} else {
+				cache.clipState = "null";
+				clipRegion.destroy();
+			}
+		}
 	}
 
 	function cacheCellPosition(cell) {
