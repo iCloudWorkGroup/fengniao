@@ -188,6 +188,6 @@ define(function() {
 
 		},
 		version: '@version@',
-		rootPath: 'http://192.168.2.127:8080/fn/'
+		rootPath: 'http://excel-inc.acmr.com.cn/master/'
 	};
 });
