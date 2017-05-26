@@ -1,6 +1,4 @@
 
-# SpreadSheet Online 版本更新日志
-
 <a name="0.11.0"></a>
 # [0.11.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.10.0...v0.11.0) (2017-04-27)
 
