@@ -18,10 +18,9 @@ define(function(require) {
 		 * @param  {object} cfg 用户自定义配置
 		 */
 		PackAjax: function(cfg) {
-			var self = this,
-				config = {},
+			var config = {},
 				NULLFUNC = function() {},
-				containerId = cache.containerId;
+				count = 0;
 			if (!cfg.url) {
 				return;
 			}
@@ -37,49 +36,42 @@ define(function(require) {
 				success: cfg.success || NULLFUNC,
 				error: cfg.error || NULLFUNC,
 				complete: cfg.complete || NULLFUNC,
-				isPublic: cfg.isPublic !== undefined ? cfg.isPublic : true
+				isPublic: cfg.isPublic !== undefined ? cfg.isPublic : true,
 			};
-			//请求过滤,回调数据
-			if (config.isPublic === true) {
-				cache.sendQueueStep++;
-			}
-			$.ajax({
-				url: config.url,
-				beforeSend: function(request) {
-					var step = cache.sendQueueStep;
-					if (config.isPublic === true) {
-						request.setRequestHeader('step', step);
-					} else if (config.url.indexOf('openexcel') !== -1) {
-						request.setRequestHeader('step', step);
-					}
-					request.setRequestHeader('excelId', window.SPREADSHEET_AUTHENTIC_KEY);
-					request.setRequestHeader('sheetId', '1');
+			doRequest(config);
 
-				},
-				type: config.type,
-				contentType: config.contentType,
-				dataType: config.dataType,
-				async: config.async, 
-				data: config.data,
-				timeout: config.timeout,
-				success: function(data) {
-					if (config.async || data.returncode === -1) {
-						if ($('#' + containerId + ' .loadmark').length === 0) {
-							$('#' + containerId).append('<div class="loadmark"></div>');
+			function doRequest(config) {
+				$.ajax({
+					url: config.url,
+					beforeSend: function(request) {
+						if (count > 0 || !config.isPublic) {
+							request.setRequestHeader('step', cache.sendQueueStep);
+						} else {
+							request.setRequestHeader('step', ++cache.sendQueueStep);
 						}
-						setTimeout(function() {
-							self.PackAjax(cfg);
-						}, 500);
-					} else {
-						config.success(data);
-						if ($('#' + containerId + ' .loadmark').length > 0) {
-							$('#' + containerId + ' .loadmark').remove();
+						request.setRequestHeader('excelId', window.SPREADSHEET_AUTHENTIC_KEY);
+						request.setRequestHeader('sheetId', '1');
+					},
+					type: config.type,
+					contentType: config.contentType,
+					dataType: config.dataType,
+					async: config.async,
+					data: config.data,
+					timeout: config.timeout,
+					error: config.error,
+					complete: config.complete,
+					success: function(data) {
+						if (data && data.returncode === -1) {
+							count++;
+							if (count < 3) {
+								doRequest(config);
+							}
+							return;
 						}
+						config.success.apply(this, arguments);
 					}
-				},
-				error: config.error,
-				complete: config.complete
-			});
+				});
+			}
 		}
 	};
 });
