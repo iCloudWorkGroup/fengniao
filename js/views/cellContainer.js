@@ -129,28 +129,31 @@ define(function(require) {
 		},
 		getHtmlText: function(modelAttr) {
 			var text,
-				texts,
-				temp,
-				i = 0,
-				height;
+				htmlDecode;
 
 			if (modelAttr.attributes) {
 				modelAttr = this.model.attributes;
 			}
-			text = modelAttr.content.displayTexts || '';
-			texts = text.split('\n');
-			text = '';
 
-			if (this.model.get('wordWrap') === false) {
-				for (i = 0; i < texts.length; i++) {
-					text += texts[i];
-				}
-			} else {
-				for (i = 0; i < texts.length; i++) {
-					text += texts[i] + '<br>';
-				}
+			text = modelAttr.content.displayTexts || '';
+			if (modelAttr.wordWrap) {
+				text.replace('\n', '<br>');
 			}
-			text = text.replace(/\u0020/g, '&nbsp;');
+			htmlDecode = {
+				'<': '&lt;',
+				'>': '&gt;',
+				'&': '&amp;',
+				'"': '&quot;',
+				'\u0020': '&nbsp;'
+			}
+
+			text = text.replace(/<|>|\u0020|&|"/g, function(str, index) {
+				if (htmlDecode[str]) {
+					return htmlDecode[str];
+				} else {
+					return str;
+				}
+			});
 			return text;
 		},
 		changeWidth: function(modelAttr) {
