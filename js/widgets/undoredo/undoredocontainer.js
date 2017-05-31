@@ -22,7 +22,7 @@
 			 */
 			el: "#undoredoContainer",
 			events: {
-				'mousedown div': 'undoRedo'
+				'click span[data-toolbar]': 'undoRedo'
 			},
 			undoRedo: function(e) {
 				var action;
