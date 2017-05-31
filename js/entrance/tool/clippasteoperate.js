@@ -161,21 +161,15 @@ define(function(require) {
 
 			//判断两个区域不相交
 			if ((selectRowIndex > endRowIndex ||
-					selectRowIndex < startRowIndex ||
 					selectColIndex > endColIndex ||
-					selectColIndex < startColIndex) &&
-				(oprEndRowIndex > endRowIndex ||
 					oprEndRowIndex < startRowIndex ||
-					oprEndColIndex > endColIndex ||
-					oprEndColIndex < startColIndex)) {
-				return;
-			}
-
-			if (type !== 'cut') {
+					oprEndColIndex < startColIndex) && type === 'copy') {
 				return;
 			}
 			cache.clipState = 'null';
+			cache.clipboardData = null;
 			clipRegion.destroy();
+
 		}
 	}
 
