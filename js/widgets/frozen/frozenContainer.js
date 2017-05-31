@@ -63,8 +63,8 @@ define(function(require) {
 		 * @method transAction
 		 */
 		transAction: function(e) {
-			var frozenPositon = $(e.currentTarget).data('frozen');
-			setFrozen('1', frozenPositon);
+			var type = $(e.currentTarget).data('frozen');
+			setFrozen('1',null ,type);
 			this.changeState();
 		}
 	});
