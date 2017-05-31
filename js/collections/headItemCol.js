@@ -110,6 +110,12 @@ define(function(require) {
 				'alias': alias
 			});
 		},
+		getModelBySort: function(sort) {
+			var arr = this.models,
+				index;
+			index = binary.indexAttrBinary(sort, arr, 'sort');
+			return this.models[index];
+		},
 		/**
 		 * 通过坐标查询符合条件标线的对象
 		 * @method getModelByAlias

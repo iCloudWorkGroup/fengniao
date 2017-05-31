@@ -63,13 +63,20 @@ define(function(require) {
 			return this;
 		},
 		adaptHeight: function() {
-			var bottom = 0,
+
+			if(this.boxAttributes.height === -1){
+				return;
+			}
+
+			var len = this.currentRule.displayPosition.endIndex,
+				start = this.currentRule.displayPosition.startIndex,
+				bottom = 0,
 				top = 0,
 				len, i,
 				start;
 
-			len = this.currentRule.displayPosition.endRowIndex || headItemRowList.length - 1;
-			start = this.currentRule.displayPosition.startRowIndex || 0;
+			len = len === undefined ? headItemRowList.length - 1 : len;
+			start = start === undefined ? 0 : start;
 			for (i = len; i >= start; i--) {
 				if (!headItemRowList[i].get('hidden')) {
 					top = headItemRowList[i].get('top') + headItemRowList[i].get('height');

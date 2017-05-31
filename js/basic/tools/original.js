@@ -418,48 +418,102 @@ define(function(require) {
 				}),
 				dataType: 'json',
 				success: function(data) {
-					if (data === '') {
-						return;
-					}
-					cache.UserView.rowAlias = data.displayRowStartAlias;
-					cache.UserView.colAlias = data.displayColStartAlias;
-					//待修改：应由后台返回
-					cache.aliasRowCounter;
-					cache.aliasColCounter;
+					fillData.apply(this, arguments);
+				}
+			});
 
+			function fillData(data) {
+				var temp,
+					sheetData,
+					isRowFrozen = false,
+					isColFrozen = false,
+					rowFrozenSort,
+					colFrozenSort,
+					rowFrozenAlias,
+					colFrozenAlias,
+					headItemColList,
+					headItemRowList,
+					colLen,
+					rowLen;
 
-					if (data.returndata.spreadSheet[0].sheet.frozen.state === '1') {
-						//待修改：冻结位置，因返回alias，与useView一致，不应该为index
-						cache.TempProp = {
-							isFrozen: true,
-							colAlias: data.returndata.spreadSheet[0].sheet.frozen.colIndex,
-							rowAlias: data.returndata.spreadSheet[0].sheet.frozen.rowIndex,
-							rowFrozen: true,
-							colFrozen: true
-						};
-					}
-					for (i = 0; i < data.returndata.spreadSheet.length; i++) {
-						sheetNames.push(data.returndata.spreadSheet[i].name);
-					}
-					cache.localRowPosi = data.maxPixel;
-					startRowSort = data.dataRowStartIndex;
-					startColSort = data.dataColStartIndex;
-					data = data.returndata;
-					var cellModels = data.spreadSheet[0].sheet.cells;
-					var rows = data.spreadSheet[0].sheet.glY;
-					var cols = data.spreadSheet[0].sheet.glX;
+				if (!data) {
+					return;
+				}
+
+				if (!data.returndata) {
+					return;
+				}
+				cache.UserView.rowAlias = data.displayRowStartAlias;
+				cache.UserView.colAlias = data.displayColStartAlias;
+
+				startRowSort = data.dataRowStartIndex;
+				startColSort = data.dataColStartIndex;
+
+				cache.localRowPosi = data.maxPixel;
+
+				//待修改：应由后台返回
+				cache.aliasRowCounter;
+				cache.aliasColCounter;
+
+				data = data.returndata;
+
+				if (data.spreadSheet && data.spreadSheet[0] &&
+					(sheetData = data.spreadSheet[0].sheet)) {
+
+					sheetNames.push(data.spreadSheet[0].name);
+					var cellModels = sheetData.cells;
+					var rows = sheetData.glY;
+					var cols = sheetData.glX;
 
 					self.analysisSheetData(sheetNames);
 					self.analysisRowData(rows, startRowSort);
 					self.analysisColData(cols, startColSort);
 					self.analysisCellData(cellModels);
 					self.restoreSelectRegion();
-					loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.rowRegionPosi);
-					loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.cellRegionPosi.vertical);
-					cache.loadCol.startSort = headItemCols.models[0].get('sort');
-					cache.loadCol.endSort = headItemCols.models[headItemCols.length - 1].get('sort');
+
+					headItemColList = headItemCols.models;
+					headItemRowList = headItemRows.models;
+
+					colLen = headItemCols.length;
+					rowLen = headItemRows.length;
+
+					if (sheetData.frozen && sheetData.frozen.state === '1') {
+						if (sheetData.frozen.col !== undefined) {
+							isColFrozen = true;
+							colFrozenSort = sheetData.frozen.col;
+							colFrozenAlias = headItemCols.getModelBySort(colFrozenSort).get('alias');
+						}
+						if (sheetData.frozen.row !== undefined) {
+							isRowFrozen = true;
+							rowFrozenSort = sheetData.frozen.row;
+							rowFrozenAlias = headItemRows.getModelBySort(rowFrozenSort).get('alias');
+						}
+						cache.TempProp = {
+							isFrozen: true,
+							colAlias: isColFrozen ? colFrozenAlias : cache.UserView.colAlias,
+							rowAlias: isRowFrozen ? rowFrozenAlias : cache.UserView.rowAlias,
+							rowFrozen: isRowFrozen,
+							colFrozen: isColFrozen
+						};
+					} else {
+						cache.TempProp = {
+							isFrozen: false,
+							colAlias: cache.UserView.colAlias,
+							rowAlias: cache.UserView.rowAlias,
+							rowFrozen: false,
+							colFrozen: false
+						};
+					}
+
+					loadRecorder.insertPosi(headItemRowList[0].get('top'),
+						headItemRowList[rowLen - 1].get('top') + headItemRowList[rowLen - 1].get('height'),
+						cache.rowRegionPosi);
+					loadRecorder.insertPosi(headItemRowList[0].get('top'),
+						headItemRowList[rowLen - 1].get('top') + headItemRowList[rowLen - 1].get('height'),
+						cache.cellRegionPosi.vertical);
 				}
-			});
+
+			}
 
 		}
 	};

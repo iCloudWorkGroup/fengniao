@@ -81,6 +81,12 @@ define(function(require) {
 			var currentModel = this.models[this.models.length - 1];
 			return currentModel.get('top') + currentModel.get('height');
 		},
+		getModelBySort: function(sort) {
+			var arr = this.models,
+				index;
+			index = binary.indexAttrBinary(sort, arr, 'sort');
+			return this.models[index];
+		},
 		/**
 		 * 通过别名查询符合条件标线的对象
 		 * @method getModelByAlias

@@ -88,7 +88,7 @@ define(function(require) {
 			splitColSort = headItemColList[region.startColIndex].get('sort'),
 			splitRowSort = headItemRowList[region.startRowIndex].get('sort');
 
-		if(filterOutUserView(region)){
+		if (filterOutUserView(region)) {
 			return;
 		}
 
@@ -115,7 +115,7 @@ define(function(require) {
 			colFrozen: true
 		};
 		cache.UserView.rowAlias = '1';
-		requestFrozen(neighborModel.get('sort'), 0);
+		requestFrozen(neighborModel.get('sort'), -1);
 	};
 	/**
 	 * 执行行冻结
@@ -131,7 +131,7 @@ define(function(require) {
 		};
 
 		cache.UserView.colAlias = '1';
-		requestFrozen(0, neighborModel.get('sort'));
+		requestFrozen(-1, neighborModel.get('sort'));
 	};
 	/**
 	 * 解除冻结
