@@ -399,8 +399,7 @@ define(function(require) {
 				startRowSort,
 				startColSort,
 				sheetNames = [],
-				self = this,
-				i;
+				self = this;
 			if (build === 'true' || build === undefined) {
 				this.bulidNewExcel();
 				cache.localRowPosi = 0;
@@ -417,14 +416,13 @@ define(function(require) {
 					bottom: $('#' + domId).height() + config.System.prestrainHeight
 				}),
 				dataType: 'json',
-				success: function(data) {
+				success: function() {
 					fillData.apply(this, arguments);
 				}
 			});
 
 			function fillData(data) {
-				var temp,
-					sheetData,
+				var sheetData,
 					isRowFrozen = false,
 					isColFrozen = false,
 					rowFrozenSort,
