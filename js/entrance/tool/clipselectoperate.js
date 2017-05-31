@@ -1,5 +1,5 @@
 'use strict';
-define(function(require) {	
+define(function(require) {
 	var headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
@@ -26,8 +26,8 @@ define(function(require) {
 		}
 		selectRegion = selectRegions.getModelByType('selected');
 		//整行整列，禁止复制
-		if(selectRegion.get('wholePosi').endX === 'MAX' ||
-			selectRegion.get('wholePosi').endY === 'MAX'){
+		if (selectRegion.get('wholePosi').endX === 'MAX' ||
+			selectRegion.get('wholePosi').endY === 'MAX') {
 			return;
 		}
 		clipModel = selectRegion.clone();
@@ -39,7 +39,7 @@ define(function(require) {
 			cache.clipState = 'copy';
 		} else if (type === 'cut') {
 			cache.clipState = 'cut';
-		}else{
+		} else {
 			return;
 		}
 
@@ -70,6 +70,7 @@ define(function(require) {
 			} else {
 				e.originalEvent.clipboardData.setData('Text', text);
 			}
+			cache.clipboardData = text;
 		}
 
 		function cellToText(cell) {

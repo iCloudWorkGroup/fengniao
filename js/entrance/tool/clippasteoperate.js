@@ -15,13 +15,15 @@ define(function(require) {
 		cellList = cells.models;
 
 	function clipPasteOperate(pasteText) {
-		if (cache.clipState === 'copy') {
-			excelDataPaste('copy');
-		} else if (cache.clipState === 'cut') {
-			excelDataPaste('cut');
+		var clipboardData = cache.clipboardData;
+
+		//如果剪切板内容与选中区域的数据不相等，则使用剪切板内容
+		if (cache.clipState !== null && clipboardData === pasteText) {
+			excelDataPaste(cache.clipState);
 		} else {
 			clipBoardDataPaste(pasteText);
 		}
+
 	}
 
 	function excelDataPaste(type) {
@@ -129,6 +131,7 @@ define(function(require) {
 					if (cellOccupy[colAlias] && (cellIndex = cellOccupy[colAlias][rowAlias]) !== undefined &&
 						!temp[cellIndex]) {
 						temp[cellIndex] = 1;
+						cellModel = cellList[cellIndex];
 						cellModel.set('isDestroy', true);
 						if (originalModelIndexs.indexOf(cellIndex) !== -1) {
 							originalModelIndexs.push(cellIndex);
@@ -155,9 +158,7 @@ define(function(require) {
 				mouseColIndex: oprEndColIndex < colLen ? oprEndColIndex : colLen - 1,
 				mouseRowIndex: oprEndRowIndex < rowLen ? oprEndRowIndex : rowLen - 1
 			});
-			if (type === 'cut') {
-				return;
-			}
+
 			//判断两个区域不相交
 			if ((selectRowIndex > endRowIndex ||
 					selectRowIndex < startRowIndex ||
@@ -170,6 +171,9 @@ define(function(require) {
 				return;
 			}
 
+			if (type !== 'cut') {
+				return;
+			}
 			cache.clipState = 'null';
 			clipRegion.destroy();
 		}

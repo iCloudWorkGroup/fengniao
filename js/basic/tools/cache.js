@@ -151,6 +151,7 @@ define(function(require) {
 			scrollTop: 0
 		},
 		commentEidtState: false,
+		clipboardData: null,
 		//
 		/**
 		 * 保存位置信息
