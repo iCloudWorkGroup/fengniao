@@ -11,9 +11,7 @@ define(function(require) {
 		getOperRegion = require('basic/tools/getoperregion');
 
 
-	var setFrozen = function(sheetId, frozenPositon, label) {
-
-
+	var setFrozen = function(sheetId,label,type) {
 		var clip,
 			region,
 			operRegion,
@@ -35,7 +33,7 @@ define(function(require) {
 			return;
 		}
 
-		switch (frozenPositon) {
+		switch (type) {
 			case 'custom':
 				setCustom(operRegion);
 				break;
