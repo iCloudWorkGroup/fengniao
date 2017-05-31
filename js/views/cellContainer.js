@@ -96,12 +96,10 @@ define(function(require) {
 			var modelAttr = this.model.attributes;
 			this.template = getTemplate('CELLTEMPLATE');
 
-			this.$el.html(this.template({
-				content: modelAttr.content,
-				text: this.getHtmlText(modelAttr)
-			}));
+			this.$el.html(this.template());
 
-			this.$contentBody = this.$contentBody = $('.bg', this.$el);
+			this.$contentBody = $('.bg', this.$el);
+			this.$contentBody.text(this.getHtmlText(modelAttr));
 
 			this.changeFontFamily(modelAttr);
 			this.changeFontSize(modelAttr);
@@ -132,28 +130,12 @@ define(function(require) {
 				htmlDecode;
 
 			if (modelAttr.attributes) {
-				modelAttr = this.model.attributes;
+				modelAttr = modelAttr.attributes;
 			}
-
 			text = modelAttr.content.displayTexts || '';
 			if (modelAttr.wordWrap) {
 				text.replace('\n', '<br>');
 			}
-			htmlDecode = {
-				'<': '&lt;',
-				'>': '&gt;',
-				'&': '&amp;',
-				'"': '&quot;',
-				'\u0020': '&nbsp;'
-			}
-
-			text = text.replace(/<|>|\u0020|&|"/g, function(str, index) {
-				if (htmlDecode[str]) {
-					return htmlDecode[str];
-				} else {
-					return str;
-				}
-			});
 			return text;
 		},
 		changeWidth: function(modelAttr) {
@@ -416,7 +398,7 @@ define(function(require) {
 			formatHandler.generateDisplayText(this.model);
 			var modelAttr = this.model.attributes;
 			this.changeTransverseAlign(modelAttr);
-			this.$contentBody.html(this.getHtmlText(modelAttr));
+			this.$contentBody.text(this.getHtmlText(modelAttr));
 		},
 		changeFontFamily: function() {
 			this.$contentBody.css({
