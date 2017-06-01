@@ -15,15 +15,20 @@ define(function(require) {
 		cellList = cells.models;
 
 	function clipPasteOperate(pasteText) {
-		if (cache.clipState === 'copy') {
-			excelDataPaste('copy');
-		} else if (cache.clipState === 'cut') {
-			excelDataPaste('cut');
+		var clipboardData = cache.clipboardData;
+
+		//如果剪切板内容与选中区域的数据不相等，则使用剪切板内容
+		if (cache.clipState !== null && clipboardData === pasteText) {
+			excelDataPaste(cache.clipState);
 		} else {
 			clipBoardDataPaste(pasteText);
 		}
-	}
 
+	}
+	/**
+	 * 表格内部复制或剪切操作
+	 * @param  {string} type 字符串 cut/copy
+	 */
 	function excelDataPaste(type) {
 		var originalModelIndexs = [],
 			currentModelIndexs = [],
@@ -93,6 +98,10 @@ define(function(require) {
 				cellIndex,
 				cellModel;
 
+			/**
+			 * 对选中的复制区域创建副本，避免复制区域和操作区域重叠时，造成复制内容错误
+			 * 如果是剪切操作，删除原始数据，并将原始数据放入历史
+			 */
 			for (i = startRowIndex; i <= endRowIndex; i++) {
 				for (j = startColIndex; j <= endColIndex; j++) {
 					colAlias = headItemColList[j].get('alias');
@@ -107,18 +116,21 @@ define(function(require) {
 								model: cellModel.clone()
 							});
 							if (type === 'cut') {
+								cellModel.set('isDestroy', true);
 								originalModelIndexs.push(cellIndex);
 							}
 							temp[cellIndex] = 1;
 						}
 						if (type === 'cut') {
-							cellModel.set('isDestroy', true);
 							deletePosi(colAlias, rowAlias);
 						}
 					}
 				}
 			}
 			temp = {};
+			/**
+			 * 删除选中区的数据
+			 */
 			for (i = selectRowIndex; i <= oprEndRowIndex; i++) {
 				for (j = selectColIndex; j <= oprEndColIndex; j++) {
 					if (i >= rowLen || j >= colLen) {
@@ -129,6 +141,7 @@ define(function(require) {
 					if (cellOccupy[colAlias] && (cellIndex = cellOccupy[colAlias][rowAlias]) !== undefined &&
 						!temp[cellIndex]) {
 						temp[cellIndex] = 1;
+						cellModel = cellList[cellIndex];
 						cellModel.set('isDestroy', true);
 						if (originalModelIndexs.indexOf(cellIndex) !== -1) {
 							originalModelIndexs.push(cellIndex);
@@ -137,7 +150,9 @@ define(function(require) {
 					}
 				}
 			}
-
+			/**
+			 * 添加复制数据
+			 */
 			for (i = 0; i < cloneList.length; i++) {
 				cloneObj = cloneList[i];
 				cellModel = adaptCell(cloneObj.model, cloneObj.relativeCol, cloneObj.relativeRow);
@@ -148,29 +163,25 @@ define(function(require) {
 			}
 
 			history.addCoverAction(currentModelIndexs, originalModelIndexs);
-
+			/**
+			 * 调整选中区
+			 */
 			selectRegion.set('tempPosi', {
 				initColIndex: selectColIndex,
 				initRowIndex: selectRowIndex,
 				mouseColIndex: oprEndColIndex < colLen ? oprEndColIndex : colLen - 1,
 				mouseRowIndex: oprEndRowIndex < rowLen ? oprEndRowIndex : rowLen - 1
 			});
-			if (type === 'cut') {
-				return;
-			}
+
 			//判断两个区域不相交
 			if ((selectRowIndex > endRowIndex ||
-					selectRowIndex < startRowIndex ||
 					selectColIndex > endColIndex ||
-					selectColIndex < startColIndex) &&
-				(oprEndRowIndex > endRowIndex ||
 					oprEndRowIndex < startRowIndex ||
-					oprEndColIndex > endColIndex ||
-					oprEndColIndex < startColIndex)) {
+					oprEndColIndex < startColIndex) && type === 'copy') {
 				return;
 			}
-
 			cache.clipState = 'null';
+			cache.clipboardData = null;
 			clipRegion.destroy();
 		}
 	}
