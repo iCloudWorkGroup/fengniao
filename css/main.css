@@ -1,6 +1,6 @@
 ﻿html, body { height: 100%; width: 100%; overflow: hidden; }
 html, body, ol, ul { margin: 0; padding: 0; }
-body { user-select: none; -webkit-user-select: none; -ms-user-select: none; -moz-user-select: none; }
+/*body { user-select: none; -webkit-user-select: none; -ms-user-select: none; -moz-user-select: none; }*/
 table { border-spacing: 0; }
 td { vertical-align: top }
 input, textarea { outline: none }
