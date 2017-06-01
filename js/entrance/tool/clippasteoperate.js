@@ -25,7 +25,10 @@ define(function(require) {
 		}
 
 	}
-
+	/**
+	 * 表格内部复制或剪切操作
+	 * @param  {string} type 字符串 cut/copy
+	 */
 	function excelDataPaste(type) {
 		var originalModelIndexs = [],
 			currentModelIndexs = [],
@@ -95,6 +98,10 @@ define(function(require) {
 				cellIndex,
 				cellModel;
 
+			/**
+			 * 对选中的复制区域创建副本，避免复制区域和操作区域重叠时，造成复制内容错误
+			 * 如果是剪切操作，删除原始数据，并将原始数据放入历史
+			 */
 			for (i = startRowIndex; i <= endRowIndex; i++) {
 				for (j = startColIndex; j <= endColIndex; j++) {
 					colAlias = headItemColList[j].get('alias');
@@ -109,18 +116,21 @@ define(function(require) {
 								model: cellModel.clone()
 							});
 							if (type === 'cut') {
+								cellModel.set('isDestroy', true);
 								originalModelIndexs.push(cellIndex);
 							}
 							temp[cellIndex] = 1;
 						}
 						if (type === 'cut') {
-							cellModel.set('isDestroy', true);
 							deletePosi(colAlias, rowAlias);
 						}
 					}
 				}
 			}
 			temp = {};
+			/**
+			 * 删除选中区的数据
+			 */
 			for (i = selectRowIndex; i <= oprEndRowIndex; i++) {
 				for (j = selectColIndex; j <= oprEndColIndex; j++) {
 					if (i >= rowLen || j >= colLen) {
@@ -140,7 +150,9 @@ define(function(require) {
 					}
 				}
 			}
-
+			/**
+			 * 添加复制数据
+			 */
 			for (i = 0; i < cloneList.length; i++) {
 				cloneObj = cloneList[i];
 				cellModel = adaptCell(cloneObj.model, cloneObj.relativeCol, cloneObj.relativeRow);
@@ -151,7 +163,9 @@ define(function(require) {
 			}
 
 			history.addCoverAction(currentModelIndexs, originalModelIndexs);
-
+			/**
+			 * 调整选中区
+			 */
 			selectRegion.set('tempPosi', {
 				initColIndex: selectColIndex,
 				initRowIndex: selectRowIndex,
@@ -169,7 +183,6 @@ define(function(require) {
 			cache.clipState = 'null';
 			cache.clipboardData = null;
 			clipRegion.destroy();
-
 		}
 	}
 
