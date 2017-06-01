@@ -114,6 +114,9 @@ define(function(require) {
 			if ($(event.target).attr('class') === 'edit-frame') {
 				return;
 			}
+			if (cache.commentEditState) {
+				return;
+			}
 			this.locatedState(event);
 		},
 		mouseMoveHandle: function(event) {
@@ -458,13 +461,7 @@ define(function(require) {
 		 * 单击网格区域
 		 * @param  {[type]} event 单击事件对象
 		 */
-		located: function(colPosi, rowPosi, selectModel) {
-			if (cache.commentEditState) {
-				return;
-			}
-			if ($(event.target).attr('class') === 'edit-frame') {
-				return;
-			}
+		located: function(colPosi, rowPosi, selectModel, target) {
 			this.changePosi(colPosi, rowPosi, selectModel);
 		},
 		/**

@@ -169,7 +169,6 @@ define(function(require) {
 			cache.clipState = 'null';
 			cache.clipboardData = null;
 			clipRegion.destroy();
-
 		}
 	}
 
