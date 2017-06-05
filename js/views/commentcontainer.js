@@ -4,14 +4,10 @@ define(function(require) {
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
-		getOperRegion = require('basic/tools/getoperregion'),
 		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
 		commentHandler = require('entrance/tool/comment'),
-		rowOperate = require('entrance/row/rowoperation'),
-		colOperate = require('entrance/col/coloperation'),
-		headItemColList = headItemCols.models,
 		commentContainer;
 
 	commentContainer = Backbone.View.extend({
@@ -58,10 +54,7 @@ define(function(require) {
 				frozenColIndex,
 				frozenRowIndex,
 				selectModel,
-				cellList,
-				frozen,
-				left,
-				top;
+				cellList;
 
 			// 添加/编辑备注情况
 			if (typeof colIndex === 'undefined') {
@@ -100,7 +93,6 @@ define(function(require) {
 		setBoxModel: function() {
 			var limitHeight,
 				limitWidth,
-				colLen,
 				height,
 				width,
 				left,

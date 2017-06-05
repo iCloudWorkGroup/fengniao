@@ -74,8 +74,7 @@ define(function(require) {
 
 			if (!this.commentContainer) {
 				this.commentContainer = new CommentContainer({
-					parentNode: this,
-					scrollBarWidth: this.scrollbarWidth
+					parentNode: this
 				});
 				this.$el.find('.main-layout').append(this.commentContainer.render().el);
 			}
