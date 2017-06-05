@@ -11,6 +11,7 @@ define(function(require) {
 		commentHandler = require('entrance/tool/comment'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
+		headItemColList = headItemCols.models,
 		commentContainer;
 
 	commentContainer = Backbone.View.extend({
@@ -27,7 +28,9 @@ define(function(require) {
 			'blur': 'close'
 		},
 
-		initialize: function() {},
+		initialize: function(options) {
+			this.parentNode = options.parentNode;
+		},
 
 		render: function() {
 			this.$el.css({
@@ -56,8 +59,11 @@ define(function(require) {
 				frozenRowIndex,
 				selectModel,
 				cellList,
-				frozen;
+				frozen,
+				left,
+				top;
 
+			// 添加/编辑备注情况
 			if (typeof colIndex === 'undefined') {
 				selectModel = selectRegions.getModelByType('selected');
 				colIndex = headItemCols.getIndexByAlias(selectModel.get('wholePosi').endX);
@@ -67,8 +73,11 @@ define(function(require) {
 					comment = cellList[0].get('customProp').comment;
 				}
 			}
-			frozenColIndex = cache.TempProp.colFrozen || headItemCols.getIndexByAlias(cache.TempProp.colAlias);
-			frozenRowIndex = cache.TempProp.rowFrozen || headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
+			this.colIndex = colIndex;
+			this.rowIndex = rowIndex;
+
+			frozenColIndex = cache.TempProp.colFrozen && headItemCols.getIndexByAlias(cache.TempProp.colAlias);
+			frozenRowIndex = cache.TempProp.rowFrozen && headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
 
 			if (frozenColIndex && frozenColIndex > colIndex) {
 				this.isTransverseScroll = false;
@@ -81,19 +90,64 @@ define(function(require) {
 				this.isVerticalScroll = true;
 			}
 
-			this.left = this.getAbsoluteLeft(colIndex);
-			this.top = this.getAbsoluteTop(rowIndex);
+			this.setBoxModel();
+
 			this.adjustZIndex(colIndex, rowIndex);
-			this.$el.css({
-				left: this.left + 5,
-				top: this.top,
-				display: true
-			});
 			this.$el.attr('disabled', 'disabled');
 			this.$el.css('display', 'block');
 			this.$el.val(comment);
 		},
+		setBoxModel: function() {
+			var limitHeight,
+				limitWidth,
+				colLen,
+				height,
+				width,
+				left,
+				top;
 
+			//获取相对位置
+			left = this.getAbsoluteLeft();
+			top = this.getAbsoluteTop();
+			height = 150; //默认高度
+			width = 150; //默认宽度
+			limitHeight = this.parentNode.el.clientHeight - config.System.outerBottom - 
+			cache.scrollbarWidth -(this.$el.outerHeight() - this.$el.height());
+
+			limitWidth = this.parentNode.el.clientWidth - cache.scrollbarWidth;
+			
+			/**
+			 * 处理输入焦点导致的容器内部出现相对位移问题
+			 */
+
+			//批注框超出显示区域，直接放入不可见区域
+			if ( top >= limitHeight || left >= limitWidth ) {
+				this.$el.css({
+					left: -200,
+					top: -200,
+				});
+				return;
+			}
+ 
+			if (top + height > limitHeight) {
+				height = limitHeight - top;
+			}
+
+			if (left + width > limitWidth) {
+				//横向特殊处理，避免显示的备注条过细
+				if (limitWidth - left > 60) {
+					width = limitWidth - left;
+				} else {
+					left = limitWidth - 150 - 5;
+				}
+			}
+			this.$el.css({
+				left: left + 5,
+				top: top,
+				height: height,
+				width: width
+			});
+		},
 		hide: function() {
 			this.$el.css('display', 'none');
 			this.$el.attr('disabled', 'disabled');
@@ -103,74 +157,78 @@ define(function(require) {
 		/**
 		 * 横向移动输入框
 		 */
-		transverseScroll: function(value) {
+		transverseScroll: function() {
 			if (!this.isTransverseScroll) {
 				return;
 			}
-			this.$el.css({
-				'left': this.left + value
-			});
+			this.setBoxModel();
 		},
 		/**
 		 * 纵向移动输入框
 		 */
-		verticalScroll: function(value) {
+		verticalScroll: function() {
 			if (!this.isVerticalScroll) {
 				return;
 			}
-			this.$el.css({
-				'top': this.top + value
-			});
+			this.setBoxModel();
 		},
 		/**
 		 * 获取输入框left坐标
 		 */
-		getAbsoluteLeft: function(colIndex) {
-			var left,
+		getAbsoluteLeft: function() {
+			var colIndex = this.colIndex,
+				left = config.System.outerLeft,
 				colModel;
-			left = config.System.outerLeft;
 
+			//整行操作
 			if (colIndex === 'MAX') {
 				return left;
-			}
-			if (cache.TempProp.colFrozen) {
-				left += headItemCols.getModelByAlias(cache.UserView.colAlias).get('left');
 			}
 
 			colModel = headItemCols.models[colIndex];
 			left += colModel.get('left') + colModel.get('width');
+
+			if (cache.TempProp.colFrozen) {
+				left -= headItemCols.getModelByAlias(cache.UserView.colAlias).get('left');
+			}
+
+			if (this.isTransverseScroll) {
+				left -= cache.viewRegion.scrollLeft;
+			}
 			return left;
 		},
-		getAbsoluteTop: function(rowIndex) {
-			var top,
+		getAbsoluteTop: function() {
+			var rowIndex = this.rowIndex,
+				top = config.System.outerTop,
 				rowModel;
-			top = config.System.outerTop;
 
+			//整行操作
 			if (rowIndex === 'MAX') {
 				return top;
 			}
-			if (cache.TempProp.rowIndex) {
-				left += headItemRows.getModelByAlias(cache.UserView.rowAlias).get('left');
-			}
-
 			rowModel = headItemRows.models[rowIndex];
 			top += rowModel.get('top');
+
+			if (cache.TempProp.rowFrozen) {
+				top -= headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
+			}
+
+			if (this.isVerticalScroll) {
+				top -= cache.viewRegion.scrollTop;
+			}
 			return top;
 		},
-		adjustZIndex: function(colIndex, rowIndex) {
-			var colIndex,
-				rowIndex,
-				frozenColIndex,
-				frozenRowIndex;
+		adjustZIndex: function() {
+			
+			var isTransverseScroll = this.isTransverseScroll,
+				isVerticalScroll = this.isVerticalScroll;
 
 			if (cache.TempProp.colFrozen && cache.TempProp.rowFrozen) { //冻结情况
-				frozenColIndex = headItemCols.getIndexByAlias(cache.TempProp.colAlias);
-				frozenRowIndex = headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
-				if (frozenColIndex > colIndex && frozenRowIndex > rowIndex) {
+				if (!isTransverseScroll && !isVerticalScroll) {
 					this.$el.css({
 						'z-index': '15'
 					});
-				} else if (frozenColIndex > colIndex || frozenRowIndex > rowIndex) {
+				} else if (!isTransverseScroll || !isVerticalScroll) {
 					this.$el.css({
 						'z-index': '12'
 					});
@@ -180,8 +238,7 @@ define(function(require) {
 					});
 				}
 			} else if (cache.TempProp.colFrozen) {
-				frozenColIndex = headItemCols.getIndexByAlias(cache.TempProp.colAlias);
-				if (frozenColIndex > colIndex) {
+				if (!isTransverseScroll) {
 					this.$el.css({
 						'z-index': '12'
 					});
@@ -191,8 +248,7 @@ define(function(require) {
 					});
 				}
 			} else if (cache.TempProp.rowFrozen) {
-				frozenRowIndex = headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
-				if (frozenRowIndex > rowIndex) {
+				if (!isVerticalScroll) {
 					this.$el.css({
 						'z-index': '12'
 					});
@@ -201,7 +257,7 @@ define(function(require) {
 						'z-index': '9'
 					});
 				}
-			} else { //非冻结情况
+			} else {
 				this.$el.css({
 					'z-index': '9'
 				});

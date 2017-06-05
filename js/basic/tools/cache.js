@@ -20,6 +20,7 @@ define(function(require) {
 			row: [],
 			col: []
 		},
+		scrollBarWidth: null,
 		/**
 		 * 滚动加载，请求操作，缓冲高度
 		 * @type {number}

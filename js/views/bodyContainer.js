@@ -71,14 +71,20 @@ define(function(require) {
 		},
 		handleComment: function(options) {
 			var action = options.action;
+
 			if (!this.commentContainer) {
-				this.commentContainer = new CommentContainer();
+				this.commentContainer = new CommentContainer({
+					parentNode: this,
+					scrollBarWidth: this.scrollbarWidth
+				});
 				this.$el.find('.main-layout').append(this.commentContainer.render().el);
 			}
+
 			this.publisherList['mainContainer'].subscribe({
 				master: this.commentContainer,
 				behavior: 'transverseScroll'
 			}, 'transversePublish');
+
 			this.publisherList['mainContainer'].subscribe({
 				master: this.commentContainer,
 				behavior: 'verticalScroll'
@@ -637,6 +643,8 @@ define(function(require) {
 			 * @property {int} scrollbarWidth 
 			 */
 			this.scrollbarWidth = this.getScrollbarWidth();
+			
+			cache.scrollbarWidth = this.scrollbarWidth;
 		},
 		/**
 		 * 对外开放本对象
@@ -668,6 +676,7 @@ define(function(require) {
 		 * @param  {object}  e body页面移动的event
 		 */
 		mouseInfo: function(e) {
+
 			//获取相对位置
 			this.mousePageX = e.pageX - this.$el.offset().left;
 			this.mousePageY = e.pageY - this.$el.offset().top;

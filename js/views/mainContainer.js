@@ -193,7 +193,7 @@ define(function(require) {
 		 * 页面渲染方法
 		 * @method render
 		 */
-		render: function() {
+			render: function() {
 			this.attributesRender(this.boxAttributes);
 
 			this.cellsContainer = new CellsContainer({
@@ -314,6 +314,8 @@ define(function(require) {
 				currentViewTop = cache.viewRegion.top,
 				currentViewBottom = cache.viewRegion.bottom;
 
+			cache.viewRegion.scrollTop = this.el.scrollTop;
+			cache.viewRegion.scrollLeft = this.el.scrollLeft;
 			this.preventAutoScroll();
 			verticalDirection = currentViewTop - this.el.scrollTop - this.offsetTop - this.userViewTop;
 			//save user view position , alias
@@ -333,16 +335,14 @@ define(function(require) {
 			if (verticalDirection > 0 || direction === 'up') {
 				this.addTop(currentViewTop);
 				this.deleteBottom(currentViewBottom);
-				cache.viewRegion.scrollTop = this.el.scrollTop;
 			}
 			//as scrollbar scroll down
 			if (verticalDirection < 0 || direction === 'down') {
 				//delete top row
 				this.addBottom(currentViewBottom);
 				this.deleteTop(currentViewTop);
-				cache.viewRegion.scrollTop = this.el.scrollTop;
 			}
-			cache.viewRegion.scrollLeft = this.el.scrollLeft;
+
 		},
 		/**
 		 * 显示行上方超出预加载区域，删除超出视图
@@ -673,7 +673,6 @@ define(function(require) {
 				distanceTop = this.parentNode.mousePageY - (this.parentNode.el.offsetHeight - this.el.offsetHeight);
 				distanceBottom = distanceTop - this.el.clientHeight - config.System.outerBottom;
 				distanceRight = distanceLeft - this.el.clientWidth;
-				console.log('start:'+distanceTop);
 				if (distanceRight >= 0 || distanceLeft <= 0) {
 					this.el.scrollLeft = this.recordScrollLeft;
 				} else {
