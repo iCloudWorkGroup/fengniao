@@ -150,15 +150,16 @@ define(function(require) {
 	 * @method requestFrozen
 	 */
 	var requestFrozen = function(frozenColSort, frozenRowSort) {
-		var startColSort = headItemCols.getModelByAlias(cache.UserView.colAlias).get('sort'),
-			startRowSort = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('sort');
+		var viewCol = headItemCols.getModelByAlias(cache.UserView.colAlias).get('sort'),
+			viewRow = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('sort');
+		
 		send.PackAjax({
 			url: config.url.sheet.frozen,
 			data: JSON.stringify({
-				orignalCol: frozenColSort,
-				orignalRow: frozenRowSort,
-				viewCol: startColSort,
-				viewRow: startRowSort
+				oprCol: frozenColSort,
+				oprRow: frozenRowSort,
+				viewCol: viewCol,
+				viewRow: viewRow
 			})
 		});
 	};

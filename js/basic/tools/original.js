@@ -474,34 +474,34 @@ define(function(require) {
 
 					colLen = headItemCols.length;
 					rowLen = headItemRows.length;
-
-					if (sheetData.frozen && sheetData.frozen.state === '1') {
-						if (sheetData.frozen.col !== undefined) {
-							isColFrozen = true;
-							colFrozenSort = sheetData.frozen.col;
-							colFrozenAlias = headItemCols.getModelBySort(colFrozenSort).get('alias');
-						}
-						if (sheetData.frozen.row !== undefined) {
-							isRowFrozen = true;
-							rowFrozenSort = sheetData.frozen.row;
-							rowFrozenAlias = headItemRows.getModelBySort(rowFrozenSort).get('alias');
-						}
-						cache.TempProp = {
-							isFrozen: true,
-							colAlias: isColFrozen ? colFrozenAlias : cache.UserView.colAlias,
-							rowAlias: isRowFrozen ? rowFrozenAlias : cache.UserView.rowAlias,
-							rowFrozen: isRowFrozen,
-							colFrozen: isColFrozen
-						};
-					} else {
-						cache.TempProp = {
-							isFrozen: false,
-							colAlias: cache.UserView.colAlias,
-							rowAlias: cache.UserView.rowAlias,
-							rowFrozen: false,
-							colFrozen: false
-						};
-					}
+					// 冻结状态暂时不做还原
+					// if (sheetData.frozen) {
+					// 	if (sheetData.frozen.col !== -1) {
+					// 		isColFrozen = true;
+					// 		colFrozenSort = sheetData.frozen.col;
+					// 		colFrozenAlias = headItemCols.getModelBySort(colFrozenSort).get('alias');
+					// 	}
+					// 	if (sheetData.frozen.row !== -1) {
+					// 		isRowFrozen = true;
+					// 		rowFrozenSort = sheetData.frozen.row;
+					// 		rowFrozenAlias = headItemRows.getModelBySort(rowFrozenSort).get('alias');
+					// 	}
+					// 	cache.TempProp = {
+					// 		isFrozen: true,
+					// 		colAlias: isColFrozen ? colFrozenAlias : cache.UserView.colAlias,
+					// 		rowAlias: isRowFrozen ? rowFrozenAlias : cache.UserView.rowAlias,
+					// 		rowFrozen: isRowFrozen,
+					// 		colFrozen: isColFrozen
+					// 	};
+					// } else {
+					// 	cache.TempProp = {
+					// 		isFrozen: false,
+					// 		colAlias: cache.UserView.colAlias,
+					// 		rowAlias: cache.UserView.rowAlias,
+					// 		rowFrozen: false,
+					// 		colFrozen: false
+					// 	};
+					// }
 
 					loadRecorder.insertPosi(headItemRowList[0].get('top'),
 						headItemRowList[rowLen - 1].get('top') + headItemRowList[rowLen - 1].get('height'),
