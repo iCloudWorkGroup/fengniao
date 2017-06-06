@@ -99,7 +99,15 @@ define(function() {
 			 * excel最大支持行数
 			 * @property {number} maxRowNum
 			 */
-			maxRowNum: 9999
+			maxRowNum: 9999,
+			/**
+			 * 批注输入框宽高
+			 * @type {Object}
+			 */
+			comment: {
+				height: 150,
+				width: 150
+			}
 		},
 		mouseOperateState: {
 			select: 'selected',

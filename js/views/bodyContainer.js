@@ -71,14 +71,19 @@ define(function(require) {
 		},
 		handleComment: function(options) {
 			var action = options.action;
+
 			if (!this.commentContainer) {
-				this.commentContainer = new CommentContainer();
+				this.commentContainer = new CommentContainer({
+					parentNode: this
+				});
 				this.$el.find('.main-layout').append(this.commentContainer.render().el);
 			}
+
 			this.publisherList['mainContainer'].subscribe({
 				master: this.commentContainer,
 				behavior: 'transverseScroll'
 			}, 'transversePublish');
+
 			this.publisherList['mainContainer'].subscribe({
 				master: this.commentContainer,
 				behavior: 'verticalScroll'
@@ -88,9 +93,9 @@ define(function(require) {
 				this.commentContainer.hide();
 			} else if (action === 'edit') {
 				this.commentContainer.edit(options);
-			} else if(action==='add'){
+			} else if (action === 'add') {
 				this.commentContainer.add(options);
-			}else {
+			} else {
 				this.commentContainer.show(options);
 			}
 		},
@@ -183,7 +188,9 @@ define(function(require) {
 				for (i = len - 1; i >= 0; i--) {
 					cache.CurrentRule = cache.FrozenRules.main[i];
 					//添加白色背景，并设置z值
-					mainContainer = new MainContainer();
+					mainContainer = new MainContainer({
+						parentNode: this
+					});
 					$('tr:eq(1) td:eq(' + (i + 1) + ')', customID).prepend(mainContainer.render().el);
 					buildObserverPattern(mainContainer);
 				}
@@ -192,7 +199,9 @@ define(function(require) {
 				len = cache.FrozenRules.main.length;
 				for (i = len - 1; i >= 0; i--) {
 					cache.CurrentRule = cache.FrozenRules.main[i];
-					mainContainer = new MainContainer();
+					mainContainer = new MainContainer({
+						parentNode: this
+					});
 					$('tr:eq(1) td:eq(2)', customID).prepend(mainContainer.render().el);
 					buildObserverPattern(mainContainer);
 				}
@@ -201,16 +210,19 @@ define(function(require) {
 				for (i = 4; i > 0; i--) {
 					currentPosi = i % 2 ? 1 : 2;
 					cache.CurrentRule = cache.FrozenRules.main[i - 1];
-					mainContainer = new MainContainer();
+					mainContainer = new MainContainer({
+						parentNode: this
+					});
 					$('tr:eq(1) td:eq(' + currentPosi + ')', customID).prepend(mainContainer.render().el);
 					buildObserverPattern(mainContainer);
 				}
 			} else if (!cache.TempProp.colFrozen && !cache.TempProp.rowFrozen) {
 				cache.CurrentRule = cache.FrozenRules.main[0];
-				mainContainer = new MainContainer();
+				mainContainer = new MainContainer({
+					parentNode: this
+				});
 				$('tr:eq(1) td:eq(2)', customID).append(mainContainer.render().el);
 				buildObserverPattern(mainContainer);
-
 			}
 			//colspanel rules
 			len = cache.FrozenRules.col.length;
@@ -630,6 +642,8 @@ define(function(require) {
 			 * @property {int} scrollbarWidth 
 			 */
 			this.scrollbarWidth = this.getScrollbarWidth();
+			
+			cache.scrollbarWidth = this.scrollbarWidth;
 		},
 		/**
 		 * 对外开放本对象
@@ -661,9 +675,10 @@ define(function(require) {
 		 * @param  {object}  e body页面移动的event
 		 */
 		mouseInfo: function(e) {
+
 			//获取相对位置
-			this.mousePageX = e.pageX - this.$el.left;
-			this.mousePageY = e.pageY - this.$el.top;
+			this.mousePageX = e.pageX - this.$el.offset().left;
+			this.mousePageY = e.pageY - this.$el.offset().top;
 		},
 		/**
 		 * 获取页面的滚动条

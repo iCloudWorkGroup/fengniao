@@ -37,7 +37,11 @@ define(function(require) {
 			sendRegion = region.sendRegion;
 
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-				this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+				if (comment === null) {
+					this.sendData(sendRegion, null, config.url.cell.comment_del);
+				} else {
+					this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+				}
 				return;
 			}
 
@@ -63,7 +67,11 @@ define(function(require) {
 					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
 				}, changeModelList);
 			}
-			this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+			if (comment === null) {
+				this.sendData(sendRegion, null, config.url.cell.comment_del);
+			} else {
+				this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+			}
 		},
 
 		createAddCommentView: function(sheetId) {
@@ -83,6 +91,7 @@ define(function(require) {
 		deleteComment: function(sheetId, label) {
 			this.removeClip();
 			this.modifyComment('1', null, label);
+			// comment_del
 		},
 		sendData: function(sendRegion, comment, url) {
 			var data = {
