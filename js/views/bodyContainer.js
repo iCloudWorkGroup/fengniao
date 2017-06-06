@@ -400,7 +400,9 @@ define(function(require) {
 					publisherName: 'mainContainer',
 					behavior: 'scrollToPosition', //it's self behavior
 					action: 'verticalPublish' //publisher behavior
-				}, {
+				}, 
+				
+				{
 					publisherName: 'mainContainer',
 					behavior: 'addHeadItemView', //it's self behavior
 					action: 'addRowHeadItemViewPublish' //publisher behavior
@@ -408,7 +410,9 @@ define(function(require) {
 					publisherName: 'mainContainer',
 					behavior: 'adjustHeadItemContainer', //it's self behavior
 					action: 'adjustHeadItemContainerPublish' //publisher behavior
-				}]
+				}
+
+				]
 			};
 			if (cache.TempProp.isFrozen && cache.TempProp.rowFrozen) {
 				tempRule.displayPosition.offsetTop -= userViewModel.get('top');

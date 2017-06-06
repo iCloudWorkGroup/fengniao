@@ -191,7 +191,7 @@ define(function(require) {
 		 * 页面渲染方法
 		 * @method render
 		 */
-			render: function() {
+		render: function() {
 			this.attributesRender(this.boxAttributes);
 
 			this.cellsContainer = new CellsContainer({
@@ -417,7 +417,7 @@ define(function(require) {
 			limitTopPosi = limitTopPosi < 0 ? 0 : limitTopPosi;
 			limitBottomPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
 			recordTop = recordTop < limitBottomPosi ? recordTop : limitBottomPosi;
-			
+
 			//向后台请求数据
 			// this.loadRegion(limitTopPosi, recordTop);
 			limitTopIndex = binary.indexModelBinary(limitTopPosi, headItemRowList, 'top', 'height');
@@ -483,14 +483,13 @@ define(function(require) {
 			}
 			cache.viewRegion.bottom = headItemRowList[limitIndex].get('top') + headItemRowList[limitIndex].get('height');
 		},
-
+		
 		/**
 		 * 显示行下方到达加载区域，添加视图视图
 		 * @method addBottom
 		 */
 		addBottom: function(recordPosi) {
-			var headItemRowList = headItemRows.models,
-				limitTopPosi,
+			var limitTopPosi,
 				limitBottomPosi,
 				limitBottomIndex,
 				recordIndex,
