@@ -63,14 +63,20 @@ define(function(require) {
 			return this;
 		},
 		adaptHeight: function() {
-			var bottom = 0,
+			var end = this.currentRule.displayPosition.endIndex,
+				start = this.currentRule.displayPosition.startIndex,
+				bottom = 0,
 				top = 0,
 				len, i,
 				start;
 
-			len = this.currentRule.displayPosition.endRowIndex || headItemRowList.length - 1;
-			start = this.currentRule.displayPosition.startRowIndex || 0;
-			for (i = len; i >= start; i--) {
+
+			if (end === undefined) {
+				end = headItemRowList.length - 1;
+			}
+			start = start || 0;
+			
+			for (i = end -1 ; i >= start; i--) {
 				if (!headItemRowList[i].get('hidden')) {
 					top = headItemRowList[i].get('top') + headItemRowList[i].get('height');
 					bottom = headItemRowList[start].get('top');

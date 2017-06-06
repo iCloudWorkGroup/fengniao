@@ -94,7 +94,11 @@ define(function(require) {
 		 * @param  {object} newAttributes 盒模型属性
 		 */
 		attributesRender: function(newAttributes) {
-			if (newAttributes.width !== -1) {
+			if (newAttributes.width === -1) {
+				this.$el.css({
+					'width': 0
+				});
+			} else {
 				this.$el.css({
 					'width': newAttributes.width
 				});
