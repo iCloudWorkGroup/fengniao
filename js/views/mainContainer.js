@@ -42,7 +42,7 @@ define(function(require) {
 		 * @method initialize
 		 * @param  allAttributes 容器属性,设置容器，宽度，高度
 		 */
-		initialize: function() {
+		initialize: function(options) {
 			var modelsHeadLineRowList,
 				modelsHeadLineColList,
 				modelsHeadLineRowRegionList,
@@ -55,7 +55,6 @@ define(function(require) {
 
 			Backbone.on('event:mainContainer:destroy', this.destroy, this);
 			Backbone.on('event:mainContainer:attributesRender', this.attributesRender, this);
-			Backbone.on('event:mainContainer:appointPosition', this.appointPosition, this);
 
 			this.currentRule = clone.clone(cache.CurrentRule);
 
@@ -72,7 +71,7 @@ define(function(require) {
 
 			// for reduction position , prevent event scroll auto trigger.
 			this.isPreventScroll = true;
-
+			this.parentNode = options.parentNode;
 			modelsHeadLineRowRegionList = modelsHeadLineRowList = headItemRows.models;
 			modelsHeadLineColRegionList = modelsHeadLineColList = headItemCols.models;
 			//计算容器高度
@@ -114,6 +113,8 @@ define(function(require) {
 				cache.viewRegion.bottom = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height');
 				cache.viewRegion.scrollTop = 0;
 				cache.viewRegion.scrollLeft = 0;
+			} else {
+				Backbone.on('event:mainContainer:appointPosition', this.appointPosition, this);
 			}
 		},
 		/**
@@ -190,7 +191,7 @@ define(function(require) {
 		 * 页面渲染方法
 		 * @method render
 		 */
-		render: function() {
+			render: function() {
 			this.attributesRender(this.boxAttributes);
 
 			this.cellsContainer = new CellsContainer({
@@ -226,7 +227,6 @@ define(function(require) {
 		 */
 		triggerCallback: function() {
 			_.bindAll(this, 'callView');
-			Backbone.trigger('call:bodyContainer', this.callView('viewBodyContainer'));
 			Backbone.trigger('call:colsAllHeadContainer', this.callView('viewColsAllHeadContainer'));
 		},
 		callView: function(name) {
@@ -312,6 +312,8 @@ define(function(require) {
 				currentViewTop = cache.viewRegion.top,
 				currentViewBottom = cache.viewRegion.bottom;
 
+			cache.viewRegion.scrollTop = this.el.scrollTop;
+			cache.viewRegion.scrollLeft = this.el.scrollLeft;
 			this.preventAutoScroll();
 			verticalDirection = currentViewTop - this.el.scrollTop - this.offsetTop - this.userViewTop;
 			//save user view position , alias
@@ -326,20 +328,19 @@ define(function(require) {
 				cache.UserView.colAlias = userViewColModel.get('alias');
 				cache.UserView.colEndAlias = userViewEndColModel.get('alias');
 			}
+
 			//as scrollbar scroll up
 			if (verticalDirection > 0 || direction === 'up') {
 				this.addTop(currentViewTop);
 				this.deleteBottom(currentViewBottom);
-				cache.viewRegion.scrollTop = this.el.scrollTop;
 			}
 			//as scrollbar scroll down
 			if (verticalDirection < 0 || direction === 'down') {
 				//delete top row
 				this.addBottom(currentViewBottom);
 				this.deleteTop(currentViewTop);
-				cache.viewRegion.scrollTop = this.el.scrollTop;
 			}
-			cache.viewRegion.scrollLeft = this.el.scrollLeft;
+
 		},
 		/**
 		 * 显示行上方超出预加载区域，删除超出视图
@@ -664,16 +665,13 @@ define(function(require) {
 				distanceRight,
 				distanceTop,
 				distanceBottom;
+
 			if (this.isPreventScroll) {
-				//for get this offsetleft value , because of this div in table . so this offsetleft equal 0 ,
-				//then we get other method get it's offsetleft value
-				//code example : this.viewBodyContainer.el.innerWidth - this.el.offsetWidth
 
-				distanceLeft = this.viewBodyContainer.mousePageX - (this.viewBodyContainer.el.offsetWidth - this.el.offsetWidth);
-				distanceTop = this.viewBodyContainer.mousePageY - (this.viewBodyContainer.el.offsetHeight - this.el.offsetHeight - config.System.outerBottom);
-				distanceBottom = distanceTop - this.el.clientHeight;
+				distanceLeft = this.parentNode.mousePageX - (this.parentNode.el.offsetWidth - this.el.offsetWidth);
+				distanceTop = this.parentNode.mousePageY - (this.parentNode.el.offsetHeight - this.el.offsetHeight);
+				distanceBottom = distanceTop - this.el.clientHeight - config.System.outerBottom;
 				distanceRight = distanceLeft - this.el.clientWidth;
-
 				if (distanceRight >= 0 || distanceLeft <= 0) {
 					this.el.scrollLeft = this.recordScrollLeft;
 				} else {
