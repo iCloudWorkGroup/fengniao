@@ -58,7 +58,6 @@ define(function(require) {
 				for (i = len - 1; i >= 0; i--) {
 					this.addSiderLineRow(modelSiderLineRowList[i]);
 				}
-
 			}
 			return this;
 		},

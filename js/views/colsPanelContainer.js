@@ -55,10 +55,8 @@ define(function(require) {
 				}
 			}
 			len = modelsHeadLineColRegionList.length;
-			//it isn't frozen handle
-			//the page is just build execel, len is 0
 			if (len === 0) {
-				this.boxModel.width = config.User.initColNum * config.User.cellWidth - 1;
+				this.boxModel.width = 0;
 				return;
 			}
 			//the page is reload excel, len will be appoint num ,will be not necessarily start A,1 

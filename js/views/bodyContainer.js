@@ -343,6 +343,7 @@ define(function(require) {
 			modelList = headItemRows;
 
 			currentIndex = modelList.getIndexByAlias(cache.TempProp.rowAlias);
+			
 			if (currentIndex === -1) {
 				currentModelTop = 0;
 			} else {

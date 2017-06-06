@@ -54,7 +54,7 @@ define(function(require) {
 			}
 			len = modelsHeadLineRowRegionList.length;
 			if (len === 0) {
-				this.boxModel.height = config.User.initRowNum * config.User.cellHeight - 1;
+				this.boxModel.height =0;
 				return;
 			}
 			modellastHeadLineRow = modelsHeadLineRowList[len - 1];
