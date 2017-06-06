@@ -101,8 +101,8 @@ define(function(require) {
 			//获取相对位置
 			left = this.getAbsoluteLeft();
 			top = this.getAbsoluteTop();
-			height = 150; //默认高度
-			width = 150; //默认宽度
+			height = config.System.comment.height; //默认高度
+			width = config.System.comment.width; //默认宽度
 			limitHeight = this.parentNode.el.clientHeight - config.System.outerBottom - 
 			cache.scrollbarWidth -(this.$el.outerHeight() - this.$el.height());
 
@@ -130,7 +130,7 @@ define(function(require) {
 				if (limitWidth - left > 60) {
 					width = limitWidth - left;
 				} else {
-					left = limitWidth - 150 - 5;
+					left = limitWidth - width - 5;
 				}
 			}
 			this.$el.css({
