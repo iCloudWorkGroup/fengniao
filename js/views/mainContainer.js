@@ -163,8 +163,6 @@ define(function(require) {
 				endRowIndex = this.currentRule.displayPosition.endRowIndex,
 				startColIndex = this.currentRule.displayPosition.startColIndex,
 				endColIndex = this.currentRule.displayPosition.endColIndex,
-				headItemRowList = headItemRows.models,
-				headItemColList = headItemCols.models,
 				tempView,
 				left,
 				right,
@@ -418,8 +416,9 @@ define(function(require) {
 			limitTopPosi = limitTopPosi < 0 ? 0 : limitTopPosi;
 			limitBottomPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
 			recordTop = recordTop < limitBottomPosi ? recordTop : limitBottomPosi;
+			
 			//向后台请求数据
-			this.loadRegion(limitTopPosi, recordTop);
+			// this.loadRegion(limitTopPosi, recordTop);
 			limitTopIndex = binary.indexModelBinary(limitTopPosi, headItemRowList, 'top', 'height');
 			recordIndex = binary.indexModelBinary(recordTop, headItemRowList, 'top', 'height');
 
