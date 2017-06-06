@@ -34,10 +34,6 @@ define(function(require) {
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
 
-			if (operRegion.endColIndex === 'MAX') {
-				return;
-			}
-
 			if (operRegion.startRowIndex === -1) {
 				sendData();
 				return;

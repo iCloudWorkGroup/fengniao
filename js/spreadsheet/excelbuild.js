@@ -135,10 +135,10 @@ define(function(require) {
 				clipPasteOperate();
 			}
 
-			SpreadSheet.prototype.addRow = addRow;
-			SpreadSheet.prototype.addCol = addCol;
-			SpreadSheet.prototype.deleteRow = deleteRow;
-			SpreadSheet.prototype.deleteCol = deleteCol;
+			SpreadSheet.prototype.addRow = addRow.addRow.bind(addRow);
+			SpreadSheet.prototype.addCol = addCol.addCol.bind(addCol);
+			SpreadSheet.prototype.deleteRow = deleteRow.deleteRow.bind(deleteRow);
+			SpreadSheet.prototype.deleteCol = deleteCol.deleteCol.bind(deleteCol);
 			SpreadSheet.prototype.regionDel = regionDel;
 			SpreadSheet.prototype.clearQueue = function() {
 				cache.sendQueueStep = 0;
