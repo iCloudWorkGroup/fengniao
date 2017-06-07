@@ -250,7 +250,6 @@ define(function(require) {
 				master: this.inputContainer,
 				behavior: 'verticalScroll'
 			}, 'verticalPublish');
-			//订阅问题？
 
 			/**
 			 * 发布/订阅
@@ -299,6 +298,7 @@ define(function(require) {
 			if (currentIndex === -1) currentIndex = 0;
 			currentModel = modelList.models[currentIndex];
 			currentModelLeft = currentModel.toJSON().left;
+
 			userViewModel = modelList.getModelByAlias(cache.UserView.colAlias);
 			userViewIndex = modelList.getIndexByAlias(cache.UserView.colAlias);
 
@@ -355,6 +355,7 @@ define(function(require) {
 			modelList = headItemRows;
 
 			currentIndex = modelList.getIndexByAlias(cache.TempProp.rowAlias);
+			
 			if (currentIndex === -1) {
 				currentModelTop = 0;
 			} else {
@@ -362,8 +363,9 @@ define(function(require) {
 				currentModelTop = currentModel.toJSON().top;
 			}
 
-			userViewModel = modelList.getModelByAlias(cache.UserView.rowAlias);
 			userViewIndex = modelList.getIndexByAlias(cache.UserView.rowAlias);
+			userViewModel = modelList.models[userViewIndex];
+
 
 			// 如果索引不是0，说明锁定需要分为两块
 			if (cache.TempProp.isFrozen && cache.TempProp.rowFrozen) {
@@ -419,7 +421,7 @@ define(function(require) {
 		},
 		/**
 		 * 生成自定义冻结操作规则
-		 * @method ruleRow
+		 * @method ruleMain
 		 */
 		ruleMain: function() {
 			var tempRule,

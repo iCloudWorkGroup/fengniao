@@ -43,13 +43,15 @@ define(function(require) {
 		 * @param  allAttributes 容器属性,设置容器，宽度，高度
 		 */
 		initialize: function(options) {
-			var modelsHeadLineRowList,
-				modelsHeadLineColList,
-				modelsHeadLineRowRegionList,
-				modelsHeadLineColRegionList,
-				modelLastHeadLineRow,
-				modelLastHeadLineCol,
-				userViewBottomIndex,
+			var lineRowList,
+				lineColList,
+				lastLineRow,
+				lastLineCol,
+				startRowIndex,
+				startColIndex,
+				endRowIndex,
+				endColIndex,
+
 				len;
 
 
@@ -71,31 +73,48 @@ define(function(require) {
 
 			// for reduction position , prevent event scroll auto trigger.
 			this.isPreventScroll = true;
+
+
+			lineRowList = headItemRowList;
+			lineColList = headItemColList;
+
+			startRowIndex = this.currentRule.displayPosition.startRowIndex;
+			startColIndex = this.currentRule.displayPosition.startColIndex;
+			endRowIndex = this.currentRule.displayPosition.endRowIndex;
+			endColIndex = this.currentRule.displayPosition.endColIndex;
+
 			this.parentNode = options.parentNode;
-			modelsHeadLineRowRegionList = modelsHeadLineRowList = headItemRows.models;
-			modelsHeadLineColRegionList = modelsHeadLineColList = headItemCols.models;
+
 			//计算容器高度
 			if (cache.TempProp.isFrozen) {
-				if (this.currentRule.displayPosition.endRowIndex) {
-					modelsHeadLineRowRegionList = modelsHeadLineRowList.slice(this.currentRule.displayPosition.startRowIndex, this.currentRule.displayPosition.endRowIndex);
+				if (endRowIndex) {
+					lineRowList = lineRowList.slice(startRowIndex, endRowIndex);
 				} else {
-					modelsHeadLineRowRegionList = modelsHeadLineRowList.slice(this.currentRule.displayPosition.startRowIndex);
+					lineRowList = lineRowList.slice(startRowIndex);
 				}
-				if (this.currentRule.displayPosition.endColIndex) {
-					modelsHeadLineColRegionList = modelsHeadLineColList.slice(this.currentRule.displayPosition.startColIndex, this.currentRule.displayPosition.endColIndex);
+				if (endColIndex) {
+					lineColList = lineColList.slice(startColIndex, endColIndex);
 				} else {
-					modelsHeadLineColRegionList = modelsHeadLineColList.slice(this.currentRule.displayPosition.startColIndex);
+					lineColList = lineColList.slice(startColIndex);
 				}
 			}
-			len = modelsHeadLineRowRegionList.length;
-			modelLastHeadLineRow = modelsHeadLineRowRegionList[len - 1];
-			len = modelsHeadLineColRegionList.length;
-			modelLastHeadLineCol = modelsHeadLineColRegionList[len - 1];
+			//避免len为0的情况
+			if (len = lineRowList.length) {
+				lastLineRow = lineRowList[len - 1];
+				this.boxModel.height = lastLineRow.get('top') + lastLineRow.get('height') -
+					lineRowList[0].get('top');
+			} else {
+				this.boxModel.height = 0;
+			}
+			//避免len为0的情况
+			if (len = lineColList.length) {
+				lastLineCol = lineColList[len - 1];
+				this.boxModel.width = lastLineCol.get('left') + lastLineCol.get('width') -
+					lineColList[0].get('left')
+			} else {
+				this.boxModel.width = 0;
+			}
 
-			this.boxModel.height = modelLastHeadLineRow.get('top') +
-				modelLastHeadLineRow.get('height') - modelsHeadLineRowRegionList[0].get('top');
-			this.boxModel.width = modelLastHeadLineCol.get('left') +
-				modelLastHeadLineCol.get('width') - modelsHeadLineColRegionList[0].get('left');
 
 			if (this.currentRule.eventScroll) {
 				/**
@@ -109,8 +128,8 @@ define(function(require) {
 				Backbone.on('call:mainContainer', this.callMainContainer, this);
 				Backbone.on('event:mainContainer:showSelectRegion', this.showSelectRegion, this);
 				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
-				cache.viewRegion.top = modelsHeadLineRowRegionList[0].get('top');
-				cache.viewRegion.bottom = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height');
+				cache.viewRegion.top = lineRowList[0].get('top');
+				cache.viewRegion.bottom = lastLineCol.get('top') + lastLineCol.get('height');
 				cache.viewRegion.scrollTop = 0;
 				cache.viewRegion.scrollLeft = 0;
 			} else {
