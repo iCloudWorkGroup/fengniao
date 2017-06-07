@@ -1,5 +1,6 @@
 
 define(function(require) {
+	'use strict';
 	var send = require('basic/tools/send'),
 		config = require('spreadsheet/config'),
 		cache = require('basic/tools/cache'),
@@ -19,7 +20,7 @@ define(function(require) {
 	 * @param {string} arrOpr  操作区域
 	 */
 	var setFillColor = function(sheetId, color, arrOpr) {
-		'use strict';
+		
 
 		var clip,
 			region,
