@@ -120,89 +120,88 @@ define(function(require) {
 		/**
 		 * 生成白色背景，用于遮挡输入框
 		 */
-		addBackGround: function() {
+		addBackGround: function(cellsContainer) {
 			if (this.currentRule.displayPosition.endColAlias !== undefined &&
 				this.currentRule.displayPosition.endRowAlias !== undefined) {
 				//修改为模板
 				this.$el.append('<div style="position:absolute;width:inherit;height:inherit;background-color:white;top:0;left:0;z-index:13"></div>');
-				this.cellsContainer.$el.css({
+				cellsContainer.$el.css({
 					'z-index': '14'
 				});
 			} else if (this.currentRule.displayPosition.endColAlias !== undefined ||
 				this.currentRule.displayPosition.endRowAlias !== undefined) {
 				this.$el.append('<div style="position:absolute;width:inherit;height:inherit;background-color:white;top:0;left:0;z-index:10"></div>');
-				this.cellsContainer.$el.css({
+				cellsContainer.$el.css({
 					'z-index': '11'
 				});
 			}
 		},
-		addCellViewPublish: function(cellModel) {
-			this.publish(cellModel, 'addCellViewPublish');
-		},
+		// addCellViewPublish: function(cellModel) {
+		// 	this.publish(cellModel, 'addCellViewPublish');
+		// },
 
-		addRowHeadItemViewPublish: function(headItemRowModel) {
-			this.publish(headItemRowModel, 'addRowHeadItemViewPublish');
-		},
-		addHeadItemView: function(headItemRowModel) {
-			var startRowIndex = this.currentRule.displayPosition.startRowIndex,
-				endRowIndex = this.currentRule.displayPosition.endRowIndex,
-				headItemRowList = headItemRows.models,
-				gridLineRowContainer;
+		// addRowHeadItemViewPublish: function(headItemRowModel) {
+		// 	this.publish(headItemRowModel, 'addRowHeadItemViewPublish');
+		// },
+		// addHeadItemView: function(headItemRowModel) {
+		// 	var startRowIndex = this.currentRule.displayPosition.startRowIndex,
+		// 		endRowIndex = this.currentRule.displayPosition.endRowIndex,
+		// 		headItemRowList = headItemRows.models,
+		// 		gridLineRowContainer;
 
-			if (headItemRowModel.get('top') < headItemRowList[startRowIndex].get('top') ||
-				(typeof endRowIndex === 'number' && headItemRowModel.get('top') > headItemRowList[endRowIndex].get('top'))) {
-				return;
-			}
-			gridLineRowContainer = new GridLineRowContainer({
-				model: headItemRowModel,
-				frozenTop: this.currentRule.displayPosition.offsetTop
-			});
-			this.cellsContainer.gridLineContainer.rowsGridContainer.$el.append(gridLineRowContainer.render().el);
-		},
-		addCellView: function(cellModel) {
-			var startRowIndex = this.currentRule.displayPosition.startRowIndex,
-				endRowIndex = this.currentRule.displayPosition.endRowIndex,
-				startColIndex = this.currentRule.displayPosition.startColIndex,
-				endColIndex = this.currentRule.displayPosition.endColIndex,
-				tempView,
-				left,
-				right,
-				bottom,
-				top;
+		// 	if (headItemRowModel.get('top') < headItemRowList[startRowIndex].get('top') ||
+		// 		(typeof endRowIndex === 'number' && headItemRowModel.get('top') > headItemRowList[endRowIndex].get('top'))) {
+		// 		return;
+		// 	}
+		// 	gridLineRowContainer = new GridLineRowContainer({
+		// 		model: headItemRowModel,
+		// 		frozenTop: this.currentRule.displayPosition.offsetTop
+		// 	});
+		// 	this.cellsContainer.gridLineContainer.rowsGridContainer.$el.append(gridLineRowContainer.render().el);
+		// },
+		// addCellView: function(cellModel) {
+		// 	var startRowIndex = this.currentRule.displayPosition.startRowIndex,
+		// 		endRowIndex = this.currentRule.displayPosition.endRowIndex,
+		// 		startColIndex = this.currentRule.displayPosition.startColIndex,
+		// 		endColIndex = this.currentRule.displayPosition.endColIndex,
+		// 		tempView,
+		// 		left,
+		// 		right,
+		// 		bottom,
+		// 		top;
 
-			top = cellModel.get('physicsBox').top;
-			bottom = cellModel.get('physicsBox').top + cellModel.get('physicsBox').height;
-			left = cellModel.get('physicsBox').left;
-			right = cellModel.get('physicsBox').left + cellModel.get('physicsBox').width;
+		// 	top = cellModel.get('physicsBox').top;
+		// 	bottom = cellModel.get('physicsBox').top + cellModel.get('physicsBox').height;
+		// 	left = cellModel.get('physicsBox').left;
+		// 	right = cellModel.get('physicsBox').left + cellModel.get('physicsBox').width;
 
-			if (bottom < headItemRowList[startRowIndex].get('top') ||
-				(typeof endRowIndex === 'number' && top > headItemRowList[endRowIndex].get('top')) ||
-				right < headItemColList[startColIndex].get('left') ||
-				(typeof endColIndex === 'number' && left > headItemColList[endColIndex].get('left'))) {
-				return;
-			}
-			tempView = new CellContainer({
-				model: cellModel,
-				currentRule: this.currentRule
-			});
-			this.cellsContainer.contentCellsContainer.$el.prepend(tempView.render().el);
-		},
+		// 	if (bottom < headItemRowList[startRowIndex].get('top') ||
+		// 		(typeof endRowIndex === 'number' && top > headItemRowList[endRowIndex].get('top')) ||
+		// 		right < headItemColList[startColIndex].get('left') ||
+		// 		(typeof endColIndex === 'number' && left > headItemColList[endColIndex].get('left'))) {
+		// 		return;
+		// 	}
+		// 	tempView = new CellContainer({
+		// 		model: cellModel,
+		// 		currentRule: this.currentRule
+		// 	});
+		// 	this.cellsContainer.contentCellsContainer.$el.prepend(tempView.render().el);
+		// },
 		/**
 		 * 页面渲染方法
 		 * @method render
 		 */
 		render: function() {
 			this.attributesRender(this.boxAttributes);
-
-			this.cellsContainer = new CellsContainer({
+			var cellsContainer = new CellsContainer({
 				boxAttributes: {
 					height: this.boxModel.height,
 					width: this.boxModel.width
 				},
 				parentView: this
 			});
-			this.$el.append(this.cellsContainer.render().el);
-			this.addBackGround();
+			this.$el.append(cellsContainer.render().el);
+			this.addBackGround(cellsContainer);
 			this.triggerCallback();
 			return this;
 		},
@@ -428,8 +427,9 @@ define(function(require) {
 				if (headItemRowModel.get('isView') === false) {
 					headItemRowModel.set('isView', true);
 					//待修改，应该将订阅者设置为需要视图还原的容器，不应该为maincontainer
-					this.addHeadItemView(headItemRowModel);
-					this.addRowHeadItemViewPublish(headItemRowModel);
+					// this.addHeadItemView(headItemRowModel);
+					// this.addRowHeadItemViewPublish(headItemRowModel);
+					this.publish('mainContainer', 'restoreRowView', headItemRowModel);
 				}
 			}
 			// when mouse fast moving , we has prevent infinite scroll , the double value will be equal.
@@ -438,8 +438,9 @@ define(function(require) {
 				for (i = 0, len = tempCells.length; i < len; i++) {
 					if (tempCells[i].get('showState') === false) {
 						tempCells[i].set('showState', true);
-						this.addCellView(tempCells[i]);
-						this.addCellViewPublish(tempCells[i]);
+						// this.addCellView(tempCells[i]);
+						// this.addCellViewPublish(tempCells[i]);
+						this.publish('mainContainer', 'restoreCellView', tempCells[i]);
 					}
 				}
 			}
@@ -483,7 +484,7 @@ define(function(require) {
 			}
 			cache.viewRegion.bottom = headItemRowList[limitIndex].get('top') + headItemRowList[limitIndex].get('height');
 		},
-		
+
 		/**
 		 * 显示行下方到达加载区域，添加视图视图
 		 * @method addBottom
@@ -675,14 +676,14 @@ define(function(require) {
 					this.el.scrollLeft = this.recordScrollLeft;
 				} else {
 					this.recordScrollLeft = this.el.scrollLeft;
-					this.publish(this.recordScrollLeft, 'transversePublish');
+					this.publish('mainContainer', 'transversePublish', this.recordScrollLeft);
 				}
 
 				if (distanceBottom >= 0 || distanceTop <= 0) {
 					this.el.scrollTop = this.recordScrollTop;
 				} else {
 					this.recordScrollTop = this.el.scrollTop;
-					this.publish(this.recordScrollTop, 'verticalPublish');
+					this.publish('mainContainer', 'verticalPublish', this.recordScrollTop);
 				}
 			}
 			//did'nt prevent scoll and ensure it's main area ,
@@ -731,29 +732,29 @@ define(function(require) {
 		 * 动态加载，添加列
 		 * @method addCol
 		 */
-		addCol: function() {
-			var len, colValue, i = 0;
+		// addCol: function() {
+		// var len, colValue, i = 0;
 
-			len = config.User.addCol;
-			colValue = headItemCols.length;
-			while (i < len) {
-				headItemCols.add({
-					alias: (colValue + 1).toString(),
-					left: colValue * config.User.cellWidth,
-					width: config.User.cellWidth - 1,
-					displayName: buildAlias.buildColAlias(colValue)
-				});
-				colValue++;
-				i++;
-			}
-			this.cellsContainer.attributesRender({
-				width: headItemCols.getMaxDistanceWidth(),
-				height: headItemRows.getMaxDistanceHeight()
-			});
-			this.viewColsAllHeadContainer.$el.css({
-				width: headItemCols.getMaxDistanceWidth()
-			});
-		},
+		// len = config.User.addCol;
+		// colValue = headItemCols.length;
+		// while (i < len) {
+		// 	headItemCols.add({
+		// 		alias: (colValue + 1).toString(),
+		// 		left: colValue * config.User.cellWidth,
+		// 		width: config.User.cellWidth - 1,
+		// 		displayName: buildAlias.buildColAlias(colValue)
+		// 	});
+		// 	colValue++;
+		// 	i++;
+		// }
+		// this.cellsContainer.attributesRender({
+		// 	width: headItemCols.getMaxDistanceWidth(),
+		// 	height: headItemRows.getMaxDistanceHeight()
+		// });
+		// this.viewColsAllHeadContainer.$el.css({
+		// 	width: headItemCols.getMaxDistanceWidth()
+		// });
+		// },
 		addRows: function(height) {
 			var maxheadItemHeight = headItemRows.getMaxDistanceHeight(),
 				maxLocalHeight = cache.localRowPosi,

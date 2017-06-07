@@ -59,6 +59,11 @@ define(function(require) {
 		render: function() {
 			this.$el.html(getTemplate('BODYTEMPLATE'));
 			this.inputContainer = new InputContainer();
+			observerPattern.buildSubscriber(this.inputContainer);
+
+			this.inputContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
+			this.inputContainer.subscribe('mainContainer', 'verticalPublish', 'verticalScroll');
+
 			this.$el.find('.main-layout').append(this.inputContainer.render().el);
 			this.calculation();
 			this.adaptScreen();
@@ -70,25 +75,19 @@ define(function(require) {
 			this.inputContainer.$el.focus();
 		},
 		handleComment: function(options) {
-			var action = options.action;
+			var action = options.action,
+				commentContainer;
 
 			if (!this.commentContainer) {
-				this.commentContainer = new CommentContainer({
+				commentContainer = this.commentContainer = new CommentContainer({
 					parentNode: this
 				});
-				this.$el.find('.main-layout').append(this.commentContainer.render().el);
+				observerPattern.buildSubscriber(commentContainer);
+				this.$el.find('.main-layout').append(commentContainer.render().el);
+				commentContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
+				commentContainer.subscribe('mainContainer', 'verticalPublish', 'verticalScroll');
+
 			}
-
-			this.publisherList['mainContainer'].subscribe({
-				master: this.commentContainer,
-				behavior: 'transverseScroll'
-			}, 'transversePublish');
-
-			this.publisherList['mainContainer'].subscribe({
-				master: this.commentContainer,
-				behavior: 'verticalScroll'
-			}, 'verticalPublish');
-
 			if (action === 'hide') {
 				this.commentContainer.hide();
 			} else if (action === 'edit') {
@@ -240,18 +239,6 @@ define(function(require) {
 				$('tr:eq(1) td:eq(0)', customID).prepend(rowsPanelContainer.render().el);
 				buildObserverPattern(rowsPanelContainer);
 			}
-
-			//输入框订阅maincontainer滚动事件
-			this.publisherList['mainContainer'].subscribe({
-				master: this.inputContainer,
-				behavior: 'transverseScroll'
-			}, 'transversePublish');
-			this.publisherList['mainContainer'].subscribe({
-				master: this.inputContainer,
-				behavior: 'verticalScroll'
-			}, 'verticalPublish');
-			//订阅问题？
-
 			/**
 			 * 发布/订阅
 			 * @method buildObserverPattern
@@ -259,21 +246,22 @@ define(function(require) {
 			 */
 			function buildObserverPattern(container) {
 				var currentRule = cache.CurrentRule,
-					currentSubscribe, i;
+					currentSubscribe, len, i;
+
+				currentSubscribe = currentRule.isSubscribe || false;
 
 				if (currentRule.isPublisher) {
 					observerPattern.buildPublisher(container);
-					self.publisherList[currentRule.publisherName] = container;
 				}
-				currentSubscribe = currentRule.isSubscribe || false;
+
 				if (currentSubscribe) {
 					len = currentSubscribe.length;
+					observerPattern.buildSubscriber(container);
+					
 					for (i = 0; i < len; i++) {
-						self.publisherList[currentSubscribe[i].publisherName].subscribe({
-							master: container,
-							behavior: currentSubscribe[i].behavior,
-							args: currentSubscribe[i].args
-						}, currentSubscribe[i].action);
+						container.subscribe(currentSubscribe[i].publisherName,
+							currentSubscribe[i].action,
+							currentSubscribe[i].behavior);
 					}
 
 				}
@@ -401,17 +389,15 @@ define(function(require) {
 					behavior: 'scrollToPosition', //it's self behavior
 					action: 'verticalPublish' //publisher behavior
 				}, 
-				
-				{
-					publisherName: 'mainContainer',
-					behavior: 'addHeadItemView', //it's self behavior
-					action: 'addRowHeadItemViewPublish' //publisher behavior
-				}, {
-					publisherName: 'mainContainer',
-					behavior: 'adjustHeadItemContainer', //it's self behavior
-					action: 'adjustHeadItemContainerPublish' //publisher behavior
-				}
-
+				// {
+				// 	publisherName: 'mainContainer',
+				// 	behavior: 'addHeadItemView', //it's self behavior
+				// 	action: 'addRowHeadItemViewPublish' //publisher behavior
+				// }, {
+				// 	publisherName: 'mainContainer',
+				// 	behavior: 'adjustHeadItemContainer', //it's self behavior
+				// 	action: 'adjustHeadItemContainerPublish' //publisher behavior
+				// }
 				]
 			};
 			if (cache.TempProp.isFrozen && cache.TempProp.rowFrozen) {
@@ -549,22 +535,24 @@ define(function(require) {
 							args: {
 								'direction': 'VERTICAL'
 							},
-						}, {
-							publisherName: 'mainContainer',
-							behavior: 'addHeadItemView',
-							action: 'addRowHeadItemViewPublish',
-							args: {}
-						}, {
-							publisherName: 'mainContainer',
-							behavior: 'addCellView',
-							action: 'addCellViewPublish',
-							args: {}
-						}, {
-							publisherName: 'mainContainer',
-							behavior: 'adjustContainerHeight',
-							action: 'adjustContainerHeightPublish',
-							args: {}
-						}]
+						}, 
+						// {
+						// 	publisherName: 'mainContainer',
+						// 	behavior: 'addHeadItemView',
+						// 	action: 'addRowHeadItemViewPublish',
+						// 	args: {}
+						// }, {
+						// 	publisherName: 'mainContainer',
+						// 	behavior: 'addCellView',
+						// 	action: 'addCellViewPublish',
+						// 	args: {}
+						// }, {
+						// 	publisherName: 'mainContainer',
+						// 	behavior: 'adjustContainerHeight',
+						// 	action: 'adjustContainerHeightPublish',
+						// 	args: {}
+						// }
+						]
 					};
 					if (cache.TempProp.rowFrozen) {
 						tempRule.boxAttributes.height += userViewRowModel.toJSON().top;
@@ -646,7 +634,7 @@ define(function(require) {
 			 * @property {int} scrollbarWidth 
 			 */
 			this.scrollbarWidth = this.getScrollbarWidth();
-			
+
 			cache.scrollbarWidth = this.scrollbarWidth;
 		},
 		/**
