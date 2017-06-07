@@ -1,4 +1,4 @@
-'use strict';
+
 define(function(require) {
 	var send = require('basic/tools/send'),
 		config = require('spreadsheet/config'),
@@ -16,9 +16,11 @@ define(function(require) {
 	 * 设置单元格填充颜色
 	 * @param {string} sheetId sheetId
 	 * @param {string} color   颜色值
-	 * @param {string} label   行标，列标
+	 * @param {string} arrOpr  操作区域
 	 */
-	var setFillColor = function(sheetId, color, label) {
+	var setFillColor = function(sheetId, color, arrOpr) {
+		'use strict';
+
 		var clip,
 			region,
 			operRegion,
@@ -33,7 +35,7 @@ define(function(require) {
 			clip.destroy();
 		}
 
-		region = getOperRegion(label);
+		region = getOperRegion(arrOpr);
 		operRegion = region.operRegion;
 		sendRegion = region.sendRegion;
 
@@ -63,7 +65,6 @@ define(function(require) {
 		send.PackAjax({
 			url: config.url.cell.bg,
 			data: JSON.stringify({
-				sheetId: '1',
 				coordinate: sendRegion,
 				color: color
 			})
