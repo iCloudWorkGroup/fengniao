@@ -7,10 +7,14 @@ input, textarea { outline: none }
 textarea { resize: none; overflow: hidden; }
 
 /**
- * transition effect
+ * selected effect
  */
+.col-head-line, .row-head-line, .selected-container, .clip-container, .datasource-container { transition: .2s; -moz-transition: .2s; -webkit-transition: .2s; -o-transition: .2s; }
 
-.col-head-line, .row-head-line, .selected-container, .clip-container, .datasource-container, .row, .col, .col-head-item, .row-head-item { transition: .1s; -moz-transition: .1s; -webkit-transition: .1s; -o-transition: .1s; }
+/**
+ * adjust row or col effect
+ */
+.col-head-item, .row-head-item, .row, .col { transition: .3s; -moz-transition: .3s; -webkit-transition: .3s; -o-transition: .3s; }
 
 /**
  * end
@@ -72,7 +76,7 @@ textarea { resize: none; overflow: hidden; }
 .sheet-list li.last { border-right-width: 2px; }
 .sheet-list li.active { background: #fff; border-bottom-color: #216347; }
 .sheet-list li.active span { color: #216347; }
-.sheet-list li span { font-family: 'Microsoft Yahei'; font-size: 10pt; display: block;}
+.sheet-list li span { font-family: 'Microsoft Yahei'; font-size: 10pt; display: block; }
 
 /**
  * end
