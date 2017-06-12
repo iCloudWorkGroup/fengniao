@@ -89,10 +89,10 @@ define(function(require) {
 			cache.CellsPosition.strandX = {};
 			cache.CellsPosition.strandY = {};
 			cache.cellRegionPosi.vertical = [];
+			cells.reset();
 			top = cache.viewRegion.top;
 			bottom = cache.viewRegion.bottom;
 			this.getCells(top, bottom);
-			loadRecorder.insertPosi(top, bottom, cache.cellRegionPosi.vertical);
 		},
 		restoreHideCellView: function() {
 			var headItemColList = headItemCols.models,
@@ -150,6 +150,7 @@ define(function(require) {
 					data = data.returndata;
 					var cellJSON = data.spreadSheet[0].sheet.cells;
 					original.analysisCellData(cellJSON);
+					loadRecorder.insertPosi(top, bottom, cache.cellRegionPosi.vertical);
 				}
 			});
 		},

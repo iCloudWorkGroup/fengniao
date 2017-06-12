@@ -111,7 +111,7 @@ define(function(require) {
 				cache.viewRegion.bottom = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height');
 				cache.viewRegion.scrollTop = 0;
 				cache.viewRegion.scrollLeft = 0;
-				this.loadState = 'FULFILL';
+				this.loadRowState = 'FULFILL';
 			} else {
 				Backbone.on('event:mainContainer:appointPosition', this.appointPosition, this);
 			}
@@ -398,10 +398,10 @@ define(function(require) {
 				userViewTop,
 				i, len;
 
-			if (this.loadState === 'PENDING') {
+			if (this.loadRowState === 'PENDING') {
 				return;
 			}
-			
+
 			offsetTop = this.offsetTop;
 			userViewTop = this.userViewTop;
 
@@ -433,7 +433,7 @@ define(function(require) {
 				offsetTop,
 				userViewTop;
 
-			if (this.loadState === 'PENDING') {
+			if (this.loadRowState === 'PENDING') {
 				return;
 			}
 
@@ -508,6 +508,7 @@ define(function(require) {
 
 			isUnloadRows = loadRecorder.isUnloadPosi(top, bottom, cache.rowRegionPosi);
 			isUnloadCells = loadRecorder.isUnloadPosi(top, bottom, cache.cellRegionPosi.vertical);
+			
 			//需要根据方向，进行添加缓冲区
 			if (isUnloadRows || isUnloadCells) {
 				bottom = bottom + cache.scrollBufferHeight;
@@ -519,7 +520,10 @@ define(function(require) {
 		doRequest: function(top, bottom, loadRows, loadCells, fn) {
 			var self = this;
 
-			this.loadState = 'PENDING';
+			if (loadRows) {
+				this.loadRowState = 'PENDING';
+			}
+
 
 			send.PackAjax({
 				url: config.url.sheet.load,
@@ -533,7 +537,6 @@ define(function(require) {
 			});
 
 			function analysisData(data) {
-
 				if (!data) {
 					return;
 				}
@@ -557,6 +560,7 @@ define(function(require) {
 
 					loadRecorder.insertPosi(top, bottom, cache.rowRegionPosi);
 					fn.call(self, top, bottom);
+					self.loadRowState = 'FULFILL';
 				}
 				if (loadCells) {
 					var cells = data.returndata.spreadSheet[0].sheet.cells;
@@ -566,7 +570,7 @@ define(function(require) {
 					loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
 						headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
 				}
-				self.loadState = 'FULFILL';
+				
 			}
 		},
 		/**
