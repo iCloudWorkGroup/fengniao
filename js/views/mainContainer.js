@@ -383,7 +383,11 @@ define(function(require) {
 				this.adjustColPropCell(startIndex, endIndex);
 				cache.viewRegion.top = headItemRowList[startIndex].get('top');
 			}
-
+			/**
+			 * 重新渲染超出区域被删除单元格，行列
+			 * @param  {number} top    
+			 * @param  {number} bottom
+			 */
 			function restoreCellView(top, bottom) {
 				var tempCells,
 					startIndex,
@@ -541,6 +545,7 @@ define(function(require) {
 			if (isUnloadRows || isUnloadCells) {
 				this.doRequest(top, bottom, isUnloadRows, isUnloadCells, restoreRowView, restoreCellView);
 			} else {
+				//不需请求数据，直接进行视图还原
 				restoreRowView.call(this, top, bottom);
 				restoreCellView.call(this, top, bottom);
 			}
