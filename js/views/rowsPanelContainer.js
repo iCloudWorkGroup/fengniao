@@ -54,7 +54,7 @@ define(function(require) {
 			}
 			len = modelsHeadLineRowRegionList.length;
 			if (len === 0) {
-				this.boxModel.height = config.User.initRowNum * config.User.cellHeight - 1;
+				this.boxModel.height =0;
 				return;
 			}
 			modellastHeadLineRow = modelsHeadLineRowList[len - 1];
@@ -91,7 +91,11 @@ define(function(require) {
 		 * @param  {Object} newAttributes 视图高度信息
 		 */
 		attributesRender: function(newAttributes) {
-			if (newAttributes.height !== -1) {
+			if (newAttributes.height === -1) {
+				this.$el.css({
+					'height': 0
+				});
+			} else {
 				this.$el.css({
 					'height': newAttributes.height
 				});

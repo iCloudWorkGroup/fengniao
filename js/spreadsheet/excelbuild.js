@@ -29,8 +29,8 @@ define(function(require) {
 		getSelectRegion = require('entrance/sheet/getselectregion'),
 		reloadCells = require('entrance/cell/reloadcells'),
 		setTextType = require('entrance/tool/settexttype'),
-		addRow = require('entrance/tool/addrow'),
-		addCol = require('entrance/tool/addcol'),
+		addRowModule = require('entrance/tool/addrow'),
+		addColModule = require('entrance/tool/addcol'),
 		deleteRow = require('entrance/tool/deleterow'),
 		deleteCol = require('entrance/tool/deletecol'),
 		regionDel = require('entrance/tool/regiondel'),
@@ -135,10 +135,10 @@ define(function(require) {
 				clipPasteOperate();
 			}
 
-			SpreadSheet.prototype.addRow = addRow;
-			SpreadSheet.prototype.addCol = addCol;
-			SpreadSheet.prototype.deleteRow = deleteRow;
-			SpreadSheet.prototype.deleteCol = deleteCol;
+			SpreadSheet.prototype.addRow = addRowModule.add.bind(addRowModule);
+			SpreadSheet.prototype.addCol = addColModule.add.bind(addColModule);
+			SpreadSheet.prototype.deleteRow = deleteRow.deleteRow.bind(deleteRow);
+			SpreadSheet.prototype.deleteCol = deleteCol.deleteCol.bind(deleteCol);
 			SpreadSheet.prototype.regionDel = regionDel;
 			SpreadSheet.prototype.clearQueue = function() {
 				cache.sendQueueStep = 0;

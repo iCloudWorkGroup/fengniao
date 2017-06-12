@@ -20,10 +20,10 @@ define(function(require) {
 			}
 		},
 		insertRow: function() {
-			rowOperation.addRow();
+			rowOperation.add();
 		},
 		insertColumn: function(){
-			colOperation.addCol();
+			colOperation.add();
 		}
 	});
 	return InsertOperation;

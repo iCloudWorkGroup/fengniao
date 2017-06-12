@@ -1,3 +1,31 @@
+<a name="0.11.1"></a>
+## [0.11.1](https://github.com/iCloudWorkGroup/fengniao/compare/v0.11.0...v0.11.1) (2017-06-12)
+
+
+### Bug Fixes
+
+* **basic/tools/template:** fix template repeat compile problem (#180) ([dd100c5](https://github.com/iCloudWorkGroup/fengniao/commit/dd100c5)), closes [#180](https://github.com/iCloudWorkGroup/fengniao/issues/180) [#176](https://github.com/iCloudWorkGroup/fengniao/issues/176)
+* **basic/tools/template:** 数据模板加入缓存功能 (#182) ([c7ffe06](https://github.com/iCloudWorkGroup/fengniao/commit/c7ffe06)), closes [#176](https://github.com/iCloudWorkGroup/fengniao/issues/176)
+* **changelog.md:** 修正日志冲突 (#178) ([fac8cf5](https://github.com/iCloudWorkGroup/fengniao/commit/fac8cf5))
+* **config.js:** 清除提交冲突 (#172) ([2ae1f34](https://github.com/iCloudWorkGroup/fengniao/commit/2ae1f34))
+* **core-cell:** firefox选中单元格存在问题 (#234) ([e1277fb](https://github.com/iCloudWorkGroup/fengniao/commit/e1277fb))
+* **core-cell:** 使用jquery的text方法，进行html文本处理，避免出现效率问题 ([a720c3f](https://github.com/iCloudWorkGroup/fengniao/commit/a720c3f))
+* **core-cell:** 修改填充背景颜色接口 (#244) ([988f046](https://github.com/iCloudWorkGroup/fengniao/commit/988f046)), closes [#226](https://github.com/iCloudWorkGroup/fengniao/issues/226)
+* **core-cell:** 修改备注模块的相关问题 (#239) ([a59b6b9](https://github.com/iCloudWorkGroup/fengniao/commit/a59b6b9))
+* **core-cell:** 没有对特殊字符进行处理，例如script标签 ([911a7b3](https://github.com/iCloudWorkGroup/fengniao/commit/911a7b3)), closes [#209](https://github.com/iCloudWorkGroup/fengniao/issues/209)
+* **core-row/col:** 修改删除添加行列的对外接口 ([456b091](https://github.com/iCloudWorkGroup/fengniao/commit/456b091)), closes [#241](https://github.com/iCloudWorkGroup/fengniao/issues/241)
+* **core-sheet:** 使用剪切板中，报错问题 (#230) ([0d3d0d5](https://github.com/iCloudWorkGroup/fengniao/commit/0d3d0d5)), closes [#214](https://github.com/iCloudWorkGroup/fengniao/issues/214)
+* **core-sheet:** 冻结操作，冻结点为可视区域的左上角顶点时，出现的白屏情况 (#243) ([dd30482](https://github.com/iCloudWorkGroup/fengniao/commit/dd30482))
+* **core-sheet:** 冻结操作对外接口存在问题 ([eb891e1](https://github.com/iCloudWorkGroup/fengniao/commit/eb891e1)), closes [#228](https://github.com/iCloudWorkGroup/fengniao/issues/228)
+* **core-sheet:** 剪切板操作混乱  (#235) ([56e5402](https://github.com/iCloudWorkGroup/fengniao/commit/56e5402)), closes [#214](https://github.com/iCloudWorkGroup/fengniao/issues/214) [#203](https://github.com/iCloudWorkGroup/fengniao/issues/203)
+* **core-sheet:** 暂时不支持冻结状态的还原 ([b3a6a25](https://github.com/iCloudWorkGroup/fengniao/commit/b3a6a25))
+* **core-tool:** 由于请求数据时丢失步骤参数，造成的无限循环问题 (#217) ([c1eb6f1](https://github.com/iCloudWorkGroup/fengniao/commit/c1eb6f1)), closes [#204](https://github.com/iCloudWorkGroup/fengniao/issues/204)
+* **js/views/cellscontainer:** 单元格视图移除监听事件，相关鼠标事件由其容器视图进行监听 (#185) ([c48b351](https://github.com/iCloudWorkGroup/fengniao/commit/c48b351)), closes [#177](https://github.com/iCloudWorkGroup/fengniao/issues/177)
+* **other:** 修改按纽图标 (#219) ([fe6d1b4](https://github.com/iCloudWorkGroup/fengniao/commit/fe6d1b4)), closes [#202](https://github.com/iCloudWorkGroup/fengniao/issues/202)
+* **other:** 解决冲突deploy and master ([517c1b3](https://github.com/iCloudWorkGroup/fengniao/commit/517c1b3))
+
+
+
 
 <a name="0.11.0"></a>
 # [0.11.0](https://github.com/iCloudWorkGroup/fengniao/compare/v0.10.0...v0.11.0) (2017-04-27)

@@ -1,6 +1,5 @@
-'use strict';
 define(function(require) {
-
+	'use strict';
 	var Backbone = require('lib/backbone'),
 		config = require('spreadsheet/config'),
 		cache = require('basic/tools/cache'),
@@ -18,7 +17,7 @@ define(function(require) {
 		 * @param {string} sheetId sheetId
 		 * @param {string} label   行标识号,如果为undefined,则按照当前选中区域进行操作
 		 */
-		addCol: function(sheetId, label) {
+		add: function(sheetId, label) {
 
 			var clip,
 				region,
@@ -30,6 +29,7 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+
 			if (!this._isAbleAdd()) {
 				return;
 			}

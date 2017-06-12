@@ -1,6 +1,6 @@
 {
   "name": "fengniao",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "rootpath": "http://spreadsheet.acmr.com.cn",
   "scripts": {
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info  && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",

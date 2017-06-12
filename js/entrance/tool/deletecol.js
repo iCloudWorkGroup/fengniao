@@ -1,5 +1,5 @@
-'use strict';
 define(function(require) {
+	'use strict';
 	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
@@ -18,7 +18,7 @@ define(function(require) {
 		 * @param {string} sheetId sheetId
 		 * @param {string} label   行标识号,如果为undefined,则按照当前选中区域进行操作
 		 */
-		deleteCol: function(sheetId, label) {
+		deleteCol: function(sheetId, arrOpr) {
 			var clip,
 				region,
 				operRegion,
@@ -30,11 +30,11 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
-			region = getOperRegion(label);
+			region = getOperRegion(arrOpr);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
 
-			if (operRegion.endRowIndex === 'MAX') {
+			if (operRegion.endColIndex === 'MAX' && arrOpr === undefined) {
 				return;
 			}
 
@@ -50,12 +50,13 @@ define(function(require) {
 			this._frozenHandle(index);
 			this._adaptHeadColItem(index);
 
-			
+
 			if (cache.TempProp.isFrozen === true) {
 				Backbone.trigger('event:bodyContainer:executiveFrozen');
 			}
 			sendData();
-			function sendData(){
+
+			function sendData() {
 				send.PackAjax({
 					url: config.url.col.reduce,
 					data: JSON.stringify({
@@ -71,7 +72,7 @@ define(function(require) {
 			var index = headItemCols.length,
 				width = config.User.cellWidth,
 				previousModel = headItemCols.models[index - 1];
-				
+
 			headItemCols.add({
 				sort: previousModel.get('sort') + 1,
 				alias: cache.aliasGenerator('col'),
@@ -207,7 +208,7 @@ define(function(require) {
 
 				} else if (startIndex > index) {
 					left = tempCell.get('physicsBox').left;
-					left = left - headItemCols.models[index].get('width') -1;
+					left = left - headItemCols.models[index].get('width') - 1;
 					tempCell.set('physicsBox.left', left);
 				}
 				for (j = 0; j < aliasLen; j++) {

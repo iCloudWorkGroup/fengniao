@@ -1,5 +1,5 @@
-'use strict';
 define(function(require) {
+	'use strict';
 	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
@@ -16,7 +16,7 @@ define(function(require) {
 		 * @param {string} sheetId sheetId
 		 * @param {string} label   行标识号,如果为undefined,则按照当前选中区域进行操作
 		 */
-		deleteRow: function(sheetId, label) {
+		deleteRow: function(sheetId, arrOpr) {
 			var clip,
 				region,
 				operRegion,
@@ -30,11 +30,11 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
-			region = getOperRegion(label);
+			region = getOperRegion(arrOpr);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
 
-			if (operRegion.endColIndex === 'MAX') {
+			if (operRegion.endRowIndex === 'MAX' && arrOpr === undefined) {
 				return;
 			}
 
@@ -52,11 +52,12 @@ define(function(require) {
 			if (cache.TempProp.isFrozen === true) {
 				Backbone.trigger('event:bodyContainer:executiveFrozen');
 			}
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange',posi, -height - 1);
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, -height - 1);
 			sendData();
+
 			function sendData() {
 				send.PackAjax({
-					url: config.url.row.reduce ,
+					url: config.url.row.reduce,
 					data: JSON.stringify({
 						row: sendRegion.startSortY,
 					}),
