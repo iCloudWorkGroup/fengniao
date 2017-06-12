@@ -8,7 +8,6 @@
 define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
-		_ = require('lib/underscore'),
 		Backbone = require('lib/backbone'),
 		binary = require('basic/util/binary'),
 		cache = require('basic/tools/cache'),
@@ -16,15 +15,12 @@ define(function(require) {
 		original = require('basic/tools/original'),
 		clone = require('basic/util/clone'),
 		send = require('basic/tools/send'),
-		buildAlias = require('basic/tools/buildalias'),
 		loadRecorder = require('basic/tools/loadrecorder'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		siderLineRows = require('collections/siderLineRow'),
 		cells = require('collections/cells'),
 		selectRegions = require('collections/selectRegion'),
-		GridLineRowContainer = require('views/gridLineRowContainer'),
-		CellContainer = require('views/cellContainer'),
 		CellsContainer = require('views/cellsContainer'),
 		headItemRowList = headItemRows.models,
 		headItemColList = headItemCols.models;
@@ -110,7 +106,7 @@ define(function(require) {
 			if (len = lineColList.length) {
 				lastLineCol = lineColList[len - 1];
 				this.boxModel.width = lastLineCol.get('left') + lastLineCol.get('width') -
-					lineColList[0].get('left')
+					lineColList[0].get('left');
 			} else {
 				this.boxModel.width = 0;
 			}
@@ -231,8 +227,6 @@ define(function(require) {
 		downScroll: function() {
 			var limitBottomPosi,
 				bottomRowModel,
-				userViewBottom,
-				userViewBottomPosi,
 				recordScrollTop,
 				selectModel,
 				adjustPosi;
@@ -360,14 +354,10 @@ define(function(require) {
 		addTop: function(recordTop) {
 			var headItemRowList = headItemRows.models,
 				limitTopPosi,
-				limitTopIndex,
 				limitBottomPosi,
-				limitBottomIndex,
-				headItemRowModel,
-				tempCells,
 				offsetTop,
 				userViewTop,
-				i, len;
+				self = this;
 
 			//冻结情况，计算视图的偏移量
 			offsetTop = this.offsetTop;
@@ -389,8 +379,7 @@ define(function(require) {
 			function restoreRowView(top, bottom) {
 				var headItemRowModel,
 					startIndex,
-					endIndex,
-					len, i;
+					endIndex, i;
 
 				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
 				endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
@@ -398,10 +387,10 @@ define(function(require) {
 					headItemRowModel = headItemRowList[i];
 					if (headItemRowModel.get('isView') === false) {
 						headItemRowModel.set('isView', true);
-						this.publish('mainContainer', 'restoreRowView', headItemRowModel);
+						self.publish('mainContainer', 'restoreRowView', headItemRowModel);
 					}
 				}
-				this.adjustColPropCell(startIndex, endIndex);
+				self.adjustColPropCell(startIndex, endIndex);
 				cache.viewRegion.top = headItemRowList[startIndex].get('top');
 			}
 			/**
@@ -421,7 +410,7 @@ define(function(require) {
 				for (i = 0, len = tempCells.length; i < len; i++) {
 					if (tempCells[i].get('showState') === false) {
 						tempCells[i].set('showState', true);
-						this.publish('mainContainer', 'restoreCellView', tempCells[i]);
+						self.publish('mainContainer', 'restoreCellView', tempCells[i]);
 					}
 				}
 			}
@@ -475,7 +464,8 @@ define(function(require) {
 			var limitTopPosi,
 				limitBottomPosi,
 				offsetTop,
-				userViewTop;
+				userViewTop,
+				self = this;
 
 			if (this.loadRowState === 'PENDING') {
 				return;
@@ -503,13 +493,12 @@ define(function(require) {
 			 */
 			function restoreRowView(top, bottom) {
 				var headItemRowModel,
-
 					startIndex,
 					endIndex,
-					len, i;
+					i;
 
-				bottom = this.addRows(bottom);
-				this.adaptSelectRegion(); //改为trigger
+				bottom = self.addRows(bottom);
+				self.adaptSelectRegion(); //改为trigger
 
 				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
 				endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
@@ -517,12 +506,12 @@ define(function(require) {
 					headItemRowModel = headItemRowList[i];
 					if (headItemRowModel.get('isView') === false) {
 						headItemRowModel.set('isView', true);
-						this.publish('mainContainer', 'restoreRowView', headItemRowModel);
+						self.publish('mainContainer', 'restoreRowView', headItemRowModel);
 					}
 				}
-				this.adjustColPropCell(startIndex, endIndex);
+				self.adjustColPropCell(startIndex, endIndex);
 				cache.viewRegion.bottom = headItemRowList[endIndex].get('top') + headItemRowList[endIndex].get('height');
-				this.adjustContainerHeight();
+				self.adjustContainerHeight();
 			}
 
 			function restoreCellView(top, bottom) {
@@ -537,7 +526,7 @@ define(function(require) {
 				for (i = 0, len = tempCells.length; i < len; i++) {
 					if (tempCells[i].get('showState') === false) {
 						tempCells[i].set('showState', true);
-						this.publish('mainContainer', 'restoreCellView', tempCells[i]);
+						self.publish('mainContainer', 'restoreCellView', tempCells[i]);
 					}
 				}
 			}
@@ -549,13 +538,12 @@ define(function(require) {
 		 * @return {number} bottom 请求底部的坐标       
 		 */
 		loadRegion: function(top, bottom, restoreRowView, restoreCellView) {
-			var self = this,
-				isUnloadRows,
+			var isUnloadRows,
 				isUnloadCells;
 
 			//超出表格的最大高度，直接添加行对象
 			if (top > cache.localRowPosi || cache.localRowPosi === 0) {
-				fn1.call(this, top, bottom);
+				restoreRowView.call(this, top, bottom);
 				return;
 			}
 			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
@@ -573,7 +561,6 @@ define(function(require) {
 		},
 		doRequest: function(top, bottom, loadRows, loadCells, restoreRowView, restoreCellView) {
 			var self = this;
-
 			//如果行未进行加载
 			if (loadRows) {
 				this.loadRowState = 'PENDING';
@@ -594,13 +581,13 @@ define(function(require) {
 			});
 
 			function analysisData(data) {
+				var bottomIndex,
+					topIndex;
 				if (!data) {
 					return;
 				}
 				if (loadRows) {
 					var startRowSort,
-						bottomIndex,
-						topIndex,
 						rows;
 
 					startRowSort = data.dataRowStartIndex;
@@ -706,7 +693,7 @@ define(function(require) {
 			len = Math.ceil((height + cache.scrollBufferHeight - maxheadItemHeight) / config.User.cellHeight);
 			headItemRows.generate(len);
 			send.PackAjax({
-				url: config.url.row.plus_batch,
+				url: config.url.row.plusBatch,
 				data: JSON.stringify({
 					num: len
 				})
@@ -750,7 +737,7 @@ define(function(require) {
 				}
 			}
 		},
-		adjustContainerHeight: function(height) {
+		adjustContainerHeight: function() {
 			Backbone.trigger('event:cellsContainer:adaptHeight');
 			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
 		},
