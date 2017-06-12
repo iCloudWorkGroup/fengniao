@@ -3,6 +3,7 @@ define(function(require) {
 	var $ = require('lib/jquery'),
 		_ = require('lib/underscore'),
 		Backbone = require('lib/backbone'),
+		observerPattern = require('basic/util/observer.pattern'),
 		config = require('spreadsheet/config'),
 		cache = require('basic/tools/cache'),
 		headItemRows = require('collections/headItemRow'),
@@ -35,8 +36,12 @@ define(function(require) {
 			 */
 			this.rowNumber = 0;
 			this.currentRule = cache.CurrentRule;
-			if (cache.TempProp.isFrozen !== true || this.currentRule.displayPosition.endRowIndex === undefined) {
+			if (this.currentRule.displayPosition.endRowIndex === undefined) {
 				this.listenTo(headItemRows, 'add', this.addGridLineRow);
+
+				//订阅滚动行视图还原
+				observerPattern.buildSubscriber(this);
+				this.subscribe('mainContainer', 'restoreRowView', 'restoreRowView');
 			}
 			Backbone.on('call:rowsGridContainer', this.rowsGridContainer, this);
 		},
@@ -67,6 +72,9 @@ define(function(require) {
 				this.rowNumber++;
 			}
 			return this;
+		},
+		restoreRowView: function(model) {
+			this.addGridLineRow(model);
 		},
 		/**
 		 * 渲染view，增加行在`grid`区域内

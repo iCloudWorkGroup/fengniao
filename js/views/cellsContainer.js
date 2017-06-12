@@ -189,7 +189,9 @@ define(function(require) {
 		 * 自适应高度
 		 */
 		adaptHeight: function() {
-			var height = 0,
+			var userViewTop = this.userViewTop,
+				offsetTop = this.offsetTop,
+				height = 0,
 				top = 0,
 				len, i;
 
@@ -201,7 +203,7 @@ define(function(require) {
 					break;
 				}
 			}
-			this.$el.css('height', top + height);
+			this.$el.css('height', top + height - userViewTop - offsetTop);
 		},
 		/**
 		 * 设置当前鼠标操作状态
@@ -599,6 +601,7 @@ define(function(require) {
 			Backbone.off('event:cellsContainer:destroy');
 			Backbone.off('event:cellsContainer:adaptWidth');
 			Backbone.off('event:cellsContainer:adaptHeight');
+			Backbone.trigger('event:contentCellsContainer:destroy');
 			//待修改：需要销毁包含视图
 			selectModelList = selectRegions.models;
 			len = selectModelList.length;

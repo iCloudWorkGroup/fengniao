@@ -15,6 +15,7 @@ define(function(require) {
 		siderLineCols = require('collections/siderLineCol'),
 		RowsSpaceLineContainer = require('views/rowsSpaceLineContainer'),
 		HeadItemRowContainer = require('views/headItemRowContainer'),
+		observerPattern = require('basic/util/observer.pattern'),
 		loadRecorder = require('basic/tools/loadrecorder'),
 		selectCellCols = require('entrance/cell/selectcellcols');
 
@@ -50,10 +51,17 @@ define(function(require) {
 			Backbone.on('call:rowsHeadContainer', this.callRowsHeadContainer, this);
 			Backbone.on('event:rowsHeadContainer:relaseSpaceEffect', this.relaseSpaceEffect, this);
 			Backbone.on('event:rowHeightAdjust', this.rowHeightAdjust, this);
+			Backbone.on('event:rowsHeadContainer:destroy', this.destroy, this);
 			this.rowNumber = 0;
+
 			this.currentRule = cache.CurrentRule;
-			if (cache.TempProp.isFrozen !== true || this.currentRule.displayPosition.endIndex === undefined) {
+
+			if (this.currentRule.displayPosition.endIndex === undefined) {
 				this.listenTo(headItemRows, 'add', this.addRowsHeadContainer);
+
+				//订阅滚动行视图还原
+				observerPattern.buildSubscriber(this);
+				this.subscribe('mainContainer', 'restoreRowView', 'restoreRowView');
 			}
 
 		},
@@ -269,6 +277,31 @@ define(function(require) {
 			selectCellCols('1', null, modelIndexRow, e);
 		},
 		/**
+		 * 滚动过程中,还原行视图
+		 * @return {[type]} [description]
+		 */
+		restoreRowView: function(model) {
+			var endIndex = this.currentRule.displayPosition.endIndex,
+				startIndex = this.currentRule.displayPosition.startIndex,
+				headItemRowList = headItemRows.models,
+				top = model.get('top');
+			//判断行是否不再当前区域内
+			if (cache.TempProp.isFrozen) {
+				if (top < headItemRowList[startIndex].get('top')) {
+					return;
+				}
+				if (typeof endIndex === 'number') {
+					if (endIndex === 0) {
+						return;
+					}
+					if (top > headItemRowList[endIndex - 1].get('top')) {
+						return;
+					}
+				}
+			}
+			this.addRowsHeadContainer(model);
+		},
+		/**
 		 * 添加列标视图
 		 * @method addRowsHeadContainer
 		 * @param {app.Models.LineRow} modelHeadItemRow 
@@ -281,13 +314,11 @@ define(function(require) {
 				endIndex: this.currentRule.displayPosition.endIndex
 			});
 			// if (initialize === true || modelHeadItemRow.get('top') > config.displayRowHeight) {
-			if (initialize === true || modelHeadItemRow.get('top')) {	
+			if (initialize === true || modelHeadItemRow.get('top')) {
 				this.$el.append(this.headItemRowContainer.render().el);
 			} else {
 				this.$el.prepend(this.headItemRowContainer.render().el);
 			}
-
-
 		},
 		/**
 		 * 添加列标视图
@@ -357,7 +388,6 @@ define(function(require) {
 			for (j = 0; j < len; j++) {
 				adjustCells[j].set('physicsBox.top', adjustCells[j].get('physicsBox').top + pixel);
 			}
-
 		},
 		/**
 		 * 调整选中区域高度
@@ -400,6 +430,7 @@ define(function(require) {
 		 * @method destroy
 		 */
 		destroy: function() {
+			Backbone.off('event:rowsHeadContainer:destroy');
 			Backbone.off('call:rowsHeadContainer');
 			Backbone.off('event:rowsHeadContainer:relaseSpaceEffect');
 			Backbone.off('event:rowHeightAdjust');

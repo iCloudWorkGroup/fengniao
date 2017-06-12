@@ -37,6 +37,15 @@ define(function(require) {
 			Backbone.on('call:rowsAllHeadContainer', this.callRowsAllHeadContainer, this);
 			Backbone.on('event:rowsAllHeadContainer:adaptHeight', this.adaptHeight, this);
 			this.currentRule = clone.clone(cache.CurrentRule);
+
+			//记录冻结情况下导致视图移动大小
+			if (cache.TempProp.isFrozen === true) {
+				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
+				this.offsetTop = this.currentRule.displayPosition.offsetTop;
+			} else {
+				this.userViewTop = 0;
+				this.offsetTop = 0;
+			}
 			this.listenTo(siderLineRows, 'add', this.addSiderLineRow);
 			this.boxAttributes = options.boxAttributes;
 		},
@@ -47,11 +56,12 @@ define(function(require) {
 		render: function() {
 			var modelSiderLineRowList = siderLineRows.models,
 				len = modelSiderLineRowList.length,
-				i;
+				rowsHeadContainer, i;
 
-			this.rowsHeadContainer = new RowsHeadContainer();
+			rowsHeadContainer = new RowsHeadContainer();
+
 			this.attributesRender(this.boxAttributes);
-			this.$el.append(this.rowsHeadContainer.render().el);
+			this.$el.append(rowsHeadContainer.render().el);
 			if (len === 0) {
 				this.createSiderLineRow();
 			} else {
@@ -80,8 +90,8 @@ define(function(require) {
 					top = headItemRowList[i].get('top') + headItemRowList[i].get('height');
 					bottom = headItemRowList[start].get('top');
 					this.$el.css({
-						'height': top - bottom
-					});
+						'height': top - bottom - this.userViewTop
+					}); 
 					break;
 				}
 			}
@@ -133,9 +143,9 @@ define(function(require) {
 		 * @method destroy
 		 */
 		destroy: function() {
+			Backbone.trigger('event:rowsHeadContainer:destroy');
 			Backbone.off('call:rowsAllHeadContainer');
 			this.siderLineRowContainer.destroy();
-			this.rowsHeadContainer.destroy();
 			this.remove();
 		}
 	});
