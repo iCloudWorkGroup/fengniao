@@ -1071,7 +1071,10 @@ define(function(require) {
 				cellEndRowIndex,
 				temp,
 				flag = true,
-				i = 0;
+				i,len;
+
+			endColIndex = endColIndex !== undefined ? endColIndex : startColIndex;
+			endRowIndex = endRowIndex !== undefined ? endRowIndex : startRowIndex;
 
 			if (endColIndex === 'MAX') {
 				return {
@@ -1102,7 +1105,8 @@ define(function(require) {
 			while (flag) {
 				flag = false;
 				tempCellList = this.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
-				for (; i < tempCellList.length; i++) {
+		
+				for (i=0,len=tempCellList.length; i < len; i++) {
 					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, headItemRowList, 'top', 'height');
 					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, headItemColList, 'left', 'width');
 					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, headItemRowList, 'top', 'height');
