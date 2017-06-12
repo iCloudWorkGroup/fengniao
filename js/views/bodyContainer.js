@@ -57,14 +57,15 @@ define(function(require) {
 		 * @chainable
 		 */
 		render: function() {
+			var inputContainer = new InputContainer();
+
+			observerPattern.buildSubscriber(inputContainer);
+			inputContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
+			inputContainer.subscribe('mainContainer', 'verticalPublish', 'verticalScroll');
+
 			this.$el.html(getTemplate('BODYTEMPLATE'));
-			this.inputContainer = new InputContainer();
-			observerPattern.buildSubscriber(this.inputContainer);
+			this.$el.find('.main-layout').append(inputContainer.render().el);
 
-			this.inputContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
-			this.inputContainer.subscribe('mainContainer', 'verticalPublish', 'verticalScroll');
-
-			this.$el.find('.main-layout').append(this.inputContainer.render().el);
 			this.calculation();
 			this.adaptScreen();
 			this.generateSheet();
@@ -72,7 +73,7 @@ define(function(require) {
 				'overflow': 'hidden',
 				'position': 'relative'
 			});
-			this.inputContainer.$el.focus();
+			inputContainer.$el.focus();
 		},
 		handleComment: function(options) {
 			var action = options.action,
@@ -86,7 +87,6 @@ define(function(require) {
 				this.$el.find('.main-layout').append(commentContainer.render().el);
 				commentContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
 				commentContainer.subscribe('mainContainer', 'verticalPublish', 'verticalScroll');
-
 			}
 			if (action === 'hide') {
 				this.commentContainer.hide();
@@ -174,7 +174,7 @@ define(function(require) {
 			this.ruleRow();
 			this.ruleCol();
 			this.ruleMain();
-			this.publisherList = {};
+
 			// destory old view
 			Backbone.trigger('event:colsPanelContainer:destroy');
 			Backbone.trigger('event:rowsPanelContainer:destroy');
@@ -388,17 +388,7 @@ define(function(require) {
 					publisherName: 'mainContainer',
 					behavior: 'scrollToPosition', //it's self behavior
 					action: 'verticalPublish' //publisher behavior
-				}, 
-				// {
-				// 	publisherName: 'mainContainer',
-				// 	behavior: 'addHeadItemView', //it's self behavior
-				// 	action: 'addRowHeadItemViewPublish' //publisher behavior
-				// }, {
-				// 	publisherName: 'mainContainer',
-				// 	behavior: 'adjustHeadItemContainer', //it's self behavior
-				// 	action: 'adjustHeadItemContainerPublish' //publisher behavior
-				// }
-				]
+				}]
 			};
 			if (cache.TempProp.isFrozen && cache.TempProp.rowFrozen) {
 				tempRule.displayPosition.offsetTop -= userViewModel.get('top');

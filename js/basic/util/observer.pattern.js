@@ -9,7 +9,7 @@ define(function() {
 
 	/**
 	 * 订阅者列表
-	 * 将订阅者作为公共变量,类似cache的缓存
+	 * 将订阅者作为公共变量,类似cache
 	 * @type {Object}
 	 */
 	subscribers = {};
@@ -26,40 +26,39 @@ define(function() {
 		subscriber: {
 			/**
 			 * 订阅类型
-			 * @param  {function} fn     	订阅回调函数   
-			 * @param  {string}   publisher 订阅者标识
+			 * @param  {string}   publisherName 发布者名称
 			 * @param  {string}   type      订阅类型
+			 * @param  {function} fn     	订阅回调函数   
 			 */
-			subscribe: function(publisher, type, fn) {
+			subscribe: function(publisherName, type, fn) {
 				var temp1,
 					temp2;
-				if (typeof(temp1 = subscribers[publisher]) === 'undefined') {
-					temp1 = subscribers[publisher] = {};
+				if (typeof(temp1 = subscribers[publisherName]) === 'undefined') {
+					temp1 = subscribers[publisherName] = {};
 				}
 				if (typeof(temp2 = temp1[type]) === 'undefined') {
 					temp2 = temp1[type] = [];
 				}
 				temp2.push({
 					fn: fn,
-					context: this
+					master: this
 				});
 			},
 			/**
-			 * 取消订阅
-			 * @param  {function} fn     	订阅回调函数   
-			 * @param  {string}   publisher 订阅者标识
+			 * 取消订阅  
+			 * @param  {string}   publisherName 发布者名称
 			 * @param  {string}   type      订阅类型
 			 */
-			unsubscribe: function(publisher, type, fn) {
+			unsubscribe: function(publisherName, type) {
 				var currentSubscribers,
 					currentSubscriber,
 					max, i;
 
-				currentSubscribers = subscribers[publisher];
+				currentSubscribers = subscribers[publisherName];
 				max = currentSubscribers !== undefined ? currentSubscribers.length : 0;
 				for (i = 0; i < max; i++) {
 					currentSubscriber = currentSubscribers[i];
-					if (currentSubscriber.fn === fn && currentSubscriber.context === this) {
+					if (currentSubscriber.master === this) {
 						currentSubscribers.splice(i, 1);
 					}
 				}
@@ -72,7 +71,7 @@ define(function() {
 		publisher: {
 			/**
 			 * 发布
-			 * @param  {string} name 发布者标识
+			 * @param  {string} name 发布者名称
 			 * @param  {string} type 发布类型
 			 */
 			publish: function(name, type) {
@@ -81,12 +80,13 @@ define(function() {
 					max, i, callback;
 
 				currentSubscribers = subscribers[name];
-				if (currentSubscribers !== undefined &&
+				if (currentSubscribers &&
 					(currentSubscribers = currentSubscribers[type]) !== undefined) {
 					max = currentSubscribers !== undefined ? currentSubscribers.length : 0;
 					for (i = 0; i < max; i++) {
 						currentSubscriber = currentSubscribers[i];
-						currentSubscriber.context[currentSubscriber.fn]([].slice.call(arguments, 2));
+						callback = currentSubscriber.master[currentSubscriber.fn];
+						callback.apply(currentSubscriber.master, [].slice.call(arguments, 2));
 					}
 				}
 			},

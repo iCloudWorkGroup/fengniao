@@ -73,6 +73,7 @@ define(function(require) {
 			this.listenTo(this.model, 'change:wordWrap', this.changeWordWrap);
 
 			this.currentRule = options.currentRule;
+			
 			if (cache.TempProp.isFrozen !== true ||
 				this.currentRule.displayPosition.endRowIndex === undefined) {
 				this.listenTo(this.model, 'change:showState', this.destroy);

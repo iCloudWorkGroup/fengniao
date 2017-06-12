@@ -5,12 +5,15 @@ define(function(require) {
 		config = require('spreadsheet/config'),
 		util = require('basic/util/clone'),
 		send = require('basic/tools/send'),
+		observerPattern = require('basic/util/observer.pattern'),
 		loadRecorder = require('basic/tools/loadrecorder'),
 		original = require('basic/tools/original'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		cells = require('collections/cells'),
 		CellContainer = require('views/cellContainer'),
+		headItemRowList = headItemRows.models,
+		headItemColList = headItemCols.models,
 		ContentCellsContainer;
 
 
@@ -34,12 +37,20 @@ define(function(require) {
 		 */
 		initialize: function() {
 			this.currentRule = util.clone(cache.CurrentRule);
-			//考虑冻结情况
+			// 取消列隐藏时使用
 			Backbone.on('event:restoreHideCellView', this.restoreHideCellView, this);
+			// 重新拉取所有单元格数据
 			Backbone.on('event:contentCellsContainer:reloadCells', this.reloadCells, this);
+			// 撤销操作重新还原单元格视图
 			Backbone.on('event:contentCellsContainer:restoreCell', this.addCell, this);
-			//还原
+			Backbone.on('event:contentCellsContainer:destroy');
 			this.listenTo(cells, 'add', this.addCell);
+
+			if (this.currentRule.displayPosition.endIndex === undefined) {
+				//订阅滚动行视图还原
+				observerPattern.buildSubscriber(this);
+				this.subscribe('mainContainer', 'restoreCellView', 'restoreCellView');
+			}
 		},
 		/**
 		 * 视图渲染方法
@@ -142,6 +153,9 @@ define(function(require) {
 				}
 			});
 		},
+		restoreCellView: function(model) {
+			this.addCell(model);
+		},
 		/**
 		 * view创建一个单元格
 		 * @method addCell
@@ -154,8 +168,6 @@ define(function(require) {
 					startColIndex = displayPosition.startColIndex,
 					endRowIndex = displayPosition.endRowIndex,
 					endColIndex = displayPosition.endColIndex,
-					headItemColList = headItemCols.models,
-					headItemRowList = headItemRows.models,
 					cellBox = cell.get('physicsBox'),
 					top, left, bottom, right;
 
@@ -164,11 +176,23 @@ define(function(require) {
 				left = cellBox.left;
 				right = left + cellBox.width;
 
+				//判断单元格是否不再当前区域内
 				if (bottom < headItemRowList[startRowIndex].get('top') ||
-					(typeof endRowIndex === 'number' && top > headItemRowList[endRowIndex].get('top')) ||
-					right < headItemColList[startColIndex].get('left') ||
-					(typeof endColIndex === 'number' && left > headItemColList[endColIndex].get('left'))) {
+					right < headItemColList[startColIndex].get('left')) {
 					return;
+				}
+
+				if (typeof endRowIndex === 'number') {
+					endRowIndex = endRowIndex - 1;
+					if (endRowIndex < 0 || top > headItemRowList[endRowIndex].get('top')) {
+						return;
+					}
+				}
+				if (typeof endColIndex === 'number') {
+					endColIndex = endColIndex - 1;
+					if (endColIndex < 0 || left > headItemColList[endColIndex].get('left')) {
+						return;
+					}
 				}
 			}
 
@@ -183,9 +207,11 @@ define(function(require) {
 		 * @method destroy
 		 */
 		destroy: function() {
+			Backbone.tigger('event:cellConainer:destroy');
 			Backbone.off('event:contentCellsContainer:reloadCells');
+			Backbone.off('event:contentCellsContainer:restoreCell');
 			Backbone.off('event:restoreHideCellView');
-			Backbone.trigger('event:destroyCellView');
+			Backbone.off('event:contentCellsContainer:destroy');
 			this.remove();
 		}
 	});
