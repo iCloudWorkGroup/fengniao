@@ -3,13 +3,13 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
-            files: ['js/collections/*.js', 'js/models/*.js', 'js/basic/**/*.js','js/entrance/tool/setfillcolor.js'], //,'js/entrance/**/*.js'
+            files: ['js/collections/*.js', 'js/models/*.js', 'js/basic/**/*.js', 'js/entrance/tool/setfillcolor.js'], //,'js/entrance/**/*.js'
             options: {
                 jshintrc: true,
                 globals: {
                     jQuery: true
                 },
-                ignores: ['Gruntfile.js','js/lib/*.js']
+                ignores: ['Gruntfile.js', 'js/lib/*.js']
             }
         },
         less: {
@@ -41,48 +41,48 @@ module.exports = function(grunt) {
                 }
             }
         },
-	uglify:{
-	    options:{
-	        report:"gzip"
-	    },
-	    my_target:{
-		files:{
-		    "dist/fn.min.js":["dist/fn.js"]
-		}
-	    }
-	},
-	bump: {
-	    options: {
-		updateConfigs: ['pkg'],
-		commitFiles:['package.json', 'CHANGELOG.md'],
-		commitMessage: 'release: v%VERSION%',
-		push: false
-	    }
-	},
-	conventionalChangelog: {
-	    options: {
-	      changelogOpts: {
-		// conventional-changelog options go here
-		preset: 'angular',
-		outputUnreleased:true
-	      },
-	      context: {
-		// context goes here
-	      },
-	      gitRawCommitsOpts: {
-		// git-raw-commits options go here
-	      },
-	      parserOpts: {
-		// conventional-commits-parser options go here
-	      },
-	      writerOpts: {
-		// conventional-changelog-writer options go here
-	      }
-	    },
-	    release: {
-	      src: 'CHANGELOG.md'
-	    }
-	}
+        uglify: {
+            options: {
+                report: 'gzip'
+            },
+            my_target: {
+                files: {
+                    'dist/fn.min.js': ['dist/fn.js']
+                }
+            }
+        },
+        bump: {
+            options: {
+                updateConfigs: ['pkg'],
+                commitFiles: ['package.json', 'CHANGELOG.md'],
+                commitMessage: 'release: v%VERSION%',
+                push: false
+            }
+        },
+        conventionalChangelog: {
+            options: {
+                changelogOpts: {
+                    // conventional-changelog options go here
+                    preset: 'angular',
+                    outputUnreleased: true
+                },
+                context: {
+                    // context goes here
+                },
+                gitRawCommitsOpts: {
+                    // git-raw-commits options go here
+                },
+                parserOpts: {
+                    // conventional-commits-parser options go here
+                },
+                writerOpts: {
+                    // conventional-changelog-writer options go here
+                }
+            },
+            release: {
+                src: 'CHANGELOG.md'
+            }
+        }
     });
     require('load-grunt-tasks')(grunt);
     grunt.loadTasks('tools/build/tasks'); // 加载build目录下的所有task
@@ -91,14 +91,14 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-conventional-changelog');
 
     grunt.registerTask('format', ['jshint']);
-    grunt.registerTask('dist', ['build','uglify']);
-    grunt.registerTask('default', ['format','dist']);
+    grunt.registerTask('dist', ['build', 'uglify']);
+    grunt.registerTask('default', ['format', 'dist']);
     grunt.registerTask('css', ['less']);
-    grunt.registerTask('release','build new version info',function(type){
-	grunt.task.run([
-	    'bump:' + (type || 'patch') + ':bump-only',
-	    'conventionalChangelog',
-	    'bump-commit'
-	]);
+    grunt.registerTask('release', 'build new version info', function(type) {
+        grunt.task.run([
+            'bump:' + (type || 'patch') + ':bump-only',
+            'conventionalChangelog',
+            'bump-commit'
+        ]);
     });
 };
