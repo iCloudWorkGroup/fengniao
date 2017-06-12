@@ -152,7 +152,7 @@ define(function() {
 				hide: 'row/hide',
 				show: 'row/show',
 				adjust: 'row/adjust',
-				plus_batch: 'row/plus-batch'
+				plusBatch: 'row/plus-batch'
 			},
 			col: {
 				plus: 'col/plus',
