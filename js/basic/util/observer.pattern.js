@@ -9,7 +9,8 @@ define(function() {
 
 	/**
 	 * 订阅者列表
-	 * 将订阅者作为公共变量,类似cache
+	 * 将订阅者作为公共变量,类似cache,
+	 * 订阅者订阅事件时,不需要含有发布者的引用
 	 * @type {Object}
 	 */
 	subscribers = {};
@@ -52,9 +53,14 @@ define(function() {
 			unsubscribe: function(publisherName, type) {
 				var currentSubscribers,
 					currentSubscriber,
+					types,
 					max, i;
 
-				currentSubscribers = subscribers[publisherName];
+				types = subscribers[publisherName];
+				if (types === undefined) {
+					return;
+				}
+				currentSubscribers = types[type];
 				max = currentSubscribers !== undefined ? currentSubscribers.length : 0;
 				for (i = 0; i < max; i++) {
 					currentSubscriber = currentSubscribers[i];
@@ -109,6 +115,9 @@ define(function() {
 					obj[i] = this.subscriber[i];
 				}
 			}
+		},
+		clearSubscriber: function() {
+			subscribers = {};
 		}
 	};
 	return observer;

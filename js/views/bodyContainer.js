@@ -171,10 +171,12 @@ define(function(require) {
 				mainContainer;
 
 			this.clearFrozenRule();
+
 			this.ruleRow();
 			this.ruleCol();
 			this.ruleMain();
-
+			observerPattern.clearSubscriber();
+			
 			// destory old view
 			Backbone.trigger('event:colsPanelContainer:destroy');
 			Backbone.trigger('event:rowsPanelContainer:destroy');
