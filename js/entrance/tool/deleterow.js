@@ -30,6 +30,9 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			if (cache.TempProp.isFrozen === true) {
+				return;
+			}
 			region = getOperRegion(arrOpr);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
@@ -47,19 +50,18 @@ define(function(require) {
 			height = headItemRows.models[index].get('height');
 			this._adaptCells(index);
 			this._adaptSelectRegion(index);
-			this._frozenHandle(index);
+			// this._frozenHandle(index);
 			this._adaptHeadRowItem(index);
-			if (cache.TempProp.isFrozen === true) {
-				Backbone.trigger('event:bodyContainer:executiveFrozen');
-			}
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, -height - 1);
+
+			Backbone.trigger('event:cellsContainer:adaptHeight');
+			Backbone.trigger('event:colsAllHeadContainer:adaptHeight');
 			sendData();
 
 			function sendData() {
 				send.PackAjax({
 					url: config.url.row.reduce,
 					data: JSON.stringify({
-						row: sendRegion.startSortY,
+						row: sendRegion.startRow,
 					}),
 				});
 			}
@@ -102,6 +104,8 @@ define(function(require) {
 				height,
 				top,
 				endRowIndex;
+
+
 			select = selectRegions.getModelByType('selected');
 			startRowAlias = select.get('wholePosi').startY;
 			endRowAlias = select.get('wholePosi').endY;
@@ -198,29 +202,29 @@ define(function(require) {
 		 * 处理冻结状态下,插入行功能
 		 * @param  {number} index 插入索引
 		 */
-		_frozenHandle: function(index) {
-			var userViewAlias,
-				userViewIndex,
-				frozenAlias,
-				frozenIndex;
+		// _frozenHandle: function(index) {
+		// 	var userViewAlias,
+		// 		userViewIndex,
+		// 		frozenAlias,
+		// 		frozenIndex;
 
-			if (cache.TempProp.isFrozen === true) {
-				userViewAlias = cache.UserView.rowAlias;
-				frozenAlias = cache.TempProp.rowAlias;
-				userViewIndex = headItemRows.getIndexByAlias(userViewAlias);
-				frozenIndex = headItemRows.getIndexByAlias(frozenAlias);
+		// 	if (cache.TempProp.isFrozen === true) {
+		// 		userViewAlias = cache.UserView.rowAlias;
+		// 		frozenAlias = cache.TempProp.rowAlias;
+		// 		userViewIndex = headItemRows.getIndexByAlias(userViewAlias);
+		// 		frozenIndex = headItemRows.getIndexByAlias(frozenAlias);
 
-				if (userViewIndex === index) {
-					cache.UserView.rowAlias = headItemRows.models[index + 1].get('alias');
-				}
-				if (frozenIndex === index) {
-					if (index === 0) {
-						cache.TempProp.rowAlias = headItemRows.models[1].get('alias');
-					} else {
-						cache.TempProp.rowAlias = headItemRows.models[index + 1].get('alias');
-					}
-				}
-			}
-		}
+		// 		if (userViewIndex === index) {
+		// 			cache.UserView.rowAlias = headItemRows.models[index + 1].get('alias');
+		// 		}
+		// 		if (frozenIndex === index) {
+		// 			if (index === 0) {
+		// 				cache.TempProp.rowAlias = headItemRows.models[1].get('alias');
+		// 			} else {
+		// 				cache.TempProp.rowAlias = headItemRows.models[index + 1].get('alias');
+		// 			}
+		// 		}
+		// 	}
+		// }
 	};
 });
