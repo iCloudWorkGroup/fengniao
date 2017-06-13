@@ -98,7 +98,7 @@ define(function(require) {
 			this.$el.html(this.template());
 
 			this.$contentBody = $('.bg', this.$el);
-			this.$contentBody[0].innerHTML = this.getHtmlText(modelAttr);
+			this.$contentBody[0].innerText = modelAttr.content.displayTexts;
 
 			this.changeFontFamily(modelAttr);
 			this.changeFontSize(modelAttr);
@@ -124,29 +124,20 @@ define(function(require) {
 			this.showCommentSign(modelAttr);
 			return this;
 		},
-		getHtmlText: function(modelAttr) {
-			var text,
-				htmlDecode;
+		// getHtmlText: function(modelAttr) {
+		// 	var text;
 
-			if (modelAttr.attributes) {
-				modelAttr = this.model.attributes;
-			}
-			text = modelAttr.content.displayTexts || '';
-			htmlDecode = {
-				'<': '&lt;',
-				'>': '&gt;',
-				'&': '&amp;',
-				'"': '&quot;',
-				'\u0020': '&nbsp;'
-			}
-			text = text.replace(/<|>|\u0020|&|"/g, function(str, index) {
-				return htmlDecode[str];
-			});
-			if (modelAttr.wordWrap) {
-				text =text.replace(/\n/g, '<br>');
-			}
-			return text;
-		},
+		// 	if (modelAttr.attributes) {
+		// 		modelAttr = this.model.attributes;
+		// 	}
+
+		// 	text = modelAttr.content.displayTexts || '';
+
+		// 	if (modelAttr.wordWrap) {
+		// 		text =text.replace(/\n/g, '<br>');
+		// 	}
+		// 	return text;
+		// },
 		changeWidth: function(modelAttr) {
 			if (modelAttr.attributes) {
 				modelAttr = this.model.attributes;
@@ -408,15 +399,8 @@ define(function(require) {
 
 			var modelAttr = this.model.attributes;
 			this.changeTransverseAlign(modelAttr);
-			this.$contentBody[0].innerHTML = this.getHtmlText(modelAttr);
+			this.$contentBody[0].innerText = modelAttr.content.displayTexts;
 
-		},
-		setInnerText: function(element, text) {
-			if (typeof element.innerText == "string") {
-				element.innerText = text;
-			} else {
-				element.textContext = text;
-			}
 		},
 		changeFontFamily: function() {
 			this.$contentBody.css({
