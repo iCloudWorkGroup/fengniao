@@ -30,6 +30,9 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			if (cache.TempProp.isFrozen === true) {
+				return;
+			}
 			region = getOperRegion(arrOpr);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
@@ -49,17 +52,16 @@ define(function(require) {
 			this._adaptSelectRegion(index);
 			this._frozenHandle(index);
 			this._adaptHeadRowItem(index);
-			if (cache.TempProp.isFrozen === true) {
-				Backbone.trigger('event:bodyContainer:executiveFrozen');
-			}
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, -height - 1);
+
+			Backbone.trigger('event:cellsContainer:adaptHeight');
+			Backbone.trigger('event:colsAllHeadContainer:adaptHeight');
 			sendData();
 
 			function sendData() {
 				send.PackAjax({
 					url: config.url.row.reduce,
 					data: JSON.stringify({
-						row: sendRegion.startSortY,
+						row: sendRegion.startRow,
 					}),
 				});
 			}
