@@ -123,7 +123,7 @@ define(function(require) {
 			lastHeadItemLeft = headItemColList[colLen - 1].get('left');
 			left = headItemColList[index].get('left');
 			//处理只剩一列情况
-			if (left < lastHeadItemLeft) { //最后一列隐藏
+			if (lastHeadItemLeft === 0) { //最后一列隐藏
 				i = index + 1;
 				while (headItemColList[i].get('hidden')) {
 					i++;
@@ -185,6 +185,7 @@ define(function(require) {
 		cancelHide: function(sheetId) {
 			var headItemColList = headItemCols.models,
 				len = headItemColList.length,
+				clip,
 				hidden,
 				cellList,
 				cellLen,
