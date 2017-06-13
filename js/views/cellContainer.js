@@ -41,7 +41,6 @@ define(function(require) {
 		 * @method initialize 
 		 */
 		initialize: function(options) {
-
 			var modelRowList = headItemRows,
 				modelColList = headItemCols;
 
@@ -99,7 +98,7 @@ define(function(require) {
 			this.$el.html(this.template());
 
 			this.$contentBody = $('.bg', this.$el);
-			this.$contentBody.text(this.getHtmlText(modelAttr));
+			this.$contentBody[0].innerHTML = this.getHtmlText(modelAttr);
 
 			this.changeFontFamily(modelAttr);
 			this.changeFontSize(modelAttr);
@@ -130,11 +129,21 @@ define(function(require) {
 				htmlDecode;
 
 			if (modelAttr.attributes) {
-				modelAttr = modelAttr.attributes;
+				modelAttr = this.model.attributes;
 			}
 			text = modelAttr.content.displayTexts || '';
+			htmlDecode = {
+				'<': '&lt;',
+				'>': '&gt;',
+				'&': '&amp;',
+				'"': '&quot;',
+				'\u0020': '&nbsp;'
+			}
+			text = text.replace(/<|>|\u0020|&|"/g, function(str, index) {
+				return htmlDecode[str];
+			});
 			if (modelAttr.wordWrap) {
-				text.replace('\n', '<br>');
+				text =text.replace(/\n/g, '<br>');
 			}
 			return text;
 		},
@@ -396,9 +405,18 @@ define(function(require) {
 		generateDisplayText: function() {
 			formatHandler.typeRecognize(this.model);
 			formatHandler.generateDisplayText(this.model);
+
 			var modelAttr = this.model.attributes;
 			this.changeTransverseAlign(modelAttr);
-			this.$contentBody.text(this.getHtmlText(modelAttr));
+			this.$contentBody[0].innerHTML = this.getHtmlText(modelAttr);
+
+		},
+		setInnerText: function(element, text) {
+			if (typeof element.innerText == "string") {
+				element.innerText = text;
+			} else {
+				element.textContext = text;
+			}
 		},
 		changeFontFamily: function() {
 			this.$contentBody.css({

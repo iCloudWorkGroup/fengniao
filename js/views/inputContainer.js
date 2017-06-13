@@ -211,6 +211,7 @@ define(function(require) {
 		hide: function(event) {
 			var headItemRowList = headItemRows.models,
 				headItemColList = headItemCols.models,
+				model = this.model,
 				originalText,
 				rowSort,
 				colSort,
@@ -227,7 +228,7 @@ define(function(require) {
 				rowSort = headItemRowList[this.rowIndex].get('sort');
 				colSort = headItemColList[this.colIndex].get('sort');
 
-				originalText = this.model.get('content').texts;
+				originalText = model.get('content').texts;
 				text = this.$el.val();
 				if (originalText !== text) {
 					history.addUpdateAction('content', text, {
@@ -240,11 +241,12 @@ define(function(require) {
 						rowSort: rowSort,
 						value: originalText
 					}]);
-
-					if (text.indexOf('/n') !== -1 && (this.model.get('wordWrap') === false)) {
+			
+					if (text.indexOf('\n') !== -1 && (model.get('wordWrap') === false)) {
+						model.set('wordWrap', true);
 						this.sendWordWrap(colSort, rowSort);
 					}
-					this.model.set('content.texts', text);
+					model.set('content.texts', text);
 					this.sendChangeText(colSort, rowSort, text);
 				}
 			}
@@ -541,14 +543,15 @@ define(function(require) {
 			}
 
 		},
-		sendWordWrap: function(rowSort, colSort) {
-			
+		sendWordWrap: function(row, col) {
 			send.PackAjax({
 				url: config.url.cell.wordwrap,
 				data: JSON.stringify({
 					coordinate: {
-						startX: colAlias,
-						startY: rowAlias,
+						startCol: col,
+						startRow: row,
+						endCol: col,
+						endRow: row
 					},
 					wordWrap: true
 				})
@@ -559,7 +562,7 @@ define(function(require) {
 		 * @method close
 		 * @param e {event}  输入焦点移除
 		 */
-		sendChangeText: function(rowSort, colSort, text) {
+		sendChangeText: function(row, col, text) {
 			var text,
 				colAlias,
 				rowAlias,
@@ -569,10 +572,10 @@ define(function(require) {
 				url: config.url.cell.content,
 				data: JSON.stringify({
 					coordinate: {
-						startRow: rowSort,
-						startCol: colSort,
-						endRow: rowSort,
-						endCol: colSort
+						startRow: row,
+						startCol: col,
+						endRow: row,
+						endCol: col
 					},
 					content: encodeURIComponent(text)
 				})
