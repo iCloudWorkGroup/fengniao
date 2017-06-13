@@ -80,7 +80,7 @@ define(function(require) {
 				url: config.url.cell.wordwrap,
 				data: JSON.stringify({
 					coordinate: sendRegion,
-					wordWrap: wordWrap || 'true'
+					wordWrap: wordWrap
 				})
 			});
 		}

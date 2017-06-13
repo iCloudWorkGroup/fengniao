@@ -41,7 +41,6 @@ define(function(require) {
 		 * @method initialize 
 		 */
 		initialize: function(options) {
-
 			var modelRowList = headItemRows,
 				modelColList = headItemCols;
 
@@ -100,7 +99,7 @@ define(function(require) {
 			this.$el.html(this.template());
 
 			this.$contentBody = $('.bg', this.$el);
-			this.$contentBody.text(this.getHtmlText(modelAttr));
+			this.$contentBody[0].innerText = modelAttr.content.displayTexts;
 
 			this.changeFontFamily(modelAttr);
 			this.changeFontSize(modelAttr);
@@ -126,19 +125,20 @@ define(function(require) {
 			this.showCommentSign(modelAttr);
 			return this;
 		},
-		getHtmlText: function(modelAttr) {
-			var text,
-				htmlDecode;
+		// getHtmlText: function(modelAttr) {
+		// 	var text;
 
-			if (modelAttr.attributes) {
-				modelAttr = modelAttr.attributes;
-			}
-			text = modelAttr.content.displayTexts || '';
-			if (modelAttr.wordWrap) {
-				text.replace('\n', '<br>');
-			}
-			return text;
-		},
+		// 	if (modelAttr.attributes) {
+		// 		modelAttr = this.model.attributes;
+		// 	}
+
+		// 	text = modelAttr.content.displayTexts || '';
+
+		// 	if (modelAttr.wordWrap) {
+		// 		text =text.replace(/\n/g, '<br>');
+		// 	}
+		// 	return text;
+		// },
 		changeWidth: function(modelAttr) {
 			if (modelAttr.attributes) {
 				modelAttr = this.model.attributes;
@@ -397,9 +397,11 @@ define(function(require) {
 		generateDisplayText: function() {
 			formatHandler.typeRecognize(this.model);
 			formatHandler.generateDisplayText(this.model);
+
 			var modelAttr = this.model.attributes;
 			this.changeTransverseAlign(modelAttr);
-			this.$contentBody.text(this.getHtmlText(modelAttr));
+			this.$contentBody[0].innerText = modelAttr.content.displayTexts;
+
 		},
 		changeFontFamily: function() {
 			this.$contentBody.css({

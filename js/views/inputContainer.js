@@ -211,9 +211,12 @@ define(function(require) {
 		hide: function(event) {
 			var headItemRowList = headItemRows.models,
 				headItemColList = headItemCols.models,
-				modelJSON,
+				model = this.model,
+				originalText,
 				rowSort,
-				colSort;
+				colSort,
+				text;
+
 			if (this.showState === true) {
 				this.$el.css({
 					'left': -1000,
@@ -224,13 +227,11 @@ define(function(require) {
 				});
 				rowSort = headItemRowList[this.rowIndex].get('sort');
 				colSort = headItemColList[this.colIndex].get('sort');
-				modelJSON = this.model.toJSON();
-				//进行输入文本的修改
-				if (this.model.get('content').texts !== this.$el.val()) {
-					this.model.set('content.texts', this.$el.val());
-					setTextType.typeRecognize(this.model);
-					setTextType.generateDisplayText(this.model);
-					history.addUpdateAction('content', this.model.get('content'), {
+
+				originalText = model.get('content').texts;
+				text = this.$el.val();
+				if (originalText !== text) {
+					history.addUpdateAction('content', text, {
 						startColSort: colSort,
 						startRowSort: rowSort,
 						endColSort: colSort,
@@ -238,10 +239,16 @@ define(function(require) {
 					}, [{
 						colSort: colSort,
 						rowSort: rowSort,
-						value: modelJSON.content
+						value: originalText
 					}]);
+			
+					if (text.indexOf('\n') !== -1 && (model.get('wordWrap') === false)) {
+						model.set('wordWrap', true);
+						this.sendWordWrap(colSort, rowSort);
+					}
+					model.set('content.texts', text);
+					this.sendChangeText(colSort, rowSort, text);
 				}
-				this.sendData();
 			}
 			this.$el.val('');
 			if (event === undefined) {
@@ -536,55 +543,43 @@ define(function(require) {
 			}
 
 		},
+		sendWordWrap: function(row, col) {
+			send.PackAjax({
+				url: config.url.cell.wordwrap,
+				data: JSON.stringify({
+					coordinate: {
+						startCol: col,
+						startRow: row,
+						endCol: col,
+						endRow: row
+					},
+					wordWrap: true
+				})
+			});
+		},
 		/**
 		 * 输入框移除输入焦点，视图销毁
 		 * @method close
 		 * @param e {event}  输入焦点移除
 		 */
-		sendData: function() {
+		sendChangeText: function(row, col, text) {
 			var text,
 				colAlias,
 				rowAlias,
 				colSort,
 				rowSort;
-
-			text = this.$el.val();
-			colAlias = this.model.get('occupy').x[0];
-			rowAlias = this.model.get('occupy').y[0];
-
-			rowSort = headItemRows.getModelByAlias(rowAlias).get('sort');
-			colSort = headItemCols.getModelByAlias(colAlias).get('sort');
-
 			send.PackAjax({
 				url: config.url.cell.content,
 				data: JSON.stringify({
-					sheetId: '1',
 					coordinate: {
-						startRow: rowSort,
-						startCol: colSort,
-						endRow: rowSort,
-						endCol: colSort
+						startRow: row,
+						startCol: col,
+						endRow: row,
+						endCol: col
 					},
 					content: encodeURIComponent(text)
 				})
 			});
-
-			if (text.indexOf('\n') > 0 && (this.model.get('wordWrap') === false)) {
-				this.model.set({
-					'wordWrap': true
-				});
-				send.PackAjax({
-					url: 'text.htm?m=wordwrap',
-					data: JSON.stringify({
-						sheetId: '1',
-						coordinate: {
-							startX: colAlias,
-							startY: rowAlias,
-						},
-						wordWrap: true
-					})
-				});
-			}
 		},
 		isShortKey: function(needle) {
 			var prop,
