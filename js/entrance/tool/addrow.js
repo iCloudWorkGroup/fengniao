@@ -31,6 +31,9 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			if (cache.TempProp.isFrozen === true) {
+				return;
+			}
 			region = getOperRegion(label);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
@@ -46,7 +49,7 @@ define(function(require) {
 			this._adaptSelectRegion(index);
 			this._adaptCells(index);
 			this._fillCells(index);
-			this._frozenHandle(index);
+			// this._frozenHandle(index);
 
 			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, config.User.cellHeight);
 			send.PackAjax({
@@ -221,27 +224,27 @@ define(function(require) {
 		 * 处理冻结状态下,插入行功能
 		 * @param  {number} index 插入索引
 		 */
-		_frozenHandle: function(index) {
-			var userViewAlias,
-				userViewIndex,
-				frozenAlias,
-				frozenIndex;
-			if (cache.TempProp.isFrozen === true) {
-				userViewAlias = cache.UserView.rowAlias;
-				frozenAlias = cache.TempProp.rowAlias;
-				userViewIndex = headItemRows.getIndexByAlias(userViewAlias);
-				frozenIndex = headItemRows.getIndexByAlias(frozenAlias);
+		// _frozenHandle: function(index) {
+		// 	var userViewAlias,
+		// 		userViewIndex,
+		// 		frozenAlias,
+		// 		frozenIndex;
+		// 	if (cache.TempProp.isFrozen === true) {
+		// 		userViewAlias = cache.UserView.rowAlias;
+		// 		frozenAlias = cache.TempProp.rowAlias;
+		// 		userViewIndex = headItemRows.getIndexByAlias(userViewAlias);
+		// 		frozenIndex = headItemRows.getIndexByAlias(frozenAlias);
 
-				if (userViewIndex > index) {
-					userViewAlias = headItemRows.models[index].get('alias');
-					cache.UserView.rowAlias = userViewAlias;
-				}
-				if (index + 1 === frozenIndex) {
-					frozenAlias = headItemRows.models[index].get('alias');
-					cache.TempProp.rowAlias = frozenAlias;
-				}
-				Backbone.trigger('event:bodyContainer:executiveFrozen');
-			}
-		}
+		// 		if (userViewIndex > index) {
+		// 			userViewAlias = headItemRows.models[index].get('alias');
+		// 			cache.UserView.rowAlias = userViewAlias;
+		// 		}
+		// 		if (index + 1 === frozenIndex) {
+		// 			frozenAlias = headItemRows.models[index].get('alias');
+		// 			cache.TempProp.rowAlias = frozenAlias;
+		// 		}
+		// 		Backbone.trigger('event:bodyContainer:executiveFrozen');
+		// 	}
+		// }
 	};
 });

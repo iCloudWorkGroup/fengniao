@@ -29,7 +29,9 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
-
+			if (cache.TempProp.isFrozen === true) {
+				return;
+			}
 			if (!this._isAbleAdd()) {
 				return;
 			}
@@ -46,7 +48,7 @@ define(function(require) {
 			this._adaptSelectRegion(operRegion.startColIndex);
 			this._adaptCells(operRegion.startColIndex);
 			this._removeLastColItem();
-			this._frozenHandle(operRegion.startColIndex);
+			// this._frozenHandle(operRegion.startColIndex);
 			send.PackAjax({
 				url: config.url.col.plus,
 				data: JSON.stringify({
@@ -242,28 +244,28 @@ define(function(require) {
 		 * 处理冻结状态下,插入行功能
 		 * @param  {number} index 插入索引
 		 */
-		_frozenHandle: function(index) {
-			var userViewAlias,
-				userViewIndex,
-				frozenAlias,
-				frozenIndex;
-			if (cache.TempProp.isFrozen === true) {
+		// _frozenHandle: function(index) {
+		// 	var userViewAlias,
+		// 		userViewIndex,
+		// 		frozenAlias,
+		// 		frozenIndex;
+		// 	if (cache.TempProp.isFrozen === true) {
 
-				userViewAlias = cache.UserView.colAlias;
-				frozenAlias = cache.TempProp.colAlias;
-				userViewIndex = headItemCols.getIndexByAlias(userViewAlias);
-				frozenIndex = headItemCols.getIndexByAlias(frozenAlias);
+		// 		userViewAlias = cache.UserView.colAlias;
+		// 		frozenAlias = cache.TempProp.colAlias;
+		// 		userViewIndex = headItemCols.getIndexByAlias(userViewAlias);
+		// 		frozenIndex = headItemCols.getIndexByAlias(frozenAlias);
 
-				if (userViewIndex > index) {
-					userViewAlias = headItemCols.models[index].get('alias');
-					cache.UserView.colAlias = userViewAlias;
-				}
-				if (index + 1 === frozenIndex) {
-					frozenAlias = headItemCols.models[index].get('alias');
-					cache.TempProp.colAlias = frozenAlias;
-				}
-				Backbone.trigger('event:bodyContainer:executiveFrozen');
-			}
-		}
+		// 		if (userViewIndex > index) {
+		// 			userViewAlias = headItemCols.models[index].get('alias');
+		// 			cache.UserView.colAlias = userViewAlias;
+		// 		}
+		// 		if (index + 1 === frozenIndex) {
+		// 			frozenAlias = headItemCols.models[index].get('alias');
+		// 			cache.TempProp.colAlias = frozenAlias;
+		// 		}
+		// 		Backbone.trigger('event:bodyContainer:executiveFrozen');
+		// 	}
+		// }
 	};
 });
