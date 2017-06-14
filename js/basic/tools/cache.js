@@ -79,7 +79,7 @@ define(function(require) {
 		 * 后台存储excel的总高度
 		 * @property {int} localRowPosi
 		 */
-		localRowPosi: 0,
+		localRowPosi: -1,
 		/**
 		 * 后台存储excel的总宽度，超出总宽度，应该自增加列
 		 * @property {int} localRowPosi
