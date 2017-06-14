@@ -746,6 +746,10 @@ define(function(require) {
 		 * @method destroy
 		 */
 		destroy: function() {
+			if (this.unsubscribe) {
+				this.unsubscribe('mainContainer','transversePublish');
+				this.unsubscribe('mainContainer','verticalPublish');
+			}
 			Backbone.trigger('event:cellsContainer:destroy');
 			Backbone.off('call:mainContainer');
 			Backbone.off('event:mainContainer:destroy');

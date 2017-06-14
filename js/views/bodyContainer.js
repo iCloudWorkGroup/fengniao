@@ -175,7 +175,6 @@ define(function(require) {
 			this.ruleRow();
 			this.ruleCol();
 			this.ruleMain();
-			observerPattern.clearSubscriber();
 			
 			// destory old view
 			Backbone.trigger('event:colsPanelContainer:destroy');
