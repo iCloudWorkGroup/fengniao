@@ -117,6 +117,9 @@ define(function(require) {
 		 * @method destroy
 		 */
 		destroy: function() {
+			if (this.unsubscribe) {
+				this.unsubscribe('mainContainer','verticalPublish');
+			}
 			Backbone.off('call:rowsPanelContainer');
 			Backbone.off('event:rowsPanelContainer:destroy');
 			this.rowsAllHeadContainer.destroy();

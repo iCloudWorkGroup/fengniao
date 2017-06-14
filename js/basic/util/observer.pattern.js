@@ -62,7 +62,7 @@ define(function() {
 				}
 				currentSubscribers = types[type];
 				max = currentSubscribers !== undefined ? currentSubscribers.length : 0;
-				for (i = 0; i < max; i++) {
+				for (i = max - 1; i >= 0; i--) {
 					currentSubscriber = currentSubscribers[i];
 					if (currentSubscriber.master === this) {
 						currentSubscribers.splice(i, 1);
