@@ -383,11 +383,11 @@ define(function(require) {
 
 				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
 				endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
-				for (i = startIndex; i <= endIndex; i++) {
+				for (i = endIndex; i >= startIndex; i--) {
 					headItemRowModel = headItemRowList[i];
 					if (headItemRowModel.get('isView') === false) {
 						headItemRowModel.set('isView', true);
-						self.publish('mainContainer', 'restoreRowView', headItemRowModel);
+						self.publish('mainContainer', 'restoreRowView', headItemRowModel, 'up');
 					}
 				}
 				self.adjustColPropCell(startIndex, endIndex);
@@ -506,7 +506,7 @@ define(function(require) {
 					headItemRowModel = headItemRowList[i];
 					if (headItemRowModel.get('isView') === false) {
 						headItemRowModel.set('isView', true);
-						self.publish('mainContainer', 'restoreRowView', headItemRowModel);
+						self.publish('mainContainer', 'restoreRowView', headItemRowModel,'down');
 					}
 				}
 				self.adjustColPropCell(startIndex, endIndex);
