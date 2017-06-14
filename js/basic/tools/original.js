@@ -451,8 +451,8 @@ define(function(require) {
 				cache.localRowPosi = data.maxPixel;
 
 				//待修改：应由后台返回
-				cache.aliasRowCounter;
-				cache.aliasColCounter;
+				cache.aliasRowCounter = data.aliasRowCounter;
+				cache.aliasColCounter = data.aliasColCounter;
 
 				data = data.returndata;
 
