@@ -240,6 +240,7 @@ define(function(require) {
 			if (adjustPosi > 0) {
 				this.el.scrollTop += adjustPosi + 17;
 			}
+			
 		},
 		/**
 		 * 处理鼠标滚动事件
