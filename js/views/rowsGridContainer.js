@@ -73,22 +73,26 @@ define(function(require) {
 			}
 			return this;
 		},
-		restoreRowView: function(model) {
-			this.addGridLineRow(model);
+		restoreRowView: function(model, direction) {
+			this.addGridLineRow(model, direction);
 		},
 		/**
 		 * 渲染view，增加行在`grid`区域内
 		 * @method addGridLineRow
 		 * @param  {object} modelGridLineRow 行model对象
 		 */
-		addGridLineRow: function(modelGridLineRow) {
+		addGridLineRow: function(modelGridLineRow, direction) {
 			//处理冻结状态
 			var gridLineRow = new GridLineRowContainer({
 				model: modelGridLineRow,
 				frozenTop: this.currentRule.displayPosition.offsetTop,
 				endIndex: this.currentRule.displayPosition.endRowIndex
 			});
-			this.$el.append(gridLineRow.render().el);
+			if (direction !== 'down') {
+				this.$el.append(gridLineRow.render().el);
+			} else {
+				this.$el.prepend(gridLineRow.render().el);
+			}
 		},
 
 		/**
