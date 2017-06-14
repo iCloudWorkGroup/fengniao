@@ -227,7 +227,6 @@ define(function(require) {
 		downScroll: function() {
 			var limitBottomPosi,
 				bottomRowModel,
-				recordScrollTop,
 				selectModel,
 				adjustPosi;
 
