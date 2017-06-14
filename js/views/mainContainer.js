@@ -227,23 +227,19 @@ define(function(require) {
 		downScroll: function() {
 			var limitBottomPosi,
 				bottomRowModel,
-				recordScrollTop,
 				selectModel,
 				adjustPosi;
 
 			selectModel = selectRegions.getModelByType('selected');
 			bottomRowModel = headItemRows.getModelByAlias(selectModel.get('wholePosi').startY);
-			limitBottomPosi = selectModel.get('physicsBox').top + bottomRowModel.get('height');
+			limitBottomPosi = bottomRowModel.get('top') + bottomRowModel.get('height');
 
 			adjustPosi = limitBottomPosi - this.offsetTop - this.userViewTop -
 				this.el.scrollTop - this.el.offsetHeight;
 			if (adjustPosi > 0) {
 				this.el.scrollTop += adjustPosi + 17;
 			}
-			recordScrollTop = this.el.scrollTop;
-			this.el.scrollTop = (top - this.el.offsetHeight);
-			this.deleteTop(recordScrollTop);
-			this.addBottom(this.recordBottomPosi);
+			
 		},
 		/**
 		 * 处理鼠标滚动事件
