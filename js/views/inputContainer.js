@@ -241,7 +241,7 @@ define(function(require) {
 						rowSort: rowSort,
 						value: originalText
 					}]);
-			
+
 					if (text.indexOf('\n') !== -1 && (model.get('wordWrap') === false)) {
 						model.set('wordWrap', true);
 						this.sendWordWrap(colSort, rowSort);
@@ -543,7 +543,7 @@ define(function(require) {
 			}
 
 		},
-		sendWordWrap: function(row, col) {
+		sendWordWrap: function(col, row) {
 			send.PackAjax({
 				url: config.url.cell.wordwrap,
 				data: JSON.stringify({
@@ -562,7 +562,7 @@ define(function(require) {
 		 * @method close
 		 * @param e {event}  输入焦点移除
 		 */
-		sendChangeText: function(row, col, text) {
+		sendChangeText: function(col, row, text) {
 			var text,
 				colAlias,
 				rowAlias,
