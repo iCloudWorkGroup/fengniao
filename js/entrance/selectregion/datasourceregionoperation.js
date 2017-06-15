@@ -7,13 +7,13 @@ define(function(require) {
 		operation;
 
 	operation = {
-		setDataSourceRegion: function() {
+		setDataSourceState: function() {
 			Backbone.trigger('event:cellsContainer:setMouseState', 'locatedState' , 'dataSourceLocatedState');
 		},
-		setSelectRegion: function() {
+		setSelectState: function() {
 			Backbone.trigger('event:cellsContainer:setMouseState', 'locatedState' , 'selectLocatedState');
 		},
-		destroyDataSoureRegion: function() {
+		destroyDataSoure: function() {
 			if (selectRegions.getModelByType('datasource') !== undefined) {
 				selectRegions.getModelByType('datasource').destroy();
 			}

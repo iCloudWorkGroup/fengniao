@@ -139,7 +139,7 @@ define(function(require) {
 			}
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'commonMoveState');
 		},
-		getLightDirection: function() {
+		getHighlightDirection: function() {
 			return cache.highlightDirection;
 		}
 	}

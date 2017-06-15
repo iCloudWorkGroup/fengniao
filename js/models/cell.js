@@ -211,10 +211,10 @@ define(function(require) {
 			 */
 			isDestroy: false,
 			/**
-			 * 是否允许单元格进行高亮效果（ps:此属性为外部扩展属性，后期应对此属性进行分离）
+			 * 是否允许单元格进行高亮效果（此属性为外部扩展属性，后期应对此属性进行分离）
 			 * @type {Boolean}
 			 */
-			highlight: true,
+			highlight: false,
 		},
 		/**
 		 * 隐藏当前单元格

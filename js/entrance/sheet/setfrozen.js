@@ -11,7 +11,7 @@ define(function(require) {
 		getOperRegion = require('basic/tools/getoperregion');
 
 
-	var setFrozen = function(sheetId,label,type) {
+	var setFrozen = function(sheetId, point, type) {
 		var clip,
 			region,
 			operRegion,
@@ -22,7 +22,7 @@ define(function(require) {
 			cache.clipState = 'null';
 			clip.destroy();
 		}
-		region = getOperRegion(label);
+		region = getOperRegion(point);
 		operRegion = region.operRegion;
 		sendRegion = region.sendRegion;
 
@@ -86,7 +86,7 @@ define(function(require) {
 			splitColSort = headItemColList[region.startColIndex].get('sort'),
 			splitRowSort = headItemRowList[region.startRowIndex].get('sort');
 
-		if(filterOutUserView(region)){
+		if (filterOutUserView(region)) {
 			return;
 		}
 

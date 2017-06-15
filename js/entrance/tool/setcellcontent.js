@@ -30,6 +30,8 @@ define(function(require) {
 		}
 		operRegion.endColIndex = operRegion.startColIndex;
 		operRegion.endRowIndex = operRegion.startRowIndex;
+		sendRegion.endCol = sendRegion.startCol;
+		sendRegion.endRow = sendRegion.startRow;
 
 		cells.operateCellsByRegion(operRegion, function(cell) {
 			cell.set('content.texts', text);
