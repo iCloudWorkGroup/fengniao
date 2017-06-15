@@ -30,7 +30,7 @@ define(function(require) {
 				return;
 			}
 			region = getOperRegion(label);
-			if (region.operRegion.endRowIndex !== 'MAX') {
+			if (region.operRegion.endRowIndex !== 'MAX' && label === undefined) {
 				return;
 			}
 
@@ -39,6 +39,9 @@ define(function(require) {
 
 			colindex = region.operRegion.startColIndex;
 			colSort = region.sendRegion.startColSort;
+			if (headItemColList[colindex].get('hidden')) {
+				return;
+			}
 			adjustWidth = headItemColList[colindex].get('width');
 
 			//不能进行全部隐藏

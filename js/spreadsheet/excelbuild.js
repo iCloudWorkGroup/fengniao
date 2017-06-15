@@ -6,21 +6,18 @@ define(function(require) {
 		setFontColor = require('entrance/tool/setfontcolor'),
 		setFillColor = require('entrance/tool/setfillcolor'),
 		setFontFamily = require('entrance/tool/setfontfamily'),
-		setCellHeight = require('entrance/cell/setcellheight'),
-		setCellWidth = require('entrance/cell/setcellwidth'),
-		selectCell = require('entrance/cell/selectcell'),
+		setRowHeight = require('entrance/cell/setcellheight'),
+		setColWidth = require('entrance/cell/setcellwidth'),
 		mergeCell = require('entrance/tool/mergecell'),
 		splitCell = require('entrance/tool/splitcell'),
 		setCellContent = require('entrance/tool/setcellcontent'),
-		selectCellCols = require('entrance/cell/selectcellcols'),
-		selectCellRows = require('entrance/cell/selectcellrows'),
 		setCellBorder = require('entrance/tool/setcellborder'),
 		setFontSize = require('entrance/tool/setfontsize'),
 		setFontWeight = require('entrance/tool/setfontweight'),
 		setFontStyle = require('entrance/tool/setfontstyle'),
 		setFrozen = require('entrance/sheet/setfrozen'),
 		setAlign = require('entrance/tool/setalign'),
-		operationDataSourceRegion = require('entrance/selectregion/datasourceregionoperation'),
+		mouseOpr = require('entrance/selectregion/datasourceregionoperation'),
 		getPointByPosi = require('entrance/sheet/getpointbyposi'),
 		setWordWrap = require('entrance/tool/setwordwrap'),
 		getTextByCoordinate = require('entrance/cell/gettextbycoordinate'),
@@ -35,8 +32,6 @@ define(function(require) {
 		deleteCol = require('entrance/tool/deletecol'),
 		regionDel = require('entrance/tool/regiondel'),
 		colHide = require('entrance/col/colhide'),
-		clipSelectOperate = require('entrance/tool/clipselectoperate'),
-		clipPasteOperate = require('entrance/tool/clippasteoperate'),
 		comment = require('entrance/tool/comment');
 
 
@@ -90,21 +85,32 @@ define(function(require) {
 			SpreadSheet.prototype.setFontColor = setFontColor;
 			SpreadSheet.prototype.setFillColor = setFillColor;
 			SpreadSheet.prototype.setFontFamily = setFontFamily;
-			SpreadSheet.prototype.setCellHeight = setCellHeight;
-			SpreadSheet.prototype.selectCell = selectCell;
+			
 			SpreadSheet.prototype.mergeCell = mergeCell;
 			SpreadSheet.prototype.splitCell = splitCell;
 			SpreadSheet.prototype.setCellBorder = setCellBorder;
 			SpreadSheet.prototype.setCellContent = setCellContent;
 			SpreadSheet.prototype.setAlign = setAlign;
-			SpreadSheet.prototype.selectCellCols = selectCellCols;
-			SpreadSheet.prototype.selectCellRows = selectCellRows;
-			SpreadSheet.prototype.setCellWidth = setCellWidth;
+
+			SpreadSheet.prototype.setColWidth = setColWidth;
+			SpreadSheet.prototype.setRowHeight = setRowHeight;
+
 			SpreadSheet.prototype.setFontSize = setFontSize;
 			SpreadSheet.prototype.setFontStyle = setFontStyle;
 			SpreadSheet.prototype.setFontWeight = setFontWeight;
-			SpreadSheet.prototype.setFrozen = setFrozen;
 
+			SpreadSheet.prototype.frozen = function(sheetId, point) {
+				setFrozen(sheetId, point);
+			};
+			SpreadSheet.prototype.colFrozen = function() {
+				setFrozen('temp', null, 'col');
+			};
+			SpreadSheet.prototype.rowFrozen = function() {
+				setFrozen('temp', null, 'row');
+			};
+			SpreadSheet.prototype.unFrozen = function() {
+				setFrozen('temp', null, 'unfrozen');
+			};
 			SpreadSheet.prototype.setNormalType = setTextType.setNormal.bind(setTextType);
 			SpreadSheet.prototype.setTextType = setTextType.setText.bind(setTextType);
 			SpreadSheet.prototype.setNumType = setTextType.setNum.bind(setTextType);
@@ -125,16 +131,6 @@ define(function(require) {
 			SpreadSheet.prototype.getSelectRegion = getSelectRegion;
 			SpreadSheet.prototype.reloadCells = reloadCells;
 
-			SpreadSheet.prototype.clipSelectOperate = function(type) {
-				clipSelectOperate(type);
-			};
-			SpreadSheet.prototype.clipPasteOperate = function() {
-				if (cache.clipState === "null") {
-					return;
-				}
-				clipPasteOperate();
-			}
-
 			SpreadSheet.prototype.addRow = addRowModule.add.bind(addRowModule);
 			SpreadSheet.prototype.addCol = addColModule.add.bind(addColModule);
 			SpreadSheet.prototype.deleteRow = deleteRow.deleteRow.bind(deleteRow);
@@ -151,9 +147,9 @@ define(function(require) {
 
 		},
 		buildDataSourceOperation: function(SpreadSheet) {
-			SpreadSheet.prototype.setDataSourceRegion = operationDataSourceRegion.setDataSourceRegion;
-			SpreadSheet.prototype.setSelectRegion = operationDataSourceRegion.setSelectRegion;
-			SpreadSheet.prototype.destroyDataSoureRegion = operationDataSourceRegion.destroyDataSoureRegion;
+			SpreadSheet.prototype.setDataSourceState = mouseOpr.setDataSourceState;
+			SpreadSheet.prototype.setSelectState = mouseOpr.setSelectState;
+			SpreadSheet.prototype.destroyDataSoure = mouseOpr.destroyDataSoure;
 		},
 		buildExcelEventListener: function(SpreadSheet) {
 			SpreadSheet.prototype.addEventListener = listener.addEventListener;
