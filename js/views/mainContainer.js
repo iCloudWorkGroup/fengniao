@@ -125,7 +125,7 @@ define(function(require) {
 				Backbone.on('event:mainContainer:showSelectRegion', this.showSelectRegion, this);
 				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
 				cache.viewRegion.top = lineRowList[0].get('top');
-				cache.viewRegion.bottom = lastLineCol.get('top') + lastLineCol.get('height');
+				cache.viewRegion.bottom = lastLineRow.get('top') + lastLineRow.get('height');
 				cache.viewRegion.scrollTop = 0;
 				cache.viewRegion.scrollLeft = 0;
 				this.loadRowState = 'FULFILL';
@@ -379,11 +379,11 @@ define(function(require) {
 
 				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
 				endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
-				for (i = startIndex; i <= endIndex; i++) {
+				for (i = endIndex; i >= startIndex; i--) {
 					headItemRowModel = headItemRowList[i];
 					if (headItemRowModel.get('isView') === false) {
 						headItemRowModel.set('isView', true);
-						self.publish('mainContainer', 'restoreRowView', headItemRowModel);
+						self.publish('mainContainer', 'restoreRowView', headItemRowModel, 'up');
 					}
 				}
 				self.adjustColPropCell(startIndex, endIndex);
@@ -502,7 +502,7 @@ define(function(require) {
 					headItemRowModel = headItemRowList[i];
 					if (headItemRowModel.get('isView') === false) {
 						headItemRowModel.set('isView', true);
-						self.publish('mainContainer', 'restoreRowView', headItemRowModel);
+						self.publish('mainContainer', 'restoreRowView', headItemRowModel,'down');
 					}
 				}
 				self.adjustColPropCell(startIndex, endIndex);
@@ -540,6 +540,7 @@ define(function(require) {
 			//超出表格的最大高度，直接添加行对象
 			if (top > cache.localRowPosi || cache.localRowPosi === 0) {
 				restoreRowView.call(this, top, bottom);
+				restoreCellView.call(this, top, bottom);
 				return;
 			}
 			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
@@ -742,6 +743,10 @@ define(function(require) {
 		 * @method destroy
 		 */
 		destroy: function() {
+			if (this.unsubscribe) {
+				this.unsubscribe('mainContainer','transversePublish');
+				this.unsubscribe('mainContainer','verticalPublish');
+			}
 			Backbone.trigger('event:cellsContainer:destroy');
 			Backbone.off('call:mainContainer');
 			Backbone.off('event:mainContainer:destroy');

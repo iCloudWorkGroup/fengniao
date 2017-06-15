@@ -86,7 +86,7 @@ define(function(require) {
 			}
 			len = modelsHeadLineRowRegionList.length;
 			for (; i < len; i++) {
-				this.addRowsHeadContainer(modelsHeadLineRowRegionList[i], true);
+				this.addRowsHeadContainer(modelsHeadLineRowRegionList[i]);
 				this.rowNumber++;
 			}
 			//ensure y or n has exist active model,
@@ -280,7 +280,7 @@ define(function(require) {
 		 * 滚动过程中,还原行视图
 		 * @return {[type]} [description]
 		 */
-		restoreRowView: function(model) {
+		restoreRowView: function(model, direction) {
 			var endIndex = this.currentRule.displayPosition.endIndex,
 				startIndex = this.currentRule.displayPosition.startIndex,
 				headItemRowList = headItemRows.models,
@@ -299,22 +299,21 @@ define(function(require) {
 					}
 				}
 			}
-			this.addRowsHeadContainer(model);
+			this.addRowsHeadContainer(model, direction);
 		},
 		/**
 		 * 添加列标视图
 		 * @method addRowsHeadContainer
 		 * @param {app.Models.LineRow} modelHeadItemRow 
 		 */
-		addRowsHeadContainer: function(modelHeadItemRow, initialize) {
+		addRowsHeadContainer: function(modelHeadItemRow, direction) {
 			this.headItemRowContainer = new HeadItemRowContainer({
 				model: modelHeadItemRow,
 				frozenTop: this.currentRule.displayPosition.offsetTop,
 				reduceUserView: this.currentRule.reduceUserView,
 				endIndex: this.currentRule.displayPosition.endIndex
 			});
-			// if (initialize === true || modelHeadItemRow.get('top') > config.displayRowHeight) {
-			if (initialize === true || modelHeadItemRow.get('top')) {
+			if (direction !== 'up') {
 				this.$el.append(this.headItemRowContainer.render().el);
 			} else {
 				this.$el.prepend(this.headItemRowContainer.render().el);

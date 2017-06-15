@@ -118,6 +118,9 @@ define(function(require) {
 		 * @method destroy
 		 */
 		destroy: function() {
+			if (this.unsubscribe) {
+				this.unsubscribe('mainContainer','transversePublish');
+			}
 			Backbone.off('call:colsPanelContainer');
 			Backbone.off('event:colsPanelContainer:destroy');
 			this.colsAllHeadContainer.destroy();
