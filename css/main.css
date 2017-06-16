@@ -52,7 +52,8 @@ textarea { resize: none; overflow: hidden; }
 .content-list .item { position: absolute; overflow: hidden; cursor: default; border: 1px solid transparent; font-size: inherit; font-family: inherit; }
 .content-list .item .bg { height: inherit; width: inherit; }
 .selected-container, .datasource-container, .clip-container { position: absolute; margin: -1px; overflow: hidden; }
-.datasource-container, .clip-container { border: 2px dotted #000; }
+.datasource-container, .clip-container { border: 2px dashed #217346; }
+.datasource-container .box, .clip-container .box { background: #ddd; height: inherit; opacity: 0.35; }
 .selected-container { border: 2px solid #217346; }
 .selected-container .box { position: relative; height: inherit; }
 .selected-container .box .bg { background: #141414; opacity: .24; height: 100%; }
