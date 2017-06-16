@@ -347,8 +347,6 @@
       sendData: function(format, sendRegion) {
         var data;
         data = {
-          excelId: window.SPREADSHEET_AUTHENTIC_KEY,
-          sheetId: '1',
           coordinate: sendRegion,
           format: format.type
         };
