@@ -231,7 +231,7 @@ define(function(require) {
 				originalText = model.get('content').texts;
 				text = this.$el.val();
 				if (originalText !== text) {
-					history.addUpdateAction('content', text, {
+					history.addUpdateAction('content.texts', text, {
 						startColSort: colSort,
 						startRowSort: rowSort,
 						endColSort: colSort,
@@ -654,17 +654,7 @@ define(function(require) {
 		keyHandle: function() {
 			var inputChar,
 				regular;
-			// if (e.ctrlKey === true || e.altKey === true) {
-			// 	return false;
-			// }
-			// console.log(this.$el);
-			// charcode = typeof e.charCode == 'number' ? e.charCode : e.keyCode;
-			// charcode = e.keyCode;
-			// console.log(e);
-			// console.log(String.fromCharCode(e.which));
-			// inputChar = String.fromCharCode(e.keyCode);
-			// 
-			// console.log(inputChar);
+
 			regular = /[a-zA-Z0-9]/;
 			inputChar = this.$el.val();
 			if (regular.test(inputChar)) {
