@@ -69,8 +69,6 @@ define(function(require) {
 
 			// for reduction position , prevent event scroll auto trigger.
 
-
-
 			lineRowList = headItemRowList;
 			lineColList = headItemColList;
 
@@ -239,7 +237,7 @@ define(function(require) {
 			if (adjustPosi > 0) {
 				this.el.scrollTop += adjustPosi + 17;
 			}
-			
+
 		},
 		/**
 		 * 处理鼠标滚动事件
@@ -365,17 +363,20 @@ define(function(require) {
 			limitBottomPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
 			limitBottomPosi = recordTop < limitBottomPosi ? recordTop : limitBottomPosi;
 
-			this.loadRegion(limitTopPosi, limitBottomPosi, restoreRowView, restoreCellView);
+			this.loadRegion(limitTopPosi, limitBottomPosi, restoreView);
 
 			/**
 			 * 重新渲染超出区域被删除单元格，行列
 			 * @param  {number} top    
 			 * @param  {number} bottom
 			 */
-			function restoreRowView(top, bottom) {
+			function restoreView(top, bottom) {
 				var headItemRowModel,
+					cellModel,
+					cellList,
 					startIndex,
-					endIndex, i;
+					endIndex,
+					len, i;
 
 				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
 				endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
@@ -386,29 +387,16 @@ define(function(require) {
 						self.publish('mainContainer', 'restoreRowView', headItemRowModel, 'up');
 					}
 				}
-				self.adjustColPropCell(startIndex, endIndex);
-				cache.viewRegion.top = headItemRowList[startIndex].get('top');
-			}
-			/**
-			 * 重新渲染超出区域被删除单元格，行列
-			 * @param  {number} top    
-			 * @param  {number} bottom
-			 */
-			function restoreCellView(top, bottom) {
-				var tempCells,
-					startIndex,
-					endIndex,
-					len, i;
-
-				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
-				endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
-				tempCells = cells.getCellByRow(startIndex, endIndex);
-				for (i = 0, len = tempCells.length; i < len; i++) {
-					if (tempCells[i].get('showState') === false) {
-						tempCells[i].set('showState', true);
-						self.publish('mainContainer', 'restoreCellView', tempCells[i]);
+				cellList = cells.getCellByRow(startIndex, endIndex);
+				for (i = 0, len = cellList.length; i < len; i++) {
+					cellModel = cellList[i];
+					if (cellModel.get('showState') === false) {
+						cellModel.set('showState', true);
+						self.publish('mainContainer', 'restoreCellView', cellModel);
 					}
 				}
+				self.adjustColPropCell(startIndex, endIndex);
+				cache.viewRegion.top = headItemRowList[startIndex].get('top');
 			}
 		},
 		/**
@@ -480,51 +468,51 @@ define(function(require) {
 
 			limitTopPosi = recordPosi + 1 > limitTopPosi ? recordPosi + 1 : limitTopPosi;
 
-			this.loadRegion(limitTopPosi, limitBottomPosi, restoreRowView, restoreCellView);
+			this.loadRegion(limitTopPosi, limitBottomPosi, restoreView);
 
 			/**
 			 * 重新渲染超出区域被删除单元格，行列
 			 * @param  {number} top    
 			 * @param  {number} bottom
 			 */
-			function restoreRowView(top, bottom) {
+			function restoreView(top, bottom) {
 				var headItemRowModel,
+					cellList,
+					cellModel,
+					maxBottom,
 					startIndex,
 					endIndex,
-					i;
+					i, len;
 
-				bottom = self.addRows(bottom);
-				self.adaptSelectRegion(); //改为trigger
+				maxBottom = headItemRows.getMaxDistanceHeight();
+				maxBottom = maxBottom < bottom ? maxBottom : bottom;
 
 				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
-				endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
+				endIndex = binary.indexModelBinary(maxBottom, headItemRowList, 'top', 'height');
 				for (i = startIndex; i <= endIndex; i++) {
 					headItemRowModel = headItemRowList[i];
 					if (headItemRowModel.get('isView') === false) {
 						headItemRowModel.set('isView', true);
-						self.publish('mainContainer', 'restoreRowView', headItemRowModel,'down');
+						self.publish('mainContainer', 'restoreRowView', headItemRowModel, 'down');
 					}
 				}
+				cellList = cells.getCellByRow(startIndex, endIndex);
+				for (i = 0, len = cellList.length; i < len; i++) {
+					cellModel = cellList[i];
+					if (cellModel.get('showState') === false) {
+						cellModel.set('showState', true);
+						self.publish('mainContainer', 'restoreCellView', cellModel);
+					}
+				}
+				if (maxBottom < bottom) {
+					bottom = self.addRows(bottom);
+					endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
+				}
+
 				self.adjustColPropCell(startIndex, endIndex);
+				self.adaptSelectRegion();
 				cache.viewRegion.bottom = headItemRowList[endIndex].get('top') + headItemRowList[endIndex].get('height');
 				self.adjustContainerHeight();
-			}
-
-			function restoreCellView(top, bottom) {
-				var tempCells,
-					startIndex,
-					endIndex,
-					len, i;
-
-				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
-				endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
-				tempCells = cells.getCellByRow(startIndex, endIndex);
-				for (i = 0, len = tempCells.length; i < len; i++) {
-					if (tempCells[i].get('showState') === false) {
-						tempCells[i].set('showState', true);
-						self.publish('mainContainer', 'restoreCellView', tempCells[i]);
-					}
-				}
 			}
 		},
 		/**
@@ -533,39 +521,30 @@ define(function(require) {
 		 * @param  {number} top 请求顶部的坐标       
 		 * @return {number} bottom 请求底部的坐标       
 		 */
-		loadRegion: function(top, bottom, restoreRowView, restoreCellView) {
-			var isUnloadRows,
-				isUnloadCells;
+		loadRegion: function(top, bottom, restoreView) {
+			var existUnloads;
 
-			//超出表格的最大高度，直接添加行对象
+			//超出表格的最大高度或新建表格，直接进行视图的还原和添加
 			if (top > cache.localRowPosi || cache.localRowPosi === 0) {
-				restoreRowView.call(this, top, bottom);
-				restoreCellView.call(this, top, bottom);
+				restoreView.call(this, top, bottom);
 				return;
 			}
 			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
 
-			isUnloadRows = loadRecorder.isUnloadPosi(top, bottom, cache.rowRegionPosi);
-			isUnloadCells = loadRecorder.isUnloadPosi(top, bottom, cache.cellRegionPosi.vertical);
+			existUnloads = loadRecorder.isUnloadPosi(top, bottom, cache.rowRegionPosi);
 
-			if (isUnloadRows || isUnloadCells) {
-				this.doRequest(top, bottom, isUnloadRows, isUnloadCells, restoreRowView, restoreCellView);
+			if (existUnloads) {
+				this.doRequest(top, bottom, restoreView);
 			} else {
-				//不需请求数据，直接进行视图还原
-				restoreRowView.call(this, top, bottom);
-				restoreCellView.call(this, top, bottom);
+				restoreView.call(this, top, bottom);
 			}
 		},
-		doRequest: function(top, bottom, loadRows, loadCells, restoreRowView, restoreCellView) {
+		doRequest: function(top, bottom, restoreView) {
 			var self = this;
-			//如果行未进行加载
-			if (loadRows) {
-				this.loadRowState = 'PENDING';
-				bottom = bottom + cache.scrollBufferHeight;
-			} else {
-				restoreRowView.call(this, top, bottom);
-				top = top > cache.scrollBufferHeight ? top - cache.scrollBufferHeight : 0;
-			}
+
+			this.loadRowState = 'PENDING';
+			bottom = bottom + cache.scrollBufferHeight;
+
 			send.PackAjax({
 				url: config.url.sheet.load,
 				async: true,
@@ -579,39 +558,30 @@ define(function(require) {
 
 			function analysisData(data) {
 				var bottomIndex,
+					startRowSort,
+					rowList,
+					cellList,
 					topIndex;
 				if (!data) {
 					return;
 				}
-				if (loadRows) {
-					var startRowSort,
-						rows;
 
-					startRowSort = data.dataRowStartIndex;
-					cache.localRowPosi = data.maxRowPixel;
-					rows = data.returndata.spreadSheet[0].sheet.glY;
+				startRowSort = data.dataRowStartIndex;
+				cache.localRowPosi = data.maxRowPixel;
+				rowList = data.returndata.spreadSheet[0].sheet.glY;
+				cellList = data.returndata.spreadSheet[0].sheet.cells;
+				
+				original.analysisRowData(rowList, startRowSort);
+				original.analysisCellData(cellList);
 
-					original.analysisRowData(rows, startRowSort);
+				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
+				bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
 
-					topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
-					bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
-
-					top = headItemRowList[topIndex].get('top');
-					bottom = headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height');
-					loadRecorder.insertPosi(top, bottom, cache.rowRegionPosi);
-					restoreRowView.call(self, top, bottom);
-					self.loadRowState = 'FULFILL';
-				}
-				if (loadCells) {
-					var cells = data.returndata.spreadSheet[0].sheet.cells;
-					original.analysisCellData(cells);
-					topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
-					bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
-					loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
-						headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
-					restoreCellView.call(self, top, bottom);
-				}
-
+				top = headItemRowList[topIndex].get('top');
+				bottom = headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height');
+				loadRecorder.insertPosi(top, bottom, cache.rowRegionPosi);
+				restoreView.call(self, top, bottom);
+				self.loadRowState = 'FULFILL';
 			}
 		},
 		/**
@@ -697,7 +667,6 @@ define(function(require) {
 			});
 			this.adjustColPropCell(startIndex, startIndex + len - 1);
 			height = headItemRows.getMaxDistanceHeight();
-
 			return height;
 		},
 		/**
@@ -744,8 +713,8 @@ define(function(require) {
 		 */
 		destroy: function() {
 			if (this.unsubscribe) {
-				this.unsubscribe('mainContainer','transversePublish');
-				this.unsubscribe('mainContainer','verticalPublish');
+				this.unsubscribe('mainContainer', 'transversePublish');
+				this.unsubscribe('mainContainer', 'verticalPublish');
 			}
 			Backbone.trigger('event:cellsContainer:destroy');
 			Backbone.off('call:mainContainer');
