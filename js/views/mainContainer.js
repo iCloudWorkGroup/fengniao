@@ -239,7 +239,7 @@ define(function(require) {
 			if (adjustPosi > 0) {
 				this.el.scrollTop += adjustPosi + 17;
 			}
-			
+
 		},
 		/**
 		 * 处理鼠标滚动事件
@@ -502,7 +502,7 @@ define(function(require) {
 					headItemRowModel = headItemRowList[i];
 					if (headItemRowModel.get('isView') === false) {
 						headItemRowModel.set('isView', true);
-						self.publish('mainContainer', 'restoreRowView', headItemRowModel,'down');
+						self.publish('mainContainer', 'restoreRowView', headItemRowModel, 'down');
 					}
 				}
 				self.adjustColPropCell(startIndex, endIndex);
@@ -648,34 +648,49 @@ define(function(require) {
 				headLineRowModelList[i].set('activeState', true);
 			}
 		},
-		adaptRowHeightChange: function(startPosi, diffDistance) {
-			var userViewRowModel,
-				userViewEndRowModel;
+		adaptRowHeightChange: function(startPosi, diff) {
+			if (cache.localRowPosi !== 0) {
+				cache.localRowPosi += diff;
+				loadRecorder.adaptPosi(startPosi, diff, cache.rowRegionPosi);
+			}
+
 			if (cache.viewRegion.top > startPosi) {
-				cache.viewRegion.top += diffDistance;
-				userViewRowModel = headItemRows.getModelByPosition(this.recordScrollTop);
-				cache.UserView.rowAlias = userViewRowModel.get('alias');
-				if (diffDistance > 0) {
+				cache.viewRegion.top += diff;
+				if (diff > 0) {
 					this.addTop(cache.viewRegion.top);
 				} else {
 					this.deleteTop(cache.viewRegion.top);
 				}
 			}
 			if (cache.viewRegion.bottom > startPosi) {
-				cache.viewRegion.bottom += diffDistance;
-				userViewEndRowModel = headItemRows.getModelByPosition(this.recordScrollTop + this.el.offsetHeight);
-				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
-				if (diffDistance > 0) {
+				cache.viewRegion.bottom += diff;
+				//处理末尾行删除情况
+				if (cache.viewRegion.bottom < cache.viewRegion.top) {
+					cache.viewRegion.top = cache.viewRegion.bottom;
+				}
+				if (diff > 0) {
 					this.deleteBottom(cache.viewRegion.bottom);
 				} else {
 					this.addBottom(cache.viewRegion.bottom);
 				}
 			}
-			loadRecorder.adaptPosi(startPosi, diffDistance, cache.rowRegionPosi);
-			loadRecorder.adaptPosi(startPosi, diffDistance, cache.cellRegionPosi.vertical);
-			if (cache.localRowPosi !== 0) {
-				cache.localRowPosi += diffDistance;
+			this.updateUserView();
+		},
+		updateUserView: function() {
+			if (cache.TempProp.isFrozen) {
+				return;
 			}
+			var startRowModel, endRowModel, startColModel, endColModel;
+
+			startRowModel = headItemRows.getModelByPosition(this.el.scrollTop);
+			endRowModel = headItemRows.getModelByPosition(this.el.scrollTop + this.el.offsetHeight);
+			cache.UserView.rowAlias = startRowModel.get('alias');
+			cache.UserView.rowEndAlias = endRowModel.get('alias');
+
+			startColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft);
+			endColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft + this.el.offsetWidth);
+			cache.UserView.colAlias = userViewColModel.get('alias');
+			cache.UserView.colEndAlias = userViewEndColModel.get('alias');
 		},
 		addRows: function(height) {
 			var maxheadItemHeight = headItemRows.getMaxDistanceHeight(),
@@ -744,8 +759,8 @@ define(function(require) {
 		 */
 		destroy: function() {
 			if (this.unsubscribe) {
-				this.unsubscribe('mainContainer','transversePublish');
-				this.unsubscribe('mainContainer','verticalPublish');
+				this.unsubscribe('mainContainer', 'transversePublish');
+				this.unsubscribe('mainContainer', 'verticalPublish');
 			}
 			Backbone.trigger('event:cellsContainer:destroy');
 			Backbone.off('call:mainContainer');
