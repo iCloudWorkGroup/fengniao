@@ -24,7 +24,7 @@ define(function(require) {
 		adaptScreen = require('entrance/sheet/adaptscreen'),
 		getFrozenState = require('entrance/sheet/getfrozenstate'),
 		getSelectRegion = require('entrance/sheet/getselectregion'),
-		reloadCells = require('entrance/cell/reloadcells'),
+		reload = require('entrance/sheet/reload'),
 		setTextType = require('entrance/tool/settexttype'),
 		addRowModule = require('entrance/tool/addrow'),
 		addColModule = require('entrance/tool/addcol'),
@@ -85,7 +85,7 @@ define(function(require) {
 			SpreadSheet.prototype.setFontColor = setFontColor;
 			SpreadSheet.prototype.setFillColor = setFillColor;
 			SpreadSheet.prototype.setFontFamily = setFontFamily;
-			
+
 			SpreadSheet.prototype.mergeCell = mergeCell;
 			SpreadSheet.prototype.splitCell = splitCell;
 			SpreadSheet.prototype.setCellBorder = setCellBorder;
@@ -129,19 +129,14 @@ define(function(require) {
 			SpreadSheet.prototype.getFrozenState = getFrozenState;
 			SpreadSheet.prototype.setWordWrap = setWordWrap;
 			SpreadSheet.prototype.getSelectRegion = getSelectRegion;
-			SpreadSheet.prototype.reloadCells = reloadCells;
+			SpreadSheet.prototype.reload = reload;
 
 			SpreadSheet.prototype.addRow = addRowModule.add.bind(addRowModule);
 			SpreadSheet.prototype.addCol = addColModule.add.bind(addColModule);
 			SpreadSheet.prototype.deleteRow = deleteRow.deleteRow.bind(deleteRow);
 			SpreadSheet.prototype.deleteCol = deleteCol.deleteCol.bind(deleteCol);
 			SpreadSheet.prototype.regionDel = regionDel;
-			SpreadSheet.prototype.clearQueue = function() {
-				cache.sendQueueStep = 0;
-			};
-			SpreadSheet.prototype.getLastStep = function() {
-				return cache.sendQueueStep;
-			};
+
 			SpreadSheet.prototype.colHide = colHide.hide.bind(colHide);
 			SpreadSheet.prototype.colCancelHide = colHide.cancelHide.bind(colHide);
 

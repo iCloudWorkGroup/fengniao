@@ -1,7 +1,3 @@
-// beacause of we used nested model ,but backbone not support nested lsitenTo .
-// so listenTo nested model didn't done.
-
-
 define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),

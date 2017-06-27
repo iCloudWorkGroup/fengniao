@@ -7,11 +7,13 @@ define(function(require) {
 	templatesHTML.BODYTEMPLATE = '<div class="main-layout">';
 	templatesHTML.BODYTEMPLATE += '<table class="cui-grid" cellspacing="0" cellpadding="0" id="tableContainer">';
 	templatesHTML.BODYTEMPLATE += '<tbody><tr><td><div class="left-corner"></div></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></tbody>';
-	templatesHTML.BODYTEMPLATE += '</table><div class="input"></div></div>';
+	templatesHTML.BODYTEMPLATE += '</table></div>';
 	templatesHTML.BODYTEMPLATE += '<div class="sheet-layout"><div class="sheet-body">';
 	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-box glyphicons glyphicon-plus"></div>';
 	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-box active glyphicons glyphicon-th-list"></div>';
-	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-list"></div>';
+	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-list"></div></div></div>';
+	templatesHTML.BODYTEMPLATE += '<div class="mask"><div class="mask-bg"></div>';
+	templatesHTML.BODYTEMPLATE += '<div class="mask-text">加载中..&nbsp;. &nbsp;. &nbsp;&nbsp;.</div></div>';
 	templatesHTML.BODYTEMPLATE += '</div>';
 
 	templatesHTML.SHEETTEMPLATE = '<span>{{name}}</span>';

@@ -9,6 +9,11 @@ define(function(require) {
 		observerPattern = require('basic/util/observer.pattern'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
+		selectRegions = require('collections/selectRegion'),
+		siderLineCols = require('collections/siderLineCol'),
+		siderLineRows = require('collections/siderLineRow'),
+		cells = require('collections/cells'),
+		original = require('basic/tools/original'),
 		SheetsContainer = require('views/sheetsContainer'),
 		MainContainer = require('views/mainContainer'),
 		ColsPanelContainer = require('views/colsPanelContainer'),
@@ -45,10 +50,9 @@ define(function(require) {
 		 * @method initialize
 		 */
 		initialize: function() {
-			Backbone.on('call:bodyContainer', this.callBodyContainer, this);
 			Backbone.on('event:bodyContainer:executiveFrozen', this.executiveFrozen, this);
 			Backbone.on('event:bodyContainer:handleComment', this.handleComment, this);
-			// _.bindAll(this, 'executiveFrozen');
+			Backbone.on('event:reload', this.reload, this);
 			this.commentContainer = null;
 		},
 		/**
@@ -115,18 +119,6 @@ define(function(require) {
 			}
 		},
 		/**
-		 * 绑定视图
-		 * @method callView
-		 * @param  {视图名称} name 
-		 * @return {function} 回调函数
-		 */
-		callView: function(name) {
-			var object = this;
-			return function(callback) {
-				object[name] = callback;
-			};
-		},
-		/**
 		 * 关闭Excel时候，保存用户可视区域
 		 * @method saveUserView
 		 */
@@ -143,7 +135,7 @@ define(function(require) {
 		 * @method adaptScreen
 		 */
 		adaptScreen: function() {
-			//ps:修改（应该把不冻结情况下代码独立）
+			//待修改（应该把不冻结情况下代码独立）
 			this.executiveFrozen();
 		},
 		/**
@@ -175,7 +167,7 @@ define(function(require) {
 			this.ruleRow();
 			this.ruleCol();
 			this.ruleMain();
-			
+
 			// destory old view
 			Backbone.trigger('event:colsPanelContainer:destroy');
 			Backbone.trigger('event:rowsPanelContainer:destroy');
@@ -258,7 +250,7 @@ define(function(require) {
 				if (currentSubscribe) {
 					len = currentSubscribe.length;
 					observerPattern.buildSubscriber(container);
-					
+
 					for (i = 0; i < len; i++) {
 						container.subscribe(currentSubscribe[i].publisherName,
 							currentSubscribe[i].action,
@@ -268,7 +260,7 @@ define(function(require) {
 				}
 
 			}
-			this.initMainView();
+			// this.initMainView();
 		},
 		/**
 		 * 生成列冻结操作规则
@@ -345,7 +337,7 @@ define(function(require) {
 			modelList = headItemRows;
 
 			currentIndex = modelList.getIndexByAlias(cache.TempProp.rowAlias);
-			
+
 			if (currentIndex === -1) {
 				currentModelTop = 0;
 			} else {
@@ -529,24 +521,7 @@ define(function(require) {
 							args: {
 								'direction': 'VERTICAL'
 							},
-						}, 
-						// {
-						// 	publisherName: 'mainContainer',
-						// 	behavior: 'addHeadItemView',
-						// 	action: 'addRowHeadItemViewPublish',
-						// 	args: {}
-						// }, {
-						// 	publisherName: 'mainContainer',
-						// 	behavior: 'addCellView',
-						// 	action: 'addCellViewPublish',
-						// 	args: {}
-						// }, {
-						// 	publisherName: 'mainContainer',
-						// 	behavior: 'adjustContainerHeight',
-						// 	action: 'adjustContainerHeightPublish',
-						// 	args: {}
-						// }
-						]
+						}]
 					};
 					if (cache.TempProp.rowFrozen) {
 						tempRule.boxAttributes.height += userViewRowModel.toJSON().top;
@@ -595,18 +570,17 @@ define(function(require) {
 		 * 页面初始化，mainContainer视图位置跳转
 		 * @method initMainView
 		 */
-		initMainView: function() {
-			var startRowHeadModel,
-				startColHeadModel;
-			if (cache.TempProp.isFrozen === true) {
-				return;
-			}
-			startRowHeadModel = headItemRows.getModelByAlias(cache.UserView.rowAlias);
-			startColHeadModel = headItemCols.getModelByAlias(cache.UserView.colAlias);
-			Backbone.trigger('event:mainContainer:appointPosition', startRowHeadModel.get('top'), 'VERTICAL');
-			Backbone.trigger('event:mainContainer:appointPosition', startColHeadModel.get('left'), 'TRANSVERSE');
-
-		},
+		// initMainView: function() {
+		// 	var startRowHeadModel,
+		// 		startColHeadModel;
+		// 	if (cache.TempProp.isFrozen === true) {
+		// 		return;
+		// 	}
+		// 	startRowHeadModel = headItemRows.getModelByAlias(cache.UserView.rowAlias);
+		// 	startColHeadModel = headItemCols.getModelByAlias(cache.UserView.colAlias);
+		// 	Backbone.trigger('event:mainContainer:appointPosition', startRowHeadModel.get('top'), 'VERTICAL');
+		// 	Backbone.trigger('event:mainContainer:appointPosition', startColHeadModel.get('left'), 'TRANSVERSE');
+		// },
 		/**
 		 * 计算页面的宽高页面滚动条宽度
 		 * @method calculation
@@ -632,14 +606,6 @@ define(function(require) {
 			cache.scrollbarWidth = this.scrollbarWidth;
 		},
 		/**
-		 * 对外开放本对象
-		 * @method callBodyContainer
-		 * @param  {function} receiveFunc 传入接受对象的方法
-		 */
-		callBodyContainer: function(receiveFunc) {
-			receiveFunc(this);
-		},
-		/**
 		 * 寻址
 		 * @method addressing
 		 * @param  {[HTMLElement]}   currrentEl 当前element对象
@@ -654,6 +620,60 @@ define(function(require) {
 				return true;
 			}
 			return false;
+		},
+		reload: function() {
+			var self = this;
+			this.$el.find('.mask').css('display', 'block');
+
+			setTimeout(resetData, 0);
+
+			function resetData() {
+				var cellList = cells.models,
+					headRowList = headItemRows.models,
+					headColList = headItemCols.models,
+					selectList = selectRegions.models,
+					siderLineColList = siderLineCols.models,
+					siderLineRowList = siderLineRows.models,
+					i, len;
+				cache.CellsPosition.strandX = {};
+				cache.CellsPosition.strandY = {};
+				cache.rowRegionPosi = [];
+				cache.sendQueueStep = 0;
+
+				for (i = 0, len = cellList.length; i < len; i++) {
+					cellList[0].destroy();
+				}
+				for (i = 0, len = headRowList.length; i < len; i++) {
+					headRowList[0].destroy();
+				}
+				for (i = 0, len = headColList.length; i < len; i++) {
+					headColList[0].destroy();
+				}
+				for (i = 0, len = selectList.length; i < len; i++) {
+					selectList[0].destroy();
+				}
+				for (i = 0, len = siderLineColList.length; i < len; i++) {
+					siderLineColList[0].destroy();
+				}
+				for (i = 0, len = siderLineRowList.length; i < len; i++) {
+					siderLineRowList[0].destroy();
+				}
+
+				Backbone.trigger('event:colsPanelContainer:destroy');
+				Backbone.trigger('event:rowsPanelContainer:destroy');
+				Backbone.trigger('event:mainContainer:destroy');
+
+				window.SPREADSHEET_BUILD_STATE = 'false';
+				cache.TempProp = {
+					isFrozen: false,
+					rowFrozen: false,
+					colFrozen: false
+				};
+				original.restoreExcel(self.el.id);
+				self.executiveFrozen();
+				self.$el.find('.mask').css('display', 'none');
+			}
+
 		},
 		/**
 		 * 获取鼠标信息
@@ -695,7 +715,6 @@ define(function(require) {
 			return (scrollNone - scrollExist);
 		},
 		destroy: function() {
-			Backbone.off('call:bodyContainer');
 			Backbone.off('event:bodyContainer:executiveFrozen');
 			Backbone.off('event:commentContainer:show');
 			Backbone.off('event:commentContainer:remove');
