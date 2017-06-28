@@ -49,8 +49,8 @@ define(function(require) {
 			mainContainer.adaptRowHeightChange(posi, diff);
 			expect(stubAddTop.called).toBe(false);
 			expect(stubAddBottom.called).toBe(false);
-			expect(stubDeleteTop.called).toBe(true);
-			expect(stubDeleteBottom.called).toBe(false);
+			expect(stubDeleteTop.called).toBe(false);
+			expect(stubDeleteBottom.called).toBe(true);
 			expect(stubLoadRecorder.called).toBe(true);
 			expect(cache.viewRegion.top).toBe(300);
 			expect(cache.viewRegion.bottom).toBe(750);
@@ -72,9 +72,9 @@ define(function(require) {
 			diff = -50;
 			mainContainer.adaptRowHeightChange(posi, diff);
 			expect(stubAddTop.called).toBe(false);
-			expect(stubAddBottom.called).toBe(false);
+			expect(stubAddBottom.called).toBe(true);
 			expect(stubDeleteTop.called).toBe(true);
-			expect(stubDeleteBottom.called).toBe(true);
+			expect(stubDeleteBottom.called).toBe(false);
 			expect(cache.viewRegion.top).toBe(250);
 			expect(cache.viewRegion.bottom).toBe(650);
 		});
@@ -83,9 +83,9 @@ define(function(require) {
 			diff = -50;
 			mainContainer.adaptRowHeightChange(posi, diff);
 			expect(stubAddTop.called).toBe(false);
-			expect(stubAddBottom.called).toBe(false);
+			expect(stubAddBottom.called).toBe(true);
 			expect(stubDeleteTop.called).toBe(false);
-			expect(stubDeleteBottom.called).toBe(true);
+			expect(stubDeleteBottom.called).toBe(false);
 			expect(cache.viewRegion.top).toBe(300);
 			expect(cache.viewRegion.bottom).toBe(650);
 			posi = 601;
@@ -100,7 +100,7 @@ define(function(require) {
 			expect(cache.viewRegion.bottom).toBe(550);
 		});
 		it("调整位置位于视图加载区域下部且高度减小", function() {
-			posi = 350;
+			posi = 850;
 			diff = -50;
 			mainContainer.adaptRowHeightChange(posi, diff);
 			expect(stubAddTop.called).toBe(false);
