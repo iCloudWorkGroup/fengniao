@@ -52,16 +52,23 @@ define(function(require) {
 				endCol: 6,
 				startRow: 11,
 				endRow: 100
-			},{
+			}, {
 				startCol: 2,
 				endCol: 4,
 				startRow: 3,
 				endRow: 56
 			}]);
 		});
-		it('批量操作单元格的回调操作', function() {
-			var sion.stub();cells
-			//cells.operateCellsByRegion();
+		it('批量操作单元格', function() {
+			stubOpr = sinon.stub(cells, 'operateCellsByRegion');
+			setBg.set('1', 'rbg(0,0,0)', [{
+				'100D',
+				'11F'
+			}, {
+				'3d',
+				'56b'
+			}]);
+			stubOpr.restore();
 		});
 	});
 });
