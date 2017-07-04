@@ -5,7 +5,7 @@
   "scripts": {
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info  && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "check": "grunt format",
-    "coverage": "karma start --single-run && grunt coveralls"
+    "coverage": "karma start --single-run --browsers PhantomJS && grunt coveralls"
   },
   "dependencies": {
     "grunt-bump": "^0.7.0",
@@ -23,9 +23,12 @@
   },
   "devDependencies": {
     "grunt": "0.4.1",
+    "grunt-cli": "0.1.0",
     "grunt-conventional-changelog": "^6.1.0",
     "grunt-karma-coveralls":"^2.5.4",
     "karma": "~1.7.0",
-    "karma-jasmine":"1.1.0"
+    "karma-jasmine":"1.1.0",
+    "karma-requirejs":"1.1.0",
+    "karma-chrome-launcher": "2.2.0"
   }
 }
