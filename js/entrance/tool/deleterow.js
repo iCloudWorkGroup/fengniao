@@ -54,7 +54,8 @@ define(function(require) {
 			this._adaptHeadRowItem(index);
 
 			Backbone.trigger('event:cellsContainer:adaptHeight');
-			Backbone.trigger('event:colsAllHeadContainer:adaptHeight');
+			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight', posi, -height);
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange');
 			sendData();
 
 			function sendData() {

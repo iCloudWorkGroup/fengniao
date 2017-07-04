@@ -50,11 +50,11 @@ define(function(require) {
 			this._addColItem();
 			this._adaptCells(index);
 			this._adaptSelectRegion(index);
-			// this._frozenHandle(index);
 			this._adaptHeadColItem(index);
 
 			Backbone.trigger('event:cellsContainer:adaptWidth');
 			Backbone.trigger('event:colsAllHeadContainer:adaptWidth');
+			
 			sendData();
 			function sendData() {
 				send.PackAjax({

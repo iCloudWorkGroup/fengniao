@@ -248,10 +248,6 @@ define(function(require) {
 		 */
 		syncScroll: function(e, direction) {
 			var verticalDirection,
-				userViewRowModel,
-				userViewColModel,
-				userViewEndRowModel,
-				userViewEndColModel,
 				recordScrollTop = cache.viewRegion.scrollTop,
 				recordScrollLeft = cache.viewRegion.scrollLeft,
 				currentViewTop = cache.viewRegion.top,
@@ -278,19 +274,7 @@ define(function(require) {
 			if (recordScrollLeft !== this.el.scrollLeft) {
 				this.publish('mainContainer', 'transversePublish', this.el.scrollLeft, 'TRANSVERSE');
 			}
-
-			//save user view position , alias
-			if (!cache.TempProp.isFrozen) {
-				userViewRowModel = headItemRows.getModelByPosition(this.el.scrollTop);
-				userViewEndRowModel = headItemRows.getModelByPosition(this.el.scrollTop + this.el.offsetHeight);
-				cache.UserView.rowAlias = userViewRowModel.get('alias');
-				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
-
-				userViewColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft);
-				userViewEndColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft + this.el.offsetWidth);
-				cache.UserView.colAlias = userViewColModel.get('alias');
-				cache.UserView.colEndAlias = userViewEndColModel.get('alias');
-			}
+			this.updateUserView();
 		},
 		/**
 		 * 显示行上方超出预加载区域，删除超出视图
@@ -439,7 +423,7 @@ define(function(require) {
 			limitPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
 			limitIndex = binary.indexModelBinary(limitPosi, headItemRowList, 'top', 'height');
 			for (i = limitIndex + 1; i <= recordIndex; i++) {
-				headItemRowList[i].destroyView();
+				headItemRowList[i].set('isView', false);
 			}
 			//删除超过加载区域cell视图对象
 			tempCells = cells.getCellByRow(limitIndex + 1, recordIndex);
@@ -689,8 +673,8 @@ define(function(require) {
 
 			startColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft);
 			endColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft + this.el.offsetWidth);
-			cache.UserView.colAlias = userViewColModel.get('alias');
-			cache.UserView.colEndAlias = userViewEndColModel.get('alias');
+			cache.UserView.colAlias = startColModel.get('alias');
+			cache.UserView.colEndAlias = endColModel.get('alias');
 		},
 		addRows: function(height) {
 			var maxheadItemHeight = headItemRows.getMaxDistanceHeight(),
@@ -712,7 +696,6 @@ define(function(require) {
 			});
 			this.adjustColPropCell(startIndex, startIndex + len - 1);
 			height = headItemRows.getMaxDistanceHeight();
-
 			return height;
 		},
 		/**
