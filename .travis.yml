@@ -14,6 +14,7 @@ before_script:
 - mv -fv tools/deploy/ssh_config ~/.ssh/config
 script:
 - npm run -scripts check
+- npm run -scripts coverage
 - git remote add deploy root@spreadsheet:/usr/local/codelib/fengniao.git
 - git push deploy $TRAVIS_BRANCH
 cache:
