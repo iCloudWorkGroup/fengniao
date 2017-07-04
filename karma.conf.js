@@ -28,7 +28,7 @@ module.exports = function(config) {
         exclude: ['js/app.js', 'test/main.js'],
 
         coverageReporter: {
-            type: 'html',
+            type: 'lcov',
             dir: 'coverage/'
         },
 	plugins: [
