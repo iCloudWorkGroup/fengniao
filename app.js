@@ -9,7 +9,4 @@ define(function(require) {
 	window.SPREADSHEET_BUILD_STATE = $('#build').val();
 	var ss = new SpreadSheet('spreadSheet');
 
-	$('#t').click(function() {
-		ss.batchSetBg('rgb(100,100,100)', ['A']);
-	});
 });
