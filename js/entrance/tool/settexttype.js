@@ -67,7 +67,7 @@
         } else if (operRegion.endRowIndex === 'MAX') {
           colOperate.colPropOper(operRegion.startColIndex, 'format', format);
         } else {
-          cells.operateCellsByRegion(operRegion, function(cell) {
+          cells.operCellsByRegion(operRegion, function(cell) {
             cell.set('format', format);
           });
         }
@@ -108,7 +108,7 @@
         } else if (operRegion.endRowIndex === 'MAX') {
           colOperate.colPropOper(operRegion.startColIndex, 'format', format);
         } else {
-          cells.operateCellsByRegion(operRegion, function(cell) {
+          cells.operCellsByRegion(operRegion, function(cell) {
             cell.set('format', format);
           });
         }
@@ -153,7 +153,7 @@
         } else if (operRegion.endRowIndex === 'MAX') { //整行操作
           colOperate.colPropOper(operRegion.startColIndex, 'format', format);
         } else {
-          cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+          cells.operCellsByRegion(operRegion, function(cell, colSort, rowSort) {
             changeModelList.push({
               colSort: colSort,
               rowSort: rowSort,
@@ -207,7 +207,7 @@
         } else if (operRegion.endRowIndex === 'MAX') { //整列操作
           colOperate.colPropOper(operRegion.startColIndex, 'format', format);
         } else {
-          cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+          cells.operCellsByRegion(operRegion, function(cell, colSort, rowSort) {
             changeModelList.push({
               colSort: colSort,
               rowSort: rowSort,
@@ -268,7 +268,7 @@
             self.generateDisplayText(cell);
           });
         } else {
-          cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+          cells.operCellsByRegion(operRegion, function(cell, colSort, rowSort) {
             changeModelList.push({
               colSort: colSort,
               rowSort: rowSort,
@@ -327,7 +327,7 @@
             self.generateDisplayText(cell);
           });
         } else {
-          cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+          cells.operCellsByRegion(operRegion, function(cell, colSort, rowSort) {
             changeModelList.push({
               colSort: colSort,
               rowSort: rowSort,

@@ -6,7 +6,9 @@ define(function(require) {
 		CellModel = require('models/cell'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
-		selectRegions = require('collections/selectRegion');
+		selectRegions = require('collections/selectRegion'),
+		rowList = headItemRows.models,
+		colList = headItemCols.models;
 	/**
 	 *cell集合类，管理cell对象
 	 *@class Cells 
@@ -1017,39 +1019,39 @@ define(function(require) {
 		 * @param  {number}   endRowIndex   行结束索引
 		 * @param  {Function} fn 单元格操作函数
 		 */
-		operateCellsByRegion: function(region, fn) {
-			var tempCell,
-				headItemRowList = headItemRows.models,
-				headItemColList = headItemCols.models,
+		operCellsByRegion: function(region, fn, key, value) {
+			var model,
+				index,
+				temp = {},
+				params = [],
 				cellsPositionX = cache.CellsPosition.strandX,
 				startColIndex = region.startColIndex,
 				startRowIndex = region.startRowIndex,
 				endColIndex = region.endColIndex,
 				endRowIndex = region.endRowIndex,
-				rowLen,
-				colLen,
 				aliasRow,
 				aliasCol,
-				i = 0,
-				j;
-			if (endColIndex === undefined || endColIndex === null) {
+				i, j;
+			if (endColIndex === undefined) {
 				endColIndex = startColIndex;
 			}
-			if (endRowIndex === undefined || endRowIndex === null) {
+			if (endRowIndex === undefined) {
 				endRowIndex = startRowIndex;
 			}
-			colLen = endColIndex - startColIndex;
-			rowLen = endRowIndex - startRowIndex;
-			for (; i < rowLen + 1; i++) {
-				for (j = 0; j < colLen + 1; j++) {
-					aliasRow = headItemRowList[startRowIndex + i].get('alias');
-					aliasCol = headItemColList[startColIndex + j].get('alias');
-					if (cellsPositionX[aliasCol] !== undefined && cellsPositionX[aliasCol][aliasRow] !== undefined) {
-						tempCell = this.models[cellsPositionX[aliasCol][aliasRow]];
+			for (i = startRowIndex; i <= endRowIndex; i++) {
+				for (j = startColIndex; j <= endColIndex; j++) {
+					aliasRow = rowList[i].get('alias');
+					aliasCol = colList[j].get('alias');
+					if (cellsPositionX[aliasCol] && (index = cellsPositionX[aliasCol][aliasRow]) !== undefined) {
+						if (temp[index]) {
+							break;
+						}
+						model = this.models[index];
+						temp[index] = true;
 					} else {
-						tempCell = this.createCellModel(startColIndex + j, startRowIndex + i);
+						model = this.createCellModel(j, i);
 					}
-					fn(tempCell, headItemColList[startColIndex + j].get('sort'), headItemRowList[startRowIndex + i].get('sort'));
+					fn(model, colList[j].get('sort'), rowList[i].get('sort'), key, value);
 				}
 			}
 		},

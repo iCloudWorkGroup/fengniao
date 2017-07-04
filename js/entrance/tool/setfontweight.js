@@ -60,7 +60,7 @@ define(function(require) {
 		} else if (operRegion.endColIndex === 'MAX') { //整行操作
 			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.bd', bold);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+			cells.operCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('content').bd !== bold) {
 					changeModelList.push({
 						colSort: colSort,

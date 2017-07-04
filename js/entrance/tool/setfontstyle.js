@@ -55,7 +55,7 @@ define(function(require) {
 		} else if (operRegion.endRowIndex === 'MAX') {
 			colOperate.colPropOper(operRegion.startColIndex, 'content.italic', italic);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+			cells.operCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('content').italic !== italic) {
 					changeModelList.push({
 						colSort: colSort,

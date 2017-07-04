@@ -13,7 +13,7 @@ define(function(require) {
 		 * @param  {string} prop  需要修改属性,二级属性设置,例:'content.size'
 		 * @param  {string} value 修改值
 		 */
-		colPropOper: function(index, prop, value,fn) {
+		colPropOper: function(index, prop, value, fn) {
 			var headItemColList,
 				headItemRowList,
 				parentProp,
@@ -30,6 +30,9 @@ define(function(require) {
 				currentStrandX,
 				props, len, i;
 
+			if (index === -1) {
+				return;
+			}
 			props = prop.split('.');
 			if (props.length > 1) {
 				childProp = props[1];
@@ -74,7 +77,7 @@ define(function(require) {
 			len = existCellList.length;
 			for (i = 0; i < len; i++) {
 				existCellList[i].set(prop, value);
-				if(typeof fn === 'function'){
+				if (typeof fn === 'function') {
 					fn(existCellList[i]);
 				}
 			}

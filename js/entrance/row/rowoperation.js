@@ -29,6 +29,9 @@ define(function(require) {
 				props,
 				len, i;
 
+			if(index === -1){
+				return;
+			}
 			props = prop.split('.');
 			if (props.length > 1) {
 				childProp = props[1];
