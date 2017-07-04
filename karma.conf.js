@@ -31,6 +31,12 @@ module.exports = function(config) {
             type: 'html',
             dir: 'coverage/'
         },
+	plugins: [
+	    'karma-coverage',
+	    'karma-jasmine',
+	    'karma-requirejs',
+	    'karma-chrome-launcher'
+	],
 
         // test results reporter to use
         // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
