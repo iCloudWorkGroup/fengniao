@@ -1,22 +1,12 @@
 language: node_js
 repo_token: CVOERALLS.IO_TOKEN
 node_js:
-- 0.1
-before_install:
-- openssl aes-256-cbc -K $encrypted_5daafe953fdb_key -iv $encrypted_5daafe953fdb_iv
-  -in tools/deploy/id_rsa.enc -out ~/.ssh/id_rsa -d
-- chmod 600 ~/.ssh/id_rsa
-- eval $(ssh-agent)
-- ssh-add ~/.ssh/id_rsa
+- 4
 before_script:
 - npm install -g grunt-cli
 - npm install
-- mv -fv tools/deploy/ssh_config ~/.ssh/config
 script:
-- npm run -scripts check
 - npm run -scripts codecover
-- git remote add deploy root@spreadsheet:/usr/local/codelib/fengniao.git
-- git push deploy $TRAVIS_BRANCH
 cache:
   directories:
   - node_modules
