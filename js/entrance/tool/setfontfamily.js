@@ -40,7 +40,7 @@ define(function(require) {
 		} else if (operRegion.endRowIndex === 'MAX') {
 			colOperate.colPropOper(operRegion.startColIndex, 'content.family', fontFamily);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+			cells.operCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('content').family !== fontFamily) {
 					changeModelList.push({
 						colSort: colSort,

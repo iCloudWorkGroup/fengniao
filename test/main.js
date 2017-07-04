@@ -11,7 +11,7 @@ requirejs([
 	//'../test/unit/row.spec',
 	//'../test/unit/rowoper.spec.js',
 	// '../test/unit/col.spec',
-	'../test/unit/loadrecorder.spec'
+	'../test/unit/fillbg.spec'
 ], function() {
 	window.onload();
 });

@@ -45,7 +45,7 @@ define(function(require) {
 				startRowIndex = binary.indexAttrBinary(region.startRowSort, headItemRowList, 'sort');
 				endColIndex = binary.indexAttrBinary(region.endColSort, headItemColList, 'sort');
 				endRowIndex = binary.indexAttrBinary(region.endRowSort, headItemRowList, 'sort');
-				cells.operateCellsByRegion({
+				cells.operCellsByRegion({
 					startColIndex: startColIndex,
 					startRowIndex: startRowIndex,
 					endColIndex: endColIndex,

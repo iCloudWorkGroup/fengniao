@@ -32,7 +32,8 @@ define(function(require) {
 		deleteCol = require('entrance/tool/deletecol'),
 		regionDel = require('entrance/tool/regiondel'),
 		colHide = require('entrance/col/colhide'),
-		comment = require('entrance/tool/comment');
+		comment = require('entrance/tool/comment'),
+		batchSetBg = require('entrance/tool/batchsetbg');
 
 
 	var excelBuild = {
@@ -98,6 +99,8 @@ define(function(require) {
 			SpreadSheet.prototype.setFontSize = setFontSize;
 			SpreadSheet.prototype.setFontStyle = setFontStyle;
 			SpreadSheet.prototype.setFontWeight = setFontWeight;
+
+			SpreadSheet.prototype.batchSetBg = batchSetBg.set.bind(batchSetBg);;
 
 			SpreadSheet.prototype.frozen = function(sheetId, point) {
 				setFrozen(sheetId, point);

@@ -84,7 +84,7 @@ define(function(require) {
 				colOperate.colPropOper(operRegion.startColIndex, 'content.alignCol', vertical);
 			}
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+			cells.operCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (transverse !== undefined) {
 					propName = 'content.alignRow';
 					propValue = transverse;

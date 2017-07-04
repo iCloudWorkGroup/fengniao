@@ -50,7 +50,7 @@ define(function(require) {
 			} else if (operRegion.endRowIndex === 'MAX') {
 				colOperate.colPropOper(operRegion.startColIndex, 'customProp.comment', comment);
 			} else {
-				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+				cells.operCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 					if (cell.get('customProp').comment !== comment) {
 						changeModelList.push({
 							colSort: colSort,

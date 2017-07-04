@@ -33,6 +33,10 @@ define(function(require) {
 		getModelInitSelectRegion: function() {
 			return this.models[selectRegions.models[0].toJSON().initPosi.startY];
 		},
+		getIndexBySort(sort) {
+			var index = binary.indexAttrBinary(sort, this.models, 'sort');
+			return index;
+		},
 		/**
 		 * 获取区域的所有列对象
 		 * @method getModelListByIndex
