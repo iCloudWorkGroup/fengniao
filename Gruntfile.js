@@ -3,7 +3,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
-            files: ['js/collections/*.js', 'js/models/*.js', 'js/basic/**/*.js', 'js/entrance/tool/setfillcolor.js','js/views/mainContainer.js'], //,'js/entrance/**/*.js'
+            files: ['js/collections/*.js', 'js/models/*.js', 'js/basic/**/*.js', 'js/entrance/tool/setfillcolor.js', 'js/views/mainContainer.js'], //,'js/entrance/**/*.js'
             options: {
                 jshintrc: true,
                 globals: {
@@ -82,6 +82,15 @@ module.exports = function(grunt) {
             release: {
                 src: 'CHANGELOG.md'
             }
+        },
+        coveralls: {
+            options: {
+                debug: true,
+                dryRun: false,
+                force: true,
+                recursive: true,
+                coverageDir: 'coverage',
+            }
         }
     });
     require('load-grunt-tasks')(grunt);
@@ -89,6 +98,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-conventional-changelog');
+    grunt.loadNpmTasks('grunt-karma-coveralls');
 
     grunt.registerTask('format', ['jshint']);
     grunt.registerTask('dist', ['build', 'uglify']);
