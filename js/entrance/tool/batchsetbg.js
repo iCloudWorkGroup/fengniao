@@ -1,6 +1,7 @@
 define(function(require) {
 	'use strict';
-	var config = require('spreadsheet/config'),
+	var send = require('basic/tools/send'),
+		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
@@ -13,7 +14,7 @@ define(function(require) {
 		set: function(sheeId, color, arrOper) {
 			var regColor = /^rgb\(((25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]),){2}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9])\)$/,
 				regions, i, len,
-				oper, send;
+				oper, sendData;
 
 			if (arguments.length < 3) {
 				arrOper = color;
@@ -26,22 +27,30 @@ define(function(require) {
 			}
 			regions = this._parse(arrOper);
 			oper = regions.oper;
-			send = regions.send;
+			sendData = regions.send;
 			for (i = 0, len = oper.length; i < len; i++) {
 				if (oper[i].endColIndex === -1) {
 					rowOperate.rowPropOper(oper[i].endRowIndex, 'customProp.background', color);
 				} else if (oper[i].endRowIndex === -1) {
 					colOperate.colPropOper(oper[i].endColIndex, 'customProp.background', color);
 				} else {
-					cells.operCellsByRegion(oper[i], this._callback, color);
+					cells.operCellsByRegion(oper[i], callback, color);
 				}
 			}
-			function callback (cell, colSort, rowSort, value) {
+			function callback(cell, colSort, rowSort, value) {
 				var original;
 				if ((original = cell.get('customProp').background) !== value) {
 					cell.set('customProp.background', value);
 				}
 			}
+			send.PackAjax({
+				url: config.url.cell.bg_batch,
+				data: JSON.stringify({
+					coordinate: sendData,
+					color: color
+				})
+			});
+
 		},
 		_getWeight: function() {
 			var sign,

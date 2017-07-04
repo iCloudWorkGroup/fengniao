@@ -179,6 +179,7 @@ define(function() {
 				font_weight: 'cell/font-weight',
 				font_italic: 'cell/font-italic',
 				font_color: 'cell/font-color',
+				bg_batch: 'cell/bg-batch'
 			},
 			table: {
 				reload: 'reload'
