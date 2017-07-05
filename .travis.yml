@@ -3,7 +3,6 @@ node_js:
 - 4
 script:
 - karma start
-- ls $TRAVIS_BUILD_DIR
 - grunt coveralls
 cache:
   directories:
