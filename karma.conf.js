@@ -35,7 +35,8 @@ module.exports = function(config) {
 	    'karma-coverage',
 	    'karma-jasmine',
 	    'karma-requirejs',
-	    'karma-phantomjs-launcher'
+	    'karma-phantomjs-launcher',
+	    'karma-chrome-launcher'
 	],
 
         // test results reporter to use
