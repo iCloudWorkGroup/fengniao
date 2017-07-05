@@ -3,7 +3,7 @@
   "version": "0.11.1",
   "rootpath": "http://spreadsheet.acmr.com.cn",
   "scripts": {
-    "codecover": "karma start"
+    "codecover": "karma start && grunt coveralls"
   },
   "dependencies": {
     "karma-jasmine": "1.1.0",
