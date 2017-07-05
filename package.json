@@ -18,7 +18,6 @@
     "grunt": "0.4.1",
     "grunt-cli": "0.1.0",
     "karma": "~1.7.0",
-    "karma-phantomjs-launcher": "^1.0.4",
-    "karma-chrome-launcher": "2.2.0"
+    "karma-phantomjs-launcher": "^1.0.4"
   }
 }
