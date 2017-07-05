@@ -28,9 +28,15 @@ module.exports = function(config) {
         exclude: ['js/app.js', 'test/main.js'],
 
         coverageReporter: {
-            type: 'html',
+            type: 'lcov',
             dir: 'coverage/'
         },
+	plugins: [
+	    'karma-coverage',
+	    'karma-jasmine',
+	    'karma-requirejs',
+	    'karma-phantomjs-launcher'
+	],
 
         // test results reporter to use
         // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
@@ -57,7 +63,7 @@ module.exports = function(config) {
 
 
         // enable / disable watching file and executing tests whenever any file changes
-        autoWatch: true,
+        autoWatch: false,
 
 
         // Start these browsers, currently available:
@@ -68,7 +74,7 @@ module.exports = function(config) {
         // - Safari (only Mac)
         // - PhantomJS
         // - IE (only Windows)
-        browsers: ['Chrome'],
+        browsers: ['PhantomJS'],
 
 
         // If browser does not capture in given timeout [ms], kill it
@@ -77,6 +83,6 @@ module.exports = function(config) {
 
         // Continuous Integration mode
         // if true, it capture browsers, run tests and exit
-        singleRun: false
+        singleRun: true
     });
 };

@@ -3,24 +3,21 @@
   "version": "0.11.1",
   "rootpath": "http://spreadsheet.acmr.com.cn",
   "scripts": {
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info  && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
-    "check": "grunt format"
+    "code": "karma start",
+    "cover": "grunt coveralls"
   },
   "dependencies": {
-    "grunt-bump": "^0.7.0",
-    "mocha": "^2.1.0",
-    "istanbul": "^0.3.2",
-    "coveralls": "2.12.0",
-    "expect.js": "^0.3.1",
-    "grunt-conventional-changelog": "^6.1.0",
-    "grunt-contrib-uglify": "^2.1.0",
-    "load-grunt-tasks": "0.4.0",
-    "grunt-contrib-jshint": "~0.11.1",
-    "grunt-contrib-less": "1.3.0",
+    "karma-jasmine": "1.1.0",
+    "karma-requirejs": "1.1.0",
+    "karma-coverage": "1.1.1",
+    "jasmine-core": "2.6.0",
+    "grunt-karma-coveralls": "^2.5.4",
     "requirejs": "2.1.9"
   },
   "devDependencies": {
     "grunt": "0.4.1",
-    "grunt-conventional-changelog": "^6.1.0"
+    "grunt-cli": "0.1.0",
+    "karma": "~1.7.0",
+    "karma-phantomjs-launcher": "^1.0.4"
   }
 }
