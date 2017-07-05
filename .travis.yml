@@ -4,7 +4,7 @@ node_js:
 - 4
 script:
 - karma start
-- $TRAVIS_BUILD_DIR/grunt coveralls
+- $TRAVIS_BUILD_DIR/node_modules/grunt/bin/grunt coveralls
 cache:
   directories:
   - node_modules
