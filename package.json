@@ -3,21 +3,21 @@
   "version": "0.11.1",
   "rootpath": "http://spreadsheet.acmr.com.cn",
   "scripts": {
-    "codecover": "karma start && grunt coveralls"
+    "code": "karma start",
+    "cover": "grunt coveralls"
   },
   "dependencies": {
     "karma-jasmine": "1.1.0",
     "karma-requirejs": "1.1.0",
     "karma-coverage": "1.1.1",
     "jasmine-core": "2.6.0",
+    "grunt-karma-coveralls": "^2.5.4",
     "requirejs": "2.1.9"
   },
   "devDependencies": {
     "grunt": "0.4.1",
     "grunt-cli": "0.1.0",
-    "grunt-karma-coveralls": "^2.5.4",
     "karma": "~1.7.0",
-    "karma-chrome-launcher": "2.2.0",
     "karma-phantomjs-launcher": "^1.0.4"
   }
 }

@@ -6,7 +6,8 @@ before_script:
 - npm install -g grunt-cli
 - npm install
 script:
-- npm run codecover
+- npm run code
+- npm run cover
 cache:
   directories:
   - node_modules
