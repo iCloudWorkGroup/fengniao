@@ -3,8 +3,8 @@ repo_token: CVOERALLS.IO_TOKEN
 node_js:
 - 4
 script:
-- $TRAVIS_BUILD_DIR '/karma start'
-- grunt coveralls
+- karma start
+- $TRAVIS_BUILD_DIR/grunt coveralls
 cache:
   directories:
   - node_modules
