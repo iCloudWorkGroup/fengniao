@@ -6,8 +6,8 @@ before_script:
 - npm install -g grunt-cli
 - npm install
 script:
-- npm run code
-- npm run cover
+- ./node_module/karma/bin/karma start
+- grunt coveralls
 cache:
   directories:
   - node_modules
