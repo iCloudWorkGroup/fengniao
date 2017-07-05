@@ -35,7 +35,8 @@ module.exports = function(config) {
 	    'karma-coverage',
 	    'karma-jasmine',
 	    'karma-requirejs',
-	    'karma-phantomjs-launcher'
+	    'karma-phantomjs-launcher',
+	    'karma-chrome-launcher'
 	],
 
         // test results reporter to use
@@ -63,7 +64,7 @@ module.exports = function(config) {
 
 
         // enable / disable watching file and executing tests whenever any file changes
-        autoWatch: false,
+        autoWatch: true,
 
 
         // Start these browsers, currently available:
