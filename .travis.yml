@@ -1,5 +1,4 @@
 language: node_js
-repo_token: CVOERALLS.IO_TOKEN
 node_js:
 - 4
 script:
