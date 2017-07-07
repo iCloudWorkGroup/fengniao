@@ -1,4 +1,4 @@
-/*! fengniao 0.11.0 */
+/*! fengniao 0.11.1 */
 
 
 /**
@@ -9261,7 +9261,12 @@
     			
     			prestrainWidth: 100,
     			
-    			maxRowNum: 9999
+    			maxRowNum: 9999,
+    			
+    			comment: {
+    				height: 150,
+    				width: 150
+    			}
     		},
     		mouseOperateState: {
     			select: 'selected',
@@ -9306,7 +9311,7 @@
     				hide: 'row/hide',
     				show: 'row/show',
     				adjust: 'row/adjust',
-    				plus_batch: 'row/plus-batch'
+    				plusBatch: 'row/plus-batch'
     			},
     			col: {
     				plus: 'col/plus',
@@ -9333,6 +9338,7 @@
     				font_weight: 'cell/font-weight',
     				font_italic: 'cell/font-italic',
     				font_color: 'cell/font-color',
+    				bg_batch:'cell/bg-batch'
     			},
     			table: {
     				reload: 'reload'
@@ -9349,11 +9355,10 @@
     			},
     
     		},
-    		version: '0.11.0',
-    		rootPath: 'http://excel-inc.acmr.com.cn/deploy/'
+    		version: '0.11.1',
+    		rootPath: 'http://excel-inc.acmr.com.cn/master/'
     	};
     });
-    
     //attention bug , those cache objects has mix , for use 
     
     define('basic/tools/cache',function() {
@@ -9370,6 +9375,7 @@
     			row: [],
     			col: []
     		},
+    		scrollBarWidth: null,
     		
     		scrollBufferHeight: 600,
     		
@@ -9441,6 +9447,7 @@
     			scrollTop: 0
     		},
     		commentEidtState: false,
+    		clipboardData: null,
     		//
     		
     		cachePosition: function(aliasRow, aliasCol, index) {
@@ -13786,6 +13793,9 @@
     			}
     			return modelList;
     		},
+    		getIndexBySort: function(sort) {
+    			return binary.indexAttrBinary(sort, this.models, 'sort');
+    		},
     		getIndexByDisplayname: function(displayName) {
     			var model = this.findWhere({
     				'displayName': displayName
@@ -13958,6 +13968,9 @@
     		},
     		getIndexByPosi: function(posi) {
     			return binary.newModelBinary(posi, this.models, 'top', 'height');
+    		},
+    		getIndexBySort: function(sort) {
+    			return binary.indexAttrBinary(sort, this.models, 'sort');
     		},
     		
     		getIndexByAlias: function(alias) {
@@ -14214,7 +14227,7 @@
     			
     			isDestroy: false,
     			
-    			highlight: true,
+    			highlight: false,
     		},
     		
     		hide: function() {
@@ -15103,7 +15116,7 @@
     			return cacheCellArray;
     		},
     		
-    		operateCellsByRegion: function(region, fn) {
+    		oprCellsByRegion: function(region, fn, key, value) {
     			var tempCell,
     				headItemRowList = headItemRows.models,
     				headItemColList = headItemCols.models,
@@ -15135,7 +15148,7 @@
     					} else {
     						tempCell = this.createCellModel(startColIndex + j, startRowIndex + i);
     					}
-    					fn(tempCell, headItemColList[startColIndex + j].get('sort'), headItemRowList[startRowIndex + i].get('sort'));
+    					fn(tempCell, headItemColList[startColIndex + j].get('sort'), headItemRowList[startRowIndex + i].get('sort'), key, value);
     				}
     			}
     		},
@@ -15150,7 +15163,10 @@
     				cellEndRowIndex,
     				temp,
     				flag = true,
-    				i = 0;
+    				i, len;
+    
+    			endColIndex = endColIndex !== undefined ? endColIndex : startColIndex;
+    			endRowIndex = endRowIndex !== undefined ? endRowIndex : startRowIndex;
     
     			if (endColIndex === 'MAX') {
     				return {
@@ -15181,7 +15197,8 @@
     			while (flag) {
     				flag = false;
     				tempCellList = this.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
-    				for (; i < tempCellList.length; i++) {
+    
+    				for (i = 0, len = tempCellList.length; i < len; i++) {
     					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, headItemRowList, 'top', 'height');
     					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, headItemColList, 'left', 'width');
     					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, headItemRowList, 'top', 'height');
@@ -15592,8 +15609,8 @@
     				startRowSort,
     				startColSort,
     				sheetNames = [],
-    				self = this,
-    				i;
+    				self = this;
+    				
     			if (build === 'true' || build === undefined) {
     				this.bulidNewExcel();
     				cache.localRowPosi = 0;
@@ -15610,50 +15627,68 @@
     					bottom: $('#' + domId).height() + config.System.prestrainHeight
     				}),
     				dataType: 'json',
-    				success: function(data) {
-    					if (data === '') {
-    						return;
-    					}
-    					cache.UserView.rowAlias = data.displayRowStartAlias;
-    					cache.UserView.colAlias = data.displayColStartAlias;
-    					//待修改：应由后台返回
-    					cache.aliasRowCounter;
-    					cache.aliasColCounter;
+    					success: function() {
+    					fillData.apply(this, arguments);
+    				}
+    			});
     
+    			function fillData(data) {
+    				var sheetData,
+    					headItemColList,
+    					headItemRowList,
+    					colLen,
+    					rowLen;
     
-    					if (data.returndata.spreadSheet[0].sheet.frozen.state === '1') {
-    						//待修改：冻结位置，因返回alias，与useView一致，不应该为index
-    						cache.TempProp = {
-    							isFrozen: true,
-    							colAlias: data.returndata.spreadSheet[0].sheet.frozen.colIndex,
-    							rowAlias: data.returndata.spreadSheet[0].sheet.frozen.rowIndex,
-    							rowFrozen: true,
-    							colFrozen: true
-    						};
-    					}
-    					for (i = 0; i < data.returndata.spreadSheet.length; i++) {
-    						sheetNames.push(data.returndata.spreadSheet[i].name);
-    					}
-    					cache.localRowPosi = data.maxPixel;
-    					startRowSort = data.dataRowStartIndex;
-    					startColSort = data.dataColStartIndex;
-    					data = data.returndata;
-    					var cellModels = data.spreadSheet[0].sheet.cells;
-    					var rows = data.spreadSheet[0].sheet.glY;
-    					var cols = data.spreadSheet[0].sheet.glX;
+    				if (!data) {
+    					return;
+    				}
+    
+    				if (!data.returndata) {
+    					return;
+    				}
+    				cache.UserView.rowAlias = data.displayRowStartAlias;
+    				cache.UserView.colAlias = data.displayColStartAlias;
+    
+    				startRowSort = data.dataRowStartIndex;
+    				startColSort = data.dataColStartIndex;
+    
+    				cache.localRowPosi = data.maxPixel;
+    
+    				cache.aliasRowCounter = data.aliasRowCounter;
+    				cache.aliasColCounter = data.aliasColCounter;
+    
+    				data = data.returndata;
+    
+    				if (data.spreadSheet && data.spreadSheet[0] &&
+    					(sheetData = data.spreadSheet[0].sheet)) {
+    
+    					sheetNames.push(data.spreadSheet[0].name);
+    					var cellModels = sheetData.cells;
+    					var rows = sheetData.glY;
+    					var cols = sheetData.glX;
     
     					self.analysisSheetData(sheetNames);
     					self.analysisRowData(rows, startRowSort);
     					self.analysisColData(cols, startColSort);
     					self.analysisCellData(cellModels);
     					self.restoreSelectRegion();
-    					loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.rowRegionPosi);
-    					loadRecorder.insertPosi(headItemRows.models[0].get('top'), headItemRows.models[headItemRows.length - 1].get('top') + headItemRows.models[headItemRows.length - 1].get('height'), cache.cellRegionPosi.vertical);
-    					cache.loadCol.startSort = headItemCols.models[0].get('sort');
-    					cache.loadCol.endSort = headItemCols.models[headItemCols.length - 1].get('sort');
-    				}
-    			});
     
+    					headItemColList = headItemCols.models;
+    					headItemRowList = headItemRows.models;
+    
+    					cache.TempProp.colAlias = headItemColList[0].get('alias');
+    					cache.TempProp.rowAlias = headItemRowList[0].get('alias');
+    					colLen = headItemCols.length;
+    					rowLen = headItemRows.length;
+    
+    					loadRecorder.insertPosi(headItemRowList[0].get('top'),
+    						headItemRowList[rowLen - 1].get('top') + headItemRowList[rowLen - 1].get('height'),
+    						cache.rowRegionPosi);
+    					loadRecorder.insertPosi(headItemRowList[0].get('top'),
+    						headItemRowList[rowLen - 1].get('top') + headItemRowList[rowLen - 1].get('height'),
+    						cache.cellRegionPosi.vertical);
+    				}
+    			}
     		}
     	};
     });
@@ -15842,7 +15877,7 @@
     			headItemColList = headItemCols.models,
     			headItemRowList = headItemRows.models;
     
-    		if (label === undefined) {
+    		if (!label) {
     			select = selects.getModelByType('selected');
     			startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
     			endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
@@ -16171,7 +16206,7 @@
     		} else if (operRegion.endRowIndex === 'MAX') {
     			colOperate.colPropOper(operRegion.startColIndex, 'content.color', color);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     				if (cell.get('content').color !== color) {
     					changeModelList.push({
     						colSort: colSort,
@@ -16205,12 +16240,11 @@
     });
     
     define('entrance/tool/setfillcolor',function() {
+    	
     	var send = require('basic/tools/send'),
-    		binary = require('basic/util/binary'),
     		config = require('spreadsheet/config'),
     		cache = require('basic/tools/cache'),
     		cells = require('collections/cells'),
-    		Point = require('basic/tools/point'),
     		history = require('basic/tools/history'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
@@ -16221,213 +16255,56 @@
     
     	
     	var setFillColor = function(sheetId, color, arrOpr) {
+    		
+    
     		var clip,
+    			region,
     			operRegion,
     			sendRegion,
     			headItemRowList = headItemRows.models,
     			headItemColList = headItemCols.models,
-    			len, i;
+    			changeModelList = [];
     
     		clip = selectRegions.getModelByType('clip');
     		if (clip !== undefined) {
     			cache.clipState = 'null';
     			clip.destroy();
     		}
-    		if (arrOpr !== undefined) {
-    			if (arrOpr.constructor === Array) {
-    				len = arrOpr.length;
-    				for (i = 0; i < len; i++) {
-    					if (!(arrOpr[i] instanceof Point)) {
-    						throw new Error('Parameter format error');
-    					}
-    				}
-    			} else {
-    				throw new Error('Parameter format error');
-    			}
-    			outerOper();
+    
+    		region = getOperRegion(arrOpr);
+    		operRegion = region.operRegion;
+    		sendRegion = region.sendRegion;
+    
+    
+    		if (operRegion.endColIndex === 'MAX') { //整行操作
+    			rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.background', color);
+    		} else if (operRegion.endRowIndex === 'MAX') {
+    			colOperate.colPropOper(operRegion.startColIndex, 'customProp.background', color);
     		} else {
-    			operRegion = getOperRegion().operRegion;
-    			sendRegion = getOperRegion().sendRegion;
-    			innerOper(operRegion, sendRegion);
-    		}
-    
-    		function innerOper(operRegion, sendRegion) {
-    			var changeModelList = [];
-    			if (operRegion.endColIndex === 'MAX') { //整行操作
-    				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.background', color);
-    			} else if (operRegion.endRowIndex === 'MAX') {
-    				colOperate.colPropOper(operRegion.startColIndex, 'customProp.background', color);
-    			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
-    					if (cell.get('customProp').background !== color) {
-    						changeModelList.push({
-    							colSort: colSort,
-    							rowSort: rowSort,
-    							value: cell.get('customProp').background
-    						});
-    						cell.set('customProp.background', color);
-    					}
-    				});
-    				history.addUpdateAction('customProp.background', color, {
-    					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
-    					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
-    					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
-    					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-    				}, changeModelList);
-    			}
-    			send.PackAjax({
-    				url: config.url.cell.bg,
-    				data: JSON.stringify({
-    					sheetId: '1',
-    					coordinate: sendRegion,
-    					color: color
-    				})
-    			});
-    		}
-    
-    		function outerOper() {
-    			var i = 0,
-    				temp,
-    				len = arrOpr.length,
-    				startColSort,
-    				startRowSort,
-    				endColSort,
-    				endRowSort,
-    				coordianteData = [];
-    			for (; i < len; i++) {
-    				if (!arrOpr[i].startCol) {
-    					startRowSort = rowSignToSort(arrOpr[i].startRow);
-    					coordianteData.push({
-    						startSortX: 0,
-    						startSortY: startRowSort,
-    						endSortX: -1,
-    						endSortY: startRowSort
+    			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				if (cell.get('customProp').background !== color) {
+    					changeModelList.push({
+    						colSort: colSort,
+    						rowSort: rowSort,
+    						value: cell.get('customProp').background
     					});
-    				} else if (!arrOpr[i].startRow) {
-    					startColSort = rowSignToSort(arrOpr[i].startCol);
-    					coordianteData.push({
-    						startSortX: startColSort,
-    						startSortY: 0,
-    						endSortX: startColSort,
-    						endSortY: -1
-    					});
-    				} else {
-    					startColSort = colSignToSort(arrOpr[i].startCol);
-    					startRowSort = rowSignToSort(arrOpr[i].startRow);
-    					endColSort = colSignToSort(arrOpr[i].endCol);
-    					endRowSort = rowSignToSort(arrOpr[i].endRow);
-    					if (endColSort < startColSort) {
-    						temp = startColSort;
-    						startColSort = endColSort;
-    						endColSort = temp;
-    					}
-    					if (endRowSort < startRowSort) {
-    						temp = startRowSort;
-    						startRowSort = endRowSort;
-    						endRowSort = temp;
-    					}
-    					coordianteData.push({
-    						startSortX: startColSort,
-    						startSortY: startRowSort,
-    						endSortX: endColSort,
-    						endSortY: endRowSort
-    					});
-    				}
-    			}
-    			send.PackAjax({
-    				url: 'text.htm?m=batchcolorset',
-    				data: JSON.stringify({
-    					coordinates: coordianteData,
-    					bgcolor: color
-    				}),
-    				success: function(data) {
-    					data = data.returndata;
-    					fillColorOper(data, coordianteData);
+    					cell.set('customProp.background', color);
     				}
     			});
+    			history.addUpdateAction('customProp.background', color, {
+    				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+    				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+    				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+    				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+    			}, changeModelList);
     		}
-    
-    		function fillColorOper(data, coordianteData) {
-    			var i = 0,
-    				temp = {},
-    				len,
-    				startColIndex,
-    				startRowIndex,
-    				endColIndex,
-    				endRowIndex,
-    				headItemColList,
-    				headItemRowList;
-    
-    			headItemColList = headItemCols.models;
-    			headItemRowList = headItemRows.models;
-    			len = data.length;
-    			for (; i < len; i++) {
-    				temp[data[i].index] = data[i].errorMessage;
-    			}
-    			len = arrOpr.length;
-    			for (i = 0; i < len; i++) {
-    				if (temp[i] && arrOpr[i].error) {
-    					arrOpr[i].error();
-    				} else {
-    					if (coordianteData[i].endColSort === -1) { //整行操作
-    						startRowIndex = binary.indexAttrBinary(coordianteData[i].startSortY, headItemRowList, 'sort');
-    						rowOperate.rowPropOper(startRowIndex, 'customProp.background', color);
-    					} else if (coordianteData[i].endRowIndex === -1) {
-    						startColIndex = binary.indexAttrBinary(coordianteData[i].startSortX, headItemColList, 'sort');
-    						colOperate.colPropOper(startColIndex, 'customProp.background', color);
-    					} else {
-    						startRowIndex = binary.indexAttrBinary(coordianteData[i].startSortY, headItemRowList, 'sort');
-    						startColIndex = binary.indexAttrBinary(coordianteData[i].startSortX, headItemColList, 'sort');
-    						endRowIndex = binary.indexAttrBinary(coordianteData[i].endSortY, headItemRowList, 'sort');
-    						endColIndex = binary.indexAttrBinary(coordianteData[i].endSortX, headItemColList, 'sort');
-    
-    						if (startRowIndex === -1 || startColIndex === -1) {
-    							if (arrOpr[i].success) {
-    								arrOpr[i].success();
-    							}
-    							continue;
-    						}
-    						if (endRowIndex === -1) {
-    							endRowIndex = headItemRows.length - 1;
-    						}
-    						if (endColIndex === -1) {
-    							endColIndex = headItemCols.length - 1;
-    						}
-    						cells.operateCellsByRegion({
-    							startRowIndex: startRowIndex,
-    							endRowIndex: endRowIndex,
-    							startColIndex: startColIndex,
-    							endColIndex: endColIndex
-    						}, cellOper);
-    						if (arrOpr[i].success) {
-    							arrOpr[i].success();
-    						}
-    					}
-    
-    				}
-    			}
-    
-    			function cellOper(cell) {
-    				cell.set('customProp.background', color);
-    			}
-    		}
-    
-    		function colSignToSort(sign) {
-    			var i = 0,
-    				sort = 0,
-    				len = sign.length,
-    				letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
-    				index;
-    			for (; i < len; i++) {
-    				index = letter.indexOf(sign[i]) + 1;
-    				sort += index * (Math.pow(26, (len - i - 1)));
-    			}
-    			return sort - 1;
-    		}
-    
-    		function rowSignToSort(sign) {
-    			return parseInt(sign) - 1;
-    		}
+    		send.PackAjax({
+    			url: config.url.cell.bg,
+    			data: JSON.stringify({
+    				coordinate: sendRegion,
+    				color: color
+    			})
+    		});
     	};
     	return setFillColor;
     });
@@ -16473,7 +16350,7 @@
     		} else if (operRegion.endRowIndex === 'MAX') {
     			colOperate.colPropOper(operRegion.startColIndex, 'content.family', fontFamily);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     				if (cell.get('content').family !== fontFamily) {
     					changeModelList.push({
     						colSort: colSort,
@@ -16507,11 +16384,15 @@
     
     define('entrance/cell/setcellheight',function() {
     	var Backbone = require('lib/backbone'),
-    		headItemRows = require('collections/headItemRow');
+    		headItemRows = require('collections/headItemRow'),
+    		cache = require('basic/tools/cache');
     
     
     	var setCellHeight = function(sheetId, rowLabel, height) {
     		var index;
+    		if (cache.TempProp.isFrozen === true) {
+    			return;
+    		}
     		index = headItemRows.getIndexByDisplayname(rowLabel);
     		if (index > -1) {
     			// adjustHeight = height - headItemRows.models[index].get('height');
@@ -16526,123 +16407,21 @@
     
     
     	var Backbone = require('lib/backbone'),
-    		headItemCols = require('collections/headItemCol');
+    		headItemCols = require('collections/headItemCol'),
+    		cache = require('basic/tools/cache');
     
     
     	var setCellWidth = function(sheetId, colLable, width) {
     		var index;
+    		if (cache.TempProp.isFrozen === true) {
+    			return;
+    		}
     		index = headItemCols.getIndexByDisplayname(colLable);
     		if (index > -1) {
     			Backbone.trigger('event:colWidthAdjust', index, width);
     		}
     	};
     	return setCellWidth;
-    });
-    
-    define('entrance/cell/selectcell',function() {
-    	var selectRegions = require('collections/selectRegion'),
-    		siderLineRows = require('collections/siderLineRow'),
-    		siderLineCols = require('collections/siderLineCol'),
-    		headItemCols = require('collections/headItemCol'),
-    		headItemRows = require('collections/headItemRow'),
-    		analysisLabel = require('basic/tools/analysislabel'),
-    		cells = require('collections/cells');
-    
-    
-    	var selectCell = function(sheetId, label) {
-    		var select,
-    			region = {},
-    			startColIndex,
-    			startRowIndex,
-    			endColIndex,
-    			endRowIndex,
-    			headItemColList = headItemCols.models,
-    			headItemRowList = headItemRows.models,
-    			width = 0,
-    			height = 0,
-    			len, i;
-    
-    		if (label !== undefined) {
-    			region = analysisLabel(label);
-    			region = cells.getFullOperationRegion(region);
-    		} else {
-    			select = selectRegions.getModelByType('selected');
-    			region.startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
-    			region.startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
-    		}
-    		if (region.startColIndex < 0 ||
-    			region.startRowIndex < 0 ||
-    			region.endColIndex < 0 ||
-    			region.endRowIndex < 0) {
-    			return;
-    		}
-    
-    		startColIndex = region.startColIndex;
-    		startRowIndex = region.startRowIndex;
-    		endColIndex = region.endColIndex;
-    		endRowIndex = region.endRowIndex;
-    
-    
-    		width = headItemColList[endColIndex].get('width') + headItemColList[endColIndex].get('left') - headItemColList[startColIndex].get('left');
-    		height = headItemRowList[endRowIndex].get('height') + headItemRowList[endRowIndex].get('top') - headItemRowList[startRowIndex].get('top');
-    
-    		selectRegions.models[0].set({
-    			initPosi: {
-    				startX: startColIndex,
-    				startY: startRowIndex
-    			},
-    			mousePosi: {
-    				mouseX: endColIndex,
-    				mouseY: endRowIndex
-    			},
-    			physicsBox: {
-    				top: headItemRowList[startRowIndex].get('top'),
-    				left: headItemColList[startColIndex].get('left'),
-    				width: width - 1,
-    				height: height - 1
-    			},
-    			wholePosi: {
-    				startX: startColIndex,
-    				startY: startRowIndex,
-    				endX: endColIndex,
-    				endY: endRowIndex
-    			}
-    		});
-    		siderLineRows.models[0].set({
-    			top: headItemRowList[startRowIndex].get('top'),
-    			height: height - 1
-    		});
-    		siderLineCols.models[0].set({
-    			left: headItemColList[startColIndex].get('left'),
-    			width: width - 1
-    
-    		});
-    		len = headItemRowList.length;
-    
-    		for (i = 0; i < len; i++) {
-    			headItemRowList[i].set({
-    				activeState: false
-    			});
-    		}
-    
-    		len = headItemColList.length;
-    		for (i = 0; i < len; i++) {
-    			headItemColList[i].set({
-    				activeState: false
-    			});
-    		}
-    		for (i = 0; i < endColIndex - startColIndex + 1; i++) {
-    			headItemColList[startColIndex + i].set({
-    				activeState: true
-    			});
-    		}
-    		for (i = 0; i < endRowIndex - startRowIndex + 1; i++) {
-    			headItemRowList[startRowIndex + i].set({
-    				activeState: true
-    			});
-    		}
-    	};
-    	return selectCell;
     });
     
     define('entrance/tool/mergecell',function() {
@@ -16929,8 +16708,10 @@
     		}
     		operRegion.endColIndex = operRegion.startColIndex;
     		operRegion.endRowIndex = operRegion.startRowIndex;
+    		sendRegion.endCol = sendRegion.startCol;
+    		sendRegion.endRow = sendRegion.startRow;
     
-    		cells.operateCellsByRegion(operRegion, function(cell) {
+    		cells.oprCellsByRegion(operRegion, function(cell) {
     			cell.set('content.texts', text);
     		});
     		sendData();
@@ -16947,79 +16728,6 @@
     		}
     	};
     	return setCellContent;
-    });
-    
-    define('entrance/cell/selectcellcols',function() {
-    	var cache = require('basic/tools/cache'),
-    		config = require('spreadsheet/config'),
-    		selectRegions = require('collections/selectRegion'),
-    		SelectRegionModel = require('models/selectRegion'),
-    		headItemRows = require('collections/headItemRow');
-    
-    	
-    	var selectCellCols = function(sheetId, displayName, index) {
-    		var modelIndex,
-    			selectModel;
-    
-    		if (displayName !== null) {
-    			modelIndex = headItemRows.getIndexByDisplayname(displayName);
-    		} else {
-    			modelIndex = index;
-    		}
-    		if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
-    			selectModel = selectRegions.getModelByType('dataSource');
-    			if (selectModel === undefined) {
-    				selectModel = new SelectRegionModel();
-    				selectModel.set('selectType', 'dataSource');
-    				selectRegions.add(selectModel);
-    			}
-    		} else {
-    			selectModel = selectRegions.getModelByType('selected');
-    		}
-    		selectModel.set('tempPosi', {
-    			initColIndex: 0,
-    			initRowIndex: modelIndex,
-    			mouseColIndex: 'MAX',
-    			mouseRowIndex: modelIndex
-    		});
-    	};
-    	return selectCellCols;
-    });
-    
-    define('entrance/cell/selectcellrows',function() {
-    	var cache = require('basic/tools/cache'),
-    		config = require('spreadsheet/config'),
-    		selectRegions = require('collections/selectRegion'),
-    		SelectRegionModel = require('models/selectRegion'),
-    		headItemCols = require('collections/headItemCol');
-    
-    	var selectCellRows = function(sheetId, displayName, index) {
-    		var modelIndex,
-    			selectModel;
-    		if (displayName !== null) {
-    			modelIndex = headItemCols.getIndexByDisplayname(displayName);
-    		} else {
-    			modelIndex = index;
-    		}
-    
-    		if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
-    			selectModel = selectRegions.getModelByType('dataSource');
-    			if (selectModel === undefined) {
-    				selectModel = new SelectRegionModel();
-    				selectModel.set('selectType', 'dataSource');
-    				selectRegions.add(selectModel);
-    			}
-    		} else {
-    			selectModel = selectRegions.getModelByType('selected');
-    		}
-    		selectModel.set('tempPosi', {
-    			initColIndex: modelIndex,
-    			initRowIndex: 0,
-    			mouseColIndex: modelIndex,
-    			mouseRowIndex: 'MAX'
-    		});
-    	};
-    	return selectCellRows;
     });
     
     define('entrance/tool/setcellborder',function() {
@@ -17106,7 +16814,7 @@
     			} else if (operRegion.endRowIndex === 'MAX') {
     				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
     			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     					changeModelList.push({
     						colSort: colSort,
     						rowSort: rowSort,
@@ -17139,7 +16847,7 @@
     			} else if (operRegion.endRowIndex === 'MAX') {
     				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
     			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     					changeModelList.push({
     						colSort: colSort,
     						rowSort: rowSort,
@@ -17383,7 +17091,7 @@
     		} else if (operRegion.endColIndex === 'MAX') { //整行操作
     			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.size', fontSize);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     				if (cell.get('content').size !== fontSize) {
     					changeModelList.push({
     						colSort: colSort,
@@ -17478,7 +17186,7 @@
     		} else if (operRegion.endColIndex === 'MAX') { //整行操作
     			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.bd', bold);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     				if (cell.get('content').bd !== bold) {
     					changeModelList.push({
     						colSort: colSort,
@@ -17565,7 +17273,7 @@
     		} else if (operRegion.endRowIndex === 'MAX') {
     			colOperate.colPropOper(operRegion.startColIndex, 'content.italic', italic);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     				if (cell.get('content').italic !== italic) {
     					changeModelList.push({
     						colSort: colSort,
@@ -17609,9 +17317,7 @@
     		getOperRegion = require('basic/tools/getoperregion');
     
     
-    	var setFrozen = function(sheetId, frozenPositon, label) {
-    
-    
+    	var setFrozen = function(sheetId, point, type) {
     		var clip,
     			region,
     			operRegion,
@@ -17622,7 +17328,7 @@
     			cache.clipState = 'null';
     			clip.destroy();
     		}
-    		region = getOperRegion(label);
+    		region = getOperRegion(point);
     		operRegion = region.operRegion;
     		sendRegion = region.sendRegion;
     
@@ -17633,7 +17339,7 @@
     			return;
     		}
     
-    		switch (frozenPositon) {
+    		switch (type) {
     			case 'custom':
     				setCustom(operRegion);
     				break;
@@ -17680,7 +17386,7 @@
     			splitColSort = headItemColList[region.startColIndex].get('sort'),
     			splitRowSort = headItemRowList[region.startRowIndex].get('sort');
     
-    		if(filterOutUserView(region)){
+    		if (filterOutUserView(region)) {
     			return;
     		}
     
@@ -17836,7 +17542,7 @@
     				colOperate.colPropOper(operRegion.startColIndex, 'content.alignCol', vertical);
     			}
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     				if (transverse !== undefined) {
     					propName = 'content.alignRow';
     					propValue = transverse;
@@ -17893,13 +17599,13 @@
     		operation;
     
     	operation = {
-    		setDataSourceRegion: function() {
+    		setDataSourceState: function() {
     			Backbone.trigger('event:cellsContainer:setMouseState', 'locatedState' , 'dataSourceLocatedState');
     		},
-    		setSelectRegion: function() {
+    		setSelectState: function() {
     			Backbone.trigger('event:cellsContainer:setMouseState', 'locatedState' , 'selectLocatedState');
     		},
-    		destroyDataSoureRegion: function() {
+    		destroyDataSoure: function() {
     			if (selectRegions.getModelByType('datasource') !== undefined) {
     				selectRegions.getModelByType('datasource').destroy();
     			}
@@ -17990,7 +17696,7 @@
     		} else if (operRegion.endColIndex === 'MAX') {
     			colOperate.colPropOper(region.startColIndex, 'wordWrap', wordWrap);
     		} else {
-    			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     				if (cell.get('wordWrap') !== wordWrap) {
     					changeModelList.push({
     						colSort: colSort,
@@ -18014,7 +17720,7 @@
     				url: config.url.cell.wordwrap,
     				data: JSON.stringify({
     					coordinate: sendRegion,
-    					wordWrap: wordWrap || 'true'
+    					wordWrap: wordWrap
     				})
     			});
     		}
@@ -18133,14 +17839,13 @@
     	return getSelectRegion;
     });
     
-    define('entrance/cell/reloadcells',function() {
+    define('entrance/sheet/reload',function() {
     	var Backbone = require('lib/backbone');
     
-    	function reloadCells() {
-    		Backbone.trigger('event:contentCellsContainer:reloadCells');
-    		Backbone.trigger('event:selectRegionContainer:adapt');
+    	function reload() {
+    		Backbone.trigger('event:reload');
     	}
-    	return reloadCells;
+    	return reload;
     });
       
       define('entrance/tool/settexttype',function() {
@@ -18206,7 +17911,7 @@
             } else if (operRegion.endRowIndex === 'MAX') {
               colOperate.colPropOper(operRegion.startColIndex, 'format', format);
             } else {
-              cells.operateCellsByRegion(operRegion, function(cell) {
+              cells.oprCellsByRegion(operRegion, function(cell) {
                 cell.set('format', format);
               });
             }
@@ -18247,7 +17952,7 @@
             } else if (operRegion.endRowIndex === 'MAX') {
               colOperate.colPropOper(operRegion.startColIndex, 'format', format);
             } else {
-              cells.operateCellsByRegion(operRegion, function(cell) {
+              cells.oprCellsByRegion(operRegion, function(cell) {
                 cell.set('format', format);
               });
             }
@@ -18292,7 +17997,7 @@
             } else if (operRegion.endRowIndex === 'MAX') { //整行操作
               colOperate.colPropOper(operRegion.startColIndex, 'format', format);
             } else {
-              cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+              cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
                 changeModelList.push({
                   colSort: colSort,
                   rowSort: rowSort,
@@ -18346,7 +18051,7 @@
             } else if (operRegion.endRowIndex === 'MAX') { //整列操作
               colOperate.colPropOper(operRegion.startColIndex, 'format', format);
             } else {
-              cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+              cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
                 changeModelList.push({
                   colSort: colSort,
                   rowSort: rowSort,
@@ -18407,7 +18112,7 @@
                 self.generateDisplayText(cell);
               });
             } else {
-              cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+              cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
                 changeModelList.push({
                   colSort: colSort,
                   rowSort: rowSort,
@@ -18466,7 +18171,7 @@
                 self.generateDisplayText(cell);
               });
             } else {
-              cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+              cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
                 changeModelList.push({
                   colSort: colSort,
                   rowSort: rowSort,
@@ -18486,8 +18191,6 @@
           sendData: function(format, sendRegion) {
             var data;
             data = {
-              excelId: window.SPREADSHEET_AUTHENTIC_KEY,
-              sheetId: '1',
               coordinate: sendRegion,
               format: format.type
             };
@@ -18870,9 +18573,8 @@
         };
         return textTypeHandler;
       });
-    
     define('entrance/tool/addrow',function() {
-    
+    	
     	var Backbone = require('lib/backbone'),
     		config = require('spreadsheet/config'),
     		cache = require('basic/tools/cache'),
@@ -18886,7 +18588,7 @@
     
     	return {
     		
-    		addRow: function(sheetId, label) {
+    		add: function(sheetId, label) {
     			var clip,
     				region,
     				operRegion,
@@ -18899,6 +18601,9 @@
     			if (clip !== undefined) {
     				cache.clipState = 'null';
     				clip.destroy();
+    			}
+    			if (cache.TempProp.isFrozen === true) {
+    				return;
     			}
     			region = getOperRegion(label);
     			operRegion = region.operRegion;
@@ -18915,7 +18620,7 @@
     			this._adaptSelectRegion(index);
     			this._adaptCells(index);
     			this._fillCells(index);
-    			this._frozenHandle(index);
+    			// this._frozenHandle(index);
     
     			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, config.User.cellHeight);
     			send.PackAjax({
@@ -19078,33 +18783,32 @@
     			}
     		},
     		
-    		_frozenHandle: function(index) {
-    			var userViewAlias,
-    				userViewIndex,
-    				frozenAlias,
-    				frozenIndex;
-    			if (cache.TempProp.isFrozen === true) {
-    				userViewAlias = cache.UserView.rowAlias;
-    				frozenAlias = cache.TempProp.rowAlias;
-    				userViewIndex = headItemRows.getIndexByAlias(userViewAlias);
-    				frozenIndex = headItemRows.getIndexByAlias(frozenAlias);
+    		// _frozenHandle: function(index) {
+    		// 	var userViewAlias,
+    		// 		userViewIndex,
+    		// 		frozenAlias,
+    		// 		frozenIndex;
+    		// 	if (cache.TempProp.isFrozen === true) {
+    		// 		userViewAlias = cache.UserView.rowAlias;
+    		// 		frozenAlias = cache.TempProp.rowAlias;
+    		// 		userViewIndex = headItemRows.getIndexByAlias(userViewAlias);
+    		// 		frozenIndex = headItemRows.getIndexByAlias(frozenAlias);
     
-    				if (userViewIndex > index) {
-    					userViewAlias = headItemRows.models[index].get('alias');
-    					cache.UserView.rowAlias = userViewAlias;
-    				}
-    				if (index + 1 === frozenIndex) {
-    					frozenAlias = headItemRows.models[index].get('alias');
-    					cache.TempProp.rowAlias = frozenAlias;
-    				}
-    				Backbone.trigger('event:bodyContainer:executiveFrozen');
-    			}
-    		}
+    		// 		if (userViewIndex > index) {
+    		// 			userViewAlias = headItemRows.models[index].get('alias');
+    		// 			cache.UserView.rowAlias = userViewAlias;
+    		// 		}
+    		// 		if (index + 1 === frozenIndex) {
+    		// 			frozenAlias = headItemRows.models[index].get('alias');
+    		// 			cache.TempProp.rowAlias = frozenAlias;
+    		// 		}
+    		// 		Backbone.trigger('event:bodyContainer:executiveFrozen');
+    		// 	}
+    		// }
     	};
     });
-    
     define('entrance/tool/addcol',function() {
-    
+    	
     	var Backbone = require('lib/backbone'),
     		config = require('spreadsheet/config'),
     		cache = require('basic/tools/cache'),
@@ -19118,7 +18822,7 @@
     
     	return {
     		
-    		addCol: function(sheetId, label) {
+    		add: function(sheetId, label) {
     
     			var clip,
     				region,
@@ -19129,6 +18833,9 @@
     			if (clip !== undefined) {
     				cache.clipState = 'null';
     				clip.destroy();
+    			}
+    			if (cache.TempProp.isFrozen === true) {
+    				return;
     			}
     			if (!this._isAbleAdd()) {
     				return;
@@ -19146,7 +18853,7 @@
     			this._adaptSelectRegion(operRegion.startColIndex);
     			this._adaptCells(operRegion.startColIndex);
     			this._removeLastColItem();
-    			this._frozenHandle(operRegion.startColIndex);
+    			// this._frozenHandle(operRegion.startColIndex);
     			send.PackAjax({
     				url: config.url.col.plus,
     				data: JSON.stringify({
@@ -19324,33 +19031,33 @@
     			}
     		},
     		
-    		_frozenHandle: function(index) {
-    			var userViewAlias,
-    				userViewIndex,
-    				frozenAlias,
-    				frozenIndex;
-    			if (cache.TempProp.isFrozen === true) {
+    		// _frozenHandle: function(index) {
+    		// 	var userViewAlias,
+    		// 		userViewIndex,
+    		// 		frozenAlias,
+    		// 		frozenIndex;
+    		// 	if (cache.TempProp.isFrozen === true) {
     
-    				userViewAlias = cache.UserView.colAlias;
-    				frozenAlias = cache.TempProp.colAlias;
-    				userViewIndex = headItemCols.getIndexByAlias(userViewAlias);
-    				frozenIndex = headItemCols.getIndexByAlias(frozenAlias);
+    		// 		userViewAlias = cache.UserView.colAlias;
+    		// 		frozenAlias = cache.TempProp.colAlias;
+    		// 		userViewIndex = headItemCols.getIndexByAlias(userViewAlias);
+    		// 		frozenIndex = headItemCols.getIndexByAlias(frozenAlias);
     
-    				if (userViewIndex > index) {
-    					userViewAlias = headItemCols.models[index].get('alias');
-    					cache.UserView.colAlias = userViewAlias;
-    				}
-    				if (index + 1 === frozenIndex) {
-    					frozenAlias = headItemCols.models[index].get('alias');
-    					cache.TempProp.colAlias = frozenAlias;
-    				}
-    				Backbone.trigger('event:bodyContainer:executiveFrozen');
-    			}
-    		}
+    		// 		if (userViewIndex > index) {
+    		// 			userViewAlias = headItemCols.models[index].get('alias');
+    		// 			cache.UserView.colAlias = userViewAlias;
+    		// 		}
+    		// 		if (index + 1 === frozenIndex) {
+    		// 			frozenAlias = headItemCols.models[index].get('alias');
+    		// 			cache.TempProp.colAlias = frozenAlias;
+    		// 		}
+    		// 		Backbone.trigger('event:bodyContainer:executiveFrozen');
+    		// 	}
+    		// }
     	};
     });
-    
     define('entrance/tool/deleterow',function() {
+    	
     	var Backbone = require('lib/backbone'),
     		cache = require('basic/tools/cache'),
     		config = require('spreadsheet/config'),
@@ -19363,7 +19070,7 @@
     
     	return {
     		
-    		deleteRow: function(sheetId, label) {
+    		deleteRow: function(sheetId, arrOpr) {
     			var clip,
     				region,
     				operRegion,
@@ -19377,11 +19084,14 @@
     				cache.clipState = 'null';
     				clip.destroy();
     			}
-    			region = getOperRegion(label);
+    			if (cache.TempProp.isFrozen === true) {
+    				return;
+    			}
+    			region = getOperRegion(arrOpr);
     			operRegion = region.operRegion;
     			sendRegion = region.sendRegion;
     
-    			if (operRegion.endColIndex === 'MAX') {
+    			if (operRegion.endRowIndex === 'MAX' && arrOpr === undefined) {
     				return;
     			}
     
@@ -19394,18 +19104,18 @@
     			height = headItemRows.models[index].get('height');
     			this._adaptCells(index);
     			this._adaptSelectRegion(index);
-    			this._frozenHandle(index);
+    			// this._frozenHandle(index);
     			this._adaptHeadRowItem(index);
-    			if (cache.TempProp.isFrozen === true) {
-    				Backbone.trigger('event:bodyContainer:executiveFrozen');
-    			}
-    			Backbone.trigger('event:mainContainer:adaptRowHeightChange',posi, -height - 1);
+    
+    			Backbone.trigger('event:cellsContainer:adaptHeight');
+    			Backbone.trigger('event:colsAllHeadContainer:adaptHeight');
     			sendData();
+    
     			function sendData() {
     				send.PackAjax({
-    					url: config.url.row.reduce ,
+    					url: config.url.row.reduce,
     					data: JSON.stringify({
-    						row: sendRegion.startSortY,
+    						row: sendRegion.startRow,
     					}),
     				});
     			}
@@ -19442,6 +19152,8 @@
     				height,
     				top,
     				endRowIndex;
+    
+    
     			select = selectRegions.getModelByType('selected');
     			startRowAlias = select.get('wholePosi').startY;
     			endRowAlias = select.get('wholePosi').endY;
@@ -19532,34 +19244,34 @@
     			}
     		},
     		
-    		_frozenHandle: function(index) {
-    			var userViewAlias,
-    				userViewIndex,
-    				frozenAlias,
-    				frozenIndex;
+    		// _frozenHandle: function(index) {
+    		// 	var userViewAlias,
+    		// 		userViewIndex,
+    		// 		frozenAlias,
+    		// 		frozenIndex;
     
-    			if (cache.TempProp.isFrozen === true) {
-    				userViewAlias = cache.UserView.rowAlias;
-    				frozenAlias = cache.TempProp.rowAlias;
-    				userViewIndex = headItemRows.getIndexByAlias(userViewAlias);
-    				frozenIndex = headItemRows.getIndexByAlias(frozenAlias);
+    		// 	if (cache.TempProp.isFrozen === true) {
+    		// 		userViewAlias = cache.UserView.rowAlias;
+    		// 		frozenAlias = cache.TempProp.rowAlias;
+    		// 		userViewIndex = headItemRows.getIndexByAlias(userViewAlias);
+    		// 		frozenIndex = headItemRows.getIndexByAlias(frozenAlias);
     
-    				if (userViewIndex === index) {
-    					cache.UserView.rowAlias = headItemRows.models[index + 1].get('alias');
-    				}
-    				if (frozenIndex === index) {
-    					if (index === 0) {
-    						cache.TempProp.rowAlias = headItemRows.models[1].get('alias');
-    					} else {
-    						cache.TempProp.rowAlias = headItemRows.models[index + 1].get('alias');
-    					}
-    				}
-    			}
-    		}
+    		// 		if (userViewIndex === index) {
+    		// 			cache.UserView.rowAlias = headItemRows.models[index + 1].get('alias');
+    		// 		}
+    		// 		if (frozenIndex === index) {
+    		// 			if (index === 0) {
+    		// 				cache.TempProp.rowAlias = headItemRows.models[1].get('alias');
+    		// 			} else {
+    		// 				cache.TempProp.rowAlias = headItemRows.models[index + 1].get('alias');
+    		// 			}
+    		// 		}
+    		// 	}
+    		// }
     	};
     });
-    
     define('entrance/tool/deletecol',function() {
+    	
     	var Backbone = require('lib/backbone'),
     		cache = require('basic/tools/cache'),
     		config = require('spreadsheet/config'),
@@ -19574,7 +19286,7 @@
     
     	return {
     		
-    		deleteCol: function(sheetId, label) {
+    		deleteCol: function(sheetId, arrOpr) {
     			var clip,
     				region,
     				operRegion,
@@ -19586,11 +19298,14 @@
     				cache.clipState = 'null';
     				clip.destroy();
     			}
-    			region = getOperRegion(label);
+    			if (cache.TempProp.isFrozen === true) {
+    				return;
+    			}
+    			region = getOperRegion(arrOpr);
     			operRegion = region.operRegion;
     			sendRegion = region.sendRegion;
     
-    			if (operRegion.endRowIndex === 'MAX') {
+    			if (operRegion.endColIndex === 'MAX' && arrOpr === undefined) {
     				return;
     			}
     
@@ -19599,23 +19314,21 @@
     				return;
     			}
     			index = operRegion.startColIndex;
-    			//未完成动态加载功能，先用方法，处理边界值问题
+    	
     			this._addColItem();
     			this._adaptCells(index);
     			this._adaptSelectRegion(index);
-    			this._frozenHandle(index);
+    			// this._frozenHandle(index);
     			this._adaptHeadColItem(index);
     
-    			
-    			if (cache.TempProp.isFrozen === true) {
-    				Backbone.trigger('event:bodyContainer:executiveFrozen');
-    			}
+    			Backbone.trigger('event:cellsContainer:adaptWidth');
+    			Backbone.trigger('event:colsAllHeadContainer:adaptWidth');
     			sendData();
-    			function sendData(){
+    			function sendData() {
     				send.PackAjax({
     					url: config.url.col.reduce,
     					data: JSON.stringify({
-    						col: sendRegion.startSortX,
+    						col: sendRegion.startCol,
     					}),
     				});
     			}
@@ -19625,7 +19338,7 @@
     			var index = headItemCols.length,
     				width = config.User.cellWidth,
     				previousModel = headItemCols.models[index - 1];
-    				
+    
     			headItemCols.add({
     				sort: previousModel.get('sort') + 1,
     				alias: cache.aliasGenerator('col'),
@@ -19752,7 +19465,7 @@
     
     				} else if (startIndex > index) {
     					left = tempCell.get('physicsBox').left;
-    					left = left - headItemCols.models[index].get('width') -1;
+    					left = left - headItemCols.models[index].get('width') - 1;
     					tempCell.set('physicsBox.left', left);
     				}
     				for (j = 0; j < aliasLen; j++) {
@@ -19761,30 +19474,30 @@
     			}
     		},
     		
-    		_frozenHandle: function(index) {
-    			var userViewAlias,
-    				userViewIndex,
-    				frozenAlias,
-    				frozenIndex;
+    		// _frozenHandle: function(index) {
+    		// 	var userViewAlias,
+    		// 		userViewIndex,
+    		// 		frozenAlias,
+    		// 		frozenIndex;
     
-    			if (cache.TempProp.isFrozen === true) {
-    				userViewAlias = cache.UserView.colAlias;
-    				frozenAlias = cache.TempProp.colAlias;
-    				userViewIndex = headItemCols.getIndexByAlias(userViewAlias);
-    				frozenIndex = headItemCols.getIndexByAlias(frozenAlias);
+    		// 	if (cache.TempProp.isFrozen === true) {
+    		// 		userViewAlias = cache.UserView.colAlias;
+    		// 		frozenAlias = cache.TempProp.colAlias;
+    		// 		userViewIndex = headItemCols.getIndexByAlias(userViewAlias);
+    		// 		frozenIndex = headItemCols.getIndexByAlias(frozenAlias);
     
-    				if (userViewIndex === index) {
-    					cache.UserView.colAlias = headItemCols.models[index + 1].get('alias');
-    				}
-    				if (frozenIndex === index) {
-    					if (index === 0) {
-    						cache.TempProp.colAlias = headItemCols.models[1].get('alias');
-    					} else {
-    						cache.TempProp.colAlias = headItemCols.models[index + 1].get('alias');
-    					}
-    				}
-    			}
-    		}
+    		// 		if (userViewIndex === index) {
+    		// 			cache.UserView.colAlias = headItemCols.models[index + 1].get('alias');
+    		// 		}
+    		// 		if (frozenIndex === index) {
+    		// 			if (index === 0) {
+    		// 				cache.TempProp.colAlias = headItemCols.models[1].get('alias');
+    		// 			} else {
+    		// 				cache.TempProp.colAlias = headItemCols.models[index + 1].get('alias');
+    		// 			}
+    		// 		}
+    		// 	}
+    		// }
     	};
     });
     
@@ -19817,7 +19530,7 @@
     			return;
     		}
     
-    		cells.operateCellsByRegion(operRegion, function(cell) {
+    		cells.oprCellsByRegion(operRegion, function(cell) {
     			cell.set('content.texts', '');
     			cell.set('content.displayTexts', '');
     		});
@@ -19868,7 +19581,7 @@
     				return;
     			}
     			region = getOperRegion(label);
-    			if (region.operRegion.endRowIndex !== 'MAX') {
+    			if (region.operRegion.endRowIndex !== 'MAX' && label === undefined) {
     				return;
     			}
     
@@ -19877,6 +19590,9 @@
     
     			colindex = region.operRegion.startColIndex;
     			colSort = region.sendRegion.startColSort;
+    			if (headItemColList[colindex].get('hidden')) {
+    				return;
+    			}
     			adjustWidth = headItemColList[colindex].get('width');
     
     			//不能进行全部隐藏
@@ -19961,7 +19677,7 @@
     			lastHeadItemLeft = headItemColList[colLen - 1].get('left');
     			left = headItemColList[index].get('left');
     			//处理只剩一列情况
-    			if (left < lastHeadItemLeft) { //最后一列隐藏
+    			if (lastHeadItemLeft === 0) { //最后一列隐藏
     				i = index + 1;
     				while (headItemColList[i].get('hidden')) {
     					i++;
@@ -20023,6 +19739,7 @@
     		cancelHide: function(sheetId) {
     			var headItemColList = headItemCols.models,
     				len = headItemColList.length,
+    				clip,
     				hidden,
     				cellList,
     				cellLen,
@@ -20123,535 +19840,198 @@
     		}
     	};
     });
-    
-    define('entrance/tool/clipselectoperate',function() {	
-    	var headItemCols = require('collections/headItemCol'),
-    		headItemRows = require('collections/headItemRow'),
-    		selectRegions = require('collections/selectRegion'),
-    		cells = require('collections/cells'),
-    		cache = require('basic/tools/cache');
-    
-    	function clipSelectOperate(type, e) {
-    		var tempCellModel,
-    			selectRegion,
-    			startColIndex,
-    			startRowIndex,
-    			endColIndex,
-    			endRowIndex,
-    			clipModel,
-    			colAlias,
-    			rowAlias,
-    			text = '',
-    			i,
-    			j;
-    
-    		clipModel = selectRegions.getModelByType('clip');
-    		if (clipModel !== undefined) {
-    			clipModel.destroy();
-    		}
-    		selectRegion = selectRegions.getModelByType('selected');
-    		//整行整列，禁止复制
-    		if(selectRegion.get('wholePosi').endX === 'MAX' ||
-    			selectRegion.get('wholePosi').endY === 'MAX'){
-    			return;
-    		}
-    		clipModel = selectRegion.clone();
-    		clipModel.set('selectType', 'clip');
-    		selectRegions.add(clipModel);
-    
-    
-    		if (type === 'copy') {
-    			cache.clipState = 'copy';
-    		} else if (type === 'cut') {
-    			cache.clipState = 'cut';
-    		}else{
-    			return;
-    		}
-    
-    		startColIndex = headItemCols.getIndexByAlias(clipModel.get('wholePosi').startX);
-    		startRowIndex = headItemRows.getIndexByAlias(clipModel.get('wholePosi').startY);
-    		endColIndex = headItemCols.getIndexByAlias(clipModel.get('wholePosi').endX);
-    		endRowIndex = headItemRows.getIndexByAlias(clipModel.get('wholePosi').endY);
-    
-    		for (i = startRowIndex; i < endRowIndex + 1; i++) {
-    			for (j = startColIndex; j < endColIndex + 1; j++) {
-    				colAlias = headItemCols.models[j].get('alias');
-    				rowAlias = headItemRows.models[i].get('alias');
-    				tempCellModel = cells.getCellByAlias(colAlias, rowAlias);
-    				if (tempCellModel !== null) {
-    					text += cellToText(tempCellModel);
-    				}
-    				if (j !== endColIndex) {
-    					text += '\t';
-    				} else {
-    					text += '\r\n';
-    				}
-    			}
-    		}
-    		if (e !== undefined) {
-    			e.preventDefault();
-    			if (window.clipboardData) {
-    				window.clipboardData.setData('Text', text);
-    			} else {
-    				e.originalEvent.clipboardData.setData('Text', text);
-    			}
-    		}
-    
-    		function cellToText(cell) {
-    			var text,
-    				head = '"',
-    				tail = '"';
-    			text = cell.get('content').texts;
-    
-    			if (text.indexOf('\n') === -1) {
-    				return text;
-    			}
-    			while (true) {
-    				if (text.indexOf('"') === 0) {
-    					text = text.substring(1);
-    					head += '""';
-    				} else {
-    					break;
-    				}
-    			}
-    
-    			while (true) {
-    				if (text.lastIndexOf('"') === text.length - 1 && text.length > 1) {
-    					text = text.substring(0, text.length - 1);
-    					tail += '""';
-    				} else {
-    					break;
-    				}
-    			}
-    			text = head + text + tail;
-    			return text;
-    		}
-    	}
-    	return clipSelectOperate;
-    });
-    define('entrance/tool/clippasteoperate',function() {
+    define('entrance/tool/batchsetbg',function() {
     	
-    	var Backbone = require('lib/backbone'),
-    		cache = require('basic/tools/cache'),
+    	var send = require('basic/tools/send'),
     		config = require('spreadsheet/config'),
     		cells = require('collections/cells'),
-    		Cell = require('models/cell'),
-    		send = require('basic/tools/send'),
-    		history = require('basic/tools/history'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
-    		selectRegions = require('collections/selectRegion'),
-    		setTextType = require('entrance/tool/settexttype');
+    		rowOperate = require('entrance/row/rowoperation'),
+    		colOperate = require('entrance/col/coloperation'),
+    		// changeModelList = [],
+    		weight;
     
-    	function clipPasteOperate(pasteText) {
-    		if (cache.clipState === 'copy') {
-    			excelDataPaste('copy');
-    		} else if (cache.clipState === 'cut') {
-    			excelDataPaste('cut');
-    		} else {
-    			clipBoardDataPaste(pasteText);
-    		}
-    	}
+    	var setBg = {
+    		set: function(sheeId, color, arrOper) {
+    			var regColor = /^rgb\(((25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]),){2}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9])\)$/,
+    				regions, i, len,
+    				oper, sendData;
     
-    	function excelDataPaste(type) {
-    		var originalModelIndexs = [],
-    			currentModelIndexs = [],
-    			cellOccupy = cache.CellsPosition.strandX,
-    			clipRegion,
-    			selectRegion,
-    			startColIndex,
-    			startRowIndex,
-    			endColIndex,
-    			endRowIndex,
-    			clipColAlias,
-    			clipRowAlias,
-    			selectColAlias,
-    			selectRowAlias,
-    			relativeColIndex,
-    			relativeRowIndex,
-    			tempCopyCellModel,
-    			selectCells,
-    			tempCellModel,
-    			CellModel,
-    			headItemColList,
-    			headItemRowList,
-    			sendData = [],
-    			text = "",
-    			URL = '',
-    			i,
-    			j;
-    
-    		clipRegion = selectRegions.getModelByType('clip');
-    		selectRegion = selectRegions.getModelByType('selected');
-    
-    		headItemRowList = headItemRows.models;
-    		headItemColList = headItemCols.models;
-    
-    		startColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').startX);
-    		startRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').startY);
-    		endColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').endX);
-    		endRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').endY);
-    
-    		relativeColIndex = startColIndex - headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
-    		relativeRowIndex = startRowIndex - headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
-    
-    		if (type === 'cut') {
-    			URL = config.url.sheet.cut;
-    		} else {
-    			URL = config.url.sheet.copy;
-    		}
-    		send.PackAjax({
-    			url: URL,
-    			async: false,
-    			data: JSON.stringify({
-    				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
-    				sheetId: '1',
-    				orignal: {
-    					startCol: headItemColList[startColIndex].get('sort'),
-    					endCol: headItemColList[endColIndex].get('sort'),
-    					startRow: headItemRowList[startRowIndex].get('sort'),
-    					endRow: headItemRowList[endRowIndex].get('sort'),
-    				},
-    				target: {
-    					orignalCol: headItemColList[startColIndex - relativeColIndex].get('sort'),
-    					orignalRow: headItemRowList[startRowIndex - relativeRowIndex].get('sort')
-    				}
-    			}),
-    			success: function(data) {
-    				if (data && data.isLegal) {
-    					for (i = startRowIndex; i < endRowIndex + 1; i++) {
-    						for (j = startColIndex; j < endColIndex + 1; j++) {
-    							if (j - relativeColIndex > headItemCols.models.length - 1) continue;
-    							if (i - relativeRowIndex > headItemRows.models.length - 1) continue;
-    							selectColAlias = headItemCols.models[j - relativeColIndex].get('alias');
-    							selectRowAlias = headItemRows.models[i - relativeRowIndex].get('alias');
-    							tempCellModel = cells.getCellByAlias(selectColAlias, selectRowAlias);
-    							if (tempCellModel !== null) {
-    								originalModelIndexs.push(cellOccupy[selectColAlias][selectRowAlias]);
-    								tempCellModel.set('isDestroy', true);
-    								deletePosi(selectColAlias, selectRowAlias);
-    							}
-    						}
-    					}
-    
-    					//超出已加载区域处理
-    					for (i = startRowIndex; i < endRowIndex + 1; i++) {
-    						for (j = startColIndex; j < endColIndex + 1; j++) {
-    							clipColAlias = headItemCols.models[j].get('alias');
-    							clipRowAlias = headItemRows.models[i].get('alias');
-    							if (j - relativeColIndex > headItemCols.models.length - 1) continue;
-    							if (i - relativeRowIndex > headItemRows.models.length - 1) continue;
-    							CellModel = cells.getCellByAlias(clipColAlias, clipRowAlias);
-    
-    							if (typeof CellModel !== 'null' && type === "cut") {
-    								originalModelIndexs.push(cellOccupy[clipColAlias][clipRowAlias]);
-    								deletePosi(clipColAlias, clipRowAlias);
-    							}
-    							if (CellModel !== null && CellModel.get('occupy').x[0] === clipColAlias && CellModel.get('occupy').y[0] === clipRowAlias) {
-    								tempCopyCellModel = CellModel.clone();
-    								if (type === "cut") {
-    									CellModel.set('isDestroy', true);
-    								}
-    								adaptCell(tempCopyCellModel, relativeColIndex, relativeRowIndex);
-    								cacheCellPosition(tempCopyCellModel);
-    								currentModelIndexs.push(cells.length);
-    								cells.add(tempCopyCellModel);
-    							}
-    						}
-    					}
-    					history.addCoverAction(currentModelIndexs, originalModelIndexs);
-    					//修改:对模型直接进行修改
-    					selectRegion.set('tempPosi', {
-    						initColIndex: startColIndex - relativeColIndex,
-    						initRowIndex: startRowIndex - relativeRowIndex,
-    						mouseColIndex: endColIndex - relativeColIndex < headItemCols.models.length - 1 ? endColIndex - relativeColIndex : headItemCols.models.length - 1,
-    						mouseRowIndex: endRowIndex - relativeRowIndex < headItemRows.models.length - 1 ? endRowIndex - relativeRowIndex : headItemRows.models.length - 1
-    					});
-    					if (type === 'cut') {
-    						cache.clipState = "null";
-    						clipRegion.destroy();
-    					} //进行区域判断，判断复制区域与目标区域是否重叠 
-    					if (startColIndex - relativeColIndex > endColIndex ||
-    						endColIndex - relativeColIndex < startColIndex ||
-    						startRowIndex - relativeRowIndex > endRowIndex ||
-    						endRowIndex - relativeRowIndex < startRowIndex) {
-    
-    					} else {
-    						cache.clipState = "null";
-    						clipRegion.destroy();
-    					}
-    				}
+    			if (arguments.length < 3) {
+    				arrOper = color;
+    				color = sheeId;
     			}
-    		});
-    	}
+    			color = color.replace(/\s/g, '');
     
-    	function cacheCellPosition(cell) {
-    		var occupyCols = cell.get('occupy').x,
-    			occupyRows = cell.get('occupy').y,
-    			aliasCol,
-    			aliasRow,
-    			rowLen,
-    			colLen,
-    			i = 0,
-    			j;
-    		rowLen = occupyRows.length;
-    		colLen = occupyCols.length;
-    		for (; i < rowLen; i++) {
-    			for (j = 0; j < colLen; j++) {
-    				cache.cachePosition(occupyRows[i], occupyCols[j], cells.length);
+    			if (!regColor.test(color)) {
+    				throw new Error('非法参数');
     			}
-    		}
-    
-    	}
-    
-    	function adaptCell(cell, relativeColIndex, relativeRowIndex) {
-    		var arrayOriginalColAlias,
-    			arrayOriginalRowAlias,
-    			arrayColAlias = [],
-    			arrayRowAlias = [],
-    			colIndex,
-    			rowIndex,
-    			left, top,
-    			width = 0,
-    			height = 0,
-    			rowLen, colLen, i;
-    
-    		arrayOriginalColAlias = cell.get("occupy").x;
-    		arrayOriginalRowAlias = cell.get("occupy").y;
-    		rowLen = arrayOriginalRowAlias.length;
-    		colLen = arrayOriginalColAlias.length;
-    		//增加超过加载区域处理
-    		for (i = 0; i < rowLen; i++) {
-    			rowIndex = headItemRows.getIndexByAlias(arrayOriginalRowAlias[i]) - relativeRowIndex;
-    			arrayRowAlias.push(headItemRows.models[rowIndex].get("alias"));
-    			height += headItemRows.models[rowIndex].get("height") + 1;
-    			if (i === 0) top = headItemRows.models[rowIndex].get("top");
-    		}
-    		for (i = 0; i < colLen; i++) {
-    			colIndex = headItemCols.getIndexByAlias(arrayOriginalColAlias[i]) - relativeColIndex;
-    			arrayColAlias.push(headItemCols.models[colIndex].get("alias"));
-    			width += headItemCols.models[colIndex].get("width") + 1;
-    			if (i === 0) left = headItemCols.models[colIndex].get("left");
-    		}
-    
-    		cell.set("occupy", {
-    			x: arrayColAlias,
-    			y: arrayRowAlias
-    		});
-    		cell.set("physicsBox", {
-    			top: top,
-    			left: left,
-    			width: width - 1,
-    			height: height - 1
-    		});
-    	}
-    
-    
-    
-    	function deletePosi(aliasCol, aliasRow) {
-    		var currentCellPosition = cache.CellsPosition,
-    			currentStrandX = currentCellPosition.strandX,
-    			currentStrandY = currentCellPosition.strandY;
-    		if (currentStrandX[aliasCol] !== undefined && currentStrandX[aliasCol][aliasRow] !== undefined) {
-    			delete currentStrandX[aliasCol][aliasRow];
-    			if (!Object.getOwnPropertyNames(currentStrandX[aliasCol]).length) {
-    				delete currentStrandX[aliasCol];
-    			}
-    		}
-    		if (currentStrandY[aliasRow] !== undefined && currentStrandY[aliasRow][aliasCol] !== undefined) {
-    			delete currentStrandY[aliasRow][aliasCol];
-    			if (!Object.getOwnPropertyNames(currentStrandY[aliasRow]).length) {
-    				delete currentStrandY[aliasRow];
-    			}
-    		}
-    	}
-    	
-    	function clipBoardDataPaste(pasteText) {
-    		var originalModelIndexs = [],
-    			currentModelIndexs = [],
-    			cellOccupy = cache.CellsPosition.starndX,
-    			headItemColList,
-    			headItemRowList,
-    			encodeText,
-    			rowData = [],
-    			tempCellData = [],
-    			cellData = [],
-    			decodeText,
-    			sendData = [],
-    			startRowAlias,
-    			startColAlias,
-    			startRowIndex,
-    			startColIndex,
-    			startRowSort,
-    			startColSort,
-    			selectRegion,
-    			clipRegion,
-    			rowAlias,
-    			colAlias,
-    			colSort,
-    			rowSort,
-    			rowLen,
-    			colLen,
-    			tempCell;
-    		//清楚选中复制区域视图
-    		clipRegion = selectRegions.getModelByType('clip');
-    		if (clipRegion !== null && clipRegion !== undefined) {
-    			clipRegion.destroy();
-    		}
-    		cache.clipState = 'null';
-    
-    		//bug
-    		encodeText = encodeURI(pasteText);
-    		rowData = encodeText.split('%0D%0A');
-    		rowLen = rowData.length - 1;
-    		if (rowData[rowLen] !== '') {
-    			rowLen++;
-    		}
-    
-    		headItemColList = headItemCols.models;
-    		headItemRowList = headItemRows.models;
-    
-    		colLen = rowData[0].split('%09').length;
-    		selectRegion = selectRegions.getModelByType('selected');
-    		startRowAlias = selectRegion.get('wholePosi').startY;
-    		startColAlias = selectRegion.get('wholePosi').startX;
-    		startRowIndex = headItemRows.getIndexByAlias(startRowAlias);
-    		startColIndex = headItemCols.getIndexByAlias(startColAlias);
-    		startRowSort = headItemRowList[startRowIndex].get('sort');
-    		startColSort = headItemColList[startColIndex].get('sort');
-    
-    		rowSort = startRowSort;
-    		colSort = startColSort;
-    		for (var i = 0; i < rowLen; i++) {
-    			tempCellData = rowData[i].split('%09');
-    			for (var j = 0; j < tempCellData.length; j++) {
-    				if (tempCellData[j] !== '') {
-    					sendData.push({
-    						'colSort': colSort,
-    						'rowSort': rowSort,
-    						'text': decodeURI(analysisText(tempCellData[j]))
-    					});
-    					cellData.push({
-    						colIndex: startColIndex + j,
-    						rowIndex: startRowIndex + i,
-    						text: decodeURI(analysisText(tempCellData[j]))
-    					});
-    					colSort++;
-    				}
-    			}
-    			colSort = startColSort;
-    			rowSort++;
-    		}
-    
-    		send.PackAjax({
-    			url: config.url.sheet.paste,
-    			async: false,
-    			data: JSON.stringify({
-    				sheetId: '1',
-    				col: startColSort,
-    				row: startRowSort,
-    				colLen: colLen,
-    				rowLen: rowLen,
-    				pasteData: sendData
-    			}),
-    			success: function(data) {
-    				if (data && data.isLegal) {
-    					for (i = 0; i < rowLen; i++) {
-    						for (j = 0; j < colLen; j++) {
-    							rowAlias = headItemRowList[startRowIndex + i].get('alias');
-    							colAlias = headItemColList[startColIndex + j].get('alias');
-    							tempCell = cells.getCellByVertical(startColIndex + j, startRowIndex + i)[0];
-    							if (tempCell !== undefined && tempCell.get("isDestroy") === false) {
-    								originalModelIndexs.push(cellOccupy[colAlias][rowAlias]);
-    								tempCell.set("isDestroy", true);
-    							}
-    							cache.deletePosi(rowAlias, colAlias);
-    						}
-    					}
-    					for (i = 0; i < cellData.length; i++) {
-    						textToCell(cellData[i]);
-    						currentModelIndexs.push(cells.length - 1);
-    					}
-    				}
-    				history.addCoverAction(currentModelIndexs, originalModelIndexs);
-    			}
-    		});
-    
-    		function analysisText(text) {
-    			var head = '',
-    				tail = '';
-    			if (text.indexOf("%0A") === -1) {
-    				return text;
-    			}
-    			text = text.substring(3, text.length - 3);
-    			while (true) {
-    				if (text.indexOf("%22%22") === 0) {
-    					text = text.substring(6);
-    					head += "%22";
+    			regions = this._parse(arrOper);
+    			oper = regions.oper;
+    			sendData = regions.send;
+    			for (i = 0, len = oper.length; i < len; i++) {
+    				if (oper[i].endColIndex === -1) {
+    					rowOperate.rowPropOper(oper[i].endRowIndex, 'customProp.background', color);
+    				} else if (oper[i].endRowIndex === -1) {
+    					colOperate.colPropOper(oper[i].endColIndex, 'customProp.background', color);
     				} else {
-    					break;
+    					cells.oprCellsByRegion(oper[i], callback, color);
     				}
     			}
-    			while (true) {
-    				if (text.lastIndexOf("%22%22") === text.length - 6 && text.length > 6) {
-    					text = text.substring(0, text.length - 6);
-    					tail += "%22";
-    				} else {
-    					break;
+    			function callback(cell, colSort, rowSort, value) {
+    				var original;
+    				if ((original = cell.get('customProp').background) !== value) {
+    					cell.set('customProp.background', value);
     				}
     			}
-    			text = head + text + tail;
-    			return text;
-    		}
-    	}
+    			send.PackAjax({
+    				url: config.url.cell.bg_batch,
+    				data: JSON.stringify({
+    					coordinate: sendData,
+    					color: color
+    				})
+    			});
     
-    	function textToCell(data) {
-    		var cacheCell,
-    			indexCol,
-    			indexRow,
-    			aliasCol,
-    			aliasRow,
-    			selectRowIndex,
-    			selectColIndex,
-    			gridLineColList,
-    			gridLineRowList,
-    			result;
+    		},
+    		_getWeight: function() {
+    			var sign,
+    				result = {},
+    				arr, len, i, count = 1;
     
-    		gridLineColList = headItemCols.models;
-    		gridLineRowList = headItemRows.models;
-    
-    		indexCol = data.colIndex;
-    		indexRow = data.rowIndex;
-    		if ((indexCol > headItemCols.length - 1) || (indexRow > headItemRows.length - 1)) {
+    			sign = 'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ';
+    			sign += 'a b c d e f g h i j k l m n o p q r s t u v w x y z';
+    			arr = sign.split(' ');
+    			for (i = 0, len = arr.length; i < len; i++, count++) {
+    				result[arr[i]] = count;
+    				if (i === 25) {
+    					count = 0;
+    				}
+    			}
     			return result;
-    		}
-    		var top, left, width, height;
-    		top = gridLineRowList[indexRow].get('top');
-    		left = gridLineColList[indexCol].get('left');
-    		width = gridLineColList[indexCol].get('width');
-    		height = gridLineRowList[indexRow].get('height');
+    		},
+    		_parse: function(arrOper) {
+    			var regCol = /^[a-zA-Z]+$/,
+    				regRow = /^[1-9]\d*$/,
+    				maxRowNum = config.User.maxRowNum,
+    				maxColNum = config.User.maxColNum,
+    				startCol, startRow, endCol, endRow,
+    				oper = [],
+    				send = [],
+    				point,
+    				temp,
+    				len, i;
     
-    		cacheCell = new Cell();
-    		aliasCol = gridLineColList[indexCol].get('alias');
-    		aliasRow = gridLineRowList[indexRow].get('alias');
-    		cacheCell.set('occupy', {
-    			x: [aliasCol],
-    			y: [aliasRow]
-    		});
-    		cacheCell.set('physicsBox', {
-    			top: top,
-    			left: left,
-    			width: width,
-    			height: height
-    		});
-    		cacheCell.set("content.texts", data.text);
-    		setTextType.typeRecognize(cacheCell);
-    		setTextType.generateDisplayText(cacheCell);
-    		cache.cachePosition(aliasRow, aliasCol, cells.length);
-    		cells.add(cacheCell);
-    	}
+    			if (!weight) {
+    				weight = this._getWeight();
+    			}
+    			if (Object.prototype.toString.call(arrOper) !== '[object Array]') {
+    				arrOper = [arrOper];
+    			}
+    			for (i = 0, len = arrOper.length; i < len; i++) {
+    				point = arrOper[i];
+    				//整行或整列操作
+    				if (typeof point === 'string') {
+    					if (regCol.test(point) && (startCol = colToSort(point)) <= maxColNum) {
+    						send.push({
+    							startCol: startCol,
+    							endCol: startCol,
+    							startRow: 0,
+    							endRow: -1
+    						});
+    						startCol = headItemCols.getIndexBySort(startCol);
+    						oper.push({
+    							startColIndex: startCol,
+    							endColIndex: startCol,
+    							startRowIndex: 0,
+    							endRowIndex: -1
+    						});
+    						continue;
+    					}
+    					if (regRow.test(point) && (startRow = rowToSort(point)) <= maxRowNum) {
+    						send.push({
+    							startCol: 0,
+    							endCol: -1,
+    							startRow: startRow,
+    							endRow: startRow
+    						});
+    						startRow = headItemRows.getIndexBySort(startRow);
+    						oper.push({
+    							startColIndex: 0,
+    							endColIndex: -1,
+    							startRowIndex: startRow,
+    							endRowIndex: startRow
+    						});
+    						continue;
+    					}
+    					throw new Error('非法参数');
+    				}
     
-    	return clipPasteOperate;
+    				point.endRow = point.endRow === undefined ? point.startRow : point.endRow;
+    				point.endCol = point.endCol === undefined ? point.startCol : point.endCol;
+    				startCol = point.startCol;
+    				if (startCol === undefined || !regCol.test(startCol) || (startCol = colToSort(startCol)) >= maxColNum) {
+    					throw new Error('非法参数');
+    				}
+    				endCol = point.endCol;
+    				if ((endCol = colToSort(endCol)) > maxColNum) {
+    					throw new Error('非法参数');
+    				}
+    				if (startCol > endCol) {
+    					temp = startCol;
+    					startCol = endCol;
+    					endCol = temp;
+    				}
+    				startRow = point.startRow;
+    				if (startRow === undefined || !regRow.test(startRow) || (startRow = rowToSort(startRow)) >= maxRowNum) {
+    					throw new Error('非法参数');
+    				}
+    				endRow = point.endRow;
+    				if ((endRow = rowToSort(endRow)) > maxRowNum) {
+    					throw new Error('非法参数');
+    				}
+    				if (startRow > endRow) {
+    					temp = startRow;
+    					startRow = endRow;
+    					endRow = temp;
+    				}
+    				send.push({
+    					startCol: startCol,
+    					startRow: startRow,
+    					endCol: endCol,
+    					endRow: endRow
+    				});
+    				startCol = headItemCols.getIndexBySort(startCol);
+    				startRow = headItemRows.getIndexBySort(startRow);
+    				endCol = headItemCols.getIndexBySort(endCol);
+    				endRow = headItemRows.getIndexBySort(endRow);
+    				oper.push({
+    					startColIndex: startCol,
+    					startRowIndex: startRow,
+    					endColIndex: endCol,
+    					endRowIndex: endRow
+    				});
+    			}
+    			return {
+    				send: send,
+    				oper: oper
+    			};
+    
+    			function colToSort(str) {
+    				var count = -1,
+    					i, len;
+    				for (i = 0, len = str.length; i < len; i++) {
+    					count += weight[str[i]] * (Math.pow(26, (len - i - 1)));
+    				}
+    				return count;
+    			}
+    
+    			function rowToSort(str) {
+    				return Number(str) - 1;
+    			}
+    		},
+    	};
+    	return setBg;
     });
     
     define('entrance/tool/comment',function() {
@@ -20692,7 +20072,11 @@
     			sendRegion = region.sendRegion;
     
     			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-    				this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+    				if (comment === null) {
+    					this.sendData(sendRegion, null, config.url.cell.comment_del);
+    				} else {
+    					this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+    				}
     				return;
     			}
     
@@ -20701,7 +20085,7 @@
     			} else if (operRegion.endRowIndex === 'MAX') {
     				colOperate.colPropOper(operRegion.startColIndex, 'customProp.comment', comment);
     			} else {
-    				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+    				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
     					if (cell.get('customProp').comment !== comment) {
     						changeModelList.push({
     							colSort: colSort,
@@ -20718,7 +20102,11 @@
     					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
     				}, changeModelList);
     			}
-    			this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+    			if (comment === null) {
+    				this.sendData(sendRegion, null, config.url.cell.comment_del);
+    			} else {
+    				this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+    			}
     		},
     
     		createAddCommentView: function(sheetId) {
@@ -20738,6 +20126,7 @@
     		deleteComment: function(sheetId, label) {
     			this.removeClip();
     			this.modifyComment('1', null, label);
+    			// comment_del
     		},
     		sendData: function(sendRegion, comment, url) {
     			var data = {
@@ -27176,11 +26565,13 @@
     	templatesHTML.BODYTEMPLATE = '<div class="main-layout">';
     	templatesHTML.BODYTEMPLATE += '<table class="cui-grid" cellspacing="0" cellpadding="0" id="tableContainer">';
     	templatesHTML.BODYTEMPLATE += '<tbody><tr><td><div class="left-corner"></div></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></tbody>';
-    	templatesHTML.BODYTEMPLATE += '</table><div class="input"></div></div>';
+    	templatesHTML.BODYTEMPLATE += '</table></div>';
     	templatesHTML.BODYTEMPLATE += '<div class="sheet-layout"><div class="sheet-body">';
     	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-box glyphicons glyphicon-plus"></div>';
     	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-box active glyphicons glyphicon-th-list"></div>';
-    	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-list"></div>';
+    	templatesHTML.BODYTEMPLATE += '<div class="sheet-cf-list"></div></div></div>';
+    	templatesHTML.BODYTEMPLATE += '<div class="mask"><div class="mask-bg"></div>';
+    	templatesHTML.BODYTEMPLATE += '<div class="mask-text">加载中..&nbsp;. &nbsp;. &nbsp;&nbsp;.</div></div>';
     	templatesHTML.BODYTEMPLATE += '</div>';
     
     	templatesHTML.SHEETTEMPLATE = '<span>{{name}}</span>';
@@ -27192,7 +26583,7 @@
     
     	templatesHTML.SELECTTEMPLATE = '<div class="box"><div class="expand"></div><div class="bg"></div></div>';
     
-    	templatesHTML.CELLTEMPLATE = '<div class="bg" style="display:table-cell;">{{content.texts}}</div>';
+    	templatesHTML.CELLTEMPLATE = '<div class="bg" style="display:table-cell;"></div>';
     
     	templatesHTML.COLGRIDTEMPLATE = '<div class="col" style="left:{{left}}px;"></div>';
     	templatesHTML.ROWGRIDTEMPLATE = '<div class="row" style="top:{{top}}px;"></div>';
@@ -27213,48 +26604,72 @@
     
     define('basic/util/observer.pattern',function() {
     	
-    	var observer = {
+    
+    	var observer,
+    		subscribers;
+    
+    	
+    	subscribers = {};
+    
+    	
+    	observer = {
     		
-    		publisher: {
-    			subscribers: {
-    				any: [] //事件类型：订阅者（subscribers）
-    			},
-    			subscribe: function(fn, type) {
-    				type = type || 'any';
-    				if (typeof this.subscribers[type] === 'undefined') {
-    					this.subscribers[type] = [];
+    		subscriber: {
+    			
+    			subscribe: function(publisherName, type, fn) {
+    				var temp1,
+    					temp2;
+    				if (typeof(temp1 = subscribers[publisherName]) === 'undefined') {
+    					temp1 = subscribers[publisherName] = {};
     				}
-    				this.subscribers[type].push(fn);
-    			},
-    			unsubscribe: function(fn, type) {
-    				this.visitSubscribers('unsubscribe', fn, type);
-    			},
-    			publish: function(publication, type) {
-    				this.visitSubscribers('publish', publication, type);
+    				if (typeof(temp2 = temp1[type]) === 'undefined') {
+    					temp2 = temp1[type] = [];
+    				}
+    				temp2.push({
+    					fn: fn,
+    					master: this
+    				});
     			},
     			
-    			visitSubscribers: function(action, arg, type) {
-    				var pubtype = type || 'any',
-    					subscribers = this.subscribers[pubtype],
-    					subscriber,
-    					i,
-    					max;
-    				max = subscribers !== undefined ? subscribers.length : 0;
-    				for (i = 0; i < max; i++) {
-    					if (action === 'publish') {
-    						subscriber = subscribers[i];
-    						if(typeof subscriber === 'object'){
-    							subscriber.master[subscriber.behavior](arg, subscriber.args);
-    						}else if(typeof subscriber === 'function'){
-    							subscriber(arg);
-    						}
-    					} else {
-    						if (subscribers[i] === arg) {
-    							subscribers.splice(i, 1);
-    						}
+    			unsubscribe: function(publisherName, type) {
+    				var currentSubscribers,
+    					currentSubscriber,
+    					types,
+    					max, i;
+    
+    				types = subscribers[publisherName];
+    				if (types === undefined) {
+    					return;
+    				}
+    				currentSubscribers = types[type];
+    				max = currentSubscribers !== undefined ? currentSubscribers.length : 0;
+    				for (i = max - 1; i >= 0; i--) {
+    					currentSubscriber = currentSubscribers[i];
+    					if (currentSubscriber.master === this) {
+    						currentSubscribers.splice(i, 1);
     					}
     				}
-    			}
+    			},
+    		},
+    		
+    		publisher: {
+    			
+    			publish: function(name, type) {
+    				var currentSubscribers,
+    					currentSubscriber,
+    					max, i, callback;
+    
+    				currentSubscribers = subscribers[name];
+    				if (currentSubscribers &&
+    					(currentSubscribers = currentSubscribers[type]) !== undefined) {
+    					max = currentSubscribers !== undefined ? currentSubscribers.length : 0;
+    					for (i = 0; i < max; i++) {
+    						currentSubscriber = currentSubscribers[i];
+    						callback = currentSubscriber.master[currentSubscriber.fn];
+    						callback.apply(currentSubscriber.master, [].slice.call(arguments, 2));
+    					}
+    				}
+    			},
     		},
     		
     		buildPublisher: function(obj) {
@@ -27263,9 +26678,16 @@
     					obj[i] = this.publisher[i];
     				}
     			}
-    			obj.subscribers = {
-    				any: []
-    			};
+    		},
+    		buildSubscriber: function(obj) {
+    			for (var i in this.subscriber) {
+    				if (this.subscriber.hasOwnProperty(i) && typeof this.subscriber[i] === 'function') {
+    					obj[i] = this.subscriber[i];
+    				}
+    			}
+    		},
+    		clearSubscriber: function() {
+    			subscribers = {};
     		}
     	};
     	return observer;
@@ -27436,6 +26858,269 @@
     	});
     	return GridLineRowContainer;
     });
+    define('views/rowsGridContainer',function() {
+    	
+    	var $ = require('lib/jquery'),
+    		_ = require('lib/underscore'),
+    		Backbone = require('lib/backbone'),
+    		observerPattern = require('basic/util/observer.pattern'),
+    		config = require('spreadsheet/config'),
+    		cache = require('basic/tools/cache'),
+    		headItemRows = require('collections/headItemRow'),
+    		cells = require('collections/cells'),
+    		GridLineRowContainer = require('views/gridLineRowContainer');
+    
+    	
+    	var RowsGridContainer = Backbone.View.extend({
+    		
+    		className: 'row-container',
+    		
+    		initialize: function(option) {
+    			// _.bindAll(this, 'callScreenContainer');
+    			
+    			this.rowNumber = 0;
+    			this.currentRule = cache.CurrentRule;
+    			if (this.currentRule.displayPosition.endRowIndex === undefined) {
+    				this.listenTo(headItemRows, 'add', this.addGridLineRow);
+    
+    				//订阅滚动行视图还原
+    				observerPattern.buildSubscriber(this);
+    				this.subscribe('mainContainer', 'restoreRowView', 'restoreRowView');
+    			}
+    			Backbone.on('call:rowsGridContainer', this.rowsGridContainer, this);
+    		},
+    		rowsGridContainer: function(receiveFunc) {
+    			receiveFunc(this);
+    		},
+    		
+    		render: function() {
+    			var i = 0,
+    				gridLineRowList,
+    				gridLineRowRegionList,
+    				len;
+    			gridLineRowList = gridLineRowRegionList = headItemRows.models;
+    			if (cache.TempProp.isFrozen) {
+    				if (this.currentRule.displayPosition.endRowIndex !== undefined) {
+    					gridLineRowRegionList = gridLineRowList.slice(this.currentRule.displayPosition.startRowIndex, this.currentRule.displayPosition.endRowIndex);
+    				} else {
+    					gridLineRowRegionList = gridLineRowList.slice(this.currentRule.displayPosition.startRowIndex);
+    				}
+    			}
+    			len = gridLineRowRegionList.length;
+    			for (; i < len; i++) {
+    				this.addGridLineRow(gridLineRowRegionList[i]);
+    				this.rowNumber++;
+    			}
+    			return this;
+    		},
+    		restoreRowView: function(model, direction) {
+    			this.addGridLineRow(model, direction);
+    		},
+    		
+    		addGridLineRow: function(modelGridLineRow, direction) {
+    			//处理冻结状态
+    			var gridLineRow = new GridLineRowContainer({
+    				model: modelGridLineRow,
+    				frozenTop: this.currentRule.displayPosition.offsetTop,
+    				endIndex: this.currentRule.displayPosition.endRowIndex
+    			});
+    			if (direction !== 'down') {
+    				this.$el.append(gridLineRow.render().el);
+    			} else {
+    				this.$el.prepend(gridLineRow.render().el);
+    			}
+    		},
+    
+    		
+    		newAttrRow: function() {
+    			var currentObject = {
+    				alias: (this.rowNumber + 1).toString(),
+    				top: this.rowNumber * config.User.cellHeight,
+    				height: config.User.cellHeight - 1,
+    				displayName: app.basic.buildRowAlias(this.rowNumber)
+    			};
+    			return currentObject;
+    		},
+    		
+    		destroy: function() {
+    			this.remove();
+    		}
+    	});
+    	return RowsGridContainer;
+    });
+    
+    define('views/gridLineColContainer',function() {
+    	
+    	var Backbone = require('lib/backbone');
+    	var headItemCols = require('collections/headItemCol');
+    	var cache = require('basic/tools/cache');
+    	var config = require('spreadsheet/config');
+    	var util = require('basic/util/clone');
+    	
+    	var GridLineColContainer = Backbone.View.extend({
+    		
+    		className: 'col',
+    		
+    		initialize: function() {
+    			var modelList, currentIndex, currentModel;
+    			this.offsetLeft = 0;
+    			this.listenTo(this.model, 'change:isView', this.destroy);
+    			this.listenTo(this.model, 'change:hidden', this.destroy);
+    			this.listenTo(this.model, 'change:left', this.changeLeft);
+    			this.listenTo(this.model, 'change:width', this.changeWidth);
+    			this.listenTo(this.model, 'destroy', this.remove);
+    			modelList = headItemCols;
+    			currentModel = modelList.getModelByAlias(cache.TempProp.colAlias);
+    			this.userViewLeft = cache.TempProp.isFrozen ? modelList.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
+    			this.offsetLeft = cache.TempProp.isFrozen && cache.CurrentRule.autoColAlign ? ((currentModel.get('left') - this.userViewLeft) || 0) : 0;
+    		},
+    		
+    		render: function() {
+    			this.changeLeft();
+    			this.changeWidth();
+    			return this;
+    		},
+    		changeLeft: function() {
+    			this.$el.css({
+    				left: this.model.toJSON().left - this.offsetLeft - this.userViewLeft
+    			});
+    		},
+    		changeWidth: function() {
+    			this.$el.css({
+    				width: this.model.toJSON().width
+    			});
+    		},
+    		destroy: function() {
+    			if (!this.model.get('isView') || this.model.get('hidden')) {
+    				this.remove();
+    			}
+    		}
+    	});
+    	return GridLineColContainer;
+    });
+    //attention bug , bettwen this.number has mixed and user configure file. isn't exist worth
+    
+    define('views/colsGridContainer',function() {
+    	
+    	var Backbone = require('lib/backbone'),
+    		config = require('spreadsheet/config'),
+    		binary = require('basic/util/binary'),
+    		cache = require('basic/tools/cache'),
+    		headItemCols = require('collections/headItemCol'),
+    		buildAlias = require('basic/tools/buildalias'),
+    		GridLineColContainer = require('views/gridLineColContainer'),
+    		ColsGridContainer;
+    
+    	
+    	ColsGridContainer = Backbone.View.extend({
+    		
+    		className: 'col-container',
+    		
+    		initialize: function(option) {
+    			
+    			this.colNumber = 0;
+    			this.listenTo(headItemCols, 'add', this.addGridLineCol);
+    			Backbone.on('event:restoreHideCols', this.restoreHideCols, this);
+    
+    		},
+    		
+    		render: function() {
+    			var i = 0,
+    				gridLineColList,
+    				gridLineColRegionList,
+    				len;
+    			gridLineColList = gridLineColRegionList = headItemCols.models;
+    			if (cache.TempProp.isFrozen) {
+    				this.currentRule = cache.CurrentRule;
+    				if (this.currentRule.displayPosition.endColIndex !== undefined) {
+    					gridLineColRegionList = headItemCols.models.slice(this.currentRule.displayPosition.startColIndex, this.currentRule.displayPosition.endColIndex);
+    				} else {
+    					gridLineColRegionList = headItemCols.models.slice(this.currentRule.displayPosition.startColIndex);
+    				}
+    			}
+    			len = gridLineColRegionList.length;
+    			for (; i < len; i++) {
+    				if (!gridLineColRegionList[i].get('hidden')) {
+    					this.addGridLineCol(gridLineColRegionList[i]);
+    				}
+    				this.colNumber++;
+    			}
+    			return this;
+    		},
+    		restoreHideCols: function() {
+    			var headItemColList = headItemCols.models,
+    				len = headItemColList.length,
+    				i = 0;
+    			for (; i < len; i++) {
+    				if (headItemColList[i].get('hidden')) {
+    					this.addGridLineCol(headItemColList[i]);
+    				}
+    			}
+    		},
+    		
+    		addGridLineCol: function(modelGridLineCol) {
+    			var gridLineCol = new GridLineColContainer({
+    				model: modelGridLineCol,
+    				frozenLeft: 0
+    			});
+    			this.$el.append(gridLineCol.render().el);
+    		},
+    		
+    		createGridLineCol: function() {
+    			headItemCols.add(this.newAttrCol());
+    		},
+    		
+    		newAttrCol: function() {
+    			var currentObject;
+    			currentObject = {
+    				alias: (this.colNumber + 1).toString(),
+    				left: this.colNumber * config.User.cellWidth,
+    				width: config.User.cellWidth - 1,
+    				displayName: buildAlias.buildColAlias(this.colNumber)
+    			};
+    			return currentObject;
+    		},
+    		
+    		destroy: function() {
+    			Backbone.off('event:restoreHideCols');
+    			this.remove();
+    		}
+    	});
+    	return ColsGridContainer;
+    });
+    define('views/gridLineContainer',function() {
+        
+        var $ = require('lib/jquery'),
+            _ = require('lib/underscore'),
+            Backbone = require('lib/backbone'),
+            RowsGridContainer = require('views/rowsGridContainer'),
+            ColsGridContainer = require('views/colsGridContainer');
+        
+        var GridLineContainer = Backbone.View.extend({
+            
+            className: 'line-container',
+            
+            initialize: function() {
+    
+            },
+            
+            render: function() {
+                this.rowsGridContainer = new RowsGridContainer();
+                this.$el.append(this.rowsGridContainer.render().el);
+    
+                this.colsGridContainer = new ColsGridContainer();
+                this.$el.append(this.colsGridContainer.render().el);
+                return this;
+            },
+            
+            destroy: function() {
+                this.rowsGridContainer.destroy();
+                this.colsGridContainer.destroy();
+                this.remove();
+            }
+        });
+        return GridLineContainer;
+    });
     
     define('basic/tools/gettextbox',function() {
     	var $ = require('lib/jquery');
@@ -27508,10 +27193,6 @@
     		}
     	};
     });
-    // beacause of we used nested model ,but backbone not support nested lsitenTo .
-    // so listenTo nested model didn't done.
-    
-    
     define('views/cellContainer',function() {
     	
     	var $ = require('lib/jquery'),
@@ -27536,7 +27217,6 @@
     		className: 'item',
     		
     		initialize: function(options) {
-    
     			var modelRowList = headItemRows,
     				modelColList = headItemCols;
     
@@ -27568,6 +27248,7 @@
     			this.listenTo(this.model, 'change:wordWrap', this.changeWordWrap);
     
     			this.currentRule = options.currentRule;
+    			
     			if (cache.TempProp.isFrozen !== true ||
     				this.currentRule.displayPosition.endRowIndex === undefined) {
     				this.listenTo(this.model, 'change:showState', this.destroy);
@@ -27588,12 +27269,10 @@
     			var modelAttr = this.model.attributes;
     			this.template = getTemplate('CELLTEMPLATE');
     
-    			this.$el.html(this.template({
-    				content: modelAttr.content,
-    				text: this.getHtmlText(modelAttr)
-    			}));
+    			this.$el.html(this.template());
     
-    			this.$contentBody = this.$contentBody = $('.bg', this.$el);
+    			this.$contentBody = $('.bg', this.$el);
+    			this.$contentBody[0].innerText = modelAttr.content.displayTexts;
     
     			this.changeFontFamily(modelAttr);
     			this.changeFontSize(modelAttr);
@@ -27619,32 +27298,20 @@
     			this.showCommentSign(modelAttr);
     			return this;
     		},
-    		getHtmlText: function(modelAttr) {
-    			var text,
-    				texts,
-    				temp,
-    				i = 0,
-    				height;
+    		// getHtmlText: function(modelAttr) {
+    		// 	var text;
     
-    			if (modelAttr.attributes) {
-    				modelAttr = this.model.attributes;
-    			}
-    			text = modelAttr.content.displayTexts || '';
-    			texts = text.split('\n');
-    			text = '';
+    		// 	if (modelAttr.attributes) {
+    		// 		modelAttr = this.model.attributes;
+    		// 	}
     
-    			if (this.model.get('wordWrap') === false) {
-    				for (i = 0; i < texts.length; i++) {
-    					text += texts[i];
-    				}
-    			} else {
-    				for (i = 0; i < texts.length; i++) {
-    					text += texts[i] + '<br>';
-    				}
-    			}
-    			text = text.replace(/\u0020/g, '&nbsp;');
-    			return text;
-    		},
+    		// 	text = modelAttr.content.displayTexts || '';
+    
+    		// 	if (modelAttr.wordWrap) {
+    		// 		text =text.replace(/\n/g, '<br>');
+    		// 	}
+    		// 	return text;
+    		// },
     		changeWidth: function(modelAttr) {
     			if (modelAttr.attributes) {
     				modelAttr = this.model.attributes;
@@ -27872,9 +27539,11 @@
     		generateDisplayText: function() {
     			formatHandler.typeRecognize(this.model);
     			formatHandler.generateDisplayText(this.model);
+    
     			var modelAttr = this.model.attributes;
     			this.changeTransverseAlign(modelAttr);
-    			this.$contentBody.html(this.getHtmlText(modelAttr));
+    			this.$contentBody[0].innerText = modelAttr.content.displayTexts;
+    
     		},
     		changeFontFamily: function() {
     			this.$contentBody.css({
@@ -27941,257 +27610,6 @@
     	});
     	return CellContainer;
     });
-    define('views/rowsGridContainer',function() {
-    	
-    	var $ = require('lib/jquery'),
-    		_ = require('lib/underscore'),
-    		Backbone = require('lib/backbone'),
-    		config = require('spreadsheet/config'),
-    		cache = require('basic/tools/cache'),
-    		headItemRows = require('collections/headItemRow'),
-    		cells = require('collections/cells'),
-    		GridLineRowContainer = require('views/gridLineRowContainer');
-    
-    	
-    	var RowsGridContainer = Backbone.View.extend({
-    		
-    		className: 'row-container',
-    		
-    		initialize: function(option) {
-    			// _.bindAll(this, 'callScreenContainer');
-    			
-    			this.rowNumber = 0;
-    			this.currentRule = cache.CurrentRule;
-    			if (cache.TempProp.isFrozen !== true || this.currentRule.displayPosition.endRowIndex === undefined) {
-    				this.listenTo(headItemRows, 'add', this.addGridLineRow);
-    			}
-    			Backbone.on('call:rowsGridContainer', this.rowsGridContainer, this);
-    		},
-    		rowsGridContainer: function(receiveFunc) {
-    			receiveFunc(this);
-    		},
-    		
-    		render: function() {
-    			var i = 0,
-    				gridLineRowList,
-    				gridLineRowRegionList,
-    				len;
-    			gridLineRowList = gridLineRowRegionList = headItemRows.models;
-    			if (cache.TempProp.isFrozen) {
-    				if (this.currentRule.displayPosition.endRowIndex !== undefined) {
-    					gridLineRowRegionList = gridLineRowList.slice(this.currentRule.displayPosition.startRowIndex, this.currentRule.displayPosition.endRowIndex);
-    				} else {
-    					gridLineRowRegionList = gridLineRowList.slice(this.currentRule.displayPosition.startRowIndex);
-    				}
-    			}
-    			len = gridLineRowRegionList.length;
-    			for (; i < len; i++) {
-    				this.addGridLineRow(gridLineRowRegionList[i]);
-    				this.rowNumber++;
-    			}
-    			return this;
-    		},
-    		
-    		addGridLineRow: function(modelGridLineRow) {
-    			//处理冻结状态
-    			var gridLineRow = new GridLineRowContainer({
-    				model: modelGridLineRow,
-    				frozenTop: this.currentRule.displayPosition.offsetTop,
-    				endIndex: this.currentRule.displayPosition.endRowIndex
-    			});
-    			this.$el.append(gridLineRow.render().el);
-    		},
-    
-    		
-    		newAttrRow: function() {
-    			var currentObject = {
-    				alias: (this.rowNumber + 1).toString(),
-    				top: this.rowNumber * config.User.cellHeight,
-    				height: config.User.cellHeight - 1,
-    				displayName: app.basic.buildRowAlias(this.rowNumber)
-    			};
-    			return currentObject;
-    		},
-    		
-    		destroy: function() {
-    			this.remove();
-    		}
-    	});
-    	return RowsGridContainer;
-    });
-    
-    define('views/gridLineColContainer',function() {
-    	
-    	var Backbone = require('lib/backbone');
-    	var headItemCols = require('collections/headItemCol');
-    	var cache = require('basic/tools/cache');
-    	var config = require('spreadsheet/config');
-    	var util = require('basic/util/clone');
-    	
-    	var GridLineColContainer = Backbone.View.extend({
-    		
-    		className: 'col',
-    		
-    		initialize: function() {
-    			var modelList, currentIndex, currentModel;
-    			this.offsetLeft = 0;
-    			this.listenTo(this.model, 'change:isView', this.destroy);
-    			this.listenTo(this.model, 'change:hidden', this.destroy);
-    			this.listenTo(this.model, 'change:left', this.changeLeft);
-    			this.listenTo(this.model, 'change:width', this.changeWidth);
-    			this.listenTo(this.model, 'destroy', this.remove);
-    			modelList = headItemCols;
-    			currentModel = modelList.getModelByAlias(cache.TempProp.colAlias);
-    			this.userViewLeft = cache.TempProp.isFrozen ? modelList.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
-    			this.offsetLeft = cache.TempProp.isFrozen && cache.CurrentRule.autoColAlign ? ((currentModel.get('left') - this.userViewLeft) || 0) : 0;
-    		},
-    		
-    		render: function() {
-    			this.changeLeft();
-    			this.changeWidth();
-    			return this;
-    		},
-    		changeLeft: function() {
-    			this.$el.css({
-    				left: this.model.toJSON().left - this.offsetLeft - this.userViewLeft
-    			});
-    		},
-    		changeWidth: function() {
-    			this.$el.css({
-    				width: this.model.toJSON().width
-    			});
-    		},
-    		destroy: function() {
-    			if (!this.model.get('isView') || this.model.get('hidden')) {
-    				this.remove();
-    			}
-    		}
-    	});
-    	return GridLineColContainer;
-    });
-    //attention bug , bettwen this.number has mixed and user configure file. isn't exist worth
-    
-    define('views/colsGridContainer',function() {
-    	
-    	var Backbone = require('lib/backbone'),
-    		config = require('spreadsheet/config'),
-    		binary = require('basic/util/binary'),
-    		cache = require('basic/tools/cache'),
-    		headItemCols = require('collections/headItemCol'),
-    		buildAlias = require('basic/tools/buildalias'),
-    		GridLineColContainer = require('views/gridLineColContainer'),
-    		ColsGridContainer;
-    
-    	
-    	ColsGridContainer = Backbone.View.extend({
-    		
-    		className: 'col-container',
-    		
-    		initialize: function(option) {
-    			
-    			this.colNumber = 0;
-    			this.listenTo(headItemCols, 'add', this.addGridLineCol);
-    			Backbone.on('event:restoreHideCols', this.restoreHideCols, this);
-    
-    		},
-    		
-    		render: function() {
-    			var i = 0,
-    				gridLineColList,
-    				gridLineColRegionList,
-    				len;
-    			gridLineColList = gridLineColRegionList = headItemCols.models;
-    			if (cache.TempProp.isFrozen) {
-    				this.currentRule = cache.CurrentRule;
-    				if (this.currentRule.displayPosition.endColIndex !== undefined) {
-    					gridLineColRegionList = headItemCols.models.slice(this.currentRule.displayPosition.startColIndex, this.currentRule.displayPosition.endColIndex);
-    				} else {
-    					gridLineColRegionList = headItemCols.models.slice(this.currentRule.displayPosition.startColIndex);
-    				}
-    			}
-    			len = gridLineColRegionList.length;
-    			for (; i < len; i++) {
-    				if (!gridLineColRegionList[i].get('hidden')) {
-    					this.addGridLineCol(gridLineColRegionList[i]);
-    				}
-    				this.colNumber++;
-    			}
-    			return this;
-    		},
-    		restoreHideCols: function() {
-    			var headItemColList = headItemCols.models,
-    				len = headItemColList.length,
-    				i = 0;
-    			for (; i < len; i++) {
-    				if (headItemColList[i].get('hidden')) {
-    					this.addGridLineCol(headItemColList[i]);
-    				}
-    			}
-    		},
-    		
-    		addGridLineCol: function(modelGridLineCol) {
-    			var gridLineCol = new GridLineColContainer({
-    				model: modelGridLineCol,
-    				frozenLeft: 0
-    			});
-    			this.$el.append(gridLineCol.render().el);
-    		},
-    		
-    		createGridLineCol: function() {
-    			headItemCols.add(this.newAttrCol());
-    		},
-    		
-    		newAttrCol: function() {
-    			var currentObject;
-    			currentObject = {
-    				alias: (this.colNumber + 1).toString(),
-    				left: this.colNumber * config.User.cellWidth,
-    				width: config.User.cellWidth - 1,
-    				displayName: buildAlias.buildColAlias(this.colNumber)
-    			};
-    			return currentObject;
-    		},
-    		
-    		destroy: function() {
-    			Backbone.off('event:restoreHideCols');
-    			this.remove();
-    		}
-    	});
-    	return ColsGridContainer;
-    });
-    define('views/gridLineContainer',function() {
-        
-        var $ = require('lib/jquery'),
-            _ = require('lib/underscore'),
-            Backbone = require('lib/backbone'),
-            RowsGridContainer = require('views/rowsGridContainer'),
-            ColsGridContainer = require('views/colsGridContainer');
-        
-        var GridLineContainer = Backbone.View.extend({
-            
-            className: 'line-container',
-            
-            initialize: function() {
-    
-            },
-            
-            render: function() {
-                this.rowsGridContainer = new RowsGridContainer();
-                this.$el.append(this.rowsGridContainer.render().el);
-    
-                this.colsGridContainer = new ColsGridContainer();
-                this.$el.append(this.colsGridContainer.render().el);
-                return this;
-            },
-            
-            destroy: function() {
-                this.rowsGridContainer.destroy();
-                this.colsGridContainer.destroy();
-                this.remove();
-            }
-        });
-        return GridLineContainer;
-    });
     define('views/contentCellsContainer',function() {
     	
     	var Backbone = require('lib/backbone'),
@@ -28199,12 +27617,15 @@
     		config = require('spreadsheet/config'),
     		util = require('basic/util/clone'),
     		send = require('basic/tools/send'),
+    		observerPattern = require('basic/util/observer.pattern'),
     		loadRecorder = require('basic/tools/loadrecorder'),
     		original = require('basic/tools/original'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
     		cells = require('collections/cells'),
     		CellContainer = require('views/cellContainer'),
+    		headItemRowList = headItemRows.models,
+    		headItemColList = headItemCols.models,
     		ContentCellsContainer;
     
     
@@ -28215,12 +27636,20 @@
     		
     		initialize: function() {
     			this.currentRule = util.clone(cache.CurrentRule);
-    			//考虑冻结情况
+    			// 取消列隐藏时使用
     			Backbone.on('event:restoreHideCellView', this.restoreHideCellView, this);
+    			// 重新拉取所有单元格数据
     			Backbone.on('event:contentCellsContainer:reloadCells', this.reloadCells, this);
+    			// 撤销操作重新还原单元格视图
     			Backbone.on('event:contentCellsContainer:restoreCell', this.addCell, this);
-    			//还原
+    			Backbone.on('event:contentCellsContainer:destroy');
     			this.listenTo(cells, 'add', this.addCell);
+    
+    			if (this.currentRule.displayPosition.endIndex === undefined) {
+    				//订阅滚动行视图还原
+    				observerPattern.buildSubscriber(this);
+    				this.subscribe('mainContainer', 'restoreCellView', 'restoreCellView');
+    			}
     		},
     		
     		render: function() {
@@ -28251,10 +27680,10 @@
     			cache.CellsPosition.strandX = {};
     			cache.CellsPosition.strandY = {};
     			cache.cellRegionPosi.vertical = [];
+    			cells.reset();
     			top = cache.viewRegion.top;
     			bottom = cache.viewRegion.bottom;
     			this.getCells(top, bottom);
-    			loadRecorder.insertPosi(top, bottom, cache.cellRegionPosi.vertical);
     		},
     		restoreHideCellView: function() {
     			var headItemColList = headItemCols.models,
@@ -28312,8 +27741,12 @@
     					data = data.returndata;
     					var cellJSON = data.spreadSheet[0].sheet.cells;
     					original.analysisCellData(cellJSON);
+    					loadRecorder.insertPosi(top, bottom, cache.cellRegionPosi.vertical);
     				}
     			});
+    		},
+    		restoreCellView: function(model) {
+    			this.addCell(model);
     		},
     		
     		addCell: function(cell) {
@@ -28323,8 +27756,6 @@
     					startColIndex = displayPosition.startColIndex,
     					endRowIndex = displayPosition.endRowIndex,
     					endColIndex = displayPosition.endColIndex,
-    					headItemColList = headItemCols.models,
-    					headItemRowList = headItemRows.models,
     					cellBox = cell.get('physicsBox'),
     					top, left, bottom, right;
     
@@ -28333,11 +27764,23 @@
     				left = cellBox.left;
     				right = left + cellBox.width;
     
+    				//判断单元格是否不再当前区域内
     				if (bottom < headItemRowList[startRowIndex].get('top') ||
-    					(typeof endRowIndex === 'number' && top > headItemRowList[endRowIndex].get('top')) ||
-    					right < headItemColList[startColIndex].get('left') ||
-    					(typeof endColIndex === 'number' && left > headItemColList[endColIndex].get('left'))) {
+    					right < headItemColList[startColIndex].get('left')) {
     					return;
+    				}
+    
+    				if (typeof endRowIndex === 'number') {
+    					endRowIndex = endRowIndex - 1;
+    					if (endRowIndex < 0 || top > headItemRowList[endRowIndex].get('top')) {
+    						return;
+    					}
+    				}
+    				if (typeof endColIndex === 'number') {
+    					endColIndex = endColIndex - 1;
+    					if (endColIndex < 0 || left > headItemColList[endColIndex].get('left')) {
+    						return;
+    					}
     				}
     			}
     
@@ -28349,9 +27792,11 @@
     		},
     		
     		destroy: function() {
+    			Backbone.tigger('event:cellConainer:destroy');
     			Backbone.off('event:contentCellsContainer:reloadCells');
+    			Backbone.off('event:contentCellsContainer:restoreCell');
     			Backbone.off('event:restoreHideCellView');
-    			Backbone.trigger('event:destroyCellView');
+    			Backbone.off('event:contentCellsContainer:destroy');
     			this.remove();
     		}
     	});
@@ -28724,6 +28169,9 @@
     			if ($(event.target).attr('class') === 'edit-frame') {
     				return;
     			}
+    			if (cache.commentEditState) {
+    				return;
+    			}
     			this.locatedState(event);
     		},
     		mouseMoveHandle: function(event) {
@@ -28789,7 +28237,9 @@
     		},
     		
     		adaptHeight: function() {
-    			var height = 0,
+    			var userViewTop = this.userViewTop,
+    				offsetTop = this.offsetTop,
+    				height = 0,
     				top = 0,
     				len, i;
     
@@ -28801,7 +28251,7 @@
     					break;
     				}
     			}
-    			this.$el.css('height', top + height);
+    			this.$el.css('height', top + height - userViewTop - offsetTop);
     		},
     		
     		setMouseState: function(type, state) {
@@ -29033,13 +28483,7 @@
     			this.$el.append(selectRegionView.render().el);
     		},
     		
-    		located: function(colPosi, rowPosi, selectModel) {
-    			if (cache.commentEditState) {
-    				return;
-    			}
-    			if ($(event.target).attr('class') === 'edit-frame') {
-    				return;
-    			}
+    		located: function(colPosi, rowPosi, selectModel, target) {
     			this.changePosi(colPosi, rowPosi, selectModel);
     		},
     		
@@ -29166,6 +28610,7 @@
     			Backbone.off('event:cellsContainer:destroy');
     			Backbone.off('event:cellsContainer:adaptWidth');
     			Backbone.off('event:cellsContainer:adaptHeight');
+    			Backbone.trigger('event:contentCellsContainer:destroy');
     			//待修改：需要销毁包含视图
     			selectModelList = selectRegions.models;
     			len = selectModelList.length;
@@ -29183,7 +28628,6 @@
     define('views/mainContainer',function() {
     	
     	var $ = require('lib/jquery'),
-    		_ = require('lib/underscore'),
     		Backbone = require('lib/backbone'),
     		binary = require('basic/util/binary'),
     		cache = require('basic/tools/cache'),
@@ -29191,15 +28635,12 @@
     		original = require('basic/tools/original'),
     		clone = require('basic/util/clone'),
     		send = require('basic/tools/send'),
-    		buildAlias = require('basic/tools/buildalias'),
     		loadRecorder = require('basic/tools/loadrecorder'),
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
     		siderLineRows = require('collections/siderLineRow'),
     		cells = require('collections/cells'),
     		selectRegions = require('collections/selectRegion'),
-    		GridLineRowContainer = require('views/gridLineRowContainer'),
-    		CellContainer = require('views/cellContainer'),
     		CellsContainer = require('views/cellsContainer'),
     		headItemRowList = headItemRows.models,
     		headItemColList = headItemCols.models;
@@ -29208,20 +28649,21 @@
     	var MainContainer = Backbone.View.extend({
     
     		
-    		initialize: function() {
-    			var modelsHeadLineRowList,
-    				modelsHeadLineColList,
-    				modelsHeadLineRowRegionList,
-    				modelsHeadLineColRegionList,
-    				modelLastHeadLineRow,
-    				modelLastHeadLineCol,
-    				userViewBottomIndex,
+    		initialize: function(options) {
+    			var lineRowList,
+    				lineColList,
+    				lastLineRow,
+    				lastLineCol,
+    				startRowIndex,
+    				startColIndex,
+    				endRowIndex,
+    				endColIndex,
+    
     				len;
     
     
     			Backbone.on('event:mainContainer:destroy', this.destroy, this);
     			Backbone.on('event:mainContainer:attributesRender', this.attributesRender, this);
-    			Backbone.on('event:mainContainer:appointPosition', this.appointPosition, this);
     
     			this.currentRule = clone.clone(cache.CurrentRule);
     
@@ -29237,32 +28679,47 @@
     			this.boxAttributes = this.currentRule.boxAttributes;
     
     			// for reduction position , prevent event scroll auto trigger.
-    			this.isPreventScroll = true;
     
-    			modelsHeadLineRowRegionList = modelsHeadLineRowList = headItemRows.models;
-    			modelsHeadLineColRegionList = modelsHeadLineColList = headItemCols.models;
+    			lineRowList = headItemRowList;
+    			lineColList = headItemColList;
+    
+    			startRowIndex = this.currentRule.displayPosition.startRowIndex;
+    			startColIndex = this.currentRule.displayPosition.startColIndex;
+    			endRowIndex = this.currentRule.displayPosition.endRowIndex;
+    			endColIndex = this.currentRule.displayPosition.endColIndex;
+    
+    			this.parentNode = options.parentNode;
+    
     			//计算容器高度
     			if (cache.TempProp.isFrozen) {
-    				if (this.currentRule.displayPosition.endRowIndex) {
-    					modelsHeadLineRowRegionList = modelsHeadLineRowList.slice(this.currentRule.displayPosition.startRowIndex, this.currentRule.displayPosition.endRowIndex);
+    				if (endRowIndex) {
+    					lineRowList = lineRowList.slice(startRowIndex, endRowIndex);
     				} else {
-    					modelsHeadLineRowRegionList = modelsHeadLineRowList.slice(this.currentRule.displayPosition.startRowIndex);
+    					lineRowList = lineRowList.slice(startRowIndex);
     				}
-    				if (this.currentRule.displayPosition.endColIndex) {
-    					modelsHeadLineColRegionList = modelsHeadLineColList.slice(this.currentRule.displayPosition.startColIndex, this.currentRule.displayPosition.endColIndex);
+    				if (endColIndex) {
+    					lineColList = lineColList.slice(startColIndex, endColIndex);
     				} else {
-    					modelsHeadLineColRegionList = modelsHeadLineColList.slice(this.currentRule.displayPosition.startColIndex);
+    					lineColList = lineColList.slice(startColIndex);
     				}
     			}
-    			len = modelsHeadLineRowRegionList.length;
-    			modelLastHeadLineRow = modelsHeadLineRowRegionList[len - 1];
-    			len = modelsHeadLineColRegionList.length;
-    			modelLastHeadLineCol = modelsHeadLineColRegionList[len - 1];
+    			//避免len为0的情况
+    			if (len = lineRowList.length) {
+    				lastLineRow = lineRowList[len - 1];
+    				this.boxModel.height = lastLineRow.get('top') + lastLineRow.get('height') -
+    					lineRowList[0].get('top');
+    			} else {
+    				this.boxModel.height = 0;
+    			}
+    			//避免len为0的情况
+    			if (len = lineColList.length) {
+    				lastLineCol = lineColList[len - 1];
+    				this.boxModel.width = lastLineCol.get('left') + lastLineCol.get('width') -
+    					lineColList[0].get('left');
+    			} else {
+    				this.boxModel.width = 0;
+    			}
     
-    			this.boxModel.height = modelLastHeadLineRow.get('top') +
-    				modelLastHeadLineRow.get('height') - modelsHeadLineRowRegionList[0].get('top');
-    			this.boxModel.width = modelLastHeadLineCol.get('left') +
-    				modelLastHeadLineCol.get('width') - modelsHeadLineColRegionList[0].get('left');
     
     			if (this.currentRule.eventScroll) {
     				
@@ -29272,102 +28729,50 @@
     				Backbone.on('call:mainContainer', this.callMainContainer, this);
     				Backbone.on('event:mainContainer:showSelectRegion', this.showSelectRegion, this);
     				Backbone.on('event:mainContainer:adaptRowHeightChange', this.adaptRowHeightChange, this);
-    				cache.viewRegion.top = modelsHeadLineRowRegionList[0].get('top');
-    				cache.viewRegion.bottom = modelLastHeadLineRow.get('top') + modelLastHeadLineRow.get('height');
+    				cache.viewRegion.top = lineRowList[0].get('top');
+    				cache.viewRegion.bottom = lastLineRow.get('top') + lastLineRow.get('height');
     				cache.viewRegion.scrollTop = 0;
     				cache.viewRegion.scrollLeft = 0;
+    				this.loadRowState = 'FULFILL';
+    			} else {
+    				Backbone.on('event:mainContainer:appointPosition', this.appointPosition, this);
     			}
     		},
     		
-    		addBackGround: function() {
+    		addBackGround: function(cellsContainer) {
     			if (this.currentRule.displayPosition.endColAlias !== undefined &&
     				this.currentRule.displayPosition.endRowAlias !== undefined) {
     				//修改为模板
     				this.$el.append('<div style="position:absolute;width:inherit;height:inherit;background-color:white;top:0;left:0;z-index:13"></div>');
-    				this.cellsContainer.$el.css({
+    				cellsContainer.$el.css({
     					'z-index': '14'
     				});
     			} else if (this.currentRule.displayPosition.endColAlias !== undefined ||
     				this.currentRule.displayPosition.endRowAlias !== undefined) {
     				this.$el.append('<div style="position:absolute;width:inherit;height:inherit;background-color:white;top:0;left:0;z-index:10"></div>');
-    				this.cellsContainer.$el.css({
+    				cellsContainer.$el.css({
     					'z-index': '11'
     				});
     			}
     		},
-    		addCellViewPublish: function(cellModel) {
-    			this.publish(cellModel, 'addCellViewPublish');
-    		},
-    
-    		addRowHeadItemViewPublish: function(headItemRowModel) {
-    			this.publish(headItemRowModel, 'addRowHeadItemViewPublish');
-    		},
-    		addHeadItemView: function(headItemRowModel) {
-    			var startRowIndex = this.currentRule.displayPosition.startRowIndex,
-    				endRowIndex = this.currentRule.displayPosition.endRowIndex,
-    				headItemRowList = headItemRows.models,
-    				gridLineRowContainer;
-    
-    			if (headItemRowModel.get('top') < headItemRowList[startRowIndex].get('top') ||
-    				(typeof endRowIndex === 'number' && headItemRowModel.get('top') > headItemRowList[endRowIndex].get('top'))) {
-    				return;
-    			}
-    			gridLineRowContainer = new GridLineRowContainer({
-    				model: headItemRowModel,
-    				frozenTop: this.currentRule.displayPosition.offsetTop
-    			});
-    			this.cellsContainer.gridLineContainer.rowsGridContainer.$el.append(gridLineRowContainer.render().el);
-    		},
-    		addCellView: function(cellModel) {
-    			var startRowIndex = this.currentRule.displayPosition.startRowIndex,
-    				endRowIndex = this.currentRule.displayPosition.endRowIndex,
-    				startColIndex = this.currentRule.displayPosition.startColIndex,
-    				endColIndex = this.currentRule.displayPosition.endColIndex,
-    				headItemRowList = headItemRows.models,
-    				headItemColList = headItemCols.models,
-    				tempView,
-    				left,
-    				right,
-    				bottom,
-    				top;
-    
-    			top = cellModel.get('physicsBox').top;
-    			bottom = cellModel.get('physicsBox').top + cellModel.get('physicsBox').height;
-    			left = cellModel.get('physicsBox').left;
-    			right = cellModel.get('physicsBox').left + cellModel.get('physicsBox').width;
-    
-    			if (bottom < headItemRowList[startRowIndex].get('top') ||
-    				(typeof endRowIndex === 'number' && top > headItemRowList[endRowIndex].get('top')) ||
-    				right < headItemColList[startColIndex].get('left') ||
-    				(typeof endColIndex === 'number' && left > headItemColList[endColIndex].get('left'))) {
-    				return;
-    			}
-    			tempView = new CellContainer({
-    				model: cellModel,
-    				currentRule: this.currentRule
-    			});
-    			this.cellsContainer.contentCellsContainer.$el.prepend(tempView.render().el);
-    		},
     		
     		render: function() {
     			this.attributesRender(this.boxAttributes);
-    
-    			this.cellsContainer = new CellsContainer({
+    			var cellsContainer = new CellsContainer({
     				boxAttributes: {
     					height: this.boxModel.height,
     					width: this.boxModel.width
     				},
     				parentView: this
     			});
-    			this.$el.append(this.cellsContainer.render().el);
-    			this.addBackGround();
-    			this.triggerCallback();
+    			this.$el.append(cellsContainer.render().el);
+    			this.addBackGround(cellsContainer);
     			return this;
     		},
     
     		//for new diff object, subscribe it self object.
-    		subscribeScroll: function(value, directionObj) {
-    			this.appointPosition(value, directionObj.direction);
+    		subscribeScroll: function(value, direction) {
+    			this.appointPosition(value, direction);
     		},
     		// appoint position , don't pass preventScroll action .
     		appointPosition: function(value, direction) {
@@ -29378,18 +28783,6 @@
     			if (direction === 'VERTICAL') {
     				this.$el.scrollTop(value);
     			}
-    		},
-    		
-    		triggerCallback: function() {
-    			_.bindAll(this, 'callView');
-    			Backbone.trigger('call:bodyContainer', this.callView('viewBodyContainer'));
-    			Backbone.trigger('call:colsAllHeadContainer', this.callView('viewColsAllHeadContainer'));
-    		},
-    		callView: function(name) {
-    			var object = this;
-    			return function(callback) {
-    				object[name] = callback;
-    			};
     		},
     		
     		callMainContainer: function(receiveFunc) {
@@ -29424,25 +28817,19 @@
     		downScroll: function() {
     			var limitBottomPosi,
     				bottomRowModel,
-    				userViewBottom,
-    				userViewBottomPosi,
-    				recordScrollTop,
     				selectModel,
     				adjustPosi;
     
     			selectModel = selectRegions.getModelByType('selected');
     			bottomRowModel = headItemRows.getModelByAlias(selectModel.get('wholePosi').startY);
-    			limitBottomPosi = selectModel.get('physicsBox').top + bottomRowModel.get('height');
+    			limitBottomPosi = bottomRowModel.get('top') + bottomRowModel.get('height');
     
     			adjustPosi = limitBottomPosi - this.offsetTop - this.userViewTop -
     				this.el.scrollTop - this.el.offsetHeight;
     			if (adjustPosi > 0) {
     				this.el.scrollTop += adjustPosi + 17;
     			}
-    			recordScrollTop = this.el.scrollTop;
-    			this.el.scrollTop = (top - this.el.offsetHeight);
-    			this.deleteTop(recordScrollTop);
-    			this.addBottom(this.recordBottomPosi);
+    
     		},
     		
     		syncScroll: function(e, direction) {
@@ -29451,37 +28838,45 @@
     				userViewColModel,
     				userViewEndRowModel,
     				userViewEndColModel,
+    				recordScrollTop = cache.viewRegion.scrollTop,
+    				recordScrollLeft = cache.viewRegion.scrollLeft,
     				currentViewTop = cache.viewRegion.top,
     				currentViewBottom = cache.viewRegion.bottom;
     
-    			this.preventAutoScroll();
-    			verticalDirection = currentViewTop - this.el.scrollTop - this.offsetTop - this.userViewTop;
-    			//save user view position , alias
-    			if (!cache.TempProp.isFrozen) {
-    				userViewRowModel = headItemRows.getModelByPosition(this.recordScrollTop);
-    				userViewEndRowModel = headItemRows.getModelByPosition(this.recordScrollTop + this.el.offsetHeight);
-    				cache.UserView.rowAlias = userViewRowModel.get('alias');
-    				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
+    			cache.viewRegion.scrollTop = this.el.scrollTop;
+    			cache.viewRegion.scrollLeft = this.el.scrollLeft;
     
-    				userViewColModel = headItemCols.getModelByPosition(this.recordScrollLeft);
-    				userViewEndColModel = headItemCols.getModelByPosition(this.recordScrollLeft + this.el.offsetWidth);
-    				cache.UserView.colAlias = userViewColModel.get('alias');
-    				cache.UserView.colEndAlias = userViewEndColModel.get('alias');
-    			}
+    			verticalDirection = recordScrollTop - this.el.scrollTop;
+    
     			//as scrollbar scroll up
     			if (verticalDirection > 0 || direction === 'up') {
     				this.addTop(currentViewTop);
     				this.deleteBottom(currentViewBottom);
-    				cache.viewRegion.scrollTop = this.el.scrollTop;
+    				this.publish('mainContainer', 'verticalPublish', this.el.scrollTop, 'VERTICAL');
     			}
     			//as scrollbar scroll down
     			if (verticalDirection < 0 || direction === 'down') {
     				//delete top row
     				this.addBottom(currentViewBottom);
     				this.deleteTop(currentViewTop);
-    				cache.viewRegion.scrollTop = this.el.scrollTop;
+    				this.publish('mainContainer', 'verticalPublish', this.el.scrollTop, 'VERTICAL');
     			}
-    			cache.viewRegion.scrollLeft = this.el.scrollLeft;
+    			if (recordScrollLeft !== this.el.scrollLeft) {
+    				this.publish('mainContainer', 'transversePublish', this.el.scrollLeft, 'TRANSVERSE');
+    			}
+    
+    			//save user view position , alias
+    			if (!cache.TempProp.isFrozen) {
+    				userViewRowModel = headItemRows.getModelByPosition(this.el.scrollTop);
+    				userViewEndRowModel = headItemRows.getModelByPosition(this.el.scrollTop + this.el.offsetHeight);
+    				cache.UserView.rowAlias = userViewRowModel.get('alias');
+    				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
+    
+    				userViewColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft);
+    				userViewEndColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft + this.el.offsetWidth);
+    				cache.UserView.colAlias = userViewColModel.get('alias');
+    				cache.UserView.colEndAlias = userViewEndColModel.get('alias');
+    			}
     		},
     		
     		deleteTop: function(recordTop) {
@@ -29513,6 +28908,7 @@
     			if (recordIndex >= limitIndex) {
     				return;
     			}
+    
     			for (i = recordIndex; i < limitIndex; i++) {
     				headItemRowList[i].destroyView();
     			}
@@ -29531,15 +28927,11 @@
     		
     		addTop: function(recordTop) {
     			var headItemRowList = headItemRows.models,
-    				recordIndex,
     				limitTopPosi,
-    				limitTopIndex,
     				limitBottomPosi,
-    				headItemRowModel,
-    				tempCells,
     				offsetTop,
     				userViewTop,
-    				i, len;
+    				self = this;
     
     			//冻结情况，计算视图的偏移量
     			offsetTop = this.offsetTop;
@@ -29549,34 +28941,39 @@
     			limitTopPosi = this.el.scrollTop - config.System.prestrainHeight + offsetTop + userViewTop;
     			limitTopPosi = limitTopPosi < 0 ? 0 : limitTopPosi;
     			limitBottomPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
-    			recordTop = recordTop < limitBottomPosi ? recordTop : limitBottomPosi;
-    			//向后台请求数据
-    			this.loadRegion(limitTopPosi, recordTop);
-    			limitTopIndex = binary.indexModelBinary(limitTopPosi, headItemRowList, 'top', 'height');
-    			recordIndex = binary.indexModelBinary(recordTop, headItemRowList, 'top', 'height');
+    			limitBottomPosi = recordTop < limitBottomPosi ? recordTop : limitBottomPosi;
     
-    			for (i = recordIndex - 1; i >= limitTopIndex; i--) {
-    				headItemRowModel = headItemRowList[i];
-    				if (headItemRowModel.get('isView') === false) {
-    					headItemRowModel.set('isView', true);
-    					//待修改，应该将订阅者设置为需要视图还原的容器，不应该为maincontainer
-    					this.addHeadItemView(headItemRowModel);
-    					this.addRowHeadItemViewPublish(headItemRowModel);
-    				}
-    			}
-    			// when mouse fast moving , we has prevent infinite scroll , the double value will be equal.
-    			if (limitTopIndex < recordIndex) {
-    				tempCells = cells.getCellByRow(limitTopIndex, recordIndex);
-    				for (i = 0, len = tempCells.length; i < len; i++) {
-    					if (tempCells[i].get('showState') === false) {
-    						tempCells[i].set('showState', true);
-    						this.addCellView(tempCells[i]);
-    						this.addCellViewPublish(tempCells[i]);
+    			this.loadRegion(limitTopPosi, limitBottomPosi, restoreView);
+    
+    			
+    			function restoreView(top, bottom) {
+    				var headItemRowModel,
+    					cellModel,
+    					cellList,
+    					startIndex,
+    					endIndex,
+    					len, i;
+    
+    				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
+    				endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
+    				for (i = endIndex; i >= startIndex; i--) {
+    					headItemRowModel = headItemRowList[i];
+    					if (headItemRowModel.get('isView') === false) {
+    						headItemRowModel.set('isView', true);
+    						self.publish('mainContainer', 'restoreRowView', headItemRowModel, 'up');
     					}
     				}
+    				cellList = cells.getCellByRow(startIndex, endIndex);
+    				for (i = 0, len = cellList.length; i < len; i++) {
+    					cellModel = cellList[i];
+    					if (cellModel.get('showState') === false) {
+    						cellModel.set('showState', true);
+    						self.publish('mainContainer', 'restoreCellView', cellModel);
+    					}
+    				}
+    				self.adjustColPropCell(startIndex, endIndex);
+    				cache.viewRegion.top = headItemRowList[startIndex].get('top');
     			}
-    			this.adjustColPropCell(limitTopIndex, recordIndex);
-    			cache.viewRegion.top = headItemRowList[limitTopIndex].get('top');
     		},
     		
     		deleteBottom: function(recordPosi) {
@@ -29586,11 +28983,14 @@
     				limitPosi,
     				limitIndex,
     				limitAlias,
-    				localViewIndex, //缓存数据：row最底部视图对应集合索引
     				tempCells,
     				offsetTop,
     				userViewTop,
     				i, len;
+    
+    			if (this.loadRowState === 'PENDING') {
+    				return;
+    			}
     
     			offsetTop = this.offsetTop;
     			userViewTop = this.userViewTop;
@@ -29603,7 +29003,7 @@
     				headItemRowList[i].destroyView();
     			}
     			//删除超过加载区域cell视图对象
-    			tempCells = cells.getCellByRow(limitIndex + 1, localViewIndex);
+    			tempCells = cells.getCellByRow(limitIndex + 1, recordIndex);
     			for (i = 0, len = tempCells.length; i < len; i++) {
     				cellRowAliasArray = tempCells[i].get('occupy').y;
     				if (cellRowAliasArray.indexOf(limitAlias) === -1) {
@@ -29615,134 +29015,135 @@
     
     		
     		addBottom: function(recordPosi) {
-    			var headItemRowList = headItemRows.models,
-    				limitTopPosi,
+    			var limitTopPosi,
     				limitBottomPosi,
-    				limitBottomIndex,
-    				recordIndex,
-    				headItemRowModel,
-    				loadBottomPosi,
-    				addRowBottomPosi,
     				offsetTop,
     				userViewTop,
-    				tempCells,
-    				i, len;
+    				self = this;
+    
+    			if (this.loadRowState === 'PENDING') {
+    				return;
+    			}
     
     			offsetTop = this.offsetTop;
     			userViewTop = this.userViewTop;
+    
     			limitTopPosi = this.el.scrollTop - config.System.prestrainHeight + offsetTop + userViewTop;
     			limitBottomPosi = limitTopPosi + this.el.offsetHeight + config.System.prestrainHeight * 2;
+    
     			//自动增长行或者是后台请求数据，已将加载高度可能会超过新的预加载区
-    			if (recordPosi > limitBottomPosi) {
+    			if (recordPosi >= limitBottomPosi) {
     				return;
     			}
-    			recordPosi = recordPosi > limitTopPosi ? recordPosi : limitTopPosi;
-    			loadBottomPosi = this.loadRegion(recordPosi, limitBottomPosi);
-    			addRowBottomPosi = this.addRows(limitBottomPosi);
-    			this.adaptSelectRegion();
-    			recordIndex = binary.indexModelBinary(recordPosi, headItemRowList, 'top', 'height');
-    			limitBottomIndex = binary.indexModelBinary(limitBottomPosi, headItemRowList, 'top', 'height');
-    			for (i = recordIndex + 1; i <= limitBottomIndex; i++) {
-    				headItemRowModel = headItemRowList[i];
-    				if (headItemRowModel.get('isView') === false) {
-    					headItemRowModel.set('isView', true);
-    					this.addHeadItemView(headItemRowModel);
-    					this.addRowHeadItemViewPublish(headItemRowModel);
+    
+    			limitTopPosi = recordPosi + 1 > limitTopPosi ? recordPosi + 1 : limitTopPosi;
+    
+    			this.loadRegion(limitTopPosi, limitBottomPosi, restoreView);
+    
+    			
+    			function restoreView(top, bottom) {
+    				var headItemRowModel,
+    					cellList,
+    					cellModel,
+    					maxBottom,
+    					startIndex,
+    					endIndex,
+    					i, len;
+    
+    				maxBottom = headItemRows.getMaxDistanceHeight();
+    				maxBottom = maxBottom < bottom ? maxBottom : bottom;
+    
+    				startIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
+    				endIndex = binary.indexModelBinary(maxBottom, headItemRowList, 'top', 'height');
+    				for (i = startIndex; i <= endIndex; i++) {
+    					headItemRowModel = headItemRowList[i];
+    					if (headItemRowModel.get('isView') === false) {
+    						headItemRowModel.set('isView', true);
+    						self.publish('mainContainer', 'restoreRowView', headItemRowModel, 'down');
+    					}
     				}
-    			}
-    			tempCells = cells.getCellByRow(recordIndex, limitBottomIndex);
-    			for (i = 0, len = tempCells.length; i < len; i++) {
-    				if (tempCells[i].get('showState') === false) {
-    					tempCells[i].set('showState', true);
-    					this.addCellView(tempCells[i]);
-    					this.addCellViewPublish(tempCells[i]);
+    				cellList = cells.getCellByRow(startIndex, endIndex);
+    				for (i = 0, len = cellList.length; i < len; i++) {
+    					cellModel = cellList[i];
+    					if (cellModel.get('showState') === false) {
+    						cellModel.set('showState', true);
+    						self.publish('mainContainer', 'restoreCellView', cellModel);
+    					}
     				}
+    				if (maxBottom < bottom) {
+    					bottom = self.addRows(bottom);
+    					endIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
+    				}
+    
+    				self.adjustColPropCell(startIndex, endIndex);
+    				self.adaptSelectRegion();
+    				cache.viewRegion.bottom = headItemRowList[endIndex].get('top') + headItemRowList[endIndex].get('height');
+    				self.adjustContainerHeight();
     			}
-    			limitBottomPosi = limitBottomPosi > loadBottomPosi ? limitBottomPosi : loadBottomPosi;
-    			limitBottomPosi = limitBottomPosi > addRowBottomPosi ? limitBottomPosi : addRowBottomPosi;
-    			limitBottomIndex = binary.indexModelBinary(limitBottomPosi, headItemRowList, 'top', 'height');
-    			this.adjustColPropCell(recordIndex, limitBottomIndex);
-    			cache.viewRegion.bottom = headItemRowList[limitBottomIndex].get('top') + headItemRowList[limitBottomIndex].get('height');
     		},
     		
-    		loadRegion: function(top, bottom) {
-    			var headItemRowList = headItemRows.models,
-    				isUnloadRows,
-    				isUnloadCells,
-    				topIndex,
-    				bottomIndex,
-    				height;
+    		loadRegion: function(top, bottom, restoreView) {
+    			var existUnloads;
+    
+    			//超出表格的最大高度或新建表格，直接进行视图的还原和添加
     			if (top > cache.localRowPosi || cache.localRowPosi === 0) {
-    				return bottom;
+    				restoreView.call(this, top, bottom);
+    				return;
     			}
     			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
-    			isUnloadRows = loadRecorder.isUnloadPosi(top, bottom, cache.rowRegionPosi);
-    			isUnloadCells = loadRecorder.isUnloadPosi(top, bottom, cache.cellRegionPosi.vertical);
-    			//需要根据方向，进行添加缓冲区
-    			if (isUnloadRows || isUnloadCells) {
-    				bottom = bottom + cache.scrollBufferHeight;
+    
+    			existUnloads = loadRecorder.isUnloadPosi(top, bottom, cache.rowRegionPosi);
+    
+    			if (existUnloads) {
+    				this.doRequest(top, bottom, restoreView);
+    			} else {
+    				restoreView.call(this, top, bottom);
     			}
-    			bottom = bottom < cache.localRowPosi ? bottom : cache.localRowPosi;
-    			//需要保存准备值
-    			if (isUnloadRows) {
-    				this.requestRows(top, bottom);
-    				height = headItemRows.getMaxDistanceHeight();
-    				this.adjustContainerHeight();
-    				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
-    				bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
-    				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
-    					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'),
-    					cache.rowRegionPosi);
-    			}
-    			if (isUnloadCells) {
-    				this.requestCells(top, bottom);
-    				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
-    				bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
-    				loadRecorder.insertPosi(headItemRowList[topIndex].get('top'),
-    					headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height'), cache.cellRegionPosi.vertical);
-    			}
-    			return bottom;
     		},
-    		requestRows: function(top, bottom) {
+    		doRequest: function(top, bottom, restoreView) {
+    			var self = this;
+    
+    			this.loadRowState = 'PENDING';
+    			bottom = bottom + cache.scrollBufferHeight;
+    
     			send.PackAjax({
     				url: config.url.sheet.load,
-    				async: false,
+    				async: true,
     				isPublic: false,
     				data: JSON.stringify({
-    					sheetId: '1',
     					top: top,
     					bottom: bottom
     				}),
-    				success: function(data) {
-    					if (data === '') {
-    						return;
-    					}
-    					var startRowSort;
-    					startRowSort = data.dataRowStartIndex;
-    					cache.localRowPosi = data.maxRowPixel;
-    					var rows = data.returndata.spreadSheet[0].sheet.glY;
-    					original.analysisRowData(rows, startRowSort);
-    				}
+    				success: analysisData
     			});
-    		},
-    		requestCells: function(top, bottom) {
-    			send.PackAjax({
-    				url: config.url.sheet.load,
-    				async: false,
-    				isPublic: false,
-    				data: JSON.stringify({
-    					sheetId: '1',
-    					top: top,
-    					bottom: bottom
-    				}),
-    				success: function(data) {
-    					if (data === '') {
-    						return;
-    					}
-    					var cells = data.returndata.spreadSheet[0].sheet.cells;
-    					original.analysisCellData(cells);
+    
+    			function analysisData(data) {
+    				var bottomIndex,
+    					startRowSort,
+    					rowList,
+    					cellList,
+    					topIndex;
+    				if (!data) {
+    					return;
     				}
-    			});
+    
+    				startRowSort = data.dataRowStartIndex;
+    				cache.localRowPosi = data.maxRowPixel;
+    				rowList = data.returndata.spreadSheet[0].sheet.glY;
+    				cellList = data.returndata.spreadSheet[0].sheet.cells;
+    				
+    				original.analysisRowData(rowList, startRowSort);
+    				original.analysisCellData(cellList);
+    
+    				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
+    				bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
+    
+    				top = headItemRowList[topIndex].get('top');
+    				bottom = headItemRowList[bottomIndex].get('top') + headItemRowList[bottomIndex].get('height');
+    				loadRecorder.insertPosi(top, bottom, cache.rowRegionPosi);
+    				restoreView.call(self, top, bottom);
+    				self.loadRowState = 'FULFILL';
+    			}
     		},
     		
     		adaptSelectRegion: function() {
@@ -29774,49 +29175,6 @@
     				headLineRowModelList[i].set('activeState', true);
     			}
     		},
-    		
-    		preventAutoScroll: function() {
-    			var distanceLeft,
-    				distanceRight,
-    				distanceTop,
-    				distanceBottom;
-    			if (this.isPreventScroll) {
-    				//for get this offsetleft value , because of this div in table . so this offsetleft equal 0 ,
-    				//then we get other method get it's offsetleft value
-    				//code example : this.viewBodyContainer.el.innerWidth - this.el.offsetWidth
-    
-    				distanceLeft = this.viewBodyContainer.mousePageX - (this.viewBodyContainer.el.offsetWidth - this.el.offsetWidth);
-    				distanceTop = this.viewBodyContainer.mousePageY - (this.viewBodyContainer.el.offsetHeight - this.el.offsetHeight - config.System.outerBottom);
-    				distanceBottom = distanceTop - this.el.clientHeight;
-    				distanceRight = distanceLeft - this.el.clientWidth;
-    
-    				if (distanceRight >= 0 || distanceLeft <= 0) {
-    					this.el.scrollLeft = this.recordScrollLeft;
-    				} else {
-    					this.recordScrollLeft = this.el.scrollLeft;
-    					this.publish(this.recordScrollLeft, 'transversePublish');
-    				}
-    
-    				if (distanceBottom >= 0 || distanceTop <= 0) {
-    					this.el.scrollTop = this.recordScrollTop;
-    				} else {
-    					this.recordScrollTop = this.el.scrollTop;
-    					this.publish(this.recordScrollTop, 'verticalPublish');
-    				}
-    			}
-    			//did'nt prevent scoll and ensure it's main area ,
-    			if (!this.isPreventScroll && this.currentRule.eventScroll) {
-    				if (this.recordScrollLeft !== this.el.scrollLeft) {
-    					this.recordScrollLeft = this.el.scrollLeft;
-    					this.publish(this.recordScrollLeft, 'transversePublish');
-    				}
-    				if (this.recordScrollTop !== this.el.scrollTop) {
-    					this.recordScrollTop = this.el.scrollTop;
-    					this.publish(this.recordScrollTop, 'verticalPublish');
-    				}
-    			}
-    			this.isPreventScroll = true;
-    		},
     		adaptRowHeightChange: function(startPosi, diffDistance) {
     			var userViewRowModel,
     				userViewEndRowModel;
@@ -29846,30 +29204,6 @@
     				cache.localRowPosi += diffDistance;
     			}
     		},
-    		
-    		addCol: function() {
-    			var len, colValue, i = 0;
-    
-    			len = config.User.addCol;
-    			colValue = headItemCols.length;
-    			while (i < len) {
-    				headItemCols.add({
-    					alias: (colValue + 1).toString(),
-    					left: colValue * config.User.cellWidth,
-    					width: config.User.cellWidth - 1,
-    					displayName: buildAlias.buildColAlias(colValue)
-    				});
-    				colValue++;
-    				i++;
-    			}
-    			this.cellsContainer.attributesRender({
-    				width: headItemCols.getMaxDistanceWidth(),
-    				height: headItemRows.getMaxDistanceHeight()
-    			});
-    			this.viewColsAllHeadContainer.$el.css({
-    				width: headItemCols.getMaxDistanceWidth()
-    			});
-    		},
     		addRows: function(height) {
     			var maxheadItemHeight = headItemRows.getMaxDistanceHeight(),
     				maxLocalHeight = cache.localRowPosi,
@@ -29883,14 +29217,13 @@
     			len = Math.ceil((height + cache.scrollBufferHeight - maxheadItemHeight) / config.User.cellHeight);
     			headItemRows.generate(len);
     			send.PackAjax({
-    				url: config.url.row.plus_batch,
+    				url: config.url.row.plusBatch,
     				data: JSON.stringify({
     					num: len
     				})
     			});
     			this.adjustColPropCell(startIndex, startIndex + len - 1);
     			height = headItemRows.getMaxDistanceHeight();
-    			this.adjustContainerHeight();
     			return height;
     		},
     		
@@ -29923,16 +29256,20 @@
     				}
     			}
     		},
-    		adjustContainerHeight: function(height) {
+    		adjustContainerHeight: function() {
     			Backbone.trigger('event:cellsContainer:adaptHeight');
     			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
     		},
     		
     		destroy: function() {
+    			if (this.unsubscribe) {
+    				this.unsubscribe('mainContainer', 'transversePublish');
+    				this.unsubscribe('mainContainer', 'verticalPublish');
+    			}
+    			Backbone.trigger('event:cellsContainer:destroy');
     			Backbone.off('call:mainContainer');
     			Backbone.off('event:mainContainer:destroy');
     			Backbone.off('event:mainContainer:attributesRender');
-    			this.cellsContainer.destroy();
     			this.remove();
     		}
     	});
@@ -30084,6 +29421,42 @@
     		}
     	});
     	return ColsSpaceLineContainer;
+    });
+    
+    define('entrance/cell/selectcellrows',function() {
+    	var cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
+    		selectRegions = require('collections/selectRegion'),
+    		SelectRegionModel = require('models/selectRegion'),
+    		headItemCols = require('collections/headItemCol');
+    
+    	var selectCellRows = function(sheetId, displayName, index) {
+    		var modelIndex,
+    			selectModel;
+    		if (displayName !== null) {
+    			modelIndex = headItemCols.getIndexByDisplayname(displayName);
+    		} else {
+    			modelIndex = index;
+    		}
+    
+    		if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
+    			selectModel = selectRegions.getModelByType('dataSource');
+    			if (selectModel === undefined) {
+    				selectModel = new SelectRegionModel();
+    				selectModel.set('selectType', 'dataSource');
+    				selectRegions.add(selectModel);
+    			}
+    		} else {
+    			selectModel = selectRegions.getModelByType('selected');
+    		}
+    		selectModel.set('tempPosi', {
+    			initColIndex: modelIndex,
+    			initRowIndex: 0,
+    			mouseColIndex: modelIndex,
+    			mouseRowIndex: 'MAX'
+    		});
+    	};
+    	return selectCellRows;
     });
     //attention bug, when call object , we can setting unified method
     //attention bug, adjust gridline methods , can be combin ,because of highly similarity
@@ -30586,10 +29959,8 @@
     				}
     			}
     			len = modelsHeadLineColRegionList.length;
-    			//it isn't frozen handle
-    			//the page is just build execel, len is 0
     			if (len === 0) {
-    				this.boxModel.width = config.User.initColNum * config.User.cellWidth - 1;
+    				this.boxModel.width = 0;
     				return;
     			}
     			//the page is reload excel, len will be appoint num ,will be not necessarily start A,1 
@@ -30613,7 +29984,11 @@
     		},
     		
     		attributesRender: function(newAttributes) {
-    			if (newAttributes.width !== -1) {
+    			if (newAttributes.width === -1) {
+    				this.$el.css({
+    					'width': 0
+    				});
+    			} else {
     				this.$el.css({
     					'width': newAttributes.width
     				});
@@ -30628,6 +30003,9 @@
     		},
     		
     		destroy: function() {
+    			if (this.unsubscribe) {
+    				this.unsubscribe('mainContainer','transversePublish');
+    			}
     			Backbone.off('call:colsPanelContainer');
     			Backbone.off('event:colsPanelContainer:destroy');
     			this.colsAllHeadContainer.destroy();
@@ -30742,6 +30120,43 @@
     	});
     	return HeadItemRowContainer;
     });
+    
+    define('entrance/cell/selectcellcols',function() {
+    	var cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
+    		selectRegions = require('collections/selectRegion'),
+    		SelectRegionModel = require('models/selectRegion'),
+    		headItemRows = require('collections/headItemRow');
+    
+    	
+    	var selectCellCols = function(sheetId, displayName, index) {
+    		var modelIndex,
+    			selectModel;
+    
+    		if (displayName !== null) {
+    			modelIndex = headItemRows.getIndexByDisplayname(displayName);
+    		} else {
+    			modelIndex = index;
+    		}
+    		if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
+    			selectModel = selectRegions.getModelByType('dataSource');
+    			if (selectModel === undefined) {
+    				selectModel = new SelectRegionModel();
+    				selectModel.set('selectType', 'dataSource');
+    				selectRegions.add(selectModel);
+    			}
+    		} else {
+    			selectModel = selectRegions.getModelByType('selected');
+    		}
+    		selectModel.set('tempPosi', {
+    			initColIndex: 0,
+    			initRowIndex: modelIndex,
+    			mouseColIndex: 'MAX',
+    			mouseRowIndex: modelIndex
+    		});
+    	};
+    	return selectCellCols;
+    });
     define('views/rowsHeadContainer',function() {
     	
     	var $ = require('lib/jquery'),
@@ -30759,6 +30174,7 @@
     		siderLineCols = require('collections/siderLineCol'),
     		RowsSpaceLineContainer = require('views/rowsSpaceLineContainer'),
     		HeadItemRowContainer = require('views/headItemRowContainer'),
+    		observerPattern = require('basic/util/observer.pattern'),
     		loadRecorder = require('basic/tools/loadrecorder'),
     		selectCellCols = require('entrance/cell/selectcellcols');
     
@@ -30779,10 +30195,17 @@
     			Backbone.on('call:rowsHeadContainer', this.callRowsHeadContainer, this);
     			Backbone.on('event:rowsHeadContainer:relaseSpaceEffect', this.relaseSpaceEffect, this);
     			Backbone.on('event:rowHeightAdjust', this.rowHeightAdjust, this);
+    			Backbone.on('event:rowsHeadContainer:destroy', this.destroy, this);
     			this.rowNumber = 0;
+    
     			this.currentRule = cache.CurrentRule;
-    			if (cache.TempProp.isFrozen !== true || this.currentRule.displayPosition.endIndex === undefined) {
+    
+    			if (this.currentRule.displayPosition.endIndex === undefined) {
     				this.listenTo(headItemRows, 'add', this.addRowsHeadContainer);
+    
+    				//订阅滚动行视图还原
+    				observerPattern.buildSubscriber(this);
+    				this.subscribe('mainContainer', 'restoreRowView', 'restoreRowView');
     			}
     
     		},
@@ -30804,7 +30227,7 @@
     			}
     			len = modelsHeadLineRowRegionList.length;
     			for (; i < len; i++) {
-    				this.addRowsHeadContainer(modelsHeadLineRowRegionList[i], true);
+    				this.addRowsHeadContainer(modelsHeadLineRowRegionList[i]);
     				this.rowNumber++;
     			}
     			//ensure y or n has exist active model,
@@ -30957,21 +30380,40 @@
     			selectCellCols('1', null, modelIndexRow, e);
     		},
     		
-    		addRowsHeadContainer: function(modelHeadItemRow, initialize) {
+    		restoreRowView: function(model, direction) {
+    			var endIndex = this.currentRule.displayPosition.endIndex,
+    				startIndex = this.currentRule.displayPosition.startIndex,
+    				headItemRowList = headItemRows.models,
+    				top = model.get('top');
+    			//判断行是否不再当前区域内
+    			if (cache.TempProp.isFrozen) {
+    				if (top < headItemRowList[startIndex].get('top')) {
+    					return;
+    				}
+    				if (typeof endIndex === 'number') {
+    					if (endIndex === 0) {
+    						return;
+    					}
+    					if (top > headItemRowList[endIndex - 1].get('top')) {
+    						return;
+    					}
+    				}
+    			}
+    			this.addRowsHeadContainer(model, direction);
+    		},
+    		
+    		addRowsHeadContainer: function(modelHeadItemRow, direction) {
     			this.headItemRowContainer = new HeadItemRowContainer({
     				model: modelHeadItemRow,
     				frozenTop: this.currentRule.displayPosition.offsetTop,
     				reduceUserView: this.currentRule.reduceUserView,
     				endIndex: this.currentRule.displayPosition.endIndex
     			});
-    			// if (initialize === true || modelHeadItemRow.get('top') > config.displayRowHeight) {
-    			if (initialize === true || modelHeadItemRow.get('top')) {	
+    			if (direction !== 'up') {
     				this.$el.append(this.headItemRowContainer.render().el);
     			} else {
     				this.$el.prepend(this.headItemRowContainer.render().el);
     			}
-    
-    
     		},
     		
     		createHeadItemRow: function() {
@@ -31024,7 +30466,6 @@
     			for (j = 0; j < len; j++) {
     				adjustCells[j].set('physicsBox.top', adjustCells[j].get('physicsBox').top + pixel);
     			}
-    
     		},
     		
     		adjustSelectRegion: function(index, pixel) {
@@ -31059,6 +30500,7 @@
     		},
     		
     		destroy: function() {
+    			Backbone.off('event:rowsHeadContainer:destroy');
     			Backbone.off('call:rowsHeadContainer');
     			Backbone.off('event:rowsHeadContainer:relaseSpaceEffect');
     			Backbone.off('event:rowHeightAdjust');
@@ -31126,6 +30568,15 @@
     			Backbone.on('call:rowsAllHeadContainer', this.callRowsAllHeadContainer, this);
     			Backbone.on('event:rowsAllHeadContainer:adaptHeight', this.adaptHeight, this);
     			this.currentRule = clone.clone(cache.CurrentRule);
+    
+    			//记录冻结情况下导致视图移动大小
+    			if (cache.TempProp.isFrozen === true) {
+    				this.userViewTop = headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
+    				this.offsetTop = this.currentRule.displayPosition.offsetTop;
+    			} else {
+    				this.userViewTop = 0;
+    				this.offsetTop = 0;
+    			}
     			this.listenTo(siderLineRows, 'add', this.addSiderLineRow);
     			this.boxAttributes = options.boxAttributes;
     		},
@@ -31133,36 +30584,42 @@
     		render: function() {
     			var modelSiderLineRowList = siderLineRows.models,
     				len = modelSiderLineRowList.length,
-    				i;
+    				rowsHeadContainer, i;
     
-    			this.rowsHeadContainer = new RowsHeadContainer();
+    			rowsHeadContainer = new RowsHeadContainer();
+    
     			this.attributesRender(this.boxAttributes);
-    			this.$el.append(this.rowsHeadContainer.render().el);
+    			this.$el.append(rowsHeadContainer.render().el);
     			if (len === 0) {
     				this.createSiderLineRow();
     			} else {
     				for (i = len - 1; i >= 0; i--) {
     					this.addSiderLineRow(modelSiderLineRowList[i]);
     				}
-    
     			}
     			return this;
     		},
     		adaptHeight: function() {
-    			var bottom = 0,
+    			var end = this.currentRule.displayPosition.endIndex,
+    				start = this.currentRule.displayPosition.startIndex,
+    				bottom = 0,
     				top = 0,
     				len, i,
     				start;
     
-    			len = this.currentRule.displayPosition.endRowIndex || headItemRowList.length - 1;
-    			start = this.currentRule.displayPosition.startRowIndex || 0;
-    			for (i = len; i >= start; i--) {
+    
+    			if (end === undefined) {
+    				end = headItemRowList.length - 1;
+    			}
+    			start = start || 0;
+    			
+    			for (i = end -1 ; i >= start; i--) {
     				if (!headItemRowList[i].get('hidden')) {
     					top = headItemRowList[i].get('top') + headItemRowList[i].get('height');
     					bottom = headItemRowList[start].get('top');
     					this.$el.css({
-    						'height': top - bottom
-    					});
+    						'height': top - bottom - this.userViewTop
+    					}); 
     					break;
     				}
     			}
@@ -31196,9 +30653,9 @@
     		},
     		
     		destroy: function() {
+    			Backbone.trigger('event:rowsHeadContainer:destroy');
     			Backbone.off('call:rowsAllHeadContainer');
     			this.siderLineRowContainer.destroy();
-    			this.rowsHeadContainer.destroy();
     			this.remove();
     		}
     	});
@@ -31244,7 +30701,7 @@
     			}
     			len = modelsHeadLineRowRegionList.length;
     			if (len === 0) {
-    				this.boxModel.height = config.User.initRowNum * config.User.cellHeight - 1;
+    				this.boxModel.height =0;
     				return;
     			}
     			modellastHeadLineRow = modelsHeadLineRowList[len - 1];
@@ -31269,7 +30726,11 @@
     		},
     		
     		attributesRender: function(newAttributes) {
-    			if (newAttributes.height !== -1) {
+    			if (newAttributes.height === -1) {
+    				this.$el.css({
+    					'height': 0
+    				});
+    			} else {
     				this.$el.css({
     					'height': newAttributes.height
     				});
@@ -31284,6 +30745,9 @@
     		},
     		
     		destroy: function() {
+    			if (this.unsubscribe) {
+    				this.unsubscribe('mainContainer','verticalPublish');
+    			}
     			Backbone.off('call:rowsPanelContainer');
     			Backbone.off('event:rowsPanelContainer:destroy');
     			this.rowsAllHeadContainer.destroy();
@@ -31301,6 +30765,527 @@
     		}
     	});
     	return RowsPanelContainer;
+    });
+    
+    define('entrance/tool/clipselectoperate',function() {
+    	var headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
+    		selectRegions = require('collections/selectRegion'),
+    		cells = require('collections/cells'),
+    		cache = require('basic/tools/cache');
+    
+    	function clipSelectOperate(type, e) {
+    		var tempCellModel,
+    			selectRegion,
+    			startColIndex,
+    			startRowIndex,
+    			endColIndex,
+    			endRowIndex,
+    			clipModel,
+    			colAlias,
+    			rowAlias,
+    			text = '',
+    			i,
+    			j;
+    
+    		clipModel = selectRegions.getModelByType('clip');
+    		if (clipModel !== undefined) {
+    			clipModel.destroy();
+    		}
+    		selectRegion = selectRegions.getModelByType('selected');
+    		//整行整列，禁止复制
+    		if (selectRegion.get('wholePosi').endX === 'MAX' ||
+    			selectRegion.get('wholePosi').endY === 'MAX') {
+    			return;
+    		}
+    		clipModel = selectRegion.clone();
+    		clipModel.set('selectType', 'clip');
+    		selectRegions.add(clipModel);
+    
+    
+    		if (type === 'copy') {
+    			cache.clipState = 'copy';
+    		} else if (type === 'cut') {
+    			cache.clipState = 'cut';
+    		} else {
+    			return;
+    		}
+    
+    		startColIndex = headItemCols.getIndexByAlias(clipModel.get('wholePosi').startX);
+    		startRowIndex = headItemRows.getIndexByAlias(clipModel.get('wholePosi').startY);
+    		endColIndex = headItemCols.getIndexByAlias(clipModel.get('wholePosi').endX);
+    		endRowIndex = headItemRows.getIndexByAlias(clipModel.get('wholePosi').endY);
+    
+    		for (i = startRowIndex; i < endRowIndex + 1; i++) {
+    			for (j = startColIndex; j < endColIndex + 1; j++) {
+    				colAlias = headItemCols.models[j].get('alias');
+    				rowAlias = headItemRows.models[i].get('alias');
+    				tempCellModel = cells.getCellByAlias(colAlias, rowAlias);
+    				if (tempCellModel !== null) {
+    					text += cellToText(tempCellModel);
+    				}
+    				if (j !== endColIndex) {
+    					text += '\t';
+    				} else {
+    					text += '\r\n';
+    				}
+    			}
+    		}
+    		if (e !== undefined) {
+    			e.preventDefault();
+    			if (window.clipboardData) {
+    				window.clipboardData.setData('Text', text);
+    			} else {
+    				e.originalEvent.clipboardData.setData('Text', text);
+    			}
+    			cache.clipboardData = text;
+    		}
+    
+    		function cellToText(cell) {
+    			var text,
+    				head = '"',
+    				tail = '"';
+    			text = cell.get('content').texts;
+    
+    			if (text.indexOf('\n') === -1) {
+    				return text;
+    			}
+    			while (true) {
+    				if (text.indexOf('"') === 0) {
+    					text = text.substring(1);
+    					head += '""';
+    				} else {
+    					break;
+    				}
+    			}
+    
+    			while (true) {
+    				if (text.lastIndexOf('"') === text.length - 1 && text.length > 1) {
+    					text = text.substring(0, text.length - 1);
+    					tail += '""';
+    				} else {
+    					break;
+    				}
+    			}
+    			text = head + text + tail;
+    			return text;
+    		}
+    	}
+    	return clipSelectOperate;
+    });
+    define('entrance/tool/clippasteoperate',function() {
+    	
+    	var cache = require('basic/tools/cache'),
+    		config = require('spreadsheet/config'),
+    		cells = require('collections/cells'),
+    		Cell = require('models/cell'),
+    		send = require('basic/tools/send'),
+    		history = require('basic/tools/history'),
+    		headItemCols = require('collections/headItemCol'),
+    		headItemRows = require('collections/headItemRow'),
+    		selectRegions = require('collections/selectRegion'),
+    		setTextType = require('entrance/tool/settexttype'),
+    		headItemRowList = headItemRows.models,
+    		headItemColList = headItemCols.models,
+    		cellList = cells.models;
+    
+    	function clipPasteOperate(pasteText) {
+    		var clipboardData = cache.clipboardData;
+    
+    		//如果剪切板内容与选中区域的数据不相等，则使用剪切板内容
+    		if (cache.clipState !== null && clipboardData === pasteText) {
+    			excelDataPaste(cache.clipState);
+    		} else {
+    			clipBoardDataPaste(pasteText);
+    		}
+    
+    	}
+    	
+    	function excelDataPaste(type) {
+    		var originalModelIndexs = [],
+    			currentModelIndexs = [],
+    			clipRegion,
+    			selectRegion,
+    			startColIndex,
+    			startRowIndex,
+    			endColIndex,
+    			endRowIndex,
+    			selectColIndex,
+    			selectRowIndex,
+    			URL = '';
+    
+    		clipRegion = selectRegions.getModelByType('clip');
+    		selectRegion = selectRegions.getModelByType('selected');
+    
+    		startColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').startX);
+    		startRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').startY);
+    		endColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').endX);
+    		endRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').endY);
+    
+    		selectColIndex = headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
+    		selectRowIndex = headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
+    
+    		if (type === 'cut') {
+    			URL = config.url.sheet.cut;
+    		} else {
+    			URL = config.url.sheet.copy;
+    		}
+    
+    		send.PackAjax({
+    			url: URL,
+    			async: false,
+    			data: JSON.stringify({
+    				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
+    				sheetId: '1',
+    				orignal: {
+    					startCol: headItemColList[startColIndex].get('sort'),
+    					endCol: headItemColList[endColIndex].get('sort'),
+    					startRow: headItemRowList[startRowIndex].get('sort'),
+    					endRow: headItemRowList[endRowIndex].get('sort'),
+    				},
+    				target: {
+    					oprCol: headItemColList[selectColIndex].get('sort'),
+    					oprRow: headItemRowList[selectRowIndex].get('sort')
+    				}
+    			}),
+    			success: function(data) {
+    				if (data && data.isLegal) {
+    					fillData();
+    				}
+    			}
+    		});
+    
+    		function fillData() {
+    			var i, j,
+    				temp = {},
+    				colAlias,
+    				rowAlias,
+    				cloneList = [],
+    				cloneObj,
+    				rowLen = headItemRows.length,
+    				colLen = headItemCols.length,
+    				oprEndColIndex = selectColIndex + (endColIndex - startColIndex),
+    				oprEndRowIndex = selectRowIndex + (endRowIndex - startRowIndex),
+    				cellOccupy = cache.CellsPosition.strandX,
+    				cellIndex,
+    				cellModel;
+    
+    			
+    			for (i = startRowIndex; i <= endRowIndex; i++) {
+    				for (j = startColIndex; j <= endColIndex; j++) {
+    					colAlias = headItemColList[j].get('alias');
+    					rowAlias = headItemRowList[i].get('alias');
+    
+    					if (cellOccupy[colAlias] && (cellIndex = cellOccupy[colAlias][rowAlias]) !== undefined) {
+    						if (!temp[cellIndex]) {
+    							cellModel = cellList[cellIndex];
+    							cloneList.push({
+    								relativeCol: j - startColIndex,
+    								relativeRow: i - startRowIndex,
+    								model: cellModel.clone()
+    							});
+    							if (type === 'cut') {
+    								cellModel.set('isDestroy', true);
+    								originalModelIndexs.push(cellIndex);
+    							}
+    							temp[cellIndex] = 1;
+    						}
+    						if (type === 'cut') {
+    							deletePosi(colAlias, rowAlias);
+    						}
+    					}
+    				}
+    			}
+    			temp = {};
+    			
+    			for (i = selectRowIndex; i <= oprEndRowIndex; i++) {
+    				for (j = selectColIndex; j <= oprEndColIndex; j++) {
+    					if (i >= rowLen || j >= colLen) {
+    						continue;
+    					}
+    					colAlias = headItemColList[j].get('alias');
+    					rowAlias = headItemRowList[i].get('alias');
+    					if (cellOccupy[colAlias] && (cellIndex = cellOccupy[colAlias][rowAlias]) !== undefined &&
+    						!temp[cellIndex]) {
+    						temp[cellIndex] = 1;
+    						cellModel = cellList[cellIndex];
+    						cellModel.set('isDestroy', true);
+    						if (originalModelIndexs.indexOf(cellIndex) !== -1) {
+    							originalModelIndexs.push(cellIndex);
+    						}
+    						deletePosi(colAlias, rowAlias);
+    					}
+    				}
+    			}
+    			
+    			for (i = 0; i < cloneList.length; i++) {
+    				cloneObj = cloneList[i];
+    				cellModel = adaptCell(cloneObj.model, cloneObj.relativeCol, cloneObj.relativeRow);
+    				if (cellModel) {
+    					currentModelIndexs.push(cells.length);
+    					cells.push(cellModel);
+    				}
+    			}
+    
+    			history.addCoverAction(currentModelIndexs, originalModelIndexs);
+    			
+    			selectRegion.set('tempPosi', {
+    				initColIndex: selectColIndex,
+    				initRowIndex: selectRowIndex,
+    				mouseColIndex: oprEndColIndex < colLen ? oprEndColIndex : colLen - 1,
+    				mouseRowIndex: oprEndRowIndex < rowLen ? oprEndRowIndex : rowLen - 1
+    			});
+    
+    			//判断两个区域不相交
+    			if ((selectRowIndex > endRowIndex ||
+    					selectColIndex > endColIndex ||
+    					oprEndRowIndex < startRowIndex ||
+    					oprEndColIndex < startColIndex) && type === 'copy') {
+    				return;
+    			}
+    			cache.clipState = 'null';
+    			cache.clipboardData = null;
+    			clipRegion.destroy();
+    		}
+    	}
+    
+    	function adaptCell(cell, relativeColIndex, relativeRowIndex) {
+    		var selectColIndex,
+    			selectRowIndex,
+    			selectRegion,
+    			arrayColAlias = [],
+    			arrayRowAlias = [],
+    			colIndex,
+    			rowIndex,
+    			left, top,
+    			width = 0,
+    			height = 0,
+    			rowLen, colLen, i;
+    
+    
+    		selectRegion = selectRegions.getModelByType('selected');
+    		selectColIndex = headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
+    		selectRowIndex = headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
+    
+    		if (selectColIndex + relativeColIndex >= headItemCols.length ||
+    			selectRowIndex + relativeRowIndex >= headItemRows.length) {
+    			return false;
+    		}
+    		rowLen = cell.get('occupy').x.length || 1;
+    		colLen = cell.get('occupy').x.length || 1;
+    		//增加超过加载区域处理
+    		for (i = 0; i < rowLen; i++) {
+    			rowIndex = selectRowIndex + relativeRowIndex;
+    			arrayRowAlias.push(headItemRowList[rowIndex].get('alias'));
+    			height += headItemRowList[rowIndex].get('height') + 1;
+    			if (i === 0) {
+    				top = headItemRowList[rowIndex].get('top');
+    			}
+    		}
+    		for (i = 0; i < colLen; i++) {
+    			colIndex = selectColIndex + relativeColIndex;
+    			arrayColAlias.push(headItemColList[colIndex].get('alias'));
+    			width += headItemColList[colIndex].get('width') + 1;
+    			if (i === 0) {
+    				left = headItemColList[colIndex].get('left');
+    			}
+    		}
+    		cell.set('isDestroy', false);
+    		cell.set('occupy', {
+    			x: arrayColAlias,
+    			y: arrayRowAlias
+    		});
+    		cell.set('physicsBox', {
+    			top: top,
+    			left: left,
+    			width: width - 1,
+    			height: height - 1
+    		});
+    		cacheCellPosition();
+    
+    		return cell;
+    
+    		function cacheCellPosition() {
+    			var occupyCols = cell.get('occupy').x,
+    				occupyRows = cell.get('occupy').y,
+    				index = cells.length,
+    				rowLen,
+    				colLen,
+    				i = 0,
+    				j;
+    			rowLen = occupyRows.length;
+    			colLen = occupyCols.length;
+    			for (; i < rowLen; i++) {
+    				for (j = 0; j < colLen; j++) {
+    					cache.cachePosition(occupyRows[i], occupyCols[j], index);
+    				}
+    			}
+    		}
+    	}
+    
+    
+    
+    	function deletePosi(aliasCol, aliasRow) {
+    		var cellPosition = cache.CellsPosition,
+    			strandX = cellPosition.strandX,
+    			strandY = cellPosition.strandY;
+    		if (strandX[aliasCol] && strandX[aliasCol][aliasRow] !== undefined) {
+    			delete strandX[aliasCol][aliasRow];
+    			if (!Object.getOwnPropertyNames(strandX[aliasCol]).length) {
+    				delete strandX[aliasCol];
+    			}
+    		}
+    		if (strandY[aliasRow] && strandY[aliasRow][aliasCol] !== undefined) {
+    			delete strandY[aliasRow][aliasCol];
+    			if (!Object.getOwnPropertyNames(strandY[aliasRow]).length) {
+    				delete strandY[aliasRow];
+    			}
+    		}
+    	}
+    	
+    	function clipBoardDataPaste(pasteText) {
+    		var encodeText,
+    			rowData = [],
+    			cellData = [],
+    			sendData = [],
+    			rowCellData = [],
+    			selectRowIndex,
+    			selectColIndex,
+    			selectRegion,
+    			clipRegion,
+    			colSort,
+    			rowSort,
+    			rowLen,
+    			colLen,
+    			i,
+    			j;
+    
+    		//清除选中复制区域视图
+    		clipRegion = selectRegions.getModelByType('clip');
+    		if (clipRegion !== null && clipRegion !== undefined) {
+    			clipRegion.destroy();
+    		}
+    		cache.clipState = 'null';
+    
+    		//bug
+    		encodeText = encodeURI(pasteText);
+    		rowData = encodeText.split('%0D%0A');
+    
+    		rowLen = rowData.length - 1;
+    		if (rowData[rowLen] !== '') {
+    			rowLen++;
+    		}
+    
+    		colLen = rowData[0].split('%09').length;
+    
+    		selectRegion = selectRegions.getModelByType('selected');
+    		selectRowIndex = headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
+    		selectColIndex = headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
+    
+    		rowSort = headItemRowList[selectRowIndex].get('sort');
+    		colSort = headItemColList[selectColIndex].get('sort');
+    
+    		for (i = 0; i < rowLen; i++) {
+    			rowCellData = rowData[i].split('%09');
+    			for (j = 0; j < rowCellData.length; j++) {
+    				if (rowCellData[j] !== '') {
+    					sendData.push({
+    						'col': colSort + j,
+    						'row': rowSort + i,
+    						'content': decodeURI(analysisText(rowCellData[j]))
+    					});
+    					cellData.push({
+    						relativeColIndex: j,
+    						relativeRowIndex: i,
+    						text: decodeURI(analysisText(rowCellData[j]))
+    					});
+    				}
+    			}
+    		}
+    
+    		send.PackAjax({
+    			url: config.url.sheet.paste,
+    			async: false,
+    			data: JSON.stringify({
+    				sheetId: '1',
+    				oprCol: headItemColList[selectColIndex].get('sort'),
+    				oprRow: headItemRowList[selectRowIndex].get('sort'),
+    				colLen: colLen,
+    				rowLen: rowLen,
+    				pasteData: sendData
+    			}),
+    			success: function(data) {
+    				if (data && data.isLegal) {
+    					fillData();
+    				}
+    			}
+    		});
+    
+    		function fillData() {
+    			var cellOccupy = cache.CellsPosition.strandX,
+    				originalModelIndexs = [],
+    				currentModelIndexs = [],
+    				rowAlias,
+    				colAlias,
+    				cellModel;
+    
+    			for (i = selectRowIndex; i < selectRowIndex + rowLen; i++) {
+    				for (j = selectColIndex; j < selectColIndex + colLen; j++) {
+    					if (i >= headItemRows.length || j >= headItemCols.length) {
+    						continue;
+    					}
+    					rowAlias = headItemRowList[i].get('alias');
+    					colAlias = headItemColList[j].get('alias');
+    					cellModel = cells.getCellByVertical(j, i)[0];
+    					if (cellModel && cellModel.get('isDestroy') === false) {
+    						originalModelIndexs.push(cellOccupy[colAlias][rowAlias]);
+    						cellModel.set('isDestroy', true);
+    					}
+    					cache.deletePosi(rowAlias, colAlias);
+    				}
+    			}
+    			for (i = 0; i < cellData.length; i++) {
+    				cellModel = new Cell();
+    				cellModel.set('content.texts', cellData[i].text);
+    				cellModel = adaptCell(cellModel, cellData[i].relativeColIndex, cellData[i].relativeRowIndex);
+    				if (cellModel) {
+    					setTextType.typeRecognize(cellModel);
+    					setTextType.generateDisplayText(cellModel);
+    					cells.add(cellModel);
+    					currentModelIndexs.push(cells.length - 1);
+    				}
+    			}
+    			history.addCoverAction(currentModelIndexs, originalModelIndexs);
+    		}
+    
+    		function analysisText(text) {
+    			var head = '',
+    				tail = '';
+    			if (text.indexOf('%0A') === -1) {
+    				return text;
+    			}
+    			text = text.substring(3, text.length - 3);
+    			while (true) {
+    				if (text.indexOf('%22%22') === 0) {
+    					text = text.substring(6);
+    					head += '%22';
+    				} else {
+    					break;
+    				}
+    			}
+    			while (true) {
+    				if (text.lastIndexOf('%22%22') === text.length - 6 && text.length > 6) {
+    					text = text.substring(0, text.length - 6);
+    					tail += '%22';
+    				} else {
+    					break;
+    				}
+    			}
+    			text = head + text + tail;
+    			return text;
+    		}
+    	}
+    	return clipPasteOperate;
     });
     
     define('views/inputContainer',function() {
@@ -31478,9 +31463,12 @@
     		hide: function(event) {
     			var headItemRowList = headItemRows.models,
     				headItemColList = headItemCols.models,
-    				modelJSON,
+    				model = this.model,
+    				originalText,
     				rowSort,
-    				colSort;
+    				colSort,
+    				text;
+    
     			if (this.showState === true) {
     				this.$el.css({
     					'left': -1000,
@@ -31491,13 +31479,11 @@
     				});
     				rowSort = headItemRowList[this.rowIndex].get('sort');
     				colSort = headItemColList[this.colIndex].get('sort');
-    				modelJSON = this.model.toJSON();
-    				//进行输入文本的修改
-    				if (this.model.get('content').texts !== this.$el.val()) {
-    					this.model.set('content.texts', this.$el.val());
-    					setTextType.typeRecognize(this.model);
-    					setTextType.generateDisplayText(this.model);
-    					history.addUpdateAction('content', this.model.get('content'), {
+    
+    				originalText = model.get('content').texts;
+    				text = this.$el.val();
+    				if (originalText !== text) {
+    					history.addUpdateAction('content.texts', text, {
     						startColSort: colSort,
     						startRowSort: rowSort,
     						endColSort: colSort,
@@ -31505,10 +31491,16 @@
     					}, [{
     						colSort: colSort,
     						rowSort: rowSort,
-    						value: modelJSON.content
+    						value: originalText
     					}]);
+    
+    					if (text.indexOf('\n') !== -1 && (model.get('wordWrap') === false)) {
+    						model.set('wordWrap', true);
+    						this.sendWordWrap(colSort, rowSort);
+    					}
+    					model.set('content.texts', text);
+    					this.sendChangeText(colSort, rowSort, text);
     				}
-    				this.sendData();
     			}
     			this.$el.val('');
     			if (event === undefined) {
@@ -31780,51 +31772,39 @@
     			}
     
     		},
+    		sendWordWrap: function(col, row) {
+    			send.PackAjax({
+    				url: config.url.cell.wordwrap,
+    				data: JSON.stringify({
+    					coordinate: {
+    						startCol: col,
+    						startRow: row,
+    						endCol: col,
+    						endRow: row
+    					},
+    					wordWrap: true
+    				})
+    			});
+    		},
     		
-    		sendData: function() {
+    		sendChangeText: function(col, row, text) {
     			var text,
     				colAlias,
     				rowAlias,
     				colSort,
     				rowSort;
-    
-    			text = this.$el.val();
-    			colAlias = this.model.get('occupy').x[0];
-    			rowAlias = this.model.get('occupy').y[0];
-    
-    			rowSort = headItemRows.getModelByAlias(rowAlias).get('sort');
-    			colSort = headItemCols.getModelByAlias(colAlias).get('sort');
-    
     			send.PackAjax({
     				url: config.url.cell.content,
     				data: JSON.stringify({
-    					sheetId: '1',
     					coordinate: {
-    						startRow: rowSort,
-    						startCol: colSort,
-    						endRow: rowSort,
-    						endCol: colSort
+    						startRow: row,
+    						startCol: col,
+    						endRow: row,
+    						endCol: col
     					},
     					content: encodeURIComponent(text)
     				})
     			});
-    
-    			if (text.indexOf('\n') > 0 && (this.model.get('wordWrap') === false)) {
-    				this.model.set({
-    					'wordWrap': true
-    				});
-    				send.PackAjax({
-    					url: 'text.htm?m=wordwrap',
-    					data: JSON.stringify({
-    						sheetId: '1',
-    						coordinate: {
-    							startX: colAlias,
-    							startY: rowAlias,
-    						},
-    						wordWrap: true
-    					})
-    				});
-    			}
     		},
     		isShortKey: function(needle) {
     			var prop,
@@ -31896,17 +31876,7 @@
     		keyHandle: function() {
     			var inputChar,
     				regular;
-    			// if (e.ctrlKey === true || e.altKey === true) {
-    			// 	return false;
-    			// }
-    			// console.log(this.$el);
-    			// charcode = typeof e.charCode == 'number' ? e.charCode : e.keyCode;
-    			// charcode = e.keyCode;
-    			// console.log(e);
-    			// console.log(String.fromCharCode(e.which));
-    			// inputChar = String.fromCharCode(e.keyCode);
-    			// 
-    			// console.log(inputChar);
+    
     			regular = /[a-zA-Z0-9]/;
     			inputChar = this.$el.val();
     			if (regular.test(inputChar)) {
@@ -31932,13 +31902,10 @@
     		headItemCols = require('collections/headItemCol'),
     		headItemRows = require('collections/headItemRow'),
     		selectRegions = require('collections/selectRegion'),
-    		getOperRegion = require('basic/tools/getoperregion'),
     		config = require('spreadsheet/config'),
     		cells = require('collections/cells'),
     		cache = require('basic/tools/cache'),
     		commentHandler = require('entrance/tool/comment'),
-    		rowOperate = require('entrance/row/rowoperation'),
-    		colOperate = require('entrance/col/coloperation'),
     		commentContainer;
     
     	commentContainer = Backbone.View.extend({
@@ -31955,7 +31922,9 @@
     			'blur': 'close'
     		},
     
-    		initialize: function() {},
+    		initialize: function(options) {
+    			this.parentNode = options.parentNode;
+    		},
     
     		render: function() {
     			this.$el.css({
@@ -31983,9 +31952,9 @@
     				frozenColIndex,
     				frozenRowIndex,
     				selectModel,
-    				cellList,
-    				frozen;
+    				cellList;
     
+    			// 添加/编辑备注情况
     			if (typeof colIndex === 'undefined') {
     				selectModel = selectRegions.getModelByType('selected');
     				colIndex = headItemCols.getIndexByAlias(selectModel.get('wholePosi').endX);
@@ -31995,8 +31964,11 @@
     					comment = cellList[0].get('customProp').comment;
     				}
     			}
-    			frozenColIndex = cache.TempProp.colFrozen || headItemCols.getIndexByAlias(cache.TempProp.colAlias);
-    			frozenRowIndex = cache.TempProp.rowFrozen || headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
+    			this.colIndex = colIndex;
+    			this.rowIndex = rowIndex;
+    
+    			frozenColIndex = cache.TempProp.colFrozen && headItemCols.getIndexByAlias(cache.TempProp.colAlias);
+    			frozenRowIndex = cache.TempProp.rowFrozen && headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
     
     			if (frozenColIndex && frozenColIndex > colIndex) {
     				this.isTransverseScroll = false;
@@ -32009,19 +31981,61 @@
     				this.isVerticalScroll = true;
     			}
     
-    			this.left = this.getAbsoluteLeft(colIndex);
-    			this.top = this.getAbsoluteTop(rowIndex);
+    			this.setBoxModel();
+    
     			this.adjustZIndex(colIndex, rowIndex);
-    			this.$el.css({
-    				left: this.left + 5,
-    				top: this.top,
-    				display: true
-    			});
     			this.$el.attr('disabled', 'disabled');
     			this.$el.css('display', 'block');
     			this.$el.val(comment);
     		},
+    		setBoxModel: function() {
+    			var limitHeight,
+    				limitWidth,
+    				height,
+    				width,
+    				left,
+    				top;
     
+    			//获取相对位置
+    			left = this.getAbsoluteLeft();
+    			top = this.getAbsoluteTop();
+    			height = config.System.comment.height; //默认高度
+    			width = config.System.comment.width; //默认宽度
+    			limitHeight = this.parentNode.el.clientHeight - config.System.outerBottom - 
+    			cache.scrollbarWidth -(this.$el.outerHeight() - this.$el.height());
+    
+    			limitWidth = this.parentNode.el.clientWidth - cache.scrollbarWidth;
+    			
+    			
+    
+    			//批注框超出显示区域，直接放入不可见区域
+    			if ( top >= limitHeight || left >= limitWidth ) {
+    				this.$el.css({
+    					left: -200,
+    					top: -200,
+    				});
+    				return;
+    			}
+     
+    			if (top + height > limitHeight) {
+    				height = limitHeight - top;
+    			}
+    
+    			if (left + width > limitWidth) {
+    				//横向特殊处理，避免显示的备注条过细
+    				if (limitWidth - left > 60) {
+    					width = limitWidth - left;
+    				} else {
+    					left = limitWidth - width - 5;
+    				}
+    			}
+    			this.$el.css({
+    				left: left + 5,
+    				top: top,
+    				height: height,
+    				width: width
+    			});
+    		},
     		hide: function() {
     			this.$el.css('display', 'none');
     			this.$el.attr('disabled', 'disabled');
@@ -32029,70 +32043,74 @@
     			this.isVerticalScroll = false;
     		},
     		
-    		transverseScroll: function(value) {
+    		transverseScroll: function() {
     			if (!this.isTransverseScroll) {
     				return;
     			}
-    			this.$el.css({
-    				'left': this.left + value
-    			});
+    			this.setBoxModel();
     		},
     		
-    		verticalScroll: function(value) {
+    		verticalScroll: function() {
     			if (!this.isVerticalScroll) {
     				return;
     			}
-    			this.$el.css({
-    				'top': this.top + value
-    			});
+    			this.setBoxModel();
     		},
     		
-    		getAbsoluteLeft: function(colIndex) {
-    			var left,
+    		getAbsoluteLeft: function() {
+    			var colIndex = this.colIndex,
+    				left = config.System.outerLeft,
     				colModel;
-    			left = config.System.outerLeft;
     
+    			//整行操作
     			if (colIndex === 'MAX') {
     				return left;
-    			}
-    			if (cache.TempProp.colFrozen) {
-    				left += headItemCols.getModelByAlias(cache.UserView.colAlias).get('left');
     			}
     
     			colModel = headItemCols.models[colIndex];
     			left += colModel.get('left') + colModel.get('width');
+    
+    			if (cache.TempProp.colFrozen) {
+    				left -= headItemCols.getModelByAlias(cache.UserView.colAlias).get('left');
+    			}
+    
+    			if (this.isTransverseScroll) {
+    				left -= cache.viewRegion.scrollLeft;
+    			}
     			return left;
     		},
-    		getAbsoluteTop: function(rowIndex) {
-    			var top,
+    		getAbsoluteTop: function() {
+    			var rowIndex = this.rowIndex,
+    				top = config.System.outerTop,
     				rowModel;
-    			top = config.System.outerTop;
     
+    			//整行操作
     			if (rowIndex === 'MAX') {
     				return top;
     			}
-    			if (cache.TempProp.rowIndex) {
-    				left += headItemRows.getModelByAlias(cache.UserView.rowAlias).get('left');
-    			}
-    
     			rowModel = headItemRows.models[rowIndex];
     			top += rowModel.get('top');
+    
+    			if (cache.TempProp.rowFrozen) {
+    				top -= headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top');
+    			}
+    
+    			if (this.isVerticalScroll) {
+    				top -= cache.viewRegion.scrollTop;
+    			}
     			return top;
     		},
-    		adjustZIndex: function(colIndex, rowIndex) {
-    			var colIndex,
-    				rowIndex,
-    				frozenColIndex,
-    				frozenRowIndex;
+    		adjustZIndex: function() {
+    			
+    			var isTransverseScroll = this.isTransverseScroll,
+    				isVerticalScroll = this.isVerticalScroll;
     
     			if (cache.TempProp.colFrozen && cache.TempProp.rowFrozen) { //冻结情况
-    				frozenColIndex = headItemCols.getIndexByAlias(cache.TempProp.colAlias);
-    				frozenRowIndex = headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
-    				if (frozenColIndex > colIndex && frozenRowIndex > rowIndex) {
+    				if (!isTransverseScroll && !isVerticalScroll) {
     					this.$el.css({
     						'z-index': '15'
     					});
-    				} else if (frozenColIndex > colIndex || frozenRowIndex > rowIndex) {
+    				} else if (!isTransverseScroll || !isVerticalScroll) {
     					this.$el.css({
     						'z-index': '12'
     					});
@@ -32102,8 +32120,7 @@
     					});
     				}
     			} else if (cache.TempProp.colFrozen) {
-    				frozenColIndex = headItemCols.getIndexByAlias(cache.TempProp.colAlias);
-    				if (frozenColIndex > colIndex) {
+    				if (!isTransverseScroll) {
     					this.$el.css({
     						'z-index': '12'
     					});
@@ -32113,8 +32130,7 @@
     					});
     				}
     			} else if (cache.TempProp.rowFrozen) {
-    				frozenRowIndex = headItemRows.getIndexByAlias(cache.TempProp.rowAlias);
-    				if (frozenRowIndex > rowIndex) {
+    				if (!isVerticalScroll) {
     					this.$el.css({
     						'z-index': '12'
     					});
@@ -32123,7 +32139,7 @@
     						'z-index': '9'
     					});
     				}
-    			} else { //非冻结情况
+    			} else {
     				this.$el.css({
     					'z-index': '9'
     				});
@@ -32150,6 +32166,11 @@
     		observerPattern = require('basic/util/observer.pattern'),
     		headItemRows = require('collections/headItemRow'),
     		headItemCols = require('collections/headItemCol'),
+    		selectRegions = require('collections/selectRegion'),
+    		siderLineCols = require('collections/siderLineCol'),
+    		siderLineRows = require('collections/siderLineRow'),
+    		cells = require('collections/cells'),
+    		original = require('basic/tools/original'),
     		SheetsContainer = require('views/sheetsContainer'),
     		MainContainer = require('views/mainContainer'),
     		ColsPanelContainer = require('views/colsPanelContainer'),
@@ -32168,17 +32189,22 @@
     		},
     		
     		initialize: function() {
-    			Backbone.on('call:bodyContainer', this.callBodyContainer, this);
     			Backbone.on('event:bodyContainer:executiveFrozen', this.executiveFrozen, this);
     			Backbone.on('event:bodyContainer:handleComment', this.handleComment, this);
-    			// _.bindAll(this, 'executiveFrozen');
+    			Backbone.on('event:reload', this.reload, this);
     			this.commentContainer = null;
     		},
     		
     		render: function() {
+    			var inputContainer = new InputContainer();
+    
+    			observerPattern.buildSubscriber(inputContainer);
+    			inputContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
+    			inputContainer.subscribe('mainContainer', 'verticalPublish', 'verticalScroll');
+    
     			this.$el.html(getTemplate('BODYTEMPLATE'));
-    			this.inputContainer = new InputContainer();
-    			this.$el.find('.main-layout').append(this.inputContainer.render().el);
+    			this.$el.find('.main-layout').append(inputContainer.render().el);
+    
     			this.calculation();
     			this.adaptScreen();
     			this.generateSheet();
@@ -32186,30 +32212,28 @@
     				'overflow': 'hidden',
     				'position': 'relative'
     			});
-    			this.inputContainer.$el.focus();
+    			inputContainer.$el.focus();
     		},
     		handleComment: function(options) {
-    			var action = options.action;
-    			if (!this.commentContainer) {
-    				this.commentContainer = new CommentContainer();
-    				this.$el.find('.main-layout').append(this.commentContainer.render().el);
-    			}
-    			this.publisherList['mainContainer'].subscribe({
-    				master: this.commentContainer,
-    				behavior: 'transverseScroll'
-    			}, 'transversePublish');
-    			this.publisherList['mainContainer'].subscribe({
-    				master: this.commentContainer,
-    				behavior: 'verticalScroll'
-    			}, 'verticalPublish');
+    			var action = options.action,
+    				commentContainer;
     
+    			if (!this.commentContainer) {
+    				commentContainer = this.commentContainer = new CommentContainer({
+    					parentNode: this
+    				});
+    				observerPattern.buildSubscriber(commentContainer);
+    				this.$el.find('.main-layout').append(commentContainer.render().el);
+    				commentContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
+    				commentContainer.subscribe('mainContainer', 'verticalPublish', 'verticalScroll');
+    			}
     			if (action === 'hide') {
     				this.commentContainer.hide();
     			} else if (action === 'edit') {
     				this.commentContainer.edit(options);
-    			} else if(action==='add'){
+    			} else if (action === 'add') {
     				this.commentContainer.add(options);
-    			}else {
+    			} else {
     				this.commentContainer.show(options);
     			}
     		},
@@ -32227,13 +32251,6 @@
     			}
     		},
     		
-    		callView: function(name) {
-    			var object = this;
-    			return function(callback) {
-    				object[name] = callback;
-    			};
-    		},
-    		
     		saveUserView: function() {
     			var data = {
     				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
@@ -32244,7 +32261,7 @@
     		},
     		
     		adaptScreen: function() {
-    			//ps:修改（应该把不冻结情况下代码独立）
+    			//待修改（应该把不冻结情况下代码独立）
     			this.executiveFrozen();
     		},
     		
@@ -32266,10 +32283,11 @@
     				mainContainer;
     
     			this.clearFrozenRule();
+    
     			this.ruleRow();
     			this.ruleCol();
     			this.ruleMain();
-    			this.publisherList = {};
+    
     			// destory old view
     			Backbone.trigger('event:colsPanelContainer:destroy');
     			Backbone.trigger('event:rowsPanelContainer:destroy');
@@ -32282,7 +32300,9 @@
     				for (i = len - 1; i >= 0; i--) {
     					cache.CurrentRule = cache.FrozenRules.main[i];
     					//添加白色背景，并设置z值
-    					mainContainer = new MainContainer();
+    					mainContainer = new MainContainer({
+    						parentNode: this
+    					});
     					$('tr:eq(1) td:eq(' + (i + 1) + ')', customID).prepend(mainContainer.render().el);
     					buildObserverPattern(mainContainer);
     				}
@@ -32291,7 +32311,9 @@
     				len = cache.FrozenRules.main.length;
     				for (i = len - 1; i >= 0; i--) {
     					cache.CurrentRule = cache.FrozenRules.main[i];
-    					mainContainer = new MainContainer();
+    					mainContainer = new MainContainer({
+    						parentNode: this
+    					});
     					$('tr:eq(1) td:eq(2)', customID).prepend(mainContainer.render().el);
     					buildObserverPattern(mainContainer);
     				}
@@ -32300,16 +32322,19 @@
     				for (i = 4; i > 0; i--) {
     					currentPosi = i % 2 ? 1 : 2;
     					cache.CurrentRule = cache.FrozenRules.main[i - 1];
-    					mainContainer = new MainContainer();
+    					mainContainer = new MainContainer({
+    						parentNode: this
+    					});
     					$('tr:eq(1) td:eq(' + currentPosi + ')', customID).prepend(mainContainer.render().el);
     					buildObserverPattern(mainContainer);
     				}
     			} else if (!cache.TempProp.colFrozen && !cache.TempProp.rowFrozen) {
     				cache.CurrentRule = cache.FrozenRules.main[0];
-    				mainContainer = new MainContainer();
+    				mainContainer = new MainContainer({
+    					parentNode: this
+    				});
     				$('tr:eq(1) td:eq(2)', customID).append(mainContainer.render().el);
     				buildObserverPattern(mainContainer);
-    
     			}
     			//colspanel rules
     			len = cache.FrozenRules.col.length;
@@ -32327,42 +32352,31 @@
     				$('tr:eq(1) td:eq(0)', customID).prepend(rowsPanelContainer.render().el);
     				buildObserverPattern(rowsPanelContainer);
     			}
-    
-    			//输入框订阅maincontainer滚动事件
-    			this.publisherList['mainContainer'].subscribe({
-    				master: this.inputContainer,
-    				behavior: 'transverseScroll'
-    			}, 'transversePublish');
-    			this.publisherList['mainContainer'].subscribe({
-    				master: this.inputContainer,
-    				behavior: 'verticalScroll'
-    			}, 'verticalPublish');
-    			//订阅问题？
-    
     			
     			function buildObserverPattern(container) {
     				var currentRule = cache.CurrentRule,
-    					currentSubscribe, i;
+    					currentSubscribe, len, i;
+    
+    				currentSubscribe = currentRule.isSubscribe || false;
     
     				if (currentRule.isPublisher) {
     					observerPattern.buildPublisher(container);
-    					self.publisherList[currentRule.publisherName] = container;
     				}
-    				currentSubscribe = currentRule.isSubscribe || false;
+    
     				if (currentSubscribe) {
     					len = currentSubscribe.length;
+    					observerPattern.buildSubscriber(container);
+    
     					for (i = 0; i < len; i++) {
-    						self.publisherList[currentSubscribe[i].publisherName].subscribe({
-    							master: container,
-    							behavior: currentSubscribe[i].behavior,
-    							args: currentSubscribe[i].args
-    						}, currentSubscribe[i].action);
+    						container.subscribe(currentSubscribe[i].publisherName,
+    							currentSubscribe[i].action,
+    							currentSubscribe[i].behavior);
     					}
     
     				}
     
     			}
-    			this.initMainView();
+    			// this.initMainView();
     		},
     		
     		ruleCol: function() {
@@ -32379,6 +32393,7 @@
     			if (currentIndex === -1) currentIndex = 0;
     			currentModel = modelList.models[currentIndex];
     			currentModelLeft = currentModel.toJSON().left;
+    
     			userViewModel = modelList.getModelByAlias(cache.UserView.colAlias);
     			userViewIndex = modelList.getIndexByAlias(cache.UserView.colAlias);
     
@@ -32432,6 +32447,7 @@
     			modelList = headItemRows;
     
     			currentIndex = modelList.getIndexByAlias(cache.TempProp.rowAlias);
+    
     			if (currentIndex === -1) {
     				currentModelTop = 0;
     			} else {
@@ -32439,8 +32455,9 @@
     				currentModelTop = currentModel.toJSON().top;
     			}
     
-    			userViewModel = modelList.getModelByAlias(cache.UserView.rowAlias);
     			userViewIndex = modelList.getIndexByAlias(cache.UserView.rowAlias);
+    			userViewModel = modelList.models[userViewIndex];
+    
     
     			// 如果索引不是0，说明锁定需要分为两块
     			if (cache.TempProp.isFrozen && cache.TempProp.rowFrozen) {
@@ -32477,14 +32494,6 @@
     					publisherName: 'mainContainer',
     					behavior: 'scrollToPosition', //it's self behavior
     					action: 'verticalPublish' //publisher behavior
-    				}, {
-    					publisherName: 'mainContainer',
-    					behavior: 'addHeadItemView', //it's self behavior
-    					action: 'addRowHeadItemViewPublish' //publisher behavior
-    				}, {
-    					publisherName: 'mainContainer',
-    					behavior: 'adjustHeadItemContainer', //it's self behavior
-    					action: 'adjustHeadItemContainerPublish' //publisher behavior
     				}]
     			};
     			if (cache.TempProp.isFrozen && cache.TempProp.rowFrozen) {
@@ -32619,21 +32628,6 @@
     							args: {
     								'direction': 'VERTICAL'
     							},
-    						}, {
-    							publisherName: 'mainContainer',
-    							behavior: 'addHeadItemView',
-    							action: 'addRowHeadItemViewPublish',
-    							args: {}
-    						}, {
-    							publisherName: 'mainContainer',
-    							behavior: 'addCellView',
-    							action: 'addCellViewPublish',
-    							args: {}
-    						}, {
-    							publisherName: 'mainContainer',
-    							behavior: 'adjustContainerHeight',
-    							action: 'adjustContainerHeightPublish',
-    							args: {}
     						}]
     					};
     					if (cache.TempProp.rowFrozen) {
@@ -32680,18 +32674,17 @@
     			cache.FrozenRules.main.push(tempRule);
     		},
     		
-    		initMainView: function() {
-    			var startRowHeadModel,
-    				startColHeadModel;
-    			if (cache.TempProp.isFrozen === true) {
-    				return;
-    			}
-    			startRowHeadModel = headItemRows.getModelByAlias(cache.UserView.rowAlias);
-    			startColHeadModel = headItemCols.getModelByAlias(cache.UserView.colAlias);
-    			Backbone.trigger('event:mainContainer:appointPosition', startRowHeadModel.get('top'), 'VERTICAL');
-    			Backbone.trigger('event:mainContainer:appointPosition', startColHeadModel.get('left'), 'TRANSVERSE');
-    
-    		},
+    		// initMainView: function() {
+    		// 	var startRowHeadModel,
+    		// 		startColHeadModel;
+    		// 	if (cache.TempProp.isFrozen === true) {
+    		// 		return;
+    		// 	}
+    		// 	startRowHeadModel = headItemRows.getModelByAlias(cache.UserView.rowAlias);
+    		// 	startColHeadModel = headItemCols.getModelByAlias(cache.UserView.colAlias);
+    		// 	Backbone.trigger('event:mainContainer:appointPosition', startRowHeadModel.get('top'), 'VERTICAL');
+    		// 	Backbone.trigger('event:mainContainer:appointPosition', startColHeadModel.get('left'), 'TRANSVERSE');
+    		// },
     		
     		calculation: function() {
     
@@ -32701,10 +32694,8 @@
     			this.scrollHeight = this.el.offsetHeight - config.System.outerTop - config.System.outerBottom;
     			
     			this.scrollbarWidth = this.getScrollbarWidth();
-    		},
-    		
-    		callBodyContainer: function(receiveFunc) {
-    			receiveFunc(this);
+    
+    			cache.scrollbarWidth = this.scrollbarWidth;
     		},
     		
     		addressing: function(currrentEl, target) {
@@ -32716,11 +32707,66 @@
     			}
     			return false;
     		},
+    		reload: function() {
+    			var self = this;
+    			this.$el.find('.mask').css('display', 'block');
+    
+    			setTimeout(resetData, 0);
+    
+    			function resetData() {
+    				var cellList = cells.models,
+    					headRowList = headItemRows.models,
+    					headColList = headItemCols.models,
+    					selectList = selectRegions.models,
+    					siderLineColList = siderLineCols.models,
+    					siderLineRowList = siderLineRows.models,
+    					i, len;
+    				cache.CellsPosition.strandX = {};
+    				cache.CellsPosition.strandY = {};
+    				cache.rowRegionPosi = [];
+    				cache.sendQueueStep = 0;
+    
+    				for (i = 0, len = cellList.length; i < len; i++) {
+    					cellList[0].destroy();
+    				}
+    				for (i = 0, len = headRowList.length; i < len; i++) {
+    					headRowList[0].destroy();
+    				}
+    				for (i = 0, len = headColList.length; i < len; i++) {
+    					headColList[0].destroy();
+    				}
+    				for (i = 0, len = selectList.length; i < len; i++) {
+    					selectList[0].destroy();
+    				}
+    				for (i = 0, len = siderLineColList.length; i < len; i++) {
+    					siderLineColList[0].destroy();
+    				}
+    				for (i = 0, len = siderLineRowList.length; i < len; i++) {
+    					siderLineRowList[0].destroy();
+    				}
+    
+    				Backbone.trigger('event:colsPanelContainer:destroy');
+    				Backbone.trigger('event:rowsPanelContainer:destroy');
+    				Backbone.trigger('event:mainContainer:destroy');
+    
+    				window.SPREADSHEET_BUILD_STATE = 'false';
+    				cache.TempProp = {
+    					isFrozen: false,
+    					rowFrozen: false,
+    					colFrozen: false
+    				};
+    				original.restoreExcel(self.el.id);
+    				self.executiveFrozen();
+    				self.$el.find('.mask').css('display', 'none');
+    			}
+    
+    		},
     		
     		mouseInfo: function(e) {
+    
     			//获取相对位置
-    			this.mousePageX = e.pageX - this.$el.left;
-    			this.mousePageY = e.pageY - this.$el.top;
+    			this.mousePageX = e.pageX - this.$el.offset().left;
+    			this.mousePageY = e.pageY - this.$el.offset().top;
     		},
     		
     		getScrollbarWidth: function() {
@@ -32747,7 +32793,6 @@
     			return (scrollNone - scrollExist);
     		},
     		destroy: function() {
-    			Backbone.off('call:bodyContainer');
     			Backbone.off('event:bodyContainer:executiveFrozen');
     			Backbone.off('event:commentContainer:show');
     			Backbone.off('event:commentContainer:remove');
@@ -32804,54 +32849,8 @@
     			this.triggerCallback();
     		},
     		transAction: function(e) {
-    			this.toolbar(e);
+    			
     		},
-    		
-    		toolbar: function(e) {
-    			var currentBar,
-    				widgetList,
-    				len,
-    				i = 0,
-    				$target,
-    				toolContainer,
-    				targetLen;
-    
-    			if ($(e.target).length) {
-    				$target = $(e.target);
-    			}
-    			if ($(e.target).parents('[data-toolbar]').length) {
-    				$target = $(e.target).parents('[data-toolbar]');
-    			}
-    			targetLen = $target.length;
-    			widgetList = $('.widget-list > div');
-    			widgetList.removeClass('active');
-    			$('#toolBar .fui-section,#toolBar .section,#toolBar .ico-section ').removeClass('active');
-    			if (targetLen === 0) {
-    				return;
-    			}
-    			len = widgetList.length;
-    			currentBar = $target.data('toolbar');
-    			if (currentBar === undefined) {
-    				return;
-    			}
-    			for (; i < len; i++) {
-    				var currentWidget = widgetList.eq(i);
-    				if (currentBar === currentWidget.data('widget')) {
-    					var excuHeight = 0;
-    					if ($target[0].offsetHeight > $target[0].clientHeight) {
-    						excuHeight = parseInt(($target[0].offsetHeight - $target[0].clientHeight) / 2, 0) + $target[0].clientHeight;
-    					} else {
-    						excuHeight = $target.outerHeight();
-    					}
-    					currentWidget.css({
-    						left: $target.offset().left,
-    						top: $target.offset().top + excuHeight
-    					}).addClass('active');
-    				}
-    			}
-    			$target.addClass('active');
-    		},
-    		
     		triggerCallback: function() {
     			Backbone.trigger('call:rowsPanelContainer', this.callView('viewRowsPanelContainer'));
     			Backbone.trigger('call:colsPanelContainer', this.callView('viewColsPanelContainer'));
@@ -33436,8 +33435,8 @@
     		},
     		
     		transAction: function(e) {
-    			var frozenPositon = $(e.currentTarget).data('frozen');
-    			setFrozen('1', frozenPositon);
+    			var type = $(e.currentTarget).data('frozen');
+    			setFrozen('1',null ,type);
     			this.changeState();
     		}
     	});
@@ -33465,10 +33464,10 @@
     			}
     		},
     		insertRow: function() {
-    			rowOperation.addRow();
+    			rowOperation.add();
     		},
     		insertColumn: function(){
-    			colOperation.addCol();
+    			colOperation.add();
     		}
     	});
     	return InsertOperation;
@@ -33659,7 +33658,7 @@
     				startRowIndex = binary.indexAttrBinary(region.startRowSort, headItemRowList, 'sort');
     				endColIndex = binary.indexAttrBinary(region.endColSort, headItemColList, 'sort');
     				endRowIndex = binary.indexAttrBinary(region.endRowSort, headItemRowList, 'sort');
-    				cells.operateCellsByRegion({
+    				cells.oprCellsByRegion({
     					startColIndex: startColIndex,
     					startRowIndex: startRowIndex,
     					endColIndex: endColIndex,
@@ -33939,7 +33938,7 @@
     			}
     			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'commonMoveState');
     		},
-    		getLightDirection: function() {
+    		getHighlightDirection: function() {
     			return cache.highlightDirection;
     		}
     	}
@@ -33952,37 +33951,33 @@
     		setFontColor = require('entrance/tool/setfontcolor'),
     		setFillColor = require('entrance/tool/setfillcolor'),
     		setFontFamily = require('entrance/tool/setfontfamily'),
-    		setCellHeight = require('entrance/cell/setcellheight'),
-    		setCellWidth = require('entrance/cell/setcellwidth'),
-    		selectCell = require('entrance/cell/selectcell'),
+    		setRowHeight = require('entrance/cell/setcellheight'),
+    		setColWidth = require('entrance/cell/setcellwidth'),
     		mergeCell = require('entrance/tool/mergecell'),
     		splitCell = require('entrance/tool/splitcell'),
     		setCellContent = require('entrance/tool/setcellcontent'),
-    		selectCellCols = require('entrance/cell/selectcellcols'),
-    		selectCellRows = require('entrance/cell/selectcellrows'),
     		setCellBorder = require('entrance/tool/setcellborder'),
     		setFontSize = require('entrance/tool/setfontsize'),
     		setFontWeight = require('entrance/tool/setfontweight'),
     		setFontStyle = require('entrance/tool/setfontstyle'),
     		setFrozen = require('entrance/sheet/setfrozen'),
     		setAlign = require('entrance/tool/setalign'),
-    		operationDataSourceRegion = require('entrance/selectregion/datasourceregionoperation'),
+    		mouseOpr = require('entrance/selectregion/datasourceregionoperation'),
     		getPointByPosi = require('entrance/sheet/getpointbyposi'),
     		setWordWrap = require('entrance/tool/setwordwrap'),
     		getTextByCoordinate = require('entrance/cell/gettextbycoordinate'),
     		adaptScreen = require('entrance/sheet/adaptscreen'),
     		getFrozenState = require('entrance/sheet/getfrozenstate'),
     		getSelectRegion = require('entrance/sheet/getselectregion'),
-    		reloadCells = require('entrance/cell/reloadcells'),
+    		reload = require('entrance/sheet/reload'),
     		setTextType = require('entrance/tool/settexttype'),
-    		addRow = require('entrance/tool/addrow'),
-    		addCol = require('entrance/tool/addcol'),
+    		addRowModule = require('entrance/tool/addrow'),
+    		addColModule = require('entrance/tool/addcol'),
     		deleteRow = require('entrance/tool/deleterow'),
     		deleteCol = require('entrance/tool/deletecol'),
     		regionDel = require('entrance/tool/regiondel'),
     		colHide = require('entrance/col/colhide'),
-    		clipSelectOperate = require('entrance/tool/clipselectoperate'),
-    		clipPasteOperate = require('entrance/tool/clippasteoperate'),
+    		batchFillBg = require('entrance/tool/batchsetbg'),
     		comment = require('entrance/tool/comment');
     
     
@@ -34036,28 +34031,39 @@
     			SpreadSheet.prototype.setFontColor = setFontColor;
     			SpreadSheet.prototype.setFillColor = setFillColor;
     			SpreadSheet.prototype.setFontFamily = setFontFamily;
-    			SpreadSheet.prototype.setCellHeight = setCellHeight;
-    			SpreadSheet.prototype.selectCell = selectCell;
+    
     			SpreadSheet.prototype.mergeCell = mergeCell;
     			SpreadSheet.prototype.splitCell = splitCell;
     			SpreadSheet.prototype.setCellBorder = setCellBorder;
     			SpreadSheet.prototype.setCellContent = setCellContent;
     			SpreadSheet.prototype.setAlign = setAlign;
-    			SpreadSheet.prototype.selectCellCols = selectCellCols;
-    			SpreadSheet.prototype.selectCellRows = selectCellRows;
-    			SpreadSheet.prototype.setCellWidth = setCellWidth;
+    
+    			SpreadSheet.prototype.setColWidth = setColWidth;
+    			SpreadSheet.prototype.setRowHeight = setRowHeight;
+    
     			SpreadSheet.prototype.setFontSize = setFontSize;
     			SpreadSheet.prototype.setFontStyle = setFontStyle;
     			SpreadSheet.prototype.setFontWeight = setFontWeight;
-    			SpreadSheet.prototype.setFrozen = setFrozen;
     
+    			SpreadSheet.prototype.frozen = function(sheetId, point) {
+    				setFrozen(sheetId, point);
+    			};
+    			SpreadSheet.prototype.colFrozen = function() {
+    				setFrozen('temp', null, 'col');
+    			};
+    			SpreadSheet.prototype.rowFrozen = function() {
+    				setFrozen('temp', null, 'row');
+    			};
+    			SpreadSheet.prototype.unFrozen = function() {
+    				setFrozen('temp', null, 'unfrozen');
+    			};
     			SpreadSheet.prototype.setNormalType = setTextType.setNormal.bind(setTextType);
     			SpreadSheet.prototype.setTextType = setTextType.setText.bind(setTextType);
     			SpreadSheet.prototype.setNumType = setTextType.setNum.bind(setTextType);
     			SpreadSheet.prototype.setDateType = setTextType.setDate.bind(setTextType);
     			SpreadSheet.prototype.setPercentType = setTextType.setPercent.bind(setTextType);
     			SpreadSheet.prototype.setCoinType = setTextType.setCurrency.bind(setTextType);
-    
+    			SpreadSheet.prototype.batchFillBg = batchFillBg.set.bind(batchFillBg);
     			SpreadSheet.prototype.modifyComment = comment.modifyComment.bind(comment);
     			SpreadSheet.prototype.createAddCommentView = comment.createAddCommentView.bind(comment);
     			SpreadSheet.prototype.createEditCommentView = comment.createEditComment.bind(comment);
@@ -34069,37 +34075,22 @@
     			SpreadSheet.prototype.getFrozenState = getFrozenState;
     			SpreadSheet.prototype.setWordWrap = setWordWrap;
     			SpreadSheet.prototype.getSelectRegion = getSelectRegion;
-    			SpreadSheet.prototype.reloadCells = reloadCells;
+    			SpreadSheet.prototype.reload = reload;
     
-    			SpreadSheet.prototype.clipSelectOperate = function(type) {
-    				clipSelectOperate(type);
-    			};
-    			SpreadSheet.prototype.clipPasteOperate = function() {
-    				if (cache.clipState === "null") {
-    					return;
-    				}
-    				clipPasteOperate();
-    			}
-    
-    			SpreadSheet.prototype.addRow = addRow;
-    			SpreadSheet.prototype.addCol = addCol;
-    			SpreadSheet.prototype.deleteRow = deleteRow;
-    			SpreadSheet.prototype.deleteCol = deleteCol;
+    			SpreadSheet.prototype.addRow = addRowModule.add.bind(addRowModule);
+    			SpreadSheet.prototype.addCol = addColModule.add.bind(addColModule);
+    			SpreadSheet.prototype.deleteRow = deleteRow.deleteRow.bind(deleteRow);
+    			SpreadSheet.prototype.deleteCol = deleteCol.deleteCol.bind(deleteCol);
     			SpreadSheet.prototype.regionDel = regionDel;
-    			SpreadSheet.prototype.clearQueue = function() {
-    				cache.sendQueueStep = 0;
-    			};
-    			SpreadSheet.prototype.getLastStep = function() {
-    				return cache.sendQueueStep;
-    			};
+    
     			SpreadSheet.prototype.colHide = colHide.hide.bind(colHide);
     			SpreadSheet.prototype.colCancelHide = colHide.cancelHide.bind(colHide);
     
     		},
     		buildDataSourceOperation: function(SpreadSheet) {
-    			SpreadSheet.prototype.setDataSourceRegion = operationDataSourceRegion.setDataSourceRegion;
-    			SpreadSheet.prototype.setSelectRegion = operationDataSourceRegion.setSelectRegion;
-    			SpreadSheet.prototype.destroyDataSoureRegion = operationDataSourceRegion.destroyDataSoureRegion;
+    			SpreadSheet.prototype.setDataSourceState = mouseOpr.setDataSourceState;
+    			SpreadSheet.prototype.setSelectState = mouseOpr.setSelectState;
+    			SpreadSheet.prototype.destroyDataSoure = mouseOpr.destroyDataSoure;
     		},
     		buildExcelEventListener: function(SpreadSheet) {
     			SpreadSheet.prototype.addEventListener = listener.addEventListener;
@@ -34122,22 +34113,13 @@
     		Point = require('basic/tools/point'),
     		excelBuild = require('spreadsheet/excelbuild');
     
-    	function SpreadSheet(id, cfg) {
+    	function SpreadSheet(id) {
     		if (!document.getElementById(id)) {
     			throw new Error('未找到id为' + id + '容器');
-    		}
-    		if (cfg !== undefined && window.SPREADSHEET_BUILD_STATE === 'true') {
-    			config.User.initRowNum = cfg.initRowNum || config.User.initRowNum;
-    			config.User.initColNum = cfg.initColNum || config.User.initColNum;
-    			config.User.cellWidth = cfg.cellWidth || config.User.cellWidth;
-    			config.User.cellHeight = cfg.cellHeight || config.User.cellHeight;
-    			config.User.maxColNum = cfg.maxColNum || config.User.maxColNum;
-    			config.User.maxRowNum = cfg.maxRowNum || config.User.maxRowNum;
     		}
     		cache.containerId = id;
     		excelBuild.buildExcelOriginalData(id);
     		excelBuild.buildExcelView(id);
-    		excelBuild.buildExcelToolbar();
     		excelBuild.buildExcelPublicAPI(SpreadSheet);
     		excelBuild.buildDataSourceOperation(SpreadSheet);
     		excelBuild.buildExcelEventListener(SpreadSheet);
