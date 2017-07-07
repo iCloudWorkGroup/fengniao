@@ -246,10 +246,6 @@ define(function(require) {
 		 */
 		syncScroll: function(e, direction) {
 			var verticalDirection,
-				userViewRowModel,
-				userViewColModel,
-				userViewEndRowModel,
-				userViewEndColModel,
 				recordScrollTop = cache.viewRegion.scrollTop,
 				recordScrollLeft = cache.viewRegion.scrollLeft,
 				currentViewTop = cache.viewRegion.top,
@@ -276,19 +272,7 @@ define(function(require) {
 			if (recordScrollLeft !== this.el.scrollLeft) {
 				this.publish('mainContainer', 'transversePublish', this.el.scrollLeft, 'TRANSVERSE');
 			}
-
-			//save user view position , alias
-			if (!cache.TempProp.isFrozen) {
-				userViewRowModel = headItemRows.getModelByPosition(this.el.scrollTop);
-				userViewEndRowModel = headItemRows.getModelByPosition(this.el.scrollTop + this.el.offsetHeight);
-				cache.UserView.rowAlias = userViewRowModel.get('alias');
-				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
-
-				userViewColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft);
-				userViewEndColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft + this.el.offsetWidth);
-				cache.UserView.colAlias = userViewColModel.get('alias');
-				cache.UserView.colEndAlias = userViewEndColModel.get('alias');
-			}
+			this.updateUserView();
 		},
 		/**
 		 * 显示行上方超出预加载区域，删除超出视图
@@ -427,7 +411,7 @@ define(function(require) {
 			limitPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
 			limitIndex = binary.indexModelBinary(limitPosi, headItemRowList, 'top', 'height');
 			for (i = limitIndex + 1; i <= recordIndex; i++) {
-				headItemRowList[i].destroyView();
+				headItemRowList[i].set('isView', false);
 			}
 			//删除超过加载区域cell视图对象
 			tempCells = cells.getCellByRow(limitIndex + 1, recordIndex);
@@ -618,34 +602,49 @@ define(function(require) {
 				headLineRowModelList[i].set('activeState', true);
 			}
 		},
-		adaptRowHeightChange: function(startPosi, diffDistance) {
-			var userViewRowModel,
-				userViewEndRowModel;
+		adaptRowHeightChange: function(startPosi, diff) {
+			if (cache.localRowPosi !== 0) {
+				cache.localRowPosi += diff;
+				loadRecorder.adaptPosi(startPosi, diff, cache.rowRegionPosi);
+			}
+
 			if (cache.viewRegion.top > startPosi) {
-				cache.viewRegion.top += diffDistance;
-				userViewRowModel = headItemRows.getModelByPosition(this.recordScrollTop);
-				cache.UserView.rowAlias = userViewRowModel.get('alias');
-				if (diffDistance > 0) {
+				cache.viewRegion.top += diff;
+				if (diff > 0) {
 					this.addTop(cache.viewRegion.top);
 				} else {
 					this.deleteTop(cache.viewRegion.top);
 				}
 			}
 			if (cache.viewRegion.bottom > startPosi) {
-				cache.viewRegion.bottom += diffDistance;
-				userViewEndRowModel = headItemRows.getModelByPosition(this.recordScrollTop + this.el.offsetHeight);
-				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
-				if (diffDistance > 0) {
+				cache.viewRegion.bottom += diff;
+				//处理末尾行删除情况
+				if (cache.viewRegion.bottom < cache.viewRegion.top) {
+					cache.viewRegion.top = cache.viewRegion.bottom;
+				}
+				if (diff > 0) {
 					this.deleteBottom(cache.viewRegion.bottom);
 				} else {
 					this.addBottom(cache.viewRegion.bottom);
 				}
 			}
-			loadRecorder.adaptPosi(startPosi, diffDistance, cache.rowRegionPosi);
-			loadRecorder.adaptPosi(startPosi, diffDistance, cache.cellRegionPosi.vertical);
-			if (cache.localRowPosi !== 0) {
-				cache.localRowPosi += diffDistance;
+			this.updateUserView();
+		},
+		updateUserView: function() {
+			if (cache.TempProp.isFrozen) {
+				return;
 			}
+			var startRowModel, endRowModel, startColModel, endColModel;
+
+			startRowModel = headItemRows.getModelByPosition(this.el.scrollTop);
+			endRowModel = headItemRows.getModelByPosition(this.el.scrollTop + this.el.offsetHeight);
+			cache.UserView.rowAlias = startRowModel.get('alias');
+			cache.UserView.rowEndAlias = endRowModel.get('alias');
+
+			startColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft);
+			endColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft + this.el.offsetWidth);
+			cache.UserView.colAlias = startColModel.get('alias');
+			cache.UserView.colEndAlias = endColModel.get('alias');
 		},
 		addRows: function(height) {
 			var maxheadItemHeight = headItemRows.getMaxDistanceHeight(),

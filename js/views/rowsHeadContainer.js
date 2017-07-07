@@ -219,22 +219,21 @@ define(function(require) {
 			itemElIndex = headItemRows.getIndexByAlias(this.$itemEl.data('alias'));
 			diffDistance = this.itemEl.offsetHeight - this.cacheItemElOffsetHeight;
 			height = diffDistance + headItemRows.models[itemElIndex].get('height');
-
-			this.rowHeightAdjust(itemElIndex, height);
-
 			this.$el.append(this.$lockData);
 			this.$tempSpaceContainer.remove();
 			this.itemEl = this.$itemEl = this.$lockData = null;
+			this.rowHeightAdjust(itemElIndex, height);
 		},
 		rowHeightAdjust: function(itemElIndex, height) {
-			var diffDistance = height - headItemRows.models[itemElIndex].get('height');
+			var diffDistance = height - headItemRows.models[itemElIndex].get('height'),
+				posi = headItemRows.models[itemElIndex].get('top');
 			this.adjustHeadLine(itemElIndex, diffDistance);
 			this.adjustCells(itemElIndex, diffDistance);
 			this.adjustSelectRegion(itemElIndex, diffDistance);
 			this.requstAdjust(itemElIndex, height);
 			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
 			Backbone.trigger('event:cellsContainer:adaptHeight');
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange');
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, diffDistance);
 		},
 		/**
 		 * 向后台发送请求，调整列宽
