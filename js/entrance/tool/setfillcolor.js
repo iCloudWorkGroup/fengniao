@@ -46,7 +46,7 @@ define(function(require) {
 		} else if (operRegion.endRowIndex === 'MAX') {
 			colOperate.colPropOper(operRegion.startColIndex, 'customProp.background', color);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('customProp').background !== color) {
 					changeModelList.push({
 						colSort: colSort,

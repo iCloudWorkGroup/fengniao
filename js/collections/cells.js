@@ -1017,7 +1017,7 @@ define(function(require) {
 		 * @param  {number}   endRowIndex   行结束索引
 		 * @param  {Function} fn 单元格操作函数
 		 */
-		operateCellsByRegion: function(region, fn) {
+		oprCellsByRegion: function(region, fn, key, value) {
 			var tempCell,
 				headItemRowList = headItemRows.models,
 				headItemColList = headItemCols.models,
@@ -1049,7 +1049,7 @@ define(function(require) {
 					} else {
 						tempCell = this.createCellModel(startColIndex + j, startRowIndex + i);
 					}
-					fn(tempCell, headItemColList[startColIndex + j].get('sort'), headItemRowList[startRowIndex + i].get('sort'));
+					fn(tempCell, headItemColList[startColIndex + j].get('sort'), headItemRowList[startRowIndex + i].get('sort'), key, value);
 				}
 			}
 		},

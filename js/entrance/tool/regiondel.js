@@ -32,7 +32,7 @@ define(function(require) {
 			return;
 		}
 
-		cells.operateCellsByRegion(operRegion, function(cell) {
+		cells.oprCellsByRegion(operRegion, function(cell) {
 			cell.set('content.texts', '');
 			cell.set('content.displayTexts', '');
 		});

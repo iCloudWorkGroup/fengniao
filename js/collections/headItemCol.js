@@ -52,6 +52,9 @@ define(function(require) {
 			}
 			return modelList;
 		},
+		getIndexBySort: function(sort) {
+			return binary.indexAttrBinary(sort, this.models, 'sort');
+		},
 		getIndexByDisplayname: function(displayName) {
 			var model = this.findWhere({
 				'displayName': displayName

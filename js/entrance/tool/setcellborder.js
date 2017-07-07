@@ -86,7 +86,7 @@ define(function(require) {
 			} else if (operRegion.endRowIndex === 'MAX') {
 				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
 			} else {
-				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 					changeModelList.push({
 						colSort: colSort,
 						rowSort: rowSort,
@@ -122,7 +122,7 @@ define(function(require) {
 			} else if (operRegion.endRowIndex === 'MAX') {
 				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
 			} else {
-				cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 					changeModelList.push({
 						colSort: colSort,
 						rowSort: rowSort,
