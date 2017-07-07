@@ -33,7 +33,7 @@ define(function(require) {
 		sendRegion.endCol = sendRegion.startCol;
 		sendRegion.endRow = sendRegion.startRow;
 
-		cells.operateCellsByRegion(operRegion, function(cell) {
+		cells.oprCellsByRegion(operRegion, function(cell) {
 			cell.set('content.texts', text);
 		});
 		sendData();

@@ -32,6 +32,7 @@ define(function(require) {
 		deleteCol = require('entrance/tool/deletecol'),
 		regionDel = require('entrance/tool/regiondel'),
 		colHide = require('entrance/col/colhide'),
+		batchFillBg = require('entrance/tool/batchsetbg'),
 		comment = require('entrance/tool/comment');
 
 
@@ -117,7 +118,7 @@ define(function(require) {
 			SpreadSheet.prototype.setDateType = setTextType.setDate.bind(setTextType);
 			SpreadSheet.prototype.setPercentType = setTextType.setPercent.bind(setTextType);
 			SpreadSheet.prototype.setCoinType = setTextType.setCurrency.bind(setTextType);
-
+			SpreadSheet.prototype.batchFillBg = batchFillBg.set.bind(batchFillBg);
 			SpreadSheet.prototype.modifyComment = comment.modifyComment.bind(comment);
 			SpreadSheet.prototype.createAddCommentView = comment.createAddCommentView.bind(comment);
 			SpreadSheet.prototype.createEditCommentView = comment.createEditComment.bind(comment);

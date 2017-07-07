@@ -56,7 +56,7 @@ define(function(require) {
 		} else if (operRegion.endColIndex === 'MAX') {
 			colOperate.colPropOper(region.startColIndex, 'wordWrap', wordWrap);
 		} else {
-			cells.operateCellsByRegion(operRegion, function(cell, colSort, rowSort) {
+			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('wordWrap') !== wordWrap) {
 					changeModelList.push({
 						colSort: colSort,

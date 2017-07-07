@@ -105,6 +105,9 @@ define(function(require) {
 		getIndexByPosi: function(posi) {
 			return binary.newModelBinary(posi, this.models, 'top', 'height');
 		},
+		getIndexBySort: function(sort) {
+			return binary.indexAttrBinary(sort, this.models, 'sort');
+		},
 		/**
 		 * 通过别名查询符合条件标线的索引
 		 * @method getIndexByAlias
