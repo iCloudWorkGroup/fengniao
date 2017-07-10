@@ -19108,7 +19108,8 @@
     			this._adaptHeadRowItem(index);
     
     			Backbone.trigger('event:cellsContainer:adaptHeight');
-    			Backbone.trigger('event:colsAllHeadContainer:adaptHeight');
+    			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight', posi, -height);
+    			Backbone.trigger('event:mainContainer:adaptRowHeightChange');
     			sendData();
     
     			function sendData() {
@@ -19318,11 +19319,11 @@
     			this._addColItem();
     			this._adaptCells(index);
     			this._adaptSelectRegion(index);
-    			// this._frozenHandle(index);
     			this._adaptHeadColItem(index);
     
     			Backbone.trigger('event:cellsContainer:adaptWidth');
     			Backbone.trigger('event:colsAllHeadContainer:adaptWidth');
+    			
     			sendData();
     			function sendData() {
     				send.PackAjax({
@@ -28834,10 +28835,6 @@
     		
     		syncScroll: function(e, direction) {
     			var verticalDirection,
-    				userViewRowModel,
-    				userViewColModel,
-    				userViewEndRowModel,
-    				userViewEndColModel,
     				recordScrollTop = cache.viewRegion.scrollTop,
     				recordScrollLeft = cache.viewRegion.scrollLeft,
     				currentViewTop = cache.viewRegion.top,
@@ -28864,19 +28861,7 @@
     			if (recordScrollLeft !== this.el.scrollLeft) {
     				this.publish('mainContainer', 'transversePublish', this.el.scrollLeft, 'TRANSVERSE');
     			}
-    
-    			//save user view position , alias
-    			if (!cache.TempProp.isFrozen) {
-    				userViewRowModel = headItemRows.getModelByPosition(this.el.scrollTop);
-    				userViewEndRowModel = headItemRows.getModelByPosition(this.el.scrollTop + this.el.offsetHeight);
-    				cache.UserView.rowAlias = userViewRowModel.get('alias');
-    				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
-    
-    				userViewColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft);
-    				userViewEndColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft + this.el.offsetWidth);
-    				cache.UserView.colAlias = userViewColModel.get('alias');
-    				cache.UserView.colEndAlias = userViewEndColModel.get('alias');
-    			}
+    			this.updateUserView();
     		},
     		
     		deleteTop: function(recordTop) {
@@ -29000,7 +28985,7 @@
     			limitPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
     			limitIndex = binary.indexModelBinary(limitPosi, headItemRowList, 'top', 'height');
     			for (i = limitIndex + 1; i <= recordIndex; i++) {
-    				headItemRowList[i].destroyView();
+    				headItemRowList[i].set('isView', false);
     			}
     			//删除超过加载区域cell视图对象
     			tempCells = cells.getCellByRow(limitIndex + 1, recordIndex);
@@ -29175,34 +29160,49 @@
     				headLineRowModelList[i].set('activeState', true);
     			}
     		},
-    		adaptRowHeightChange: function(startPosi, diffDistance) {
-    			var userViewRowModel,
-    				userViewEndRowModel;
+    		adaptRowHeightChange: function(startPosi, diff) {
+    			if (cache.localRowPosi !== 0) {
+    				cache.localRowPosi += diff;
+    				loadRecorder.adaptPosi(startPosi, diff, cache.rowRegionPosi);
+    			}
+    
     			if (cache.viewRegion.top > startPosi) {
-    				cache.viewRegion.top += diffDistance;
-    				userViewRowModel = headItemRows.getModelByPosition(this.recordScrollTop);
-    				cache.UserView.rowAlias = userViewRowModel.get('alias');
-    				if (diffDistance > 0) {
+    				cache.viewRegion.top += diff;
+    				if (diff > 0) {
     					this.addTop(cache.viewRegion.top);
     				} else {
     					this.deleteTop(cache.viewRegion.top);
     				}
     			}
     			if (cache.viewRegion.bottom > startPosi) {
-    				cache.viewRegion.bottom += diffDistance;
-    				userViewEndRowModel = headItemRows.getModelByPosition(this.recordScrollTop + this.el.offsetHeight);
-    				cache.UserView.rowEndAlias = userViewEndRowModel.get('alias');
-    				if (diffDistance > 0) {
+    				cache.viewRegion.bottom += diff;
+    				//处理末尾行删除情况
+    				if (cache.viewRegion.bottom < cache.viewRegion.top) {
+    					cache.viewRegion.top = cache.viewRegion.bottom;
+    				}
+    				if (diff > 0) {
     					this.deleteBottom(cache.viewRegion.bottom);
     				} else {
     					this.addBottom(cache.viewRegion.bottom);
     				}
     			}
-    			loadRecorder.adaptPosi(startPosi, diffDistance, cache.rowRegionPosi);
-    			loadRecorder.adaptPosi(startPosi, diffDistance, cache.cellRegionPosi.vertical);
-    			if (cache.localRowPosi !== 0) {
-    				cache.localRowPosi += diffDistance;
+    			this.updateUserView();
+    		},
+    		updateUserView: function() {
+    			if (cache.TempProp.isFrozen) {
+    				return;
     			}
+    			var startRowModel, endRowModel, startColModel, endColModel;
+    
+    			startRowModel = headItemRows.getModelByPosition(this.el.scrollTop);
+    			endRowModel = headItemRows.getModelByPosition(this.el.scrollTop + this.el.offsetHeight);
+    			cache.UserView.rowAlias = startRowModel.get('alias');
+    			cache.UserView.rowEndAlias = endRowModel.get('alias');
+    
+    			startColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft);
+    			endColModel = headItemCols.getModelByPosition(cache.viewRegion.scrollLeft + this.el.offsetWidth);
+    			cache.UserView.colAlias = startColModel.get('alias');
+    			cache.UserView.colEndAlias = endColModel.get('alias');
     		},
     		addRows: function(height) {
     			var maxheadItemHeight = headItemRows.getMaxDistanceHeight(),
@@ -30074,7 +30074,7 @@
     			this.offsetTop = cache.TempProp.isFrozen ? (option.frozenTop || 0) : 0;
     			this.reduceUserView = option.reduceUserView;
     			this.endIndex = option.endIndex;
-    			//ps:修改
+    
     			if (cache.TempProp.isFrozen !== true || this.endIndex === undefined) {
     				this.listenTo(this.model, 'change:isView', this.destroy);
     			}
@@ -30113,7 +30113,6 @@
     		changeDisplayName: function() {
     			this.$el.children('.item').html(this.model.get('displayName'));
     		},
-    		
     		destroy: function() {
     			this.remove();
     		}
@@ -30329,22 +30328,21 @@
     			itemElIndex = headItemRows.getIndexByAlias(this.$itemEl.data('alias'));
     			diffDistance = this.itemEl.offsetHeight - this.cacheItemElOffsetHeight;
     			height = diffDistance + headItemRows.models[itemElIndex].get('height');
-    
-    			this.rowHeightAdjust(itemElIndex, height);
-    
     			this.$el.append(this.$lockData);
     			this.$tempSpaceContainer.remove();
     			this.itemEl = this.$itemEl = this.$lockData = null;
+    			this.rowHeightAdjust(itemElIndex, height);
     		},
     		rowHeightAdjust: function(itemElIndex, height) {
-    			var diffDistance = height - headItemRows.models[itemElIndex].get('height');
+    			var diffDistance = height - headItemRows.models[itemElIndex].get('height'),
+    				posi = headItemRows.models[itemElIndex].get('top');
     			this.adjustHeadLine(itemElIndex, diffDistance);
     			this.adjustCells(itemElIndex, diffDistance);
     			this.adjustSelectRegion(itemElIndex, diffDistance);
     			this.requstAdjust(itemElIndex, height);
     			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
     			Backbone.trigger('event:cellsContainer:adaptHeight');
-    			Backbone.trigger('event:mainContainer:adaptRowHeightChange');
+    			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, diffDistance);
     		},
     		
     		requstAdjust: function(rowIndex, offset) {
@@ -32848,9 +32846,8 @@
     			this.bodyContainer.render();
     			this.triggerCallback();
     		},
-    		transAction: function(e) {
-    			
-    		},
+    		transAction: function() {
+    		},   		
     		triggerCallback: function() {
     			Backbone.trigger('call:rowsPanelContainer', this.callView('viewRowsPanelContainer'));
     			Backbone.trigger('call:colsPanelContainer', this.callView('viewColsPanelContainer'));
@@ -34086,6 +34083,9 @@
     			SpreadSheet.prototype.colHide = colHide.hide.bind(colHide);
     			SpreadSheet.prototype.colCancelHide = colHide.cancelHide.bind(colHide);
     
+    			SpreadSheet.prototype.getStep = function(){
+    				return cache.sendQueueStep;
+    			}
     		},
     		buildDataSourceOperation: function(SpreadSheet) {
     			SpreadSheet.prototype.setDataSourceState = mouseOpr.setDataSourceState;
