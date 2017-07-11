@@ -141,6 +141,9 @@ define(function(require) {
 			SpreadSheet.prototype.colHide = colHide.hide.bind(colHide);
 			SpreadSheet.prototype.colCancelHide = colHide.cancelHide.bind(colHide);
 
+			SpreadSheet.prototype.getStep = function(){
+				return cache.sendQueueStep;
+			}
 		},
 		buildDataSourceOperation: function(SpreadSheet) {
 			SpreadSheet.prototype.setDataSourceState = mouseOpr.setDataSourceState;
