@@ -156,7 +156,6 @@ define(function(require) {
 							if (!tempObj[index]) {
 								result.push(this.at(index));
 								tempObj[index] = 1;
-
 							}
 						}
 					}
@@ -222,50 +221,6 @@ define(function(require) {
 		 */
 		getCellByRow: function(startIndex, endIndex) {
 			return this.getCellByTransverse(startIndex, 0, endIndex, 'MAX');
-		},
-		/**
-		 * 待修改
-		 */
-		/**
-		 * 获取区域内包含所有cell对象
-		 * @method getSelectRegionCells 
-		 * @param  startIndexCol {int} 区域左上顶点X轴索引
-		 * @param  startIndexRow {int} 区域左上顶点Y轴索引
-		 * @param  endIndexCol {[int]} 区域右下顶点X轴索引
-		 * @param  endIndexRow {[int]} 区域右下顶点Y轴索引
-		 * @return  {array} Cell数组
-		 */
-		getRegionCells: function(startIndexCol, startIndexRow, endIndexCol, endIndexRow) {
-			if (endIndexCol === undefined) {
-				endIndexCol = startIndexCol;
-			}
-			if (endIndexRow === undefined) {
-				endIndexRow = startIndexRow;
-			}
-			var cellList = [],
-				i = 0,
-				j = 0,
-				aliasCol,
-				aliasRow,
-				betweenRow = endIndexRow - startIndexRow + 1,
-				betweenCol = endIndexCol - startIndexCol + 1,
-				gridModelListRow = headItemRows.models,
-				gridModelListCol = headItemCols.models,
-				cellsPositionX = cache.CellsPosition.strandX;
-
-			for (; i < betweenRow; i++) {
-				for (j = 0; j < betweenCol; j++) {
-					aliasRow = gridModelListRow[startIndexRow + i].get('alias');
-					aliasCol = gridModelListCol[startIndexCol + j].get('alias');
-					if (cellsPositionX[aliasCol] !== undefined && cellsPositionX[aliasCol][aliasRow] !== undefined) {
-						cellList.push(this.models[cellsPositionX[aliasCol][aliasRow]]);
-					} else {
-						cellList.push(null);
-					}
-				}
-
-			}
-			return cellList;
 		},
 		/**
 		 * 获取选中区域内包含所有cell对象

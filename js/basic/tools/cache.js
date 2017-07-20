@@ -153,7 +153,16 @@ define(function(require) {
 		},
 		commentEidtState: false,
 		clipboardData: null,
-		//
+		selectRecord: {
+			newPosi: {
+				col: 0,
+				row: 0
+			},
+			oldPosi: {
+				col: 0,
+				row: 0
+			}
+		},
 		/**
 		 * 保存位置信息
 		 * @method cachePosition

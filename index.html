@@ -78,21 +78,21 @@
 							<span class="fui-layout">
 								<div class="fui-transverse">
 									<span class="section" data-toolbar="fontfamily">
-										<span class="fui-transverse-model fui-cf-fontfamily" id="fontShow">宋体</span>
+										<span class="fui-transverse-model fui-cf-fontfamily" id="fontShow" bind-value="family">宋体</span>
 										<span class="fui-transverse-model fui-cf-fontfamily-extend active">
 											<span class="caret"></span>
 										</span>
 									</span>
 									<span class="section"  data-toolbar="fontsize">
-										<span class="fui-transverse-model fui-cf-fontsize" id="fontSizeShow">11</span>
+										<span class="fui-transverse-model fui-cf-fontsize" id="fontSizeShow" bind-value="size">11</span>
 										<span class="fui-transverse-model fui-cf-fontsize-extend active">
 											<span class="caret"></span>
 										</span>
 									</span>
 								</div>
 								<div class="fui-transverse">
-									<span class="ico-section" data-toolbar="bold" title="加粗"><span class="fui-cf-ico ico-weight"></span></span>
-									<span class="ico-section" data-toolbar="italic"><span class="fui-cf-ico ico-italic"></span></span>
+									<span class="ico-section" data-toolbar="bold" bind-on="bd" title="加粗"><span class="fui-cf-ico ico-weight"></span></span>
+									<span class="ico-section" data-toolbar="italic" bind-on="italic" title="倾斜"><span class="fui-cf-ico ico-italic"></span></span>
 									<span class="ico-section" data-toolbar="border"><span class="fui-cf-ico ico-borderbottom ico-section-ico"></span><span class="ico-section-rightarrow"><span class="caret"></span></span></span>
 									<span class="ico-section" data-toolbar="background"><span class="fui-cf-ico ico-fillbg ico-section-ico"></span><span class="ico-section-rightarrow"><span class="caret"></span></span></span>
 									<span class="ico-section" data-toolbar="color"><span class="fui-cf-ico ico-fillcolor ico-section-ico"></span><span class="ico-section-rightarrow"><span class="caret"></span></span></span>
@@ -107,25 +107,25 @@
 					<span class="fui-container">
 						<div class="fui-body">
 							<span class="fui-layout">
-								<div class="fui-transverse">
-									<span class="ico-section" data-align="top">
+								<div class="fui-transverse" bind-select="alignCol">
+									<span class="ico-section" data-align="top" select-on="top">
 										<span class="fui-cf-ico ico-aligntop"></span>
 									</span>
-									<span class="ico-section" data-align="middle">
+									<span class="ico-section" data-align="middle" select-on="middle">
 										<span class="fui-cf-ico ico-alignmiddle"></span>
 									</span>
-									<span class="ico-section" data-align="bottom">
+									<span class="ico-section" data-align="bottom" select-on="bottom">
 										<span class="fui-cf-ico ico-alignbottom"></span>
 									</span>
 								</div>
-								<div class="fui-transverse">
-									<span class="ico-section" data-align="left">
+								<div class="fui-transverse" bind-select="alignRow">
+									<span class="ico-section" data-align="left" select-on="left">
 										<span class="fui-cf-ico ico-alignleft"></span>
 									</span>
-									<span class="ico-section" data-align="center">
+									<span class="ico-section" data-align="center" select-on="center">
 										<span class="fui-cf-ico ico-aligncenter"></span>
 									</span>
-									<span class="ico-section" data-align="right">
+									<span class="ico-section" data-align="right" select-on="right">
 										<span class="fui-cf-ico ico-alignright"></span>
 									</span>
 								</div>
@@ -154,18 +154,18 @@
 				</li>
 				<li class="fui-group">
 					<span class="fui-container">
-						<div class="fui-body" id="mergeCellContainer">
+						<div class="fui-body">
 							<span class="fui-layout">
-								<div class="fui-section fui-transverse" data-toolbar="merge" id="merge">
+								<div class="fui-section fui-transverse" bind-merge="merge" id="mergeContainer">
 									<div class="fui-transverse-model">
 										<span class="fui-cf-ico ico-section-ico ico-combincells"></span>
 										<span class="fui-cf-text">合并单元格</span>
 									</div>
 								</div>
-								<div class="fui-section fui-transverse" data-toolbar="split" id="split">
+								<div class="fui-section fui-transverse" bind-on="wordWrap" data-toolbar="wordwrap" id="wordWrapContainer">
 									<div class="fui-transverse-model">
-										<span class="fui-cf-ico ico-section-ico ico-combincells"></span>
-										<span class="fui-cf-text">拆分单元格</span>
+										<span class="fui-cf-ico ico-section-ico ico-wordwrap"></span>
+										<span class="fui-cf-text">自动换行</span>
 									</div>
 								</div>
 							</span>
@@ -188,22 +188,6 @@
 							</span>
 						</div>
 						<div class="fui-title">视图</div>
-					</span>
-					<span class="fui-separator"></span>
-				</li>
-				<li class="fui-group">
-					<span class="fui-container">
-						<div class="fui-body" id="wordWrapContainer">
-							<span class="fui-layout">
-								<div class="fui-section fui-transverse" data-toolbar="wordwrap">
-									<div class="fui-transverse-model">
-										<span class="fui-cf-ico ico-section-ico ico-wordwrap"></span>
-										<span class="fui-cf-text">自动换行</span>
-									</div>
-								</div>
-							</span>
-						</div>
-						<div class="fui-title">文本对齐</div>
 					</span>
 					<span class="fui-separator"></span>
 				</li>

@@ -65,11 +65,6 @@ define(function(require) {
 		transAction: function(e) {
 			this.toolbar(e);
 		},
-		/**
-		 * 工具菜单栏选中效果
-		 * @method toolbar
-		 * @param  {object} e mouse的click对象
-		 */
 		toolbar: function(e) {
 			var currentBar,
 				widgetList,
@@ -88,7 +83,6 @@ define(function(require) {
 			targetLen = $target.length;
 			widgetList = $('.widget-list > div');
 			widgetList.removeClass('active');
-			$('#toolBar .fui-section,#toolBar .section,#toolBar .ico-section ').removeClass('active');
 			if (targetLen === 0) {
 				return;
 			}
@@ -112,7 +106,6 @@ define(function(require) {
 					}).addClass('active');
 				}
 			}
-			$target.addClass('active');
 		},
 		/**
 		 * 绑定视图

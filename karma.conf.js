@@ -35,7 +35,6 @@ module.exports = function(config) {
 	    'karma-coverage',
 	    'karma-jasmine',
 	    'karma-requirejs',
-	    'karma-phantomjs-launcher',
 	    'karma-chrome-launcher'
 	],
 
@@ -64,7 +63,7 @@ module.exports = function(config) {
 
 
         // enable / disable watching file and executing tests whenever any file changes
-        autoWatch: false,
+        autoWatch: true,
 
 
         // Start these browsers, currently available:
@@ -75,7 +74,7 @@ module.exports = function(config) {
         // - Safari (only Mac)
         // - PhantomJS
         // - IE (only Windows)
-        browsers: ['PhantomJS'],
+        browsers: ['Chrome'],
 
 
         // If browser does not capture in given timeout [ms], kill it

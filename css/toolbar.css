@@ -77,13 +77,16 @@ span { display: inline-block; }
 .fui-alone { margin: 6px 0 0 0; }
 .fui-transverse { margin: 6px 0 2px 0; }
 .fui-transverse-model { padding: 2px; }
-.fui-section.active { border-color: #9fd5b7; background: #9fd5b7; }
+.fui-section.active { border-color: #86bfa0 !important; background: #86bfa0 !important; }
+.fui-section.on{ border-color: #9fd5b7; background: #9fd5b7; }
+
 .section { border: 1px solid #e1e1e1; }
-.section:hover, .section.active { border-color: #9fd5b7; }
+.section:hover, .section.active { border-color: #86bfa0 !important; }
 .ico-section { padding: 3px 5px; height: 16px; overflow: hidden; }
 .ico-section.first { margin-left: 0; }
 .ico-section:hover, .fui-section:hover { background: #d3f0e0; }
-.ico-section.active, .fui-section.active { background: #9fd5b7; }
+.ico-section.active { background: #86bfa0 !important; }
+.ico-section.on { background: #9fd5b7; }
 .ico-section a { display: inline-block; }
 .fui-body { height: 75px; }
 .font-list { font-size: 12pt; }

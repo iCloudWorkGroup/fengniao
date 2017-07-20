@@ -124,6 +124,9 @@ define(function(require) {
 			}
 			return -1;
 		},
+		getIndexBySort: function(sort) {
+			return binary.indexAttrBinary(sort, this.models, 'sort');
+		},
 		getNextAliasByAlias: function(alias) {
 			var index,
 				model;

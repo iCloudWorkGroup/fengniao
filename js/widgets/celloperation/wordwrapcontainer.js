@@ -7,7 +7,8 @@ define(function(require) {
 		Backbone = require('lib/backbone'),
 		send = require('basic/tools/send'),
 		selectRegions = require('collections/selectRegion'),
-		setWordWrap = require('entrance/tool/setwordwrap');
+		setWordWrap = require('entrance/tool/setwordwrap'),
+		selectState = require('basic/tools/bindtoolbar');
 
 	/**
 	 * ContentAlignContainer
@@ -45,6 +46,7 @@ define(function(require) {
 				url,
 				vertical;
 			setWordWrap('1');
+			selectState.update('wordWrap');
 		}
 	});
 	return WordWrapContainer;

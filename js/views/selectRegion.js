@@ -2,6 +2,7 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		Backbone = require('lib/backbone'),
+		toolbarState = require('basic/tools/bindtoolbar'),
 		getTemplate = require('basic/tools/template'),
 		util = require('basic/util/clone'),
 		binary = require('basic/util/binary'),
@@ -48,6 +49,7 @@ define(function(require) {
 		 * @method initialize
 		 */
 		initialize: function(options) {
+
 			this.viewCellsContainer = options.parentView;
 			if (this.model.get('selectType') === 'selected') {
 				Backbone.on('event:selectRegion:patchOprCell', this.patchOprCell, this);
@@ -119,6 +121,7 @@ define(function(require) {
 			var modelJSON = this.model.toJSON(),
 				colDisplayNames = [],
 				rowDisplayNames = [],
+				// selectCell,
 				startColIndex,
 				startRowIndex,
 				endColIndex,
@@ -135,6 +138,7 @@ define(function(require) {
 				modelJSON.tempPosi.mouseColIndex,
 				modelJSON.tempPosi.mouseRowIndex
 			);
+
 			startColIndex = region.startColIndex;
 			startRowIndex = region.startRowIndex;
 			endColIndex = region.endColIndex;
@@ -153,6 +157,12 @@ define(function(require) {
 					left: colModelList[startColIndex].get('left'),
 					width: width
 				});
+				cache.selectRecord.oldPosi = cache.selectRecord.newPosi;
+				cache.selectRecord.newPosi = {
+					col: headItemCols.at(modelJSON.tempPosi.initColIndex).get('sort'),
+					row: headItemRows.at(modelJSON.tempPosi.initRowIndex).get('sort')
+				};
+				toolbarState.digest();
 			}
 
 			this.model.set('physicsBox', {

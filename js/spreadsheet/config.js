@@ -109,6 +109,7 @@ define(function() {
 				width: 150
 			}
 		},
+		toolbarId: 'toolBar',
 		mouseOperateState: {
 			select: 'selected',
 			dataSource: 'datasource',

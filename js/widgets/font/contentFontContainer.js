@@ -7,7 +7,8 @@ define(function(require) {
 		cells = require('collections/cells'),
 		selectRegions = require('collections/selectRegion'),
 		setFontWeight=require('entrance/tool/setfontweight'),
-		setFontStyle=require('entrance/tool/setfontstyle');
+		setFontStyle=require('entrance/tool/setfontstyle'),
+		selectState = require('basic/tools/bindtoolbar');
 
 	/**
 	 * 设置字体功能监听类
@@ -43,10 +44,10 @@ define(function(require) {
 
 			switch (tool) {
 				case 'bold':
-					this.setCellModelBold();
+					this.setModelBold();
 					break;
 				case 'italic':
-					this.setCellModelItalic();
+					this.setModelItalic();
 					break;
 				default:
 					return;
@@ -56,25 +57,27 @@ define(function(require) {
 		 * 设置字体加粗
 		 * @method setCellModelBold
 		 */
-		setCellModelBold: function() {
+		setModelBold: function() {
 			var startColIndex,
 				startRowIndex,
 				tempCell,
 				bold;
 			//获取起始单元格
-			setFontWeight('1');
+			setFontWeight();
+			selectState.update('bd');
 		},
 		/**
 		 * 设置字体倾斜
 		 * @method setCellModelItalic
 		 */
-		setCellModelItalic: function() {
+		setModelItalic: function() {
 			var startColIndex,
 				startRowIndex,
 				tempCell,
 				italic;
 			//获取起始单元格
-			setFontStyle('1');
+			setFontStyle();
+			selectState.update('italic');
 		}
 	});
 	return ContentFontContainer;

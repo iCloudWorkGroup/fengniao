@@ -96,8 +96,8 @@ define(function(require) {
 			this.rowIndex = rowIndex;
 			this.colIndex = colIndex;
 			this.mainContainer = mainContainer;
-			cell = cells.getRegionCells(colIndex, rowIndex)[0];
-			if (cell === null) {
+			cell = cells.getCellByVertical(colIndex, rowIndex)[0];
+			if (cell === undefined) {
 				cell = this.createCell(rowIndex, colIndex);
 			}
 			this.model = cell;

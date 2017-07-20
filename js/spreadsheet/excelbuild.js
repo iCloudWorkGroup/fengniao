@@ -3,6 +3,7 @@ define(function(require) {
 	var original = require('basic/tools/original'),
 		listener = require('basic/util/listener'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		setFontColor = require('entrance/tool/setfontcolor'),
 		setFillColor = require('entrance/tool/setfillcolor'),
 		setFontFamily = require('entrance/tool/setfontfamily'),
@@ -32,7 +33,8 @@ define(function(require) {
 		deleteCol = require('entrance/tool/deletecol'),
 		regionDel = require('entrance/tool/regiondel'),
 		colHide = require('entrance/col/colhide'),
-		comment = require('entrance/tool/comment');
+		comment = require('entrance/tool/comment'),
+		toolbar = require('basic/tools/bindtoolbar');
 
 
 	var excelBuild = {
@@ -80,6 +82,8 @@ define(function(require) {
 			new RegionDelContainer();
 			new ColHide();
 			new UndoredoContainer();
+			toolbar.init(config.toolbarId);
+
 		},
 		buildExcelPublicAPI: function(SpreadSheet) {
 			SpreadSheet.prototype.setFontColor = setFontColor;

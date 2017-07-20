@@ -70,7 +70,9 @@ define(function(require) {
 			}
 			return modelList;
 		},
-
+		getIndexBySort: function(sort) {
+			return binary.indexAttrBinary(sort, this.models, 'sort');
+		},
 		/**
 		 * 获取整个列标容器宽度
 		 * @method getMaxDistanceWidth

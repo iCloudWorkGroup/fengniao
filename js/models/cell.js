@@ -74,7 +74,7 @@ define(function(require) {
 				 * 字体风格
 				 * @property {string} family
 				 */
-				family: 'SimSun',
+				family: '宋体',
 				/**
 				 * 字体加粗
 				 * @property {boolean} bd
@@ -94,7 +94,7 @@ define(function(require) {
 				 * 左右对齐
 				 * @property {string} alignRow
 				 */
-				alignRow: '',
+				alignRow: 'right',
 				/**
 				 * 上下对齐
 				 * @property {string} alignLine

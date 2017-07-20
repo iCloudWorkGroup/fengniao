@@ -4,7 +4,8 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		Backbone = require('lib/backbone'),
-		setAlign = require('entrance/tool/setalign');
+		setAlign = require('entrance/tool/setalign'),
+		selectState = require('basic/tools/bindtoolbar');
 
 	/**
 	 * ContentAlignContainer
@@ -36,9 +37,17 @@ define(function(require) {
 		 * @param  {event} e 鼠标点击事件
 		 */
 		setAlignAction: function(e) {
-			var alignType;
+			var alignType,
+				sign = 'top middle bottom';
 			alignType = $(e.currentTarget).data('align');
 			setAlign('1', alignType);
+			
+			if (sign.indexOf(alignType) !== -1) {
+				selectState.update('alignCol');
+			} else {
+				selectState.update('alignRow');
+			}
+
 		}
 	});
 	return ContentAlignContainer;
