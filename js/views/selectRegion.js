@@ -157,12 +157,6 @@ define(function(require) {
 					left: colModelList[startColIndex].get('left'),
 					width: width
 				});
-				cache.selectRecord.oldPosi = cache.selectRecord.newPosi;
-				cache.selectRecord.newPosi = {
-					col: headItemCols.at(modelJSON.tempPosi.initColIndex).get('sort'),
-					row: headItemRows.at(modelJSON.tempPosi.initRowIndex).get('sort')
-				};
-				toolbarState.digest();
 			}
 
 			this.model.set('physicsBox', {
@@ -177,6 +171,15 @@ define(function(require) {
 				endX: colModelList[endColIndex].get('alias'),
 				endY: rowModelList[endRowIndex].get('alias')
 			});
+			if (this.model.get('selectType') === 'selected') {
+				cache.selectRecord.oldPosi = cache.selectRecord.newPosi;
+				cache.selectRecord.newPosi = {
+					col: headItemCols.at(modelJSON.tempPosi.initColIndex).get('sort'),
+					row: headItemRows.at(modelJSON.tempPosi.initRowIndex).get('sort')
+				};
+				toolbarState.digest();
+			}
+
 			//判断是否为整行或整列操作
 			if (modelJSON.tempPosi.mouseColIndex === 'MAX') {
 				this.model.set('wholePosi.endX', 'MAX');

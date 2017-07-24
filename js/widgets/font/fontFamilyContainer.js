@@ -6,7 +6,8 @@ define(function(require) {
 		send = require('basic/tools/send'),
 		cells = require('collections/cells'),
 		selectRegions = require('collections/selectRegion'),
-		setFontFamily = require('entrance/tool/setfontfamily');
+		setFontFamily = require('entrance/tool/setfontfamily'),
+		selectState = require('basic/tools/bindtoolbar');
 
 	/**
 	 * 设置字体功能监听类
@@ -47,6 +48,7 @@ define(function(require) {
 			displayText = $currentTarget.text();
 			$("#fontShow").text(displayText);
 			setFontFamily('1', fontFamily);
+			selectState.update('family');
 		}
 	});
 	return FontFamilyContainer;

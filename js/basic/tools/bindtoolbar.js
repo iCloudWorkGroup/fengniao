@@ -70,6 +70,9 @@ define(function(require) {
 			} else {
 				$(node).removeClass('on');
 			}
+		},
+		value: function(node, value) {
+			$(node).text(value);
 		}
 	};
 	var bind = {
@@ -218,7 +221,7 @@ define(function(require) {
 				attrs = Model.prototype.defaults;
 			}
 
-			if(attr === 'merge'){
+			if (attr === 'merge') {
 				self._publish(attr);
 				return;
 			}

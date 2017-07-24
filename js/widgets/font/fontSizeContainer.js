@@ -6,6 +6,7 @@ define(function(require) {
 		send = require('basic/tools/send'),
 		selectRegions = require('collections/selectRegion'),
 		setFontSize = require('entrance/tool/setfontsize'),
+		selectState = require('basic/tools/bindtoolbar'),
 		setCellHeight = require('entrance/cell/setcellheight');
 
 
@@ -48,6 +49,7 @@ define(function(require) {
 			text = $currentTarget.text();
 			$("#fontSizeShow").text(text);
 			setFontSize('1', fontSize);
+			selectState.update('size');
 		}
 	});
 	return FontSizeContainer;
