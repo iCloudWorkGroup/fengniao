@@ -720,6 +720,8 @@ define(function(require) {
 			Backbone.off('event:mainContainer:destroy');
 			Backbone.off('event:mainContainer:attributesRender');
 			Backbone.off('event:mainContainer:adaptRowHeightChange');
+			Backbone.off('event:mainContainer:showSelectRegion');
+			Backbone.off('event:mainContainer:appointPosition');
 			this.remove();
 		}
 	});
