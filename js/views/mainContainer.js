@@ -719,6 +719,7 @@ define(function(require) {
 			Backbone.off('call:mainContainer');
 			Backbone.off('event:mainContainer:destroy');
 			Backbone.off('event:mainContainer:attributesRender');
+			Backbone.off('event:mainContainer:adaptRowHeightChange');
 			this.remove();
 		}
 	});
