@@ -710,7 +710,7 @@ define(function(require) {
 		 * 视图销毁
 		 * @method destroy
 		 */
-		destroy: function() {
+		destroy: function() {		
 			if (this.unsubscribe) {
 				this.unsubscribe('mainContainer', 'transversePublish');
 				this.unsubscribe('mainContainer', 'verticalPublish');
@@ -719,7 +719,11 @@ define(function(require) {
 			Backbone.off('call:mainContainer');
 			Backbone.off('event:mainContainer:destroy');
 			Backbone.off('event:mainContainer:attributesRender');
+			Backbone.off('event:mainContainer:adaptRowHeightChange');
+			Backbone.off('event:mainContainer:showSelectRegion');
+			Backbone.off('event:mainContainer:appointPosition');
 			this.remove();
+
 		}
 	});
 	return MainContainer;
