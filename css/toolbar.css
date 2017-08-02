@@ -35,6 +35,7 @@ span { display: inline-block; }
 .ico-copy { background-position: -136px -72px; width: 16px; height: 16px; }
 .ico-weight { width: 16px; height: 16px; background-position: -136px -89px; }
 .ico-italic { width: 16px; height: 16px; background-position: -207px 18px; }
+.ico-underline { width: 16px; height: 16px; background-position: -138px -106px; }
 .ico-borderbottom { width: 16px; height: 16px; background-position: -1px -137px; }
 .ico-bordertop { width: 16px; height: 16px; background-position: -19px -173px; }
 .ico-borderleft { width: 16px; height: 16px; background-position: -1px -173px; }
@@ -92,7 +93,7 @@ span { display: inline-block; }
 .ico-section-ico { float: left; }
 .ico-section-rightarrow { margin-left: 2px; }
 .fui-cf-alone { margin: auto; }
-.fui-cf-fontfamily { width: 100px; }
+.fui-cf-fontfamily { width: 120px; }
 .fui-cf-fontsize { width: 30px; }
 .fui-cf-fontfamily-extend, .fui-cf-fontsize-extend { width: 6px; }
 .fui-cf-fontsize-extend .caret, .fui-cf-fontfamily-extend .caret { margin-top: -3px; }

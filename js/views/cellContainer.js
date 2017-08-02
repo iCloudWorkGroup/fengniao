@@ -49,6 +49,7 @@ define(function(require) {
 			this.listenTo(this.model, 'change:content.family', this.changeFontFamily);
 			this.listenTo(this.model, 'change:content.italic', this.changeItalic);
 			this.listenTo(this.model, 'change:content.bd', this.changeBold);
+			this.listenTo(this.model, 'change:content.underline', this.changeUnderline);
 			this.listenTo(this.model, 'change:content.color', this.changeColor);
 			this.listenTo(this.model, 'change:content.alignRow', this.changeTransverseAlign);
 			this.listenTo(this.model, 'change:content.alignCol', this.changeVerticalAlign);
@@ -68,7 +69,7 @@ define(function(require) {
 			this.listenTo(this.model, 'change:wordWrap', this.changeWordWrap);
 
 			this.currentRule = options.currentRule;
-			
+
 			if (cache.TempProp.isFrozen !== true ||
 				this.currentRule.displayPosition.endRowIndex === undefined) {
 				this.listenTo(this.model, 'change:showState', this.destroy);
@@ -115,6 +116,7 @@ define(function(require) {
 			this.changeLeftBorder(modelAttr);
 			this.changeBottomBorder(modelAttr);
 			this.changeRightBorder(modelAttr);
+			this.changeUnderline(modelAttr);
 
 			this.changeBackground(modelAttr);
 			this.changeWordWrap(modelAttr);
@@ -178,6 +180,20 @@ define(function(require) {
 			} else {
 				this.$contentBody.css({
 					'fontWeight': 'normal'
+				});
+			}
+		},
+		changeUnderline: function(modelAttr) {
+			if (modelAttr.attributes) {
+				modelAttr = this.model.attributes;
+			}
+			if (modelAttr.content.underline) {
+				this.$contentBody.css({
+					'textDecoration': 'underline'
+				});
+			} else {
+				this.$contentBody.css({
+					'textDecoration': 'none'
 				});
 			}
 		},

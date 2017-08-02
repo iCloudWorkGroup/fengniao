@@ -601,6 +601,7 @@ define(function(require) {
 			Backbone.off('event:cellsContainer:destroy');
 			Backbone.off('event:cellsContainer:adaptWidth');
 			Backbone.off('event:cellsContainer:adaptHeight');
+			Backbone.off('event:cellsContainer:moveSelectRegion');
 			Backbone.trigger('event:contentCellsContainer:destroy');
 			//待修改：需要销毁包含视图
 			selectModelList = selectRegions.models;
