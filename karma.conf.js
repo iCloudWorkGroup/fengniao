@@ -42,13 +42,13 @@ module.exports = function(config) {
 
         // test results reporter to use
         // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-        reporters: ['progress'],
+        reporters: ['coverage'],
 
         preprocessors: {
             'js/entrance/tool/addrow.js': 'coverage',
             'js/entrance/tool/deleterow.js': 'coverage',
             'js/entrance/row/rowoperation.js': 'coverage',
-
+            'js/entrance/tool/setunderline.js': 'coverage'
         },
 
         // web server port
