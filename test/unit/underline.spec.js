@@ -5,7 +5,6 @@ define(function(require) {
 			parse = require('basic/tools/getoperregion');
 
 		beforeAll(function(){
-			sinon.stub(parse)
 		});
 		it('销毁复制区', function() {
 			selects.add({
@@ -14,11 +13,8 @@ define(function(require) {
 			underline._destroyClipRegion();
 			expect(selects.length).toEqual(0);
 		});
-		it('', function() {
-			selects.add({
-
-			});
-			underline.set();
+		it('写入历史记录', function() {
+			underline._history(prop, value, region, oldList);
 		});
 		it('', function() {
 
