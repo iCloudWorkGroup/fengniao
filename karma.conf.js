@@ -34,14 +34,15 @@ module.exports = function(config) {
 	plugins: [
 	    'karma-coverage',
 	    'karma-jasmine',
+        // 'karma-sinon',
 	    'karma-requirejs',
-	    'karma-phantomjs-launcher',
+	    // 'karma-phantomjs-launcher',
 	    'karma-chrome-launcher'
 	],
 
         // test results reporter to use
         // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-        reporters: ['coverage'],
+        reporters: ['progress'],
 
         preprocessors: {
             'js/entrance/tool/addrow.js': 'coverage',
@@ -75,7 +76,7 @@ module.exports = function(config) {
         // - Safari (only Mac)
         // - PhantomJS
         // - IE (only Windows)
-        browsers: ['PhantomJS'],
+        browsers: ['Chrome'],
 
 
         // If browser does not capture in given timeout [ms], kill it

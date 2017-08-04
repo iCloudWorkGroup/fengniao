@@ -7,6 +7,7 @@ define(function(require) {
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
 		CellModel = require('models/cell'),
+		// sinon = require('test/sinon'),
 		stubColGetIndex,
 		stubRowGetIndex;
 	describe('批量设置颜色', function() {
@@ -117,7 +118,7 @@ define(function(require) {
 		it('数据传入', function() {
 			var stubRowOperate = sinon.stub(rowOperate, 'rowPropOper'),
 				stubColOperate = sinon.stub(colOperate, 'colPropOper'),
-				stubOperCells = sinon.stub(cells, 'operCellsByRegion');
+				stubOperCells = sinon.stub(cells, 'oprCellsByRegion');
 
 			setBg.set('1', 'rgb(1,1,1)', 'D');
 			expect(stubColOperate.calledWith(3, 'customProp.background', 'rgb(1,1,1)')).toBe(true);

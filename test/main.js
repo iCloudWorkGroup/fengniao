@@ -1,5 +1,6 @@
 requirejs.config({
 	baseUrl: '../js',
+	
 });
 requirejs([
 	//'./lib/backbone',
@@ -12,7 +13,8 @@ requirejs([
 	//'../test/unit/rowoper.spec.js',
 	// '../test/unit/col.spec',
 	// '../test/unit/loadrecorder.spec'
-	// '../test/unit/maintainer.spec'
+	'../test/unit/maintainer.spec',
+	'../test/unit/fillbg.spec',
 	'../test/unit/underline.spec.js'
 ], function() {
 	window.onload();
