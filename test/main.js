@@ -12,7 +12,8 @@ requirejs([
 	//'../test/unit/rowoper.spec.js',
 	// '../test/unit/col.spec',
 	// '../test/unit/loadrecorder.spec'
-	'../test/unit/maintainer.spec'
+	// '../test/unit/maintainer.spec'
+		'../test/unit/shortcut.spec'
 ], function() {
 	window.onload();
 });

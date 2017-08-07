@@ -6,7 +6,7 @@ module.exports = function(config) {
 
 
         // frameworks to use
-        frameworks: ['jasmine', 'requirejs','sinon'],
+        frameworks: ['jasmine', 'requirejs' , 'sinon'],
 
 
         // list of files / patterns to load in the browser
@@ -31,15 +31,16 @@ module.exports = function(config) {
             type: 'lcov',
             dir: 'coverage/'
         },
-	plugins: [
-	    'karma-coverage',
-	    'karma-jasmine',
-	    'karma-requirejs',
-        'karma-sinon',
-        'karma-chai-sinon',
-	    // 'karma-phantomjs-launcher',
-	    'karma-chrome-launcher'
-	],
+    	plugins: [
+    	    'karma-coverage',
+    	    'karma-jasmine',
+    	    'karma-requirejs',
+            'karma-chai-sinon',
+            'karma-sinon',
+            'sinon',
+    	    // 'karma-phantomjs-launcher',
+    	    'karma-chrome-launcher'
+    	],
 
         // test results reporter to use
         // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
@@ -49,7 +50,7 @@ module.exports = function(config) {
             'js/entrance/tool/addrow.js': 'coverage',
             'js/entrance/tool/deleterow.js': 'coverage',
             'js/entrance/row/rowoperation.js': 'coverage',
-
+            'js/entrance/sheet/shortcut.js':'coverage'
         },
 
         // web server port
@@ -66,7 +67,7 @@ module.exports = function(config) {
 
 
         // enable / disable watching file and executing tests whenever any file changes
-        autoWatch: true,
+        autoWatch: false,
 
 
         // Start these browsers, currently available:
@@ -77,7 +78,7 @@ module.exports = function(config) {
         // - Safari (only Mac)
         // - PhantomJS
         // - IE (only Windows)
-        browsers: ['PhantomJS'],
+        browsers: ['Chrome'],
 
 
         // If browser does not capture in given timeout [ms], kill it

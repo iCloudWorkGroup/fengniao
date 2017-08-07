@@ -153,6 +153,13 @@ define(function(require) {
 		},
 		commentEidtState: false,
 		clipboardData: null,
+		
+		shortcut: {
+			select: {
+				colAlias: '1',
+				rowAlias: '1'
+			}
+		},
 		//
 		/**
 		 * 保存位置信息
