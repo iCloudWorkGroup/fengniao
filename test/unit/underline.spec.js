@@ -6,7 +6,6 @@ define(function(require) {
 			selects = require('collections/selectRegion'),
 			gridRows = require('collections/headItemRow'),
 			gridCols = require('collections/headItemCol'),
-			sinon = require('test/sinon'),
 			history = require('basic/tools/history');
 
 		beforeAll(function() {
