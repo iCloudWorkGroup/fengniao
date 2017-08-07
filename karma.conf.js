@@ -6,7 +6,7 @@ module.exports = function(config) {
 
 
         // frameworks to use
-        frameworks: ['jasmine', 'requirejs'],
+        frameworks: ['jasmine', 'requirejs','sinon'],
 
 
         // list of files / patterns to load in the browser
@@ -35,7 +35,9 @@ module.exports = function(config) {
 	    'karma-coverage',
 	    'karma-jasmine',
 	    'karma-requirejs',
-	    'karma-phantomjs-launcher',
+        'karma-sinon',
+        'karma-chai-sinon',
+	    // 'karma-phantomjs-launcher',
 	    'karma-chrome-launcher'
 	],
 
