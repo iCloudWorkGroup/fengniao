@@ -38,8 +38,8 @@ module.exports = function(config) {
             'karma-chai-sinon',
             'karma-sinon',
             'sinon',
-    	    // 'karma-phantomjs-launcher',
-    	    'karma-chrome-launcher'
+    	    'karma-phantomjs-launcher',
+    	    // 'karma-chrome-launcher'
     	],
 
         // test results reporter to use
