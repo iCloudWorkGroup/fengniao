@@ -35,9 +35,7 @@ module.exports = function(config) {
     	    'karma-coverage',
     	    'karma-jasmine',
     	    'karma-requirejs',
-            'karma-chai-sinon',
             'karma-sinon',
-            'sinon',
     	    'karma-phantomjs-launcher',
     	    'karma-chrome-launcher'
     	],
