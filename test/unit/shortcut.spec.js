@@ -6,7 +6,6 @@ define(function(require) {
 		textHandle = require('entrance/cell/setcelltext'),
 		cache = require('basic/tools/cache'),
 		cells = require('collections/cells'),
-		sinon = require('lib/sinon'),
 		Select = require('models/selectRegion');
 	describe('内部回车', function() {
 		it('输入框键值处理', function() {
