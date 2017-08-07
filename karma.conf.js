@@ -39,7 +39,7 @@ module.exports = function(config) {
             'karma-sinon',
             'sinon',
     	    'karma-phantomjs-launcher',
-    	    // 'karma-chrome-launcher'
+    	    'karma-chrome-launcher'
     	],
 
         // test results reporter to use
