@@ -48,7 +48,8 @@ module.exports = function(config) {
             'js/entrance/tool/addrow.js': 'coverage',
             'js/entrance/tool/deleterow.js': 'coverage',
             'js/entrance/row/rowoperation.js': 'coverage',
-            'js/entrance/tool/setunderline.js':'coverage'
+            'js/entrance/tool/setunderline.js':'coverage',
+            'js/entrance/tool/shortcut.js':'coverage'
         },
 
         // web server port
