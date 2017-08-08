@@ -16,7 +16,6 @@ define(function(require) {
 		clipPasteOperate = require('entrance/tool/clippasteoperate'),
 		InputContainer;
 
-
 	/**
 	 * InputContainer
 	 * @author ray wu
@@ -125,6 +124,15 @@ define(function(require) {
 			} else {
 				this.$el.css({
 					'fontStyle': 'normal'
+				});
+			}
+			if (modelJSON.content.underline) {
+				this.$el.css({
+					'textDecoration': 'underline'
+				});
+			} else {
+				this.$el.css({
+					'textDecoration': 'none'
 				});
 			}
 			this.$el.css({

@@ -1,6 +1,7 @@
 define(function(require) {
 	var MainContainer = require('views/mainContainer'),
 		loadRecorder = require('basic/tools/loadrecorder'),
+		sinon = require('test/sinon'),
 		cache = require('basic/tools/cache');
 
 	describe('调整行高度（包括删除，添加），触发显示区域的联动效果', function() {
