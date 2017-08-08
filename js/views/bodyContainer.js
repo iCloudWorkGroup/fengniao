@@ -622,58 +622,50 @@ define(function(require) {
 			return false;
 		},
 		reload: function() {
-			var self = this;
-			this.$el.find('.mask').css('display', 'block');
+						var cellList = cells.models,
+				headRowList = headItemRows.models,
+				headColList = headItemCols.models,
+				selectList = selectRegions.models,
+				siderLineColList = siderLineCols.models,
+				siderLineRowList = siderLineRows.models,
+				i, len;
 
-			setTimeout(resetData, 0);
+			cache.CellsPosition.strandX = {};
+			cache.CellsPosition.strandY = {};
+			cache.rowRegionPosi = [];
+			cache.sendQueueStep = 0;
 
-			function resetData() {
-				var cellList = cells.models,
-					headRowList = headItemRows.models,
-					headColList = headItemCols.models,
-					selectList = selectRegions.models,
-					siderLineColList = siderLineCols.models,
-					siderLineRowList = siderLineRows.models,
-					i, len;
-				cache.CellsPosition.strandX = {};
-				cache.CellsPosition.strandY = {};
-				cache.rowRegionPosi = [];
-				cache.sendQueueStep = 0;
-
-				for (i = 0, len = cellList.length; i < len; i++) {
-					cellList[0].destroy();
-				}
-				for (i = 0, len = headRowList.length; i < len; i++) {
-					headRowList[0].destroy();
-				}
-				for (i = 0, len = headColList.length; i < len; i++) {
-					headColList[0].destroy();
-				}
-				for (i = 0, len = selectList.length; i < len; i++) {
-					selectList[0].destroy();
-				}
-				for (i = 0, len = siderLineColList.length; i < len; i++) {
-					siderLineColList[0].destroy();
-				}
-				for (i = 0, len = siderLineRowList.length; i < len; i++) {
-					siderLineRowList[0].destroy();
-				}
-
-				Backbone.trigger('event:colsPanelContainer:destroy');
-				Backbone.trigger('event:rowsPanelContainer:destroy');
-				Backbone.trigger('event:mainContainer:destroy');
-
-				window.SPREADSHEET_BUILD_STATE = 'false';
-				cache.TempProp = {
-					isFrozen: false,
-					rowFrozen: false,
-					colFrozen: false
-				};
-				original.restoreExcel(self.el.id);
-				self.executiveFrozen();
-				self.$el.find('.mask').css('display', 'none');
+			for (i = 0, len = cellList.length; i < len; i++) {
+				cellList[0].destroy();
+			}
+			for (i = 0, len = headRowList.length; i < len; i++) {
+				headRowList[0].destroy();
+			}
+			for (i = 0, len = headColList.length; i < len; i++) {
+				headColList[0].destroy();
+			}
+			for (i = 0, len = selectList.length; i < len; i++) {
+				selectList[0].destroy();
+			}
+			for (i = 0, len = siderLineColList.length; i < len; i++) {
+				siderLineColList[0].destroy();
+			}
+			for (i = 0, len = siderLineRowList.length; i < len; i++) {
+				siderLineRowList[0].destroy();
 			}
 
+			Backbone.trigger('event:colsPanelContainer:destroy');
+			Backbone.trigger('event:rowsPanelContainer:destroy');
+			Backbone.trigger('event:mainContainer:destroy');
+
+			window.SPREADSHEET_BUILD_STATE = 'false';
+			cache.TempProp = {
+				isFrozen: false,
+				rowFrozen: false,
+				colFrozen: false
+			};
+			original.restoreExcel(this.el.id);
+			this.executiveFrozen();
 		},
 		/**
 		 * 获取鼠标信息

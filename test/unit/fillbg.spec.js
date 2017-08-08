@@ -7,6 +7,7 @@ define(function(require) {
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
 		CellModel = require('models/cell'),
+		sinon = require('test/sinon'),
 		stubColGetIndex,
 		stubRowGetIndex;
 	describe('批量设置颜色', function() {

@@ -81,10 +81,16 @@ define(function(require) {
 				 */
 				bd: false,
 				/**
+				 * 文本下划线
+				 * @type {Boolean} underline
+				 */
+				underline: false,
+				/**
 				 * 字体倾斜
 				 * @property {boolean} italic
 				 */
 				italic: false,
+
 				/**
 				 * 字体颜色RGB
 				 * @property {string} color

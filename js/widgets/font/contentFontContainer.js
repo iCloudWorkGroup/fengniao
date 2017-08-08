@@ -1,13 +1,14 @@
 define(function(require) {
 	'use strict';
-	var $=require('lib/jquery'),
-		_=require('lib/underscore'),
+	var $ = require('lib/jquery'),
+		_ = require('lib/underscore'),
 		Backbone = require('lib/backbone'),
 		send = require('basic/tools/send'),
 		cells = require('collections/cells'),
 		selectRegions = require('collections/selectRegion'),
-		setFontWeight=require('entrance/tool/setfontweight'),
-		setFontStyle=require('entrance/tool/setfontstyle');
+		setFontWeight = require('entrance/tool/setfontweight'),
+		setFontStyle = require('entrance/tool/setfontstyle'),
+		underline = require('entrance/tool/setunderline');
 
 	/**
 	 * 设置字体功能监听类
@@ -48,6 +49,9 @@ define(function(require) {
 				case 'italic':
 					this.setCellModelItalic();
 					break;
+				case 'underline':
+					this.setUnderline();
+					break;
 				default:
 					return;
 			}
@@ -57,11 +61,6 @@ define(function(require) {
 		 * @method setCellModelBold
 		 */
 		setCellModelBold: function() {
-			var startColIndex,
-				startRowIndex,
-				tempCell,
-				bold;
-			//获取起始单元格
 			setFontWeight('1');
 		},
 		/**
@@ -69,12 +68,10 @@ define(function(require) {
 		 * @method setCellModelItalic
 		 */
 		setCellModelItalic: function() {
-			var startColIndex,
-				startRowIndex,
-				tempCell,
-				italic;
-			//获取起始单元格
 			setFontStyle('1');
+		},
+		setUnderline: function() {
+			underline.set();
 		}
 	});
 	return ContentFontContainer;

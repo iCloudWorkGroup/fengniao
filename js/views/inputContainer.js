@@ -20,7 +20,6 @@ define(function(require) {
 		headItemColList = headItemCols.models,
 		InputContainer;
 
-
 	/**
 	 * InputContainer
 	 * @author ray wu
@@ -131,6 +130,15 @@ define(function(require) {
 			} else {
 				this.$el.css({
 					'fontStyle': 'normal'
+				});
+			}
+			if (modelJSON.content.underline) {
+				this.$el.css({
+					'textDecoration': 'underline'
+				});
+			} else {
+				this.$el.css({
+					'textDecoration': 'none'
 				});
 			}
 			this.$el.css({
