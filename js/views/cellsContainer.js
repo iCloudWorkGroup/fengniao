@@ -38,7 +38,6 @@ define(function(require) {
 		 */
 		className: 'cells-container',
 
-		currentState: null,
 		/**
 		 * 绑定鼠标事件
 		 * @property events
@@ -217,6 +216,8 @@ define(function(require) {
 			var selectModel = selectRegions.getModelByType('selected');
 			this.located(event.clientX, event.clientY, selectModel);
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'selectMoveState');
+			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', null);
+
 		},
 		dataSourceLocatedState: function(event) {
 			var selectModel = selectRegions.getModelByType('datasource');
@@ -225,9 +226,9 @@ define(function(require) {
 				selectModel.set('selectType', 'datasource');
 				selectRegions.add(selectModel);
 			}
-			this.located(event.clientX, event.clientY, selectModel);
-			this.moveState = this.dataSourceMoveState;
+			this.located(event.clientX, event.clientY, selectModel, event.shiftKey);
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', null);
 		},
 		selectMoveState: function(event) {
 			var selectModel = selectRegions.getModelByType('selected');
@@ -463,8 +464,8 @@ define(function(require) {
 		 * 单击网格区域
 		 * @param  {[type]} event 单击事件对象
 		 */
-		located: function(colPosi, rowPosi, selectModel, target) {
-			this.changePosi(colPosi, rowPosi, selectModel);
+		located: function(colPosi, rowPosi, selectModel, shift) {
+			this.changePosi(colPosi, rowPosi, selectModel, shift);
 		},
 		/**
 		 * 单元格区域单击事件处理
@@ -555,7 +556,7 @@ define(function(require) {
 		 * @param  {number} colPosi 纵向坐标
 		 * @param  {number} rowPosi 横向坐标
 		 */
-		select: function(colPosi, rowPosi, selectModel) {
+		select: function(colPosi, rowPosi, selectModel, shift) {
 			var initColIndex,
 				initRowIndex,
 				lastColMouse,
@@ -602,6 +603,7 @@ define(function(require) {
 			Backbone.off('event:cellsContainer:adaptWidth');
 			Backbone.off('event:cellsContainer:adaptHeight');
 			Backbone.off('event:cellsContainer:moveSelectRegion');
+			Backbone.off('event:cellsContainer:setMouseState');
 			Backbone.trigger('event:contentCellsContainer:destroy');
 			//待修改：需要销毁包含视图
 			selectModelList = selectRegions.models;
