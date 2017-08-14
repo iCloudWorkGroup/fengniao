@@ -9,13 +9,13 @@ define(function(require) {
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		cells = require('collections/cells'),
+		headItemRowList = headItemRows.models,
+		headItemColList = headItemCols.models,
 		redoUndo;
 
 	redoUndo = {
 		redo: function() {
-			var headItemRowList = headItemRows.models,
-				headItemColList = headItemCols.models,
-				action = history.next(),
+			var action = history.next(),
 				cellList = cells.models,
 				originalModelIndexs,
 				currentModelIndexs,
@@ -68,14 +68,14 @@ define(function(require) {
 					}
 				}
 				for (i = 0, len = currentModelIndexs.length; i < len; i++) {
-					index =currentModelIndexs[i];
+					index = currentModelIndexs[i];
 					cellList[index].set('isDestroy', false);
 					Backbone.trigger('event:contentCellsContainer:restoreCell', cellList[index]);
 					occupyCol = cellList[index].get('occupy').x;
 					occupyRow = cellList[index].get('occupy').y;
 					for (j = 0, occupyColLen = occupyCol.length; j < occupyColLen; j++) {
 						for (k = 0, occupyRowLen = occupyRow.length; k < occupyRowLen; k++) {
-							cache.cachePosition(occupyRow[k], occupyCol[j],index);
+							cache.cachePosition(occupyRow[k], occupyCol[j], index);
 						}
 					}
 				}
@@ -83,9 +83,7 @@ define(function(require) {
 			this.sendData(config.url.sheet.redo);
 		},
 		undo: function() {
-			var headItemRowList = headItemRows.models,
-				headItemColList = headItemCols.models,
-				action = history.previous(),
+			var action = history.previous(),
 				cellList = cells.models,
 				originalModelIndexs,
 				currentModelIndexs,
@@ -120,7 +118,7 @@ define(function(require) {
 				originalModelIndexs = action.originalModelIndexs;
 				currentModelIndexs = action.currentModelIndexs;
 				for (i = 0, len = currentModelIndexs.length; i < len; i++) {
-					index =currentModelIndexs[i];
+					index = currentModelIndexs[i];
 					cellList[index].set('isDestroy', true);
 					occupyCol = cellList[index].get('occupy').x;
 					occupyRow = cellList[index].get('occupy').y;
@@ -131,14 +129,14 @@ define(function(require) {
 					}
 				}
 				for (i = 0, len = originalModelIndexs.length; i < len; i++) {
-					index =originalModelIndexs[i];
+					index = originalModelIndexs[i];
 					cellList[index].set('isDestroy', false);
 					Backbone.trigger('event:contentCellsContainer:restoreCell', cellList[index]);
 					occupyCol = cellList[index].get('occupy').x;
 					occupyRow = cellList[index].get('occupy').y;
 					for (j = 0, occupyColLen = occupyCol.length; j < occupyColLen; j++) {
 						for (k = 0, occupyRowLen = occupyRow.length; k < occupyRowLen; k++) {
-							cache.cachePosition(occupyRow[k], occupyCol[j],index);
+							cache.cachePosition(occupyRow[k], occupyCol[j], index);
 						}
 					}
 				}

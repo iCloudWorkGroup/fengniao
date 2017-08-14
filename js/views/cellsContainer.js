@@ -463,8 +463,12 @@ define(function(require) {
 		 * 单击网格区域
 		 * @param  {[type]} event 单击事件对象
 		 */
-		located: function(colPosi, rowPosi, selectModel, target) {
+		located: function(colPosi, rowPosi, selectModel) {
 			this.changePosi(colPosi, rowPosi, selectModel);
+			if (selectModel.get('selectType') === 'selected') {
+				cache.shortcut.select.colAlias = selectModel.get('wholePosi').startX;
+				cache.shortcut.select.rowAlias = selectModel.get('wholePosi').startY;
+			}
 		},
 		/**
 		 * 单元格区域单击事件处理
