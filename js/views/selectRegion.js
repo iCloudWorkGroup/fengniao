@@ -129,6 +129,7 @@ define(function(require) {
 				e = {},
 				i;
 
+			
 			region = cells.getFullOperationRegion(
 				modelJSON.tempPosi.initColIndex,
 				modelJSON.tempPosi.initRowIndex,

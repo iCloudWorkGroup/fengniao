@@ -205,7 +205,7 @@ define(function(require) {
 		realseDrag: function(e) {
 			this.triggerCallback();
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'commonMoveState');
-			Backbone.trigger('event:colHeadsContainer:setMouseState', 'moveState', 'commonMoveState');
+			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', 'commonMoveState');
 			//release events of cols
 			Backbone.trigger('event:colsHeadContainer:relaseSpaceEffect');
 			//release events of rows

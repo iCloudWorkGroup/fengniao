@@ -151,19 +151,20 @@ define(function(require) {
 		},
 		dataSourceLocatedState: function(event) {
 			var select = selectRegions.getModelByType('selected'),
-				containerId = cache.containerId,
 				mousePosi;
 
-			mousePosi = e.clientX - $('#' + containerId).offset().left - config.System.outerLeft + cache.viewRegion.scrollLeft;
+			mousePosi = this._getRelativePosi(e.clientX);
 			this.adjustLocatedModel(mousePosi, select, e.shiftKey);
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
 		},
 		selectMoveState: function(e) {
 			var select = selectRegions.getModelByType('selected'),
-				containerId = cache.containerId,
-				mousePosi;
+				mousePosi,
+				tempPosi,
+				colIndex;
 			mousePosi = this._getRelativePosi(e.clientX);
-			this.adjustLocatedModel(mousePosi, select, true);
+			colIndex = binary.modelBinary(mousePosi, gridColList, 'left', 'width');
+			tempPosi = select.set('tempPosi.mouseColIndex', colIndex);
 		},
 		dataSourceMoveState: function(event) {
 
@@ -179,28 +180,24 @@ define(function(require) {
 				temp;
 			//this model index of headline
 			endColIndex = binary.modelBinary(posi, gridColList, 'left', 'width');
-
+			wholePosi = select.get('wholePosi');
 			if (continuous) {
-				wholePosi = select.get('wholePosi');
 				startColIndex = headItemCols.getIndexByAlias(wholePosi.startX);
 			} else {
 				startColIndex = endColIndex;
 			}
 
-			if (startColIndex > endColIndex) {
-				temp = startColIndex;
-				startColIndex = endColIndex;
-				endColIndex = temp;
-			}
+			if(select.get('')){
 
+			}
 			select.set('tempPosi', {
 				initColIndex: startColIndex,
-				initRowIndex: 0,
+				initRowIndex: 'MAX',
 				mouseColIndex: endColIndex,
-				mouseRowIndex: 'MAX'
+				mouseRowIndex: '0'
 			});
 		},
-		adjustMoveModel:function(){
+		adjustMoveModel: function() {
 
 		},
 		/**
