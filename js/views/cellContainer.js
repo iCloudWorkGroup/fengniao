@@ -382,11 +382,11 @@ define(function(require) {
 			if (modelAttr.wordWrap === true) {
 				this.$contentBody.css({
 					'wordBreak': 'break-word',
-					'whiteSpace': 'normal'
+					'whiteSpace': 'pre-line'
 				});
 			} else {
 				this.$contentBody.css({
-					'whiteSpace': 'nowrap'
+					'whiteSpace': 'pre'
 				});
 			}
 		},
