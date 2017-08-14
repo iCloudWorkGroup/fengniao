@@ -170,7 +170,8 @@ define(function() {
 				font_italic: 'cell/font-italic',
 				font_color: 'cell/font-color',
 				bg_batch: 'cell/bg-batch',
-				underline: 'cell/font-underline'
+				underline: 'cell/font-underline',
+				clear: 'cell/area-del'
 			},
 			table: {
 				reload: 'reload'
