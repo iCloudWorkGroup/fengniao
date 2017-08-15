@@ -217,7 +217,7 @@ define(function(require) {
 			this.located(event.clientX, event.clientY, selectModel);
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'selectMoveState');
 			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', null);
-
+			
 		},
 		dataSourceLocatedState: function(event) {
 			var selectModel = selectRegions.getModelByType('datasource');
