@@ -32,7 +32,7 @@ define(function(require) {
 			}, {
 				alias: '5'
 			}]);
-
+			selects.reset();
 			selects.add({
 				wholePosi: {
 					startX: '1',
