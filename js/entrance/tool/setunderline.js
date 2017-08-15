@@ -35,7 +35,7 @@ define(function(require) {
 
 			if (typeof underline === 'undefined') {
 				//暂时使用左上角单元格的值，实现初始选中点时，使用初始选中点
-				selectCell = cells.getCellByVertical(operRegion.startRowIndex, operRegion.startColIndex)[0];
+				selectCell = cells.getCellByVertical(operRegion.startColIndex, operRegion.startRowIndex)[0];
 				if (selectCell) {
 					underline = !selectCell.get('content').underline;
 				} else {
@@ -44,9 +44,9 @@ define(function(require) {
 			}
 
 			if (operRegion.endRowIndex === 'MAX') {
-				colOper.colPropOper(operRegion.startRowIndex, 'content.underline', underline);
+				colOper.colPropOper(operRegion.startColIndex, 'content.underline', underline);
 			} else if (operRegion.endColIndex === 'MAX') {
-				rowOper.rowPropOper(operRegion.startColIndex, 'content.underline', underline);
+				rowOper.rowPropOper(operRegion.startRowIndex, 'content.underline', underline);
 			} else {
 				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 					var temp;
