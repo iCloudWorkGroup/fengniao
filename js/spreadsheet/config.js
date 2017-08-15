@@ -171,7 +171,7 @@ define(function() {
 				font_color: 'cell/font-color',
 				bg_batch: 'cell/bg-batch',
 				underline: 'cell/font-underline',
-				clear: 'cell/area-del'
+				clear: 'cell/clean-data'
 			},
 			table: {
 				reload: 'reload'
