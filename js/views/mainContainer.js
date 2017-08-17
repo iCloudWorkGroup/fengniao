@@ -47,7 +47,6 @@ define(function(require) {
 				startColIndex,
 				endRowIndex,
 				endColIndex,
-
 				len;
 
 
@@ -674,17 +673,13 @@ define(function(require) {
 		 * @param  {int} endIndex   行结束坐标
 		 */
 		adjustColPropCell: function(startIndex, endIndex) {
-			var headItemColList,
-				headItemRowList,
-				headItemModel,
+			var headItemModel,
 				aliasCol,
 				aliasRow,
 				occupyCol,
 				colProp,
 				len, i = 0,
 				j;
-			headItemColList = headItemCols.models;
-			headItemRowList = headItemRows.models;
 
 			len = headItemColList.length;
 			occupyCol = cache.CellsPosition.strandX;

@@ -13,7 +13,7 @@ define(function(require) {
 		 * @param  {string} prop  需要修改属性,二级属性设置,例:'content.size'
 		 * @param  {string} value 修改值
 		 */
-		rowPropOper: function(index, prop,value,fn) {
+		rowPropOper: function(start, end, prop, value, fn) {
 			var parentProp,
 				childProp,
 				headRowModel,
@@ -27,61 +27,62 @@ define(function(require) {
 				cellModel,
 				currentStrandX,
 				props,
-				len, i;
+				len, colLen, i, j;
 
 			props = prop.split('.');
 			if (props.length > 1) {
 				childProp = props[1];
 			}
 			parentProp = props[0];
-
-			//维护行对象operProp属性
-			headRowModel = headItemRows.models[index];
-			headRowProp = headRowModel.get('operProp');
 			defaultProp = (new Cell()).toJSON();
+			colLen = headItemRows.length;
+			currentStrandX = cache.CellsPosition.strandX;
 
-			if (headRowProp[parentProp] !== undefined &&
-				headRowProp[parentProp][childProp] !== undefined) {
-				if (defaultProp[parentProp][childProp] === value) {
-					delete headRowProp[parentProp][childProp];
-					if (!Object.getOwnPropertyNames(headRowProp[parentProp]).length) {
-						delete headRowProp[parentProp];
+			for (i = start; i < end + 1; i++) {
+				//维护行对象operProp属性
+				headRowModel = headItemRows.models[i];
+				headRowProp = headRowModel.get('operProp');
+
+				if (headRowProp[parentProp] !== undefined &&
+					headRowProp[parentProp][childProp] !== undefined) {
+					if (defaultProp[parentProp][childProp] === value) {
+						delete headRowProp[parentProp][childProp];
+						if (!Object.getOwnPropertyNames(headRowProp[parentProp]).length) {
+							delete headRowProp[parentProp];
+						}
+					} else {
+						headRowProp[parentProp][childProp] = value;
 					}
 				} else {
-					headRowProp[parentProp][childProp] = value;
-				}
-			} else {
-				if (defaultProp[parentProp][childProp] !== value) {
-					if (!headRowProp[parentProp]) {
-						headRowProp[parentProp] = {};
-					}
-					headRowProp[parentProp][childProp] = value;
-				}
-			}
-			headRowModel.set('operProp', headRowProp);
-			cellList = cells.getCellByTransverse(index, 0, index, headItemCols.length - 1);
-			len = cellList.length;
-			i = 0;
-			for (; i < len; i++) {
-				if (cellList[i].get('occupy').y.length === 1) {
-					cellList[i].set(prop, value);
-					if (typeof fn === 'function') {
-						fn(cellList[i]);
+					if (defaultProp[parentProp][childProp] !== value) {
+						if (!headRowProp[parentProp]) {
+							headRowProp[parentProp] = {};
+						}
+						headRowProp[parentProp][childProp] = value;
 					}
 				}
-			}
-			startColIndex = 0;
-			endColIndex = headItemCols.length - 1;
+				headRowModel.set('operProp', headRowProp);
+				cellList = cells.getCellByTransverse(i, 0, i, headItemCols.length - 1);
+				len = cellList.length;
+				for (j = 0; j < len; j++) {
+					if (cellList[j].get('occupy').y.length === 1) {
+						cellList[j].set(prop, value);
+						if (typeof fn === 'function') {
+							fn(cellList[j]);
+						}
+					}
+				}
+				startColIndex = 0;
+				endColIndex = headItemCols.length - 1;
 
-			i = startColIndex;
-			currentStrandX = cache.CellsPosition.strandX;
-			for (; i < endColIndex + 1; i++) {
-				rowAlias = headItemRows.models[index].get('alias');
-				colAlias = headItemCols.models[i].get('alias');
-				if (currentStrandX[colAlias] === undefined ||
-					currentStrandX[colAlias][rowAlias] === undefined) {
-					cellModel = cells.createCellModel(i, index);
-					cellModel.set(prop, value);
+				for (j = startColIndex; j < endColIndex + 1; j++) {
+					rowAlias = headItemRows.models[i].get('alias');
+					colAlias = headItemCols.models[j].get('alias');
+					if (!currentStrandX[colAlias] ||
+						currentStrandX[colAlias][rowAlias] === undefined) {
+						cellModel = cells.createCellModel(j, i);
+						cellModel.set(prop, value);
+					}
 				}
 			}
 		},

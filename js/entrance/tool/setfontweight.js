@@ -56,9 +56,9 @@ define(function(require) {
 			}
 		}
 		if (operRegion.endRowIndex === 'MAX') { //整列操作
-			colOperate.colPropOper(operRegion.startColIndex, 'content.bd', bold);
+			colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'content.bd', bold);
 		} else if (operRegion.endColIndex === 'MAX') { //整行操作
-			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.bd', bold);
+			rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'content.bd', bold);
 		} else {
 			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('content').bd !== bold) {

@@ -47,6 +47,7 @@ define(function(require) {
 		initialize: function(containerId) {
 			Backbone.on('call:screenContainer', this.screenContainer, this);
 			Backbone.on('event:screenContainer:destroy', this.destroy, this);
+			Backbone.on('event:screenContainer:mouseMoveHeadContainer', this.mouseMoveHeadContainer, this);
 			Backbone.on('call:screenContainer:adaptScreen', this.attributesRender, this);
 			_.bindAll(this, 'callView');
 			this.render(containerId);
@@ -206,15 +207,15 @@ define(function(require) {
 			this.triggerCallback();
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'commonMoveState');
 			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', 'commonMoveState');
+			Backbone.trigger('event:rowsHeadContainer:setMouseState', 'moveState', 'commonMoveState');
 			//release events of cols
 			Backbone.trigger('event:colsHeadContainer:relaseSpaceEffect');
 			//release events of rows
 			Backbone.trigger('event:rowsHeadContainer:relaseSpaceEffect');
-			// this.$el.off('mousemove', this.viewColsHeadContainer.moveEvent);
 
 			Backbone.trigger('event:colsSpaceLineContainer:destroy');
-			// this.$el.off('mousemove', this.viewRowsHeadContainer.moveEvent);
-			
+			this.$el.off('mousemove');
+
 			Backbone.trigger('event:rowsSpaceLineContainer:destroy');
 			// if ($(e.target)[0].type !== 'textarea' && $(e.target)[0].type !== 'text' &&
 			// 	$(e.target)[0].type !== 'password') {
@@ -228,7 +229,7 @@ define(function(require) {
 		 * @param  {Array} args     参数列表
 		 * @param  {[type]} moveEvent 移动事件
 		 */
-		mouseMoveHeadContainer: function(e, args, moveEvent) {
+		mouseMoveHeadContainer: function(args, moveEvent) {
 			this.$el.on('mousemove', args, moveEvent);
 		},
 		destroy: function() {

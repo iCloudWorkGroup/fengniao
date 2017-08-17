@@ -1117,10 +1117,10 @@ define(function(require) {
 				tempCellList = this.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
 
 				for (i = 0, len = tempCellList.length; i < len; i++) {
-					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, headItemRowList, 'top', 'height');
-					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, headItemColList, 'left', 'width');
-					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, headItemRowList, 'top', 'height');
-					cellEndColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left + tempCellList[i].get('physicsBox').width, headItemColList, 'left', 'width');
+					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, gridRowList, 'top', 'height');
+					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, gridColList, 'left', 'width');
+					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, gridRowList, 'top', 'height');
+					cellEndColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left + tempCellList[i].get('physicsBox').width, gridColList, 'left', 'width');
 					if (cellStartColIndex < startColIndex) {
 						startColIndex = cellStartColIndex;
 						flag = true;

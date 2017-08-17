@@ -11,6 +11,7 @@ define(function(require) {
 		cache = require('basic/tools/cache'),
 		send = require('basic/tools/send'),
 		buildAlias = require('basic/tools/buildalias'),
+		SelectRegionModel = require('models/selectRegion'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
 		cells = require('collections/cells'),
@@ -135,7 +136,7 @@ define(function(require) {
 		},
 		selectLocatedState: function(e) {
 			//拖拽视图
-			if (this._isAdjustable(e)) {
+			if (this._isAdjustable(e) && !e.shiftKey) {
 				this.spaceEffect(e);
 				return;
 			}
@@ -144,18 +145,23 @@ define(function(require) {
 				containerId = cache.containerId,
 				mousePosi;
 
-			mousePosi = e.clientX - $('#' + containerId).offset().left - config.System.outerLeft + cache.viewRegion.scrollLeft;
+			mousePosi = this._getRelativePosi(event.clientX);
 			this.adjustLocatedModel(mousePosi, select, e.shiftKey);
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'selectMoveState');
 			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', 'selectMoveState');
 		},
 		dataSourceLocatedState: function(event) {
-			var select = selectRegions.getModelByType('selected'),
+			var select = selectRegions.getModelByType('datasource'),
 				mousePosi;
-
-			mousePosi = this._getRelativePosi(e.clientX);
-			this.adjustLocatedModel(mousePosi, select, e.shiftKey);
+			if (typeof select === 'undefined') {
+				select = new SelectRegionModel();
+				select.set('selectType', 'datasource');
+				selectRegions.add(select);
+			}
+			mousePosi = this._getRelativePosi(event.clientX);
+			this.adjustLocatedModel(mousePosi, select, event.shiftKey);
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
+			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', 'dataSourceMoveState');
 		},
 		selectMoveState: function(e) {
 			var select = selectRegions.getModelByType('selected'),
@@ -167,7 +173,13 @@ define(function(require) {
 			tempPosi = select.set('tempPosi.mouseColIndex', colIndex);
 		},
 		dataSourceMoveState: function(event) {
-
+			var select = selectRegions.getModelByType('datasource'),
+				mousePosi,
+				tempPosi,
+				colIndex;
+			mousePosi = this._getRelativePosi(event.clientX);
+			colIndex = binary.modelBinary(mousePosi, gridColList, 'left', 'width');
+			tempPosi = select.set('tempPosi.mouseColIndex', colIndex);
 		},
 		commonMoveState: function(event) {
 			event.currentTarget.style.cursor = this._isAdjustable(event) === true ? 'col-resize' : '';
@@ -186,19 +198,12 @@ define(function(require) {
 			} else {
 				startColIndex = endColIndex;
 			}
-
-			if(select.get('')){
-
-			}
 			select.set('tempPosi', {
 				initColIndex: startColIndex,
 				initRowIndex: 'MAX',
 				mouseColIndex: endColIndex,
-				mouseRowIndex: '0'
+				mouseRowIndex: 0
 			});
-		},
-		adjustMoveModel: function() {
-
 		},
 		/**
 		 * 确认是否可以调整
@@ -246,10 +251,8 @@ define(function(require) {
 			 */
 			this.$tempSpaceContainer = $('<div/>').addClass('temp-space-container').html(this.$lockData);
 			this.$el.append(this.$tempSpaceContainer);
-			//改为trigger
-			this.viewScreenContainer.mouseMoveHeadContainer(e, {
+			Backbone.trigger('event:screenContainer:mouseMoveHeadContainer', {
 					spaceMouse: this.itemEl.clientWidth - e.offsetX,
-					// from currentTarget rightBorder caculation distance to document
 					offsetleftByRight: this.itemEl.clientWidth + this.$itemEl.offset().left,
 					self: this
 				},

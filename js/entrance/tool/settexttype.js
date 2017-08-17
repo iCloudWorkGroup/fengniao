@@ -63,9 +63,9 @@
           return;
         }
         if (operRegion.endColIndex === 'MAX') { //整行操作
-          rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format);
+          rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'format', format);
         } else if (operRegion.endRowIndex === 'MAX') {
-          colOperate.colPropOper(operRegion.startColIndex, 'format', format);
+          colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'format', format);
         } else {
           cells.oprCellsByRegion(operRegion, function(cell) {
             cell.set('format', format);
@@ -104,9 +104,9 @@
           return;
         }
         if (operRegion.endColIndex === 'MAX') { //整行操作
-          rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format);
+          rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'format', format);
         } else if (operRegion.endRowIndex === 'MAX') {
-          colOperate.colPropOper(operRegion.startColIndex, 'format', format);
+          colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'format', format);
         } else {
           cells.oprCellsByRegion(operRegion, function(cell) {
             cell.set('format', format);
@@ -149,9 +149,9 @@
           return;
         }
         if (operRegion.endColIndex === 'MAX') { //整行操作
-          rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format);
+          rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'format', format);
         } else if (operRegion.endRowIndex === 'MAX') { //整行操作
-          colOperate.colPropOper(operRegion.startColIndex, 'format', format);
+          colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'format', format);
         } else {
           cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
             changeModelList.push({
@@ -203,9 +203,9 @@
           return;
         }
         if (operRegion.endColIndex === 'MAX') { //整行操作
-          rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format);
+          rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'format', format);
         } else if (operRegion.endRowIndex === 'MAX') { //整列操作
-          colOperate.colPropOper(operRegion.startColIndex, 'format', format);
+          colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'format', format);
         } else {
           cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
             changeModelList.push({
@@ -259,12 +259,12 @@
           return;
         }
         if (operRegion.endColIndex === 'MAX') { //整行操作
-          rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format, function(cell) {
+          rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'format', format, function(cell) {
             self.generateDisplayText(cell);
           });
 
         } else if (operRegion.endRowIndex === 'MAX') { //整列操作
-          colOperate.colPropOper(operRegion.startColIndex, 'format', format, function(cell) {
+          colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'format', format, function(cell) {
             self.generateDisplayText(cell);
           });
         } else {
@@ -319,11 +319,11 @@
           return;
         }
         if (operRegion.endColIndex === 'MAX') { //整行操作
-          rowOperate.rowPropOper(operRegion.startRowIndex, 'format', format, function(cell) {
+          rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'format', format, function(cell) {
             self.generateDisplayText(cell);
           });
         } else if (operRegion.endRowIndex === 'MAX') { //整行操作
-          colOperate.colPropOper(operRegion.startColIndex, 'format', format, function(cell) {
+          colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'format', format, function(cell) {
             self.generateDisplayText(cell);
           });
         } else {
@@ -440,6 +440,7 @@
         num = num * Math.pow(10, decimal);
         num = Math.round(num);
         value = (num / Math.pow(10, decimal)).toString();
+        value = value.replace(/,/g, '');
         if (thousands) {
           values = value.split('.');
           head = values[0];

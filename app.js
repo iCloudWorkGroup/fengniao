@@ -9,6 +9,10 @@ define(function(require) {
 	window.SPREADSHEET_BUILD_STATE = $('#build').val();
 	var ss = new SpreadSheet('spreadSheet');
 
-	// ss.setDataSourceState();
-	
+	$('#t').click(function(){
+		ss.setDataSourceState();
+	});
+	$('#tt').click(function(){
+		ss.setSeleteState();
+	});	
 });

@@ -31,14 +31,14 @@ module.exports = function(config) {
             type: 'lcov',
             dir: 'coverage/'
         },
-    	plugins: [
-    	    'karma-coverage',
-    	    'karma-jasmine',
-    	    'karma-requirejs',
+        plugins: [
+            'karma-coverage',
+            'karma-jasmine',
+            'karma-requirejs',
             'karma-sinon',
-    	    'karma-phantomjs-launcher',
-    	    'karma-chrome-launcher'
-    	],
+            'karma-phantomjs-launcher',
+            'karma-chrome-launcher'
+        ],
 
         // test results reporter to use
         // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
@@ -48,7 +48,8 @@ module.exports = function(config) {
             'js/entrance/tool/addrow.js': 'coverage',
             'js/entrance/tool/deleterow.js': 'coverage',
             'js/entrance/row/rowoperation.js': 'coverage',
-            'js/entrance/tool/setunderline.js':'coverage'
+            'js/entrance/tool/setunderline.js':'coverage',
+            'js/entrance/tool/shortcut.js':'coverage'
         },
 
         // web server port
@@ -81,7 +82,6 @@ module.exports = function(config) {
 
         // If browser does not capture in given timeout [ms], kill it
         captureTimeout: 60000,
-
 
         // Continuous Integration mode
         // if true, it capture browsers, run tests and exit

@@ -214,10 +214,9 @@ define(function(require) {
 		},
 		selectLocatedState: function(event) {
 			var selectModel = selectRegions.getModelByType('selected');
-			this.located(event.clientX, event.clientY, selectModel);
+			this.located(event.clientX, event.clientY, selectModel, event.shiftKey);
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'selectMoveState');
 			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', null);
-			
 		},
 		dataSourceLocatedState: function(event) {
 			var selectModel = selectRegions.getModelByType('datasource');
@@ -228,7 +227,7 @@ define(function(require) {
 			}
 			this.located(event.clientX, event.clientY, selectModel, event.shiftKey);
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
-			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', null);
+			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', null);
 		},
 		selectMoveState: function(event) {
 			var selectModel = selectRegions.getModelByType('selected');
@@ -465,7 +464,12 @@ define(function(require) {
 		 * @param  {[type]} event 单击事件对象
 		 */
 		located: function(colPosi, rowPosi, selectModel, shift) {
-			this.changePosi(colPosi, rowPosi, selectModel, shift);
+			if (shift) {
+				this.select(colPosi, rowPosi, selectModel);
+			} else {
+				this.changePosi(colPosi, rowPosi, selectModel);
+			}
+
 		},
 		/**
 		 * 单元格区域单击事件处理
@@ -556,7 +560,7 @@ define(function(require) {
 		 * @param  {number} colPosi 纵向坐标
 		 * @param  {number} rowPosi 横向坐标
 		 */
-		select: function(colPosi, rowPosi, selectModel, shift) {
+		select: function(colPosi, rowPosi, selectModel) {
 			var initColIndex,
 				initRowIndex,
 				lastColMouse,
