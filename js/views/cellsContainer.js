@@ -469,7 +469,6 @@ define(function(require) {
 			} else {
 				this.changePosi(colPosi, rowPosi, selectModel);
 			}
-
 		},
 		/**
 		 * 单元格区域单击事件处理

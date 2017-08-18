@@ -155,7 +155,6 @@ define(function(require) {
 					width: width
 				});
 			}
-
 			this.model.set('physicsBox', {
 				top: rowModelList[startRowIndex].get('top'),
 				left: colModelList[startColIndex].get('left'),
@@ -168,6 +167,7 @@ define(function(require) {
 				endX: colModelList[endColIndex].get('alias'),
 				endY: rowModelList[endRowIndex].get('alias')
 			});
+
 			//判断是否为整行或整列操作
 			if (modelJSON.tempPosi.mouseColIndex === 'MAX' || modelJSON.tempPosi.initColIndex === 'MAX') {
 				this.model.set('wholePosi.endX', 'MAX');
@@ -197,7 +197,6 @@ define(function(require) {
 			} else {
 				listener.excute('dataSourceRegionChange', e);
 			}
-
 		},
 		changeHeadLineModel: function(currentStartCol, currentStartRow, currentEndCol, currentEndRow) {
 			var modelJSON = this.model.toJSON(),
@@ -292,7 +291,7 @@ define(function(require) {
 		 * @method editState
 		 */
 		editState: function() {
-			Backbone.trigger('event:InputContainer:show');
+			Backbone.trigger('event:InputContainer:show',true);
 		},
 		/**
 		 * 视图销毁

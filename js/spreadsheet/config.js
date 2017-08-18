@@ -126,24 +126,14 @@ define(function() {
 		defaultNumberFormat: {
 			decimal: 6
 		},
-		keyboard: {
-			backspace: 8,
-			deleteKey: 46,
-			enter: 13,
-			escape: 27,
-			pageUp: 33,
-			pageDown: 34,
-			leftArrow: 37,
-			upArrow: 38,
-			rightArrow: 39,
-			downArrow: 40
-		},
 		shortcuts: {
-			cut: true,
-			copy: true,
-			paste: true,
-			altEnter: true,
-			enter: true
+			clip: true,
+			alt_enter: true,
+			enter: true,
+			delete: true,
+			redo: true,
+			undo: true,
+			arrow: true
 		},
 		url: {
 			row: {
@@ -180,7 +170,8 @@ define(function() {
 				font_italic: 'cell/font-italic',
 				font_color: 'cell/font-color',
 				bg_batch: 'cell/bg-batch',
-				underline: 'cell/font-underline'
+				underline: 'cell/font-underline',
+				clear: 'cell/clean-data'
 			},
 			table: {
 				reload: 'reload'

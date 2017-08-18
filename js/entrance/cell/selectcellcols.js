@@ -4,7 +4,8 @@ define(function(require) {
 		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		SelectRegionModel = require('models/selectRegion'),
-		headItemRows = require('collections/headItemRow');
+		headItemRows = require('collections/headItemRow'),
+		headItemCols = require('collections/headItemCol');
 
 	/**
 	 * 整行选中
@@ -31,6 +32,8 @@ define(function(require) {
 		} else {
 			selectModel = selectRegions.getModelByType('selected');
 		}
+		cache.shortcut.select.colAlias= headItemCols.models[0].get('alias');
+		cache.shortcut.select.rowAlias= headItemRows.models[modelIndex].get('alias');
 		selectModel.set('tempPosi', {
 			initColIndex: 0,
 			initRowIndex: modelIndex,

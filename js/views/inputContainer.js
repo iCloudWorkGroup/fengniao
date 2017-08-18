@@ -11,9 +11,13 @@ define(function(require) {
 		headItemCols = require('collections/headItemCol'),
 		selectRegions = require('collections/selectRegion'),
 		cells = require('collections/cells'),
+		shortcut = require('entrance/sheet/shortcut'),
 		setTextType = require('entrance/tool/settexttype'),
 		clipSelectOperate = require('entrance/tool/clipselectoperate'),
 		clipPasteOperate = require('entrance/tool/clippasteoperate'),
+		done = require('entrance/sheet/redoundo'),
+		headItemRowList = headItemRows.models,
+		headItemColList = headItemCols.models,
 		InputContainer;
 
 	/**
@@ -44,9 +48,7 @@ define(function(require) {
 		 * @type {Object}
 		 */
 		events: {
-			'input': 'adapt',
-			'propertychange': 'adapt',
-			'keydown': 'keypressHandle',
+			'keydown': 'keydownHandle',
 			'blur': 'hide',
 			'copy': 'copyData',
 			'paste': 'pasteData',
@@ -96,18 +98,22 @@ define(function(require) {
 			this.colIndex = colIndex;
 			this.mainContainer = mainContainer;
 			cell = cells.getRegionCells(colIndex, rowIndex)[0];
-			if (cell === null) {
+			if (!cell) {
 				cell = this.createCell(rowIndex, colIndex);
 			}
 			this.model = cell;
-			this.showState = true;
 			left = this.getAbsoluteLeft();
 			top = this.getAbsoluteTop();
 			this.adjustZIndex();
-			if (dblclick === false) {
+			this.showState = true;
+
+			modelJSON = cell.toJSON();
+			if (!dblclick) {
 				this.model.set('content.texts', '');
+			} else {
+				this.$el.val(modelJSON.content.texts);
 			}
-			modelJSON = this.model.toJSON();
+
 			if (modelJSON.content.bd === true) {
 				this.$el.css({
 					'fontWeight': 'bold'
@@ -142,9 +148,6 @@ define(function(require) {
 				'left': left,
 				'top': top,
 			});
-			if (dblclick !== false) {
-				this.$el.val(modelJSON.content.texts);
-			}
 			//适应文本宽度高度
 			this.adjustWidth(true);
 			this.adjustHeight();
@@ -154,7 +157,7 @@ define(function(require) {
 		 * @method pasteData
 		 */
 		pasteData: function(event) {
-			if (this.showState === false) {
+			if (this.showState === false && config.shortcuts.clip) {
 				event.preventDefault();
 				var pasteText;
 				if (window.clipboardData && window.clipboardData.getData) { // IE
@@ -166,12 +169,12 @@ define(function(require) {
 			}
 		},
 		copyData: function(event) {
-			if (this.showState === false) {
+			if (this.showState === false && config.shortcuts.clip) {
 				clipSelectOperate('copy', event);
 			}
 		},
 		cutData: function(event) {
-			if (this.showState === false) {
+			if (this.showState === false && config.shortcuts.clip) {
 				clipSelectOperate('cut', event);
 			}
 		},
@@ -217,9 +220,7 @@ define(function(require) {
 		 * 隐藏输入框
 		 */
 		hide: function(event) {
-			var headItemRowList = headItemRows.models,
-				headItemColList = headItemCols.models,
-				model = this.model,
+			var model = this.model,
 				originalText,
 				rowSort,
 				colSort,
@@ -457,22 +458,16 @@ define(function(require) {
 		/**
 		 * 自适应输入框的大小
 		 */
-		adapt: function(e) {
+		adapt: function() {
 			if (this.showState === true) {
-				this.adjustWidth(e);
-				this.adjustHeight(e);
-			} else {
-				if (this.keyHandle() === false) {
-					return;
-				}
-				this.showState === true;
-				this.show(false);
+				this.adjustWidth();
+				this.adjustHeight();
 			}
 		},
 		/**
 		 * 调整输入框高度
 		 */
-		adjustHeight: function(e) {
+		adjustHeight: function() {
 			var height,
 				scrollBarHeight,
 				maxHeight,
@@ -539,7 +534,7 @@ define(function(require) {
 			width = getTextBox.getInputWidth(inputText, fontSize) + 20;
 
 			width = width > minWidth ? width : minWidth;
-			if (init !== true) {
+			if (!init) {
 				width = width > currentWidth ? width : currentWidth;
 			}
 			if (width < maxWidth) {
@@ -589,89 +584,68 @@ define(function(require) {
 				})
 			});
 		},
-		isShortKey: function(needle) {
-			var prop,
-				keyboard = config.keyboard;
-			for (prop in keyboard) {
-				if (keyboard[prop] === needle) {
-					return true;
-				}
-			}
-			return false;
-		},
-		keypressHandle: function(e) {
+		keydownHandle: function(event) {
 			var self = this,
-				isShortKey, keyboard;
+				available = config.shortcuts,
+				key = event.key,
+				reg = /^[a-zA-Z0-9]$/,
+				keyboard,
+				handle,
+				direction;
 
-			keyboard = config.keyboard;
-			isShortKey = this.isShortKey(e.keyCode);
-
-			//处理用户输入回车键
-			if (isShortKey) {
-				if (config.shortcuts.enter &&
-					e.altKey === false &&
-					e.keyCode === keyboard.enter) {
-					Backbone.trigger('event:cellsContainer:moveSelectRegion', 'DOWN');
+			//处理中文输入法
+			if (event.keyCode === 229) {
+				if (this.showState === false) {
+					this.$el.val('');
+					this.show();
+				}
+				this.adapt();
+			}
+			//处理回车键
+			if (key === 'Enter') {
+				if (available.alt_enter && this.showState && event.altKey) {
+					shortcut.altEnter(this.el);
+					this.adjustHeight();
+					event.preventDefault();
+				} else if (available.enter && !event.altKey) {
 					if (this.showState === true) {
 						this.hide();
+					} else {
+						shortcut.arrow('DOWN');
 					}
-					e.preventDefault();
+				}
+				return;
+			}
+
+			//处理删除按纽
+			if (available.delete && key === 'Delete' && !this.showState) {
+				shortcut.backspace();
+				return;
+			}
+
+			//处理方向键
+			if (available.arrow && key.indexOf('Arrow') === 0 && !this.showState) {
+				shortcut.arrow(key.substring('5').toUpperCase());
+				return;
+			}
+
+			//处理撤销按键
+			if (!this.showState && event.ctrlKey) {
+				if (available.redo && key.toUpperCase() === 'Y') {
+					done.redo();
+					return;
+				} else if (available.undo && key.toUpperCase() === 'Z') {
+					done.undo();
 					return;
 				}
 			}
-			if (this.showState === true) {
-				//内部换行处理
-				if (isShortKey) {
-					if (config.shortcuts.altEnter && e.altKey) {
-						insertAtCursor('\n');
-						this.adjustHeight();
-						return;
-					}
-				}
-				this.autoScrollLeft();
-				this.autoScrollTop();
-			}
-
-			function insertAtCursor(myValue) {
-				var $t = self.$el[0];
-				if (document.selection) {
-					self.$el.focus();
-					self = document.selection.createRange();
-					self.text = myValue;
-					self.$el.focus();
-				} else if ($t.selectionStart || $t.selectionStart === '0') {
-					var startPos = $t.selectionStart;
-					var endPos = $t.selectionEnd;
-					var scrollTop = $t.scrollTop;
-					$t.value = $t.value.substring(0, startPos) + myValue + $t.value.substring(endPos, $t.value.length);
-					self.$el.focus();
-					$t.selectionStart = startPos + myValue.length;
-					$t.selectionEnd = startPos + myValue.length;
-					$t.scrollTop = scrollTop;
-				} else {
-					self.value += myValue;
-					self.$el.focus();
-				}
-			}
-
-		},
-		/**
-		 * 判断未显示输入框时，点击按键是否填出输入框
-		 * @param  {[type]} e 键盘点击事件
-		 */
-		keyHandle: function() {
-			var inputChar,
-				regular;
-
-			regular = /[a-zA-Z0-9]/;
-			inputChar = this.$el.val();
-			if (regular.test(inputChar)) {
-				return true;
-			} else {
+			if (!this.showState && reg.test(key) && !event.ctrlKey && !event.altKey) {
 				this.$el.val('');
-				return false;
+				this.show();
 			}
-
+			if (this.showState) {
+				this.adjustWidth();
+			}
 		},
 		/**
 		 * 视图销毁

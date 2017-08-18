@@ -15,11 +15,6 @@ requirejs([
 	//'../test/unit/rowoper.spec.js',
 	// '../test/unit/col.spec',
 	// '../test/unit/loadrecorder.spec'
-	// '../test/unit/maintainer.spec',
-	// '../test/unit/fillbg.spec',
-	// '../test/unit/underline.spec',
-	'../test/unit/calselect.spec',
-	''
 ], function() {
 	window.onload();
 });

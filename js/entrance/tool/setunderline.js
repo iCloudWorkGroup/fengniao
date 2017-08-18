@@ -36,10 +36,10 @@ define(function(require) {
 			if (typeof underline === 'undefined') {
 				//暂时使用左上角单元格的值，实现初始选中点时，使用初始选中点
 				selectCell = cells.getCellByVertical(operRegion.startColIndex, operRegion.startRowIndex)[0];
-				if (selectCell) {
-					underline = !selectCell.get('content').underline;
+				if (selectCell && selectCell.get('content').underline) {
+					underline = 0;
 				} else {
-					underline = true;
+					underline = 1;
 				}
 			}
 
@@ -79,7 +79,6 @@ define(function(require) {
 			}
 		},
 		_send: function(region, underline) {
-			underline = !underline ? 0 : 1;
 			send.PackAjax({
 				url: config.url.cell.underline,
 				data: JSON.stringify({

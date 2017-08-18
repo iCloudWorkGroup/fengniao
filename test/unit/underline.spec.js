@@ -52,7 +52,7 @@ define(function(require) {
 			expect(selects.length).toEqual(1);
 		});
 		it('写入历史记录', function() {
-			underline._history('content.underline', true, {
+			underline._history('content.underline', 1, {
 				startColIndex: 0,
 				startRowIndex: 0,
 				endColIndex: 0,
@@ -60,16 +60,16 @@ define(function(require) {
 			}, {
 				colSort: 0,
 				rowSort: 0,
-				value: false
+				value: 0
 			});
 			expect(history.previous()).toEqual({
 				originalData: {
 					colSort: 0,
 					rowSort: 0,
-					value: false
+					value: 0
 				},
 				propName: 'content.underline',
-				propValue: true,
+				propValue: 1,
 				region: {
 					endColSort: 0,
 					endRowSort: 0,
@@ -81,11 +81,11 @@ define(function(require) {
 		});
 		it('设置下划线', function() {
 			underline.set();
-			expect(cells.models[0].get('content').underline).toEqual(true);
-			underline.set(false);
-			expect(cells.models[0].get('content').underline).toEqual(false);
-			underline.set('sheetId', true, 'A1');
-			expect(cells.models[0].get('content').underline).toEqual(true);
+			expect(cells.models[0].get('content').underline).toEqual(1);
+			underline.set(0);
+			expect(cells.models[0].get('content').underline).toEqual(0);
+			underline.set('sheetId', 1, 'A1');
+			expect(cells.models[0].get('content').underline).toEqual(1);
 			selects.models[0].set('wholePosi', {
 				startY: '1',
 				startX: '1',
@@ -93,7 +93,7 @@ define(function(require) {
 				endX: 'MAX'
 			});
 			underline.set();
-			expect(cells.models[0].get('content').underline).toEqual(false);
+			expect(cells.models[0].get('content').underline).toEqual(0);
 			selects.models[0].set('wholePosi', {
 				startY: '1',
 				startX: '1',
@@ -101,7 +101,7 @@ define(function(require) {
 				endX: '1'
 			});
 			underline.set();
-			expect(cells.models[0].get('content').underline).toEqual(true);
+			expect(cells.models[0].get('content').underline).toEqual(1);
 		});
 	});
 });
