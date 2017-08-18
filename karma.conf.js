@@ -49,7 +49,9 @@ module.exports = function(config) {
             'js/entrance/tool/deleterow.js': 'coverage',
             'js/entrance/row/rowoperation.js': 'coverage',
             'js/entrance/tool/setunderline.js':'coverage',
-            'js/entrance/tool/shortcut.js':'coverage'
+            'js/entrance/tool/shortcut.js':'coverage',
+            'js/collections/cells.js':'coverage',
+            'js/views/selectRegion.js':'coverage'
         },
 
         // web server port
@@ -66,7 +68,7 @@ module.exports = function(config) {
 
 
         // enable / disable watching file and executing tests whenever any file changes
-        autoWatch: false,
+        autoWatch: true,
 
 
         // Start these browsers, currently available:
@@ -85,6 +87,6 @@ module.exports = function(config) {
 
         // Continuous Integration mode
         // if true, it capture browsers, run tests and exit
-        singleRun: true
+        singleRun: false
     });
 };

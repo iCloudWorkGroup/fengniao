@@ -1,5 +1,8 @@
 requirejs.config({
 	baseUrl: '../js',
+	paths:{
+		'build' : '../test/util/build'
+	}
 });
 requirejs([
 	//'./lib/backbone',
@@ -12,10 +15,11 @@ requirejs([
 	//'../test/unit/rowoper.spec.js',
 	// '../test/unit/col.spec',
 	// '../test/unit/loadrecorder.spec'
-	'../test/unit/maintainer.spec',
-	'../test/unit/fillbg.spec',
-	'../test/unit/underline.spec',
-	'../test/unit/calselect.spec'
+	// '../test/unit/maintainer.spec',
+	// '../test/unit/fillbg.spec',
+	// '../test/unit/underline.spec',
+	'../test/unit/calselect.spec',
+	''
 ], function() {
 	window.onload();
 });

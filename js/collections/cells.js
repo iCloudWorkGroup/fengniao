@@ -1064,7 +1064,7 @@ define(function(require) {
 		 * @return {object}               索引信息
 		 */
 		getFullOperationRegion: function(startColIndex, startRowIndex, endColIndex, endRowIndex) {
-			var tempCellList,
+			var cellList,
 				cellStartColIndex,
 				cellStartRowIndex,
 				cellEndColIndex,
@@ -1114,32 +1114,29 @@ define(function(require) {
 
 			while (flag) {
 				flag = false;
-				tempCellList = this.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
+				cellList = this.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
 
-				for (i = 0, len = tempCellList.length; i < len; i++) {
-					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, gridRowList, 'top', 'height');
-					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, gridColList, 'left', 'width');
-					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, gridRowList, 'top', 'height');
-					cellEndColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left + tempCellList[i].get('physicsBox').width, gridColList, 'left', 'width');
+				for (i = 0, len = cellList.length; i < len; i++) {
+					temp = cellList[i].get('physicsBox');
+					cellStartRowIndex = binary.modelBinary(temp.top, gridRowList, 'top', 'height');
+					cellStartColIndex = binary.modelBinary(temp.left, gridColList, 'left', 'width');
+					cellEndRowIndex = binary.modelBinary(temp.top + temp.height, gridRowList, 'top', 'height');
+					cellEndColIndex = binary.modelBinary(temp.left + temp.width, gridColList, 'left', 'width');
 					if (cellStartColIndex < startColIndex) {
 						startColIndex = cellStartColIndex;
 						flag = true;
-						break;
 					}
 					if (cellStartRowIndex < startRowIndex) {
 						startRowIndex = cellStartRowIndex;
 						flag = true;
-						break;
 					}
 					if (cellEndRowIndex > endRowIndex) {
 						endRowIndex = cellEndRowIndex;
 						flag = true;
-						break;
 					}
 					if (cellEndColIndex > endColIndex) {
 						endColIndex = cellEndColIndex;
 						flag = true;
-						break;
 					}
 				}
 			}

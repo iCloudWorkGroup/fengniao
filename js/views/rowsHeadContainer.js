@@ -15,6 +15,7 @@ define(function(require) {
 		siderLineCols = require('collections/siderLineCol'),
 		RowsSpaceLineContainer = require('views/rowsSpaceLineContainer'),
 		HeadItemRowContainer = require('views/headItemRowContainer'),
+		SelectRegionModel = require('models/selectRegion'),
 		observerPattern = require('basic/util/observer.pattern'),
 		loadRecorder = require('basic/tools/loadrecorder'),
 		selectCellCols = require('entrance/cell/selectcellcols'),
@@ -159,7 +160,7 @@ define(function(require) {
 				rowIndex;
 			mousePosi = this._getRelativePosi(event.clientY);
 			rowIndex = binary.modelBinary(mousePosi, gridRowList, 'top', 'height');
-			tempPosi = select.set('tempPosi.mouseColIndex', rowIndex);
+			tempPosi = select.set('tempPosi.mouseRowIndex', rowIndex);
 		},
 		commonMoveState: function(event) {
 			event.currentTarget.style.cursor = this._isAdjustable(event) === true ? 'row-resize' : '';
