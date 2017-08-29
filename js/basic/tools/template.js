@@ -32,6 +32,14 @@ define(function(require) {
 
 	templatesHTML.COMMENTTEMPLAET = '<div></div>';
 
+	templatesHTML.SIDERBARTEMPLATE = '<div class="siderbar-title"><span>{{title}}</span>';
+	templatesHTML.SIDERBARTEMPLATE += '<a href="#" class="fui-cf-bg-extend2-ico ico-close close" title="关闭"></a></div>';
+	templatesHTML.SIDERBARTEMPLATE += '<div class="siderbar-body"></div></div>';
+
+	templatesHTML.PREVENTCONTAINER = '<div class="siderbar-item"><div class="prevent-content">';
+	templatesHTML.PREVENTCONTAINER += '<div class="title"><span>锁定</span><input type="checkbox" name="lock"></div>';
+	templatesHTML.PREVENTCONTAINER += '<div class="content"><label>所选区域：</label><input type="text" name="" disabled="disabled"></div>';
+	templatesHTML.PREVENTCONTAINER += '<div class="oper"><button type="submit">确定</button><a href="#" class="cancel">取消</a></div></div></div>';
 
 	function getTemplate(type) {
 		var tmpType;

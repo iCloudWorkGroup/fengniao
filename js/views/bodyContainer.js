@@ -20,6 +20,7 @@ define(function(require) {
 		RowsPanelContainer = require('views/rowsPanelContainer'),
 		InputContainer = require('views/inputContainer'),
 		CommentContainer = require('views/commentcontainer'),
+		SiderbarContainer = require('views/siderbarcontainer'),
 		BodyContainer;
 
 	/**
@@ -52,6 +53,8 @@ define(function(require) {
 		initialize: function() {
 			Backbone.on('event:bodyContainer:executiveFrozen', this.executiveFrozen, this);
 			Backbone.on('event:bodyContainer:handleComment', this.handleComment, this);
+			Backbone.on('event:siderbarContainer:show', this.showSiderBar, this);
+			Backbone.on('event:siderbarContainer:remove', this.removeSiderBar, this);
 			Backbone.on('event:reload', this.reload, this);
 			this.commentContainer = null;
 		},
@@ -61,7 +64,7 @@ define(function(require) {
 		 * @chainable
 		 */
 		render: function() {
-			var inputContainer = new InputContainer();
+			var inputContainer = this.inputContainer = new InputContainer();
 
 			observerPattern.buildSubscriber(inputContainer);
 			inputContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
@@ -78,6 +81,24 @@ define(function(require) {
 				'position': 'relative'
 			});
 			inputContainer.$el.focus();
+		},
+		showSiderBar: function(type) {
+			var width = config.sidebarWidth;
+			this.removeSiderBar();
+			this.siderbarContainer = new SiderbarContainer({
+				type: type,
+				width: width,
+			});
+			this.$el.find('.main-layout').append(this.siderbarContainer.render().el);
+			cache.sidebarState = true;
+			Backbone.trigger('event:changeSidebarContainer');
+		},
+		removeSiderBar: function() {
+			if (this.siderbarContainer) {
+				this.siderbarContainer.destroy();
+				this.siderbarcontainer = null;
+			}
+			cache.sidebarState = false;
 		},
 		handleComment: function(options) {
 			var action = options.action,
@@ -113,9 +134,14 @@ define(function(require) {
 		 */
 		getFocus: function(e) {
 			//判断输入框状态，如果输入框未失去焦点，不进行隐藏
-			var focus = $(':focus')[0];
-			if (focus === undefined || focus.type !== 'textarea') {
+			var el = this.inputContainer.el,
+				focus = $(':focus')[0];
+			
+			if (el !== focus) {
 				Backbone.trigger('event:InputContainer:hide');
+				if(!focus){
+					el.focus();
+				}
 			}
 		},
 		/**
@@ -273,7 +299,8 @@ define(function(require) {
 				modelList,
 				tempRule,
 				userViewModel,
-				userViewIndex;
+				userViewIndex,
+				current;
 			modelList = headItemCols;
 
 			currentIndex = modelList.getIndexByAlias(cache.TempProp.colAlias);
@@ -622,7 +649,7 @@ define(function(require) {
 			return false;
 		},
 		reload: function() {
-						var cellList = cells.models,
+			var cellList = cells.models,
 				headRowList = headItemRows.models,
 				headColList = headItemCols.models,
 				selectList = selectRegions.models,
@@ -710,6 +737,8 @@ define(function(require) {
 			Backbone.off('event:bodyContainer:executiveFrozen');
 			Backbone.off('event:commentContainer:show');
 			Backbone.off('event:commentContainer:remove');
+			Backbone.off('event:siderbarContainer:show');
+			Backbone.off('event:siderbarContainer:remove');
 			Backbone.trigger('event:colsPanelContainer:destroy');
 			Backbone.trigger('event:rowsPanelContainer:destroy');
 			Backbone.trigger('event:mainContainer:destroy');

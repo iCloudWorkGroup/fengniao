@@ -109,6 +109,7 @@ define(function() {
 				width: 150
 			}
 		},
+		sidebarWidth: 280,
 		mouseOperateState: {
 			select: 'selected',
 			dataSource: 'datasource',

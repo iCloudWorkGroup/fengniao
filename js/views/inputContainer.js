@@ -219,7 +219,7 @@ define(function(require) {
 		/**
 		 * 隐藏输入框
 		 */
-		hide: function(event) {
+		hide: function() {
 			var model = this.model,
 				originalText,
 				rowSort,
@@ -260,9 +260,6 @@ define(function(require) {
 				}
 			}
 			this.$el.val('');
-			if (event === undefined) {
-				this.$el.focus();
-			}
 			this.showState = false;
 		},
 		/**

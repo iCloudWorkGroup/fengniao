@@ -47,13 +47,9 @@ define(function(require) {
 				startColIndex,
 				endRowIndex,
 				endColIndex,
-
 				len;
 
-
 			Backbone.on('event:mainContainer:destroy', this.destroy, this);
-			Backbone.on('event:mainContainer:attributesRender', this.attributesRender, this);
-
 			this.currentRule = clone.clone(cache.CurrentRule);
 
 			if (cache.TempProp.isFrozen === true) {
@@ -109,7 +105,9 @@ define(function(require) {
 				this.boxModel.width = 0;
 			}
 
-
+			if (endRowIndex === undefined) {
+				Backbone.on('event:changeSidebarContainer', this.shrink, this);
+			}
 			if (this.currentRule.eventScroll) {
 				/**
 				 * 绑定滚动事件
@@ -167,7 +165,13 @@ define(function(require) {
 			this.addBackGround(cellsContainer);
 			return this;
 		},
-
+		shrink: function() {
+			if (cache.sidebarState) {
+				this.$el.width(this.boxAttributes.width - config.sidebarWidth);
+			} else {
+				this.$el.width(this.boxAttributes.width);
+			}
+		},
 		//for new diff object, subscribe it self object.
 		subscribeScroll: function(value, direction) {
 			this.appointPosition(value, direction);
@@ -196,8 +200,14 @@ define(function(require) {
 		 * @param  newAttributes {Object} 宽高
 		 */
 		attributesRender: function(newAttributes) {
+			var width = newAttributes.width,
+				endColIndex =this.currentRule.displayPosition.endColIndex ;
+			if (typeof endColIndex === 'undefined' && cache.sidebarState) {
+				width = width - config.sidebarWidth;
+				width = width < 0 ? 0 : width;
+			}
 			this.$el.css({
-				'width': newAttributes.width,
+				'width': width,
 				'height': newAttributes.height
 			});
 			if (newAttributes.style) {
@@ -554,7 +564,7 @@ define(function(require) {
 				cache.localRowPosi = data.maxRowPixel;
 				rowList = data.returndata.spreadSheet[0].sheet.glY;
 				cellList = data.returndata.spreadSheet[0].sheet.cells;
-				
+
 				original.analysisRowData(rowList, startRowSort);
 				original.analysisCellData(cellList);
 
@@ -710,7 +720,7 @@ define(function(require) {
 		 * 视图销毁
 		 * @method destroy
 		 */
-		destroy: function() {		
+		destroy: function() {
 			if (this.unsubscribe) {
 				this.unsubscribe('mainContainer', 'transversePublish');
 				this.unsubscribe('mainContainer', 'verticalPublish');
@@ -718,10 +728,10 @@ define(function(require) {
 			Backbone.trigger('event:cellsContainer:destroy');
 			Backbone.off('call:mainContainer');
 			Backbone.off('event:mainContainer:destroy');
-			Backbone.off('event:mainContainer:attributesRender');
 			Backbone.off('event:mainContainer:adaptRowHeightChange');
 			Backbone.off('event:mainContainer:showSelectRegion');
 			Backbone.off('event:mainContainer:appointPosition');
+			Backbone.off('event:changeSidebarContainer');
 			this.remove();
 
 		}

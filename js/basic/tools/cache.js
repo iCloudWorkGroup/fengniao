@@ -43,6 +43,7 @@ define(function(require) {
 			strandY: {}
 		},
 		clipState: 'null', //copy：复制状态，cut:剪切状态，null:未进行剪切板操作
+
 		/**
 		 * 用户可视的区域(在Excel未冻结的情况下使用)
 		 * 需要修改默认值
@@ -160,6 +161,7 @@ define(function(require) {
 				rowAlias: '1'
 			}
 		},
+		sidebarState:false,
 		//
 		/**
 		 * 保存位置信息
@@ -188,6 +190,7 @@ define(function(require) {
 			positionX[aliasCol][aliasRow] = index;
 			positionY[aliasRow][aliasCol] = index;
 		},
+
 		/**
 		 * 删除缓存位置信息
 		 * @method deletePosi
