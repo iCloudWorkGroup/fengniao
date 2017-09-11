@@ -148,7 +148,7 @@ define(function(require) {
 			 * 单元格格式分类
 			 * @type {Object}
 			 */
-			format:{
+			format: {
 				/**
 				 * 单元格数据类型: 
 				 * 货币 currency
@@ -201,6 +201,7 @@ define(function(require) {
 				 */
 				comment: null
 			},
+			locked: true,
 			/**
 			 * 单元格是否显示：用于动态加载过程中
 			 * @property {boolean} showState
@@ -232,7 +233,7 @@ define(function(require) {
 		/**
 		 * 生成单元格格式分类的相关信息
 		 */
-		
+
 	});
 	return CellModel;
 });

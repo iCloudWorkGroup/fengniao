@@ -11,7 +11,7 @@ define(function(require) {
 	 */
 	return {
 
-		sendQueueStep: 0, //0
+		sendQueueStep: 1,
 		containerId: '',
 		//ps:CurrentRule ，FrozenRules ，TempProp 都存有冻结信息，具体功能，需要说明
 		CurrentRule: {},
@@ -153,15 +153,18 @@ define(function(require) {
 			scrollTop: 0
 		},
 		commentEidtState: false,
+
 		clipboardData: null,
-		
+
 		shortcut: {
 			select: {
 				colAlias: '1',
 				rowAlias: '1'
 			}
 		},
-		sidebarState:false,
+		sidebarState: false,
+
+		protectState: false,
 		//
 		/**
 		 * 保存位置信息

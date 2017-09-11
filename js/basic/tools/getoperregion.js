@@ -1,9 +1,9 @@
 'use strict';
 define(function(require) {
 	var binary = require('basic/util/binary'),
-		analysisLabel = require('basic/tools/analysislabel'),
-		headItemCols = require('collections/headItemCol'),
-		headItemRows = require('collections/headItemRow'),
+		parseLabel = require('basic/tools/parselabel'),
+		cols = require('collections/headItemCol'),
+		rows = require('collections/headItemRow'),
 		selects = require('collections/selectRegion'),
 		getOperRegion;
 	/**
@@ -14,6 +14,7 @@ define(function(require) {
 	getOperRegion = function(label) {
 		var select,
 			region,
+			wholePosi,
 			startRowIndex,
 			startColIndex,
 			endRowIndex,
@@ -22,44 +23,47 @@ define(function(require) {
 			startColSort,
 			endRowSort,
 			endColSort,
-			headItemColList = headItemCols.models,
-			headItemRowList = headItemRows.models;
+			colList = cols.models,
+			rowList = rows.models;
 
 		if (!label) {
 			select = selects.getModelByType('selected');
-			startColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').startX);
-			endColIndex = headItemCols.getIndexByAlias(select.get('wholePosi').endX);
-			startRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').startY);
-			endRowIndex = headItemRows.getIndexByAlias(select.get('wholePosi').endY);
+			wholePosi = select.get('wholePosi');
+			startColIndex = cols.getIndexByAlias(wholePosi.startX);
+			endColIndex = cols.getIndexByAlias(wholePosi.endX);
+			startRowIndex = rows.getIndexByAlias(wholePosi.startY);
+			endRowIndex = rows.getIndexByAlias(wholePosi.endY);
 
-			startColSort = headItemColList[startColIndex].get('sort');
-			startRowSort = headItemRowList[startRowIndex].get('sort');
+			startColSort = colList[startColIndex].get('sort');
+			startRowSort = rowList[startRowIndex].get('sort');
+
 			if (endRowIndex === 'MAX') {
 				endRowSort = -1;
 			} else {
-				endRowSort = headItemRowList[endRowIndex].get('sort');
+				endRowSort = rowList[endRowIndex].get('sort');
 			}
 			if (endColIndex === 'MAX') {
 				endColSort = -1;
 			} else {
-				endColSort = headItemColList[endColIndex].get('sort');
+				endColSort = colList[endColIndex].get('sort');
 			}
 		} else {
-			region = analysisLabel(label);
+			region = parseLabel(label);
 			startColSort = region.startColSort;
 			startRowSort = region.startRowSort;
 			endRowSort = region.endRowSort;
 			endColSort = region.endColSort;
 
-			startColIndex = binary.indexAttrBinary(startColSort, headItemColList, 'sort');
-			startRowIndex = binary.indexAttrBinary(startRowSort, headItemRowList, 'sort');
+			startColIndex = binary.indexAttrBinary(startColSort, colList, 'sort');
+			startRowIndex = binary.indexAttrBinary(startRowSort, rowList, 'sort');
+
 			if (endColSort !== -1) {
-				endColIndex = binary.indexAttrBinary(endColSort, headItemColList, 'sort');
+				endColIndex = binary.indexAttrBinary(endColSort, colList, 'sort');
 			} else {
 				endColIndex = 'MAX';
 			}
 			if (endRowSort !== -1) {
-				endRowIndex = binary.indexAttrBinary(endRowSort, headItemRowList, 'sort');
+				endRowIndex = binary.indexAttrBinary(endRowSort, rowList, 'sort');
 			} else {
 				endRowIndex = 'MAX';
 			}
@@ -67,10 +71,10 @@ define(function(require) {
 			//备注：excel暂时只由顶端起始向下加载，所以只判断结尾坐标是否加载
 			//开始坐标，由调用方法进行判断，开始坐标未加载，不进行内部操作，只向后台发送请求
 			if (endRowIndex === -1) {
-				endRowIndex = headItemRows.length - 1;
+				endRowIndex = rows.length - 1;
 			}
 			if (endColIndex === -1) {
-				endColIndex = headItemCols.length - 1;
+				endColIndex = cols.length - 1;
 			}
 		}
 
@@ -88,9 +92,6 @@ define(function(require) {
 				endColIndex: endColIndex
 			}
 		};
-
-
-
 	};
 	return getOperRegion;
 });

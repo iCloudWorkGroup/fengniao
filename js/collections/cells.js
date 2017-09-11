@@ -123,7 +123,7 @@ define(function(require) {
 		 * @param  endIndexRow {number} 区域右下顶点Y轴索引
 		 * @return {Array} Cell数组
 		 */
-		getCellByVertical: function(startIndexCol, startIndexRow, endIndexCol, endIndexRow) {
+		getCellByVertical: function(startColIndex, startRowIndex, endColIndex, endRowIndex) {
 			var result = [],
 				strandX,
 				index,
@@ -131,25 +131,33 @@ define(function(require) {
 				i, j,
 				len1, len2,
 				rowAlias,
-				colAlias;
+				colAlias,
+				region;
 
-			if (endIndexRow === undefined) {
-				endIndexRow = startIndexRow;
+			if (typeof startColIndex === 'object') {
+				region = startColIndex;
+				startColIndex = region.startColIndex;
+				startRowIndex = region.startRowIndex;
+				endColIndex = region.endColIndex;
+				endRowIndex = region.endRowIndex;
 			}
-			if (endIndexCol === undefined) {
-				endIndexCol = startIndexCol;
+			if (endRowIndex === undefined) {
+				endRowIndex = startRowIndex;
 			}
-			if (endIndexRow === 'MAX') {
-				endIndexRow = headItemRows.length - 1;
+			if (endColIndex === undefined) {
+				endColIndex = startColIndex;
 			}
-			if (endIndexCol === 'MAX') {
-				endIndexCol = headItemCols.length - 1;
+			if (endRowIndex === 'MAX') {
+				endRowIndex = headItemRows.length - 1;
+			}
+			if (endColIndex === 'MAX') {
+				endColIndex = headItemCols.length - 1;
 			}
 			strandX = cache.CellsPosition.strandX;
-			for (i = startIndexCol, len1 = endIndexCol + 1; i < len1; i++) {
+			for (i = startColIndex, len1 = endColIndex + 1; i < len1; i++) {
 				colAlias = headItemCols.models[i].get('alias');
 				if (typeof strandX[colAlias] !== 'undefined') {
-					for (j = startIndexRow, len2 = endIndexRow + 1; j < len2; j++) {
+					for (j = startRowIndex, len2 = endRowIndex + 1; j < len2; j++) {
 						rowAlias = headItemRows.models[j].get('alias');
 						if (typeof strandX[colAlias][rowAlias] !== 'undefined') {
 							index = strandX[colAlias][rowAlias];
