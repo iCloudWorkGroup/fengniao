@@ -49,7 +49,8 @@ module.exports = function(config) {
             'js/entrance/tool/deleterow.js': 'coverage',
             'js/entrance/row/rowoperation.js': 'coverage',
             'js/entrance/tool/setunderline.js':'coverage',
-            'js/entrance/tool/shortcut.js':'coverage'
+            'js/entrance/tool/shortcut.js':'coverage',
+            'js/entrance/tool/protect.js':'coverage'
         },
 
         // web server port

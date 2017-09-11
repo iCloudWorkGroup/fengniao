@@ -6,9 +6,24 @@ define(function(require) {
 			selects = require('collections/selectRegion'),
 			gridRows = require('collections/headItemRow'),
 			gridCols = require('collections/headItemCol'),
+			cache = require('basic/tools/cache'),
 			history = require('basic/tools/history');
 
 		beforeAll(function() {
+			while (gridCols.length) {
+				gridCols.shift();
+			}
+			while (gridRows.length) {
+				gridRows.shift();
+			}
+			while (cells.length) {
+				cells.shift();
+			}
+			while (selects.length) {
+				selects.shift();
+			}
+			cache.CellsPosition.strandX={};
+			cache.CellsPosition.strandY={};
 			gridCols.add([{
 				alias: '1'
 			}, {
@@ -102,6 +117,9 @@ define(function(require) {
 			});
 			underline.set();
 			expect(cells.models[0].get('content').underline).toEqual(1);
+		});
+		afterEach(function(){
+			stubSend.restore();
 		});
 	});
 });

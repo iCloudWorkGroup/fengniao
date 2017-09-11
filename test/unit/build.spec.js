@@ -2,7 +2,7 @@
 define(function(require) {
 	var headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
-		buildAlias = require('basic/tools/buildalias');
+		buildAlias = require('basic/tools/getdisplayname');
 
 	return {
 		/**
