@@ -40,9 +40,9 @@ define(function(require) {
 		}
 
 		if (operRegion.endColIndex === 'MAX') { //整行操作
-			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.family', fontFamily);
+			rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'content.family', fontFamily);
 		} else if (operRegion.endRowIndex === 'MAX') {
-			colOperate.colPropOper(operRegion.startColIndex, 'content.family', fontFamily);
+			colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'content.family', fontFamily);
 		} else {
 			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('content').family !== fontFamily) {

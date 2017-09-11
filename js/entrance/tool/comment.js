@@ -51,9 +51,9 @@ define(function(require) {
 			}
 
 			if (operRegion.endColIndex === 'MAX') { //整行操作
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.comment', comment);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'customProp.comment', comment);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'customProp.comment', comment);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'customProp.comment', comment);
 			} else {
 				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 					if (cell.get('customProp').comment !== comment) {

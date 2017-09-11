@@ -58,8 +58,8 @@ define(function(require) {
 
 		if (operRegion.endColIndex === 'MAX') {
 			rowOperate.rowPropOper(region.startRowIndex, 'wordWrap', wordWrap);
-		} else if (operRegion.endColIndex === 'MAX') {
-			colOperate.colPropOper(region.startColIndex, 'wordWrap', wordWrap);
+		} else if (operRegion.endRowIndex === 'MAX') {
+			colOperate.colPropOper(region.startColIndex,region.endColIndex, 'wordWrap', wordWrap);
 		} else {
 			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('wordWrap') !== wordWrap) {

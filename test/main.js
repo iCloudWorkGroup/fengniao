@@ -1,8 +1,11 @@
 requirejs.config({
 	baseUrl: '../js',
-	
+	paths:{
+		'build' : '../test/util/build'
+	}
 });
 requirejs([
+<<<<<<< HEAD
 	'../test/unit/build.spec',
 	'../test/unit/fillbg.spec',
 	'../test/unit/loadrecorder.spec',
@@ -11,6 +14,7 @@ requirejs([
 	'../test/unit/texttype.spec',
 	'../test/unit/shortcut.spec',
 	'../test/unit/underline.spec',
+
 ], function() {
 	window.onload();
 });

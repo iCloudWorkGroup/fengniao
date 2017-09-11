@@ -130,6 +130,7 @@ define(function(require) {
 				e = {},
 				i;
 
+
 			region = cells.getFullOperationRegion(
 				modelJSON.tempPosi.initColIndex,
 				modelJSON.tempPosi.initRowIndex,
@@ -169,13 +170,13 @@ define(function(require) {
 			});
 
 			//判断是否为整行或整列操作
-			if (modelJSON.tempPosi.mouseColIndex === 'MAX') {
+			if (modelJSON.tempPosi.mouseColIndex === 'MAX' || modelJSON.tempPosi.initColIndex === 'MAX') {
 				this.model.set('wholePosi.endX', 'MAX');
 				colDisplayNames.push('1');
 				colDisplayNames.push('MAX');
 				rowDisplayNames.push(rowModelList[startRowIndex].get('displayName'));
 				rowDisplayNames.push(rowModelList[endRowIndex].get('displayName'));
-			} else if (modelJSON.tempPosi.mouseRowIndex === 'MAX') {
+			} else if (modelJSON.tempPosi.mouseRowIndex === 'MAX' || modelJSON.tempPosi.initRowIndex === 'MAX') {
 				this.model.set('wholePosi.endY', 'MAX');
 				rowDisplayNames.push('1');
 				rowDisplayNames.push('MAX');

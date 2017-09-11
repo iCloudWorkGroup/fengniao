@@ -42,9 +42,9 @@ define(function(require) {
 		}
 
 		if (operRegion.endRowIndex === 'MAX') {
-			colOperate.colPropOper(operRegion.startColIndex, 'content.size', fontSize);
+			colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'content.size', fontSize);
 		} else if (operRegion.endColIndex === 'MAX') { //整行操作
-			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.size', fontSize);
+			rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'content.size', fontSize);
 		} else {
 			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('content').size !== fontSize) {

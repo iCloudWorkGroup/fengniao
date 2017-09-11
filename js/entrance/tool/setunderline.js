@@ -49,9 +49,9 @@ define(function(require) {
 			}
 
 			if (operRegion.endRowIndex === 'MAX') {
-				colOper.colPropOper(operRegion.startColIndex, 'content.underline', underline);
+				colOper.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'content.underline', underline);
 			} else if (operRegion.endColIndex === 'MAX') {
-				rowOper.rowPropOper(operRegion.startRowIndex, 'content.underline', underline);
+				rowOper.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex,  'content.underline', underline);
 			} else {
 				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 					var temp;

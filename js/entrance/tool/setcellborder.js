@@ -87,9 +87,9 @@ define(function(require) {
 					top: false
 				};
 			if (operRegion.endColIndex === 'MAX') {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border', border);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'border', border);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'border', border);
 			} else {
 				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 					changeModelList.push({
@@ -123,9 +123,9 @@ define(function(require) {
 					top: true
 				};
 			if (operRegion.endColIndex === 'MAX') {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border', border);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'border', border);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'border', border);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'border', border);
 			} else {
 				cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 					changeModelList.push({
@@ -153,9 +153,9 @@ define(function(require) {
 		function setTop() {
 			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'border.top', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'border.top', true);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'border.top', true);
 			} else {
 				cells.operTopHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
@@ -188,9 +188,9 @@ define(function(require) {
 		function setLeft() {
 			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.left', true);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'border.left', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'border.left', true);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'border.left', true);
 			} else {
 				cells.operLeftHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
@@ -223,9 +223,9 @@ define(function(require) {
 		function setBottom() {
 			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'border.bottom', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'border.bottom', true);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'border.bottom', true);
 			} else {
 				cells.operBottomHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
@@ -258,9 +258,9 @@ define(function(require) {
 		function setRight() {
 			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.right', true);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'border.right', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'border.right', true);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'border.right', true);
 			} else {
 				cells.operRightHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
@@ -291,11 +291,11 @@ define(function(require) {
 		function setOuter() {
 			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'border.top', true);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'border.bottom', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
-				colOperate.colPropOper(operRegion.startColIndex, 'border.right', true);
-				colOperate.colPropOper(operRegion.startColIndex, 'border.left', true);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'border.right', true);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'border.left', true);
 			} else {
 				cells.operOuterHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,

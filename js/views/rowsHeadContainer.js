@@ -7,6 +7,7 @@ define(function(require) {
 		cache = require('basic/tools/cache'),
 		binary = require('basic/util/binary'),
 		send = require('basic/tools/send'),
+		getDisplayName = require('basic/tools/getdisplayname'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
 		cells = require('collections/cells'),
@@ -15,8 +16,12 @@ define(function(require) {
 		siderLineCols = require('collections/siderLineCol'),
 		RowsSpaceLineContainer = require('views/rowsSpaceLineContainer'),
 		HeadItemRowContainer = require('views/headItemRowContainer'),
+		SelectRegionModel = require('models/selectRegion'),
 		observerPattern = require('basic/util/observer.pattern'),
-		loadRecorder = require('basic/tools/loadrecorder');
+		loadRecorder = require('basic/tools/loadrecorder'),
+		gridRowList = headItemRows.models,
+		gridColList = headItemCols.models,
+		RowsHeadContainer;
 
 
 	/**
@@ -28,8 +33,7 @@ define(function(require) {
 	 * @extends Backbone.View
 	 * @constructor
 	 */
-	//ps:index修改为alias,列宽调整功能
-	var RowsHeadContainer = Backbone.View.extend({
+	RowsHeadContainer = Backbone.View.extend({
 		/**
 		 * 设置class属性
 		 * @property className
@@ -43,13 +47,13 @@ define(function(require) {
 		initialize: function(options) {
 			if (!cache.TempProp.isFrozen) {
 				this.delegateEvents({
-					'mousedown .row-head-item': 'transAction',
-					'mousemove .row-head-item': 'overEffect'
+					'mousedown .row-head-item': 'locatedHandle',
+					'mousemove .row-head-item': 'moveHandle'
 				});
 			}
-			Backbone.on('call:rowsHeadContainer', this.callRowsHeadContainer, this);
 			Backbone.on('event:rowsHeadContainer:relaseSpaceEffect', this.relaseSpaceEffect, this);
 			Backbone.on('event:rowHeightAdjust', this.rowHeightAdjust, this);
+			Backbone.on('event:rowsHeadContainer:setMouseState', this.setMouseState, this);
 			Backbone.on('event:rowsHeadContainer:destroy', this.destroy, this);
 			this.rowNumber = 0;
 
@@ -57,12 +61,12 @@ define(function(require) {
 
 			if (this.currentRule.displayPosition.endIndex === undefined) {
 				this.listenTo(headItemRows, 'add', this.addRowsHeadContainer);
-
 				//订阅滚动行视图还原
 				observerPattern.buildSubscriber(this);
 				this.subscribe('mainContainer', 'restoreRowView', 'restoreRowView');
 			}
-
+			this.moveState = this.commonMoveState;
+			this.locatedState = this.selectLocatedState;
 		},
 		/**
 		 * 页面渲染方法
@@ -96,62 +100,105 @@ define(function(require) {
 			if (activeModelList.length === 0) {
 				modelsHeadLineRowList[0].set('activeState', true);
 			}
-			this.triggerCallback();
 			return this;
 		},
-		/**
-		 * 绑定关联视图
-		 * @method triggerCallback
-		 */
-		triggerCallback: function() {
-			_.bindAll(this, 'callView');
-			Backbone.trigger('call:screenContainer', this.callView('viewScreenContainer'));
-			Backbone.trigger('call:mainContainer', this.callView('viewMainContainer'));
-			Backbone.trigger('call:cellsContainer', this.callView('viewCellsContainer'));
+		moveHandle: function(event) {
+			this.moveState && this.moveState(event);
 		},
-		/**
-		 * 用于其他视图，绑定该视图或调用该视图方法
-		 * @method callRowsHeadContainer
-		 * @param {function} receiveFunc 回调函数
-		 */
-		callRowsHeadContainer: function(receiveFunc) {
-			receiveFunc(this);
+		locatedHandle: function(event) {
+			this.locatedState(event);
 		},
-		/**
-		 * 鼠标移动到列标题，渲染效果
-		 * @method overEffect
-		 * @param  {event} e 鼠标移动事件
-		 */
-		overEffect: function(e) {
-			e.currentTarget.style.cursor = this.isAdjustable(e) === true && !cache.protectState ? 'row-resize' : '';
+		setMouseState: function(type, state) {
+			if (state !== null) {
+				this[type] = this[state];
+			} else {
+				this[type] = null;
+			}
+		},
+		selectLocatedState: function(e) {
+			//拖拽视图
+			if (this._isAdjustable(e) && !e.shiftKey && !cache.protectState) {
+				this.spaceEffect(e);
+				return;
+			}
+			//选中视图
+			var select = selectRegions.getModelByType('selected'),
+				containerId = cache.containerId,
+				mousePosi;
+
+			mousePosi = this._getRelativePosi(event.clientY);
+			this.adjustLocatedModel(mousePosi, select, e.shiftKey);
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'selectMoveState');
+			Backbone.trigger('event:rowsHeadContainer:setMouseState', 'moveState', 'selectMoveState');
+		},
+		dataSourceLocatedState: function(event) {
+			var select = selectRegions.getModelByType('datasource'),
+				mousePosi;
+			if (typeof select === 'undefined') {
+				select = new SelectRegionModel();
+				select.set('selectType', 'datasource');
+				selectRegions.add(select);
+			}
+			mousePosi = this._getRelativePosi(event.clientY);
+			this.adjustLocatedModel(mousePosi, select, event.shiftKey);
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
+			Backbone.trigger('event:rowsHeadContainer:setMouseState', 'moveState', 'dataSourceMoveState');
+		},
+		selectMoveState: function(e) {
+			var select = selectRegions.getModelByType('selected'),
+				mousePosi,
+				tempPosi,
+				rowIndex;
+			mousePosi = this._getRelativePosi(e.clientY);
+			rowIndex = binary.modelBinary(mousePosi, gridRowList, 'top', 'height');
+			tempPosi = select.set('tempPosi.mouseRowIndex', rowIndex);
+		},
+		dataSourceMoveState: function(event) {
+			var select = selectRegions.getModelByType('datasource'),
+				mousePosi,
+				tempPosi,
+				rowIndex;
+			mousePosi = this._getRelativePosi(event.clientY);
+			rowIndex = binary.modelBinary(mousePosi, gridRowList, 'top', 'height');
+			tempPosi = select.set('tempPosi.mouseRowIndex', rowIndex);
+		},
+		commonMoveState: function(e) {
+			e.currentTarget.style.cursor = this._isAdjustable(e) === true && !cache.protectState ? 'row-resize' : '';
+		},
+		adjustLocatedModel: function(posi, select, continuous) {
+			var modelCell,
+				startRowIndex,
+				endRowIndex,
+				wholePosi,
+				temp;
+			//this model index of headline
+			endRowIndex = binary.modelBinary(posi, gridRowList, 'top', 'height');
+			wholePosi = select.get('wholePosi');
+			if (continuous) {
+				startRowIndex = headItemRows.getIndexByAlias(wholePosi.startY);
+			} else {
+				startRowIndex = endRowIndex;
+			}
+
+			select.set('tempPosi', {
+				initColIndex: 'MAX',
+				initRowIndex: startRowIndex,
+				mouseColIndex: 0,
+				mouseRowIndex: endRowIndex
+			});
 		},
 		/**
 		 * 判断是否可以更改列宽
 		 * @method isAdjustable
 		 * @param  {event}  e 鼠标事件
 		 */
-		isAdjustable: function(e) {
+		_isAdjustable: function(e) {
 			var overEl = this.itemEl || e.currentTarget;
 			return e.pageY - $(overEl).offset().top > overEl.clientHeight - config.System.effectDistanceRow ? true : false;
 		},
-		//ps:index修改为alias,整列选中
-		/**
-		 * 处理鼠标点击事件
-		 * @method transAction
-		 * @param  {event} e 鼠标事件
-		 */
-		transAction: function(e) {
-			if (!this.isAdjustable(e)) {
-				this.rowLocate(e);
-				return;
-			}
-			this.spaceEffect(e);
-		},
-		callView: function(name) {
-			var object = this;
-			return function(callBack) {
-				object[name] = callBack;
-			};
+		_getRelativePosi: function(posi) {
+			var containerId = cache.containerId;
+			return posi - $('#' + containerId).offset().top - config.System.outerTop + cache.viewRegion.scrollTop;
 		},
 		/**
 		 * 行调整时效果，绑定移动事件
@@ -165,7 +212,7 @@ define(function(require) {
 			this.$lockData = $('.row-head-item:gt(' + this.$itemEl.index() + ')', this.el);
 			this.$tempSpaceContainer = $('<div/>').addClass('temp-space-container').html(this.$lockData);
 			this.$el.append(this.$tempSpaceContainer);
-			this.viewScreenContainer.mouseMoveHeadContainer(e, {
+			Backbone.trigger('event:screenContainer:mouseMoveHeadContainer',{
 				spaceMouse: this.itemEl.clientHeight - e.offsetY,
 				// from currentTarget rightBorder caculation distance to document
 				offsetTopByBottom: this.itemEl.clientHeight + this.$itemEl.offset().top,
@@ -247,52 +294,6 @@ define(function(require) {
 					row: rowSort,
 					offset: offset
 				})
-			});
-		},
-		/**
-		 * 整行选中
-		 * @method rowLocate
-		 * @param  {event} e 鼠标点击事件
-		 */
-		rowLocate: function(e) {
-			var containerId = cache.containerId,
-				mainMousePosiY,
-				modelCell,
-				headModelRow,
-				headModelCol,
-				modelIndexRow,
-				headLineColModelList,
-				headLineRowModelList;
-			if (!this.viewMainContainer) {
-				this.triggerCallback();
-			}
-			mainMousePosiY = e.clientY - config.System.outerTop - $('#' + containerId).offset().top + this.viewMainContainer.el.scrollTop;
-			//headColModels,headRowModels list
-			headLineRowModelList = headItemRows.models;
-			//this model index of headline
-			modelIndexRow = binary.modelBinary(mainMousePosiY, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
-			//ps：修改
-			this.selectCellCols(modelIndexRow);
-		},
-		selectCellCols: function(index) {
-			var select;
-			if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
-				select = selectRegions.getModelByType('dataSource');
-				if (select === undefined) {
-					select = new SelectRegionModel();
-					select.set('selectType', 'dataSource');
-					selectRegions.add(select);
-				}
-			} else {
-				select = selectRegions.getModelByType('selected');
-			}
-			cache.shortcut.select.colAlias = headItemCols.models[0].get('alias');
-			cache.shortcut.select.rowAlias = headItemRows.models[index].get('alias');
-			select.set('tempPosi', {
-				initColIndex: 0,
-				initRowIndex: index,
-				mouseColIndex: 'MAX',
-				mouseRowIndex: index
 			});
 		},
 		/**
@@ -451,6 +452,7 @@ define(function(require) {
 			Backbone.off('event:rowsHeadContainer:destroy');
 			Backbone.off('call:rowsHeadContainer');
 			Backbone.off('event:rowsHeadContainer:relaseSpaceEffect');
+			Backbone.off('event:rowsHeadContainer:setMouseState');
 			Backbone.off('event:rowHeightAdjust');
 			this.undelegateEvents();
 			this.remove();

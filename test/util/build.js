@@ -37,7 +37,7 @@ define(function(require) {
 				headItemCols.add({
 					sort: i,
 					alias: (i + 1).toString(),
-					top: i * 72,
+					left: i * 72,
 					displayName: buildAlias.buildColAlias(i)
 				});
 			}

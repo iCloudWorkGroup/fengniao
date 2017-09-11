@@ -78,15 +78,15 @@ define(function(require) {
 
 		if (operRegion.endColIndex === 'MAX') { //整行操作
 			if (transverse !== undefined) {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'content.alignRow', transverse);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'content.alignRow', transverse);
 			} else {
-				rowOperate.rowPropOper(operRegion.startRowIndex, 'content.alignCol', vertical);
+				rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'content.alignCol', vertical);
 			}
 		} else if (operRegion.endRowIndex === 'MAX') { //整行操作
 			if (transverse !== undefined) {
-				colOperate.colPropOper(operRegion.startColIndex, 'content.alignRow', transverse);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'content.alignRow', transverse);
 			} else {
-				colOperate.colPropOper(operRegion.startColIndex, 'content.alignCol', vertical);
+				colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'content.alignCol', vertical);
 			}
 		} else {
 			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
