@@ -51,9 +51,9 @@ define(function(require) {
 			}
 		}
 		if (operRegion.endColIndex === 'MAX') { //整行操作
-			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.italic', italic);
+			rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'content.italic', italic);
 		} else if (operRegion.endRowIndex === 'MAX') {
-			colOperate.colPropOper(operRegion.startColIndex, 'content.italic', italic);
+			colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'content.italic', italic);
 		} else {
 			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('content').italic !== italic) {

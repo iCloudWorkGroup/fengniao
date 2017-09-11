@@ -35,9 +35,9 @@ define(function(require) {
 			return;
 		}
 		if (operRegion.endColIndex === 'MAX') { //整行操作
-			rowOperate.rowPropOper(operRegion.startRowIndex, 'content.color', color);
+			rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'content.color', color);
 		} else if (operRegion.endRowIndex === 'MAX') {
-			colOperate.colPropOper(operRegion.startColIndex, 'content.color', color);
+			colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'content.color', color);
 		} else {
 			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('content').color !== color) {

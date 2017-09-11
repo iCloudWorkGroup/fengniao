@@ -49,7 +49,9 @@ module.exports = function(config) {
             'js/entrance/tool/deleterow.js': 'coverage',
             'js/entrance/row/rowoperation.js': 'coverage',
             'js/entrance/tool/setunderline.js':'coverage',
-            'js/entrance/tool/shortcut.js':'coverage'
+            'js/entrance/tool/shortcut.js':'coverage',
+            'js/collections/cells.js':'coverage',
+            'js/views/selectRegion.js':'coverage'
         },
 
         // web server port
@@ -82,7 +84,6 @@ module.exports = function(config) {
 
         // If browser does not capture in given timeout [ms], kill it
         captureTimeout: 60000,
-
 
         // Continuous Integration mode
         // if true, it capture browsers, run tests and exit

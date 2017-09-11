@@ -20,8 +20,6 @@ define(function(require) {
 	 * @param {string} arrOpr  操作区域
 	 */
 	var setFillColor = function(sheetId, color, arrOpr) {
-		
-
 		var clip,
 			region,
 			operRegion,
@@ -42,9 +40,9 @@ define(function(require) {
 
 
 		if (operRegion.endColIndex === 'MAX') { //整行操作
-			rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.background', color);
+			rowOperate.rowPropOper(operRegion.startRowIndex, operRegion.endRowIndex, 'customProp.background', color);
 		} else if (operRegion.endRowIndex === 'MAX') {
-			colOperate.colPropOper(operRegion.startColIndex, 'customProp.background', color);
+			colOperate.colPropOper(operRegion.startColIndex, operRegion.endColIndex, 'customProp.background', color);
 		} else {
 			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('customProp').background !== color) {

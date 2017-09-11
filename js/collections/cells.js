@@ -6,7 +6,9 @@ define(function(require) {
 		CellModel = require('models/cell'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
-		selectRegions = require('collections/selectRegion');
+		selectRegions = require('collections/selectRegion'),
+		gridRowList = headItemRows.models,
+		gridColList = headItemCols.models;
 	/**
 	 *cell集合类，管理cell对象
 	 *@class Cells 
@@ -1062,9 +1064,7 @@ define(function(require) {
 		 * @return {object}               索引信息
 		 */
 		getFullOperationRegion: function(startColIndex, startRowIndex, endColIndex, endRowIndex) {
-			var headItemRowList = headItemRows.models,
-				headItemColList = headItemCols.models,
-				tempCellList,
+			var cellList,
 				cellStartColIndex,
 				cellStartRowIndex,
 				cellEndColIndex,
@@ -1075,18 +1075,27 @@ define(function(require) {
 
 			endColIndex = endColIndex !== undefined ? endColIndex : startColIndex;
 			endRowIndex = endRowIndex !== undefined ? endRowIndex : startRowIndex;
-
-			if (endColIndex === 'MAX') {
+			if (startColIndex === 'MAX' || endColIndex === 'MAX') {
+				if (startRowIndex > endRowIndex) {
+					temp = startRowIndex;
+					startRowIndex = endRowIndex;
+					endRowIndex = temp;
+				}
 				return {
 					startRowIndex: startRowIndex,
-					startColIndex: startColIndex,
+					startColIndex: 0,
 					endRowIndex: endRowIndex,
 					endColIndex: headItemCols.length - 1
 				};
 			}
-			if (endRowIndex === 'MAX') {
+			if (startRowIndex === 'MAX' || endRowIndex === 'MAX') {
+				if (startColIndex > endColIndex) {
+					temp = startColIndex;
+					startColIndex = endColIndex;
+					endColIndex = temp;
+				}
 				return {
-					startRowIndex: startRowIndex,
+					startRowIndex: 0,
 					startColIndex: startColIndex,
 					endColIndex: endColIndex,
 					endRowIndex: headItemRows.length - 1
@@ -1102,34 +1111,32 @@ define(function(require) {
 				startRowIndex = endRowIndex;
 				endRowIndex = temp;
 			}
+
 			while (flag) {
 				flag = false;
-				tempCellList = this.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
+				cellList = this.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
 
-				for (i = 0, len = tempCellList.length; i < len; i++) {
-					cellStartRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top, headItemRowList, 'top', 'height');
-					cellStartColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left, headItemColList, 'left', 'width');
-					cellEndRowIndex = binary.modelBinary(tempCellList[i].get('physicsBox').top + tempCellList[i].get('physicsBox').height, headItemRowList, 'top', 'height');
-					cellEndColIndex = binary.modelBinary(tempCellList[i].get('physicsBox').left + tempCellList[i].get('physicsBox').width, headItemColList, 'left', 'width');
+				for (i = 0, len = cellList.length; i < len; i++) {
+					temp = cellList[i].get('physicsBox');
+					cellStartRowIndex = binary.modelBinary(temp.top, gridRowList, 'top', 'height');
+					cellStartColIndex = binary.modelBinary(temp.left, gridColList, 'left', 'width');
+					cellEndRowIndex = binary.modelBinary(temp.top + temp.height, gridRowList, 'top', 'height');
+					cellEndColIndex = binary.modelBinary(temp.left + temp.width, gridColList, 'left', 'width');
 					if (cellStartColIndex < startColIndex) {
 						startColIndex = cellStartColIndex;
 						flag = true;
-						break;
 					}
 					if (cellStartRowIndex < startRowIndex) {
 						startRowIndex = cellStartRowIndex;
 						flag = true;
-						break;
 					}
 					if (cellEndRowIndex > endRowIndex) {
 						endRowIndex = cellEndRowIndex;
 						flag = true;
-						break;
 					}
 					if (cellEndColIndex > endColIndex) {
 						endColIndex = cellEndColIndex;
 						flag = true;
-						break;
 					}
 				}
 			}
