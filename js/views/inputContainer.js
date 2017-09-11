@@ -7,6 +7,7 @@ define(function(require) {
 		config = require('spreadsheet/config'),
 		send = require('basic/tools/send'),
 		Cell = require('models/cell'),
+		setCellContent = require('entrance/tool/setcellcontent'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
 		selectRegions = require('collections/selectRegion'),
@@ -16,6 +17,7 @@ define(function(require) {
 		clipSelectOperate = require('entrance/tool/clipselectoperate'),
 		clipPasteOperate = require('entrance/tool/clippasteoperate'),
 		done = require('entrance/sheet/redoundo'),
+		protect = require('entrance/tool/protect'),
 		headItemRowList = headItemRows.models,
 		headItemColList = headItemCols.models,
 		InputContainer;
@@ -79,16 +81,24 @@ define(function(require) {
 				top,
 				cell;
 
-			clip = selectRegions.getModelByType('clip');
-			if (clip !== undefined) {
-				cache.clipState = 'null';
-				clip.destroy();
-			}
 			select = selectRegions.getModelByType('selected');
 			colAlias = select.get('wholePosi').startX;
 			colIndex = headItemCols.getIndexByAlias(colAlias);
 			rowAlias = select.get('wholePosi').startY;
 			rowIndex = headItemRows.getIndexByAlias(rowAlias);
+
+			if (protect.interceptor({
+					startColIndex: colIndex,
+					startRowIndex: rowIndex
+				})) {
+				return;
+			}
+			clip = selectRegions.getModelByType('clip');
+			if (clip !== undefined) {
+				cache.clipState = 'null';
+				clip.destroy();
+			}
+
 
 			Backbone.trigger('call:mainContainer', function(container) {
 				mainContainer = container;
@@ -222,8 +232,8 @@ define(function(require) {
 		hide: function() {
 			var model = this.model,
 				originalText,
-				rowSort,
-				colSort,
+				rowDisplayName,
+				colDisplayName,
 				text;
 
 			if (this.showState === true) {
@@ -234,30 +244,12 @@ define(function(require) {
 					'height': 0,
 					'z-index': -100
 				});
-				rowSort = headItemRowList[this.rowIndex].get('sort');
-				colSort = headItemColList[this.colIndex].get('sort');
+				rowDisplayName = headItemRowList[this.rowIndex].get('displayName');
+				colDisplayName = headItemColList[this.colIndex].get('displayName');
 
 				originalText = model.get('content').texts;
 				text = this.$el.val();
-				if (originalText !== text) {
-					history.addUpdateAction('content.texts', text, {
-						startColSort: colSort,
-						startRowSort: rowSort,
-						endColSort: colSort,
-						endRowSort: rowSort
-					}, [{
-						colSort: colSort,
-						rowSort: rowSort,
-						value: originalText
-					}]);
-
-					if (text.indexOf('\n') !== -1 && (model.get('wordWrap') === false)) {
-						model.set('wordWrap', true);
-						this.sendWordWrap(colSort, rowSort);
-					}
-					model.set('content.texts', text);
-					this.sendChangeText(colSort, rowSort, text);
-				}
+				setCellContent('sheetId', text, colDisplayName.toUpperCase() + rowDisplayName);
 			}
 			this.$el.val('');
 			this.showState = false;
