@@ -2,7 +2,7 @@
 define(function(require) {
 	var headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
-		buildAlias = require('basic/tools/getdisplayname');
+		getDisplayName = require('basic/tools/getdisplayname');
 
 	return {
 		/**
@@ -12,6 +12,9 @@ define(function(require) {
 		buildRow: function() {
 			var i = 0,
 				len = 10;
+			while(headItemRows.length){
+				headItemRows.shift();
+			}
 			for (; i < len; i++) {
 				headItemRows.add({
 					sort: i,
@@ -25,7 +28,9 @@ define(function(require) {
 		 * 清空行集合
 		 */
 		destroyRow: function() {
-			headItemRows.reset();
+			while(headItemRows.length){
+				headItemRows.shift();
+			}
 		},
 		/**
 		 * 在列集合中，添加10个合法Model
@@ -33,12 +38,15 @@ define(function(require) {
 		buildCol: function() {
 			var i = 0,
 				len = 10;
+			while(headItemCols.length){
+				headItemCols.shift();
+			}
 			for (; i < len; i++) {
 				headItemCols.add({
 					sort: i,
 					alias: (i + 1).toString(),
 					left: i * 72,
-					displayName: buildAlias.buildColAlias(i)
+					displayName: getDisplayName.getColDisplayName(i)
 				});
 			}
 		},
@@ -46,7 +54,9 @@ define(function(require) {
 		 * 清空列集合
 		 */
 		destroyCol: function() {
-			headItemCols.reset();
+			while(headItemCols.length){
+				headItemCols.shift();
+			}
 		}
 	};
 });

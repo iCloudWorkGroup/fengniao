@@ -5,7 +5,6 @@ requirejs.config({
 	}
 });
 requirejs([
-<<<<<<< HEAD
 	'../test/unit/build.spec',
 	'../test/unit/fillbg.spec',
 	'../test/unit/loadrecorder.spec',
