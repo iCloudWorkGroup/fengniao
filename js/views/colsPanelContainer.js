@@ -61,7 +61,7 @@ define(function(require) {
 				return;
 			}
 			if (this.currentRule.displayPosition.endRowIndex === undefined) {
-				Backbone.on('event:changeShrinkContainer', this.shrink, this);
+				Backbone.on('event:changeSidebarContainer', this.shrink, this);
 			}
 			//the page is reload excel, len will be appoint num ,will be not necessarily start A,1 
 			modelHeadLinelastCol = modelsHeadLineColRegionList[len - 1];

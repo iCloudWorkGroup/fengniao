@@ -16,8 +16,7 @@ define(function(require) {
 		RowsSpaceLineContainer = require('views/rowsSpaceLineContainer'),
 		HeadItemRowContainer = require('views/headItemRowContainer'),
 		observerPattern = require('basic/util/observer.pattern'),
-		loadRecorder = require('basic/tools/loadrecorder'),
-		selectCellCols = require('entrance/cell/selectcellcols');
+		loadRecorder = require('basic/tools/loadrecorder');
 
 
 	/**
@@ -124,7 +123,7 @@ define(function(require) {
 		 * @param  {event} e 鼠标移动事件
 		 */
 		overEffect: function(e) {
-			e.currentTarget.style.cursor = this.isAdjustable(e) === true ? 'row-resize' : '';
+			e.currentTarget.style.cursor = this.isAdjustable(e) === true && !cache.protectState ? 'row-resize' : '';
 		},
 		/**
 		 * 判断是否可以更改列宽
@@ -273,7 +272,28 @@ define(function(require) {
 			//this model index of headline
 			modelIndexRow = binary.modelBinary(mainMousePosiY, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
 			//ps：修改
-			selectCellCols('1', null, modelIndexRow, e);
+			this.selectCellCols(modelIndexRow);
+		},
+		selectCellCols: function(index) {
+			var select;
+			if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
+				select = selectRegions.getModelByType('dataSource');
+				if (select === undefined) {
+					select = new SelectRegionModel();
+					select.set('selectType', 'dataSource');
+					selectRegions.add(select);
+				}
+			} else {
+				select = selectRegions.getModelByType('selected');
+			}
+			cache.shortcut.select.colAlias = headItemCols.models[0].get('alias');
+			cache.shortcut.select.rowAlias = headItemRows.models[index].get('alias');
+			select.set('tempPosi', {
+				initColIndex: 0,
+				initRowIndex: index,
+				mouseColIndex: 'MAX',
+				mouseRowIndex: index
+			});
 		},
 		/**
 		 * 滚动过程中,还原行视图
@@ -336,7 +356,7 @@ define(function(require) {
 				alias: (this.rowNumber + 1).toString(),
 				top: this.rowNumber * 20,
 				height: 19,
-				displayName: buildAlias.buildRowAlias(this.rowNumber)
+				displayName: getDisplayName.getRowDisplayName(this.rowNumber)
 			};
 			return currentObject;
 		},

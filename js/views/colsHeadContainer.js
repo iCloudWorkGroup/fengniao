@@ -10,7 +10,7 @@ define(function(require) {
 		binary = require('basic/util/binary'),
 		cache = require('basic/tools/cache'),
 		send = require('basic/tools/send'),
-		buildAlias = require('basic/tools/buildalias'),
+		getDisplayName = require('basic/tools/getdisplayname'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
 		cells = require('collections/cells'),
@@ -19,7 +19,6 @@ define(function(require) {
 		siderLineCols = require('collections/siderLineCol'),
 		HeadItemColContainer = require('views/headItemColContainer'),
 		ColsSpaceLineContainer = require('views/colsSpaceLineContainer'),
-		selectCellRows = require('entrance/cell/selectcellrows'),
 		ColsHeadContainer;
 	/**
 	 * ColsHeadContainer
@@ -90,7 +89,7 @@ define(function(require) {
 
 			len = modelsHeadLineColRegionList.length;
 			for (; i < len; i++) {
-				if(!modelsHeadLineColRegionList[i].get('hidden')){
+				if (!modelsHeadLineColRegionList[i].get('hidden')) {
 					this.addColsHeadContainer(modelsHeadLineColRegionList[i]);
 				}
 				this.colNumber++;
@@ -131,7 +130,7 @@ define(function(require) {
 		 * @param  {event}   e
 		 */
 		overEffect: function(e) {
-			e.currentTarget.style.cursor = this.isAdjustable(e) === true ? 'col-resize' : '';
+			e.currentTarget.style.cursor = this.isAdjustable(e) === true && !cache.protectState ? 'col-resize' : '';
 		},
 		/**
 		 * 确认是否可以调整
@@ -309,7 +308,7 @@ define(function(require) {
 				alias: (this.colNumber + 1).toString(),
 				left: this.colNumber * config.User.cellWidth,
 				width: config.User.cellWidth - 1,
-				displayName: buildAlias.buildColAlias(this.colNumber)
+				displayName: getDisplayName.getColDisplayName(this.colNumber)
 			};
 			return currentObject;
 		},
@@ -352,7 +351,28 @@ define(function(require) {
 			modelIndexCol = binary.modelBinary(rowMousePosiX, headLineColModelList, 'left', 'width', 0, headLineColModelList.length - 1);
 			//head model information
 			headModelCol = headLineColModelList[modelIndexCol];
-			selectCellRows('1', null, modelIndexCol, e);
+			this.selectCellRows(modelIndexCol);
+		},
+		selectCellRows: function(index) {
+			var select;
+			if (cache.mouseOperateState === config.mouseOperateState.dataSource) {
+				select = selectRegions.getModelByType('dataSource');
+				if (select === undefined) {
+					select = new SelectRegionModel();
+					select.set('selectType', 'dataSource');
+					selectRegions.add(select);
+				}
+			} else {
+				select = selectRegions.getModelByType('selected');
+			}
+			cache.shortcut.select.rowAlias = headItemRows.models[0].get('alias');
+			cache.shortcut.select.colAlias = headItemCols.models[index].get('alias');
+			select.set('tempPosi', {
+				initColIndex: index,
+				initRowIndex: 0,
+				mouseColIndex: index,
+				mouseRowIndex: 'MAX'
+			});
 		},
 		/**
 		 * 调整列宽度和他们的left值

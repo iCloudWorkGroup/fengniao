@@ -106,7 +106,7 @@ define(function(require) {
 				alias: (this.rowNumber + 1).toString(),
 				top: this.rowNumber * config.User.cellHeight,
 				height: config.User.cellHeight - 1,
-				displayName: app.basic.buildRowAlias(this.rowNumber)
+				displayName: app.basic.getRowDisplayName(this.rowNumber)
 			};
 			return currentObject;
 		},
