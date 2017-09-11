@@ -75,6 +75,7 @@ span { display: inline-block; }
 .ico-numeric { width: 32px; height: 32px; background-position: -69px -1px; }
 .ico-routine { width: 32px; height: 32px; background-position: -35px -1px; }
 .ico-text { width: 32px; height: 32px; background-position: -1px -103px; }
+.ico-lock { width: 32px; height: 32px; background: url('../img/lock.png');}
 .fui-alone { margin: 6px 0 0 0; }
 .fui-transverse { margin: 6px 0 2px 0; }
 .fui-transverse-model { padding: 2px; }
