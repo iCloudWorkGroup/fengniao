@@ -1,6 +1,7 @@
 'use strict';
 define(function(require) {
-	var headItemCols = require('collections/headItemCol'),
+	var Backbone = require('lib/backbone'),
+		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
 		protect = require('entrance/tool/protect'),
