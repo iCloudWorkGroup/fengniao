@@ -1,6 +1,7 @@
 define(function(require) {
 	'use strict';
-	var send = require('basic/tools/send'),
+	var Backbone = require('lib/backbone'),
+		send = require('basic/tools/send'),
 		config = require('spreadsheet/config'),
 		history = require('basic/tools/history'),
 		gridCols = require('collections/headItemCol'),
@@ -23,6 +24,10 @@ define(function(require) {
 			if (typeof sheetId === 'boolean') {
 				region = underline;
 				underline = sheetId;
+			}
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+				return;
 			}
 			if (typeof underline !== 'boolean') {
 				region = underline;
@@ -87,6 +92,6 @@ define(function(require) {
 				})
 			});
 		}
-	}
+	};
 	return result;
 });

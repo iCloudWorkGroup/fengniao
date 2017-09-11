@@ -15,32 +15,37 @@ define(function(require) {
 		commentHandler;
 
 	commentHandler = {
-		removeClip: function() {
+		before: function() {
 			var clip = selectRegions.getModelByType('clip');
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+				return true;
+			}
 		},
 		modifyComment: function(sheetId, comment, label) {
-			var clip,
-				region,
+			var region,
 				operRegion,
 				sendRegion,
 				headItemRowList = headItemRows.models,
 				headItemColList = headItemCols.models,
 				changeModelList = [];
 
-			this.removeClip();
+			if (this.before()) {
+				return;
+			}
 			region = getOperRegion(label);
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
 
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
 				if (comment === null) {
-					this.sendData(sendRegion, null, config.url.cell.comment_del);
+					this.sendData(sendRegion, null, config.url.cell.commentDel);
 				} else {
-					this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+					this.sendData(sendRegion, comment, config.url.cell.commentPlus);
 				}
 				return;
 			}
@@ -68,30 +73,33 @@ define(function(require) {
 				}, changeModelList);
 			}
 			if (comment === null) {
-				this.sendData(sendRegion, null, config.url.cell.comment_del);
+				this.sendData(sendRegion, null, config.url.cell.commentDel);
 			} else {
-				this.sendData(sendRegion, comment, config.url.cell.comment_plus);
+				this.sendData(sendRegion, comment, config.url.cell.commentPlus);
 			}
 		},
-
-		createAddCommentView: function(sheetId) {
-			this.removeClip();
+		createAddCommentView: function() {
+			if (this.before()) {
+				return;
+			}
 			Backbone.trigger('event:bodyContainer:handleComment', {
 				'action': 'add',
 			});
 		},
-
-		createEditComment: function(sheetId) {
-			this.removeClip();
+		createEditComment: function() {
+			if (this.before()) {
+				return;
+			}
 			Backbone.trigger('event:bodyContainer:handleComment', {
 				'action': 'edit'
 			});
 		},
 
-		deleteComment: function(sheetId, label) {
-			this.removeClip();
+		deleteComment: function(label) {
+			if (this.before()) {
+				return;
+			}
 			this.modifyComment('1', null, label);
-			// comment_del
 		},
 		sendData: function(sendRegion, comment, url) {
 			var data = {

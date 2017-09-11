@@ -1,6 +1,7 @@
   'use strict';
   define(function(require) {
-    var send = require('basic/tools/send'),
+    var Backbone = require('lib/backbone'),
+      send = require('basic/tools/send'),
       cells = require('collections/cells'),
       config = require('spreadsheet/config'),
       getOperRegion = require('basic/tools/getoperregion'),
@@ -32,18 +33,14 @@
        */
       setNormal: function(sheetId, label) {
         var self,
-          clip,
           region,
           operRegion,
           sendRegion,
           format;
 
         self = this;
-
-        clip = selectRegions.getModelByType('clip');
-        if (clip !== undefined) {
-          cache.clipState = 'null';
-          clip.destroy();
+        if (this.before()) {
+          return;
         }
         region = getOperRegion(label);
         operRegion = region.operRegion;
@@ -74,18 +71,13 @@
         this.sendData(format, sendRegion);
       },
       setText: function(sheetId, label) {
-        var self = this,
-          clip,
-          region,
+        var region,
           operRegion,
           sendRegion,
           format;
 
-
-        clip = selectRegions.getModelByType('clip');
-        if (clip !== undefined) {
-          cache.clipState = 'null';
-          clip.destroy();
+        if (this.before()) {
+          return;
         }
         region = getOperRegion(label);
         operRegion = region.operRegion;
@@ -117,7 +109,6 @@
       },
       setNum: function(sheetId, thousands, decimal, label) {
         var self,
-          clip,
           region,
           operRegion,
           sendRegion,
@@ -125,11 +116,8 @@
           headItemRowList = headItemRows.models,
           headItemColList = headItemCols.models,
           format;
-
-        clip = selectRegions.getModelByType('clip');
-        if (clip !== undefined) {
-          cache.clipState = 'null';
-          clip.destroy();
+        if (this.before()) {
+          return;
         }
         self = this;
         region = getOperRegion(label);
@@ -172,7 +160,6 @@
       },
       setDate: function(sheetId, dateFormat, label) {
         var self,
-          clip,
           region,
           operRegion,
           sendRegion,
@@ -180,10 +167,8 @@
           headItemRowList = headItemRows.models,
           headItemColList = headItemCols.models,
           format;
-        clip = selectRegions.getModelByType('clip');
-        if (clip !== undefined) {
-          cache.clipState = 'null';
-          clip.destroy();
+        if (this.before()) {
+          return;
         }
         format = {
           type: 'date',
@@ -226,7 +211,6 @@
       },
       setPercent: function(sheetId, decimal, label) {
         var self,
-          clip,
           region,
           operRegion,
           sendRegion,
@@ -236,10 +220,8 @@
           format;
 
         self = this;
-        clip = selectRegions.getModelByType('clip');
-        if (clip !== undefined) {
-          cache.clipState = 'null';
-          clip.destroy();
+        if (this.before()) {
+          return;
         }
         format = {
           type: 'percent',
@@ -286,8 +268,7 @@
         this.sendData(format, sendRegion);
       },
       setCurrency: function(sheetId, decimal, sign, label) {
-        var clip,
-          self,
+        var self,
           format,
           region,
           changeModelList = [],
@@ -295,11 +276,8 @@
           headItemColList = headItemCols.models,
           operRegion,
           sendRegion;
-
-        clip = selectRegions.getModelByType('clip');
-        if (clip !== undefined) {
-          cache.clipState = 'null';
-          clip.destroy();
+        if (this.before()) {
+          return;
         }
         region = getOperRegion(label);
         operRegion = region.operRegion;
@@ -343,6 +321,20 @@
           }, changeModelList);
         }
         this.sendData(format, sendRegion);
+      },
+      before: function() {
+        var clip;
+        clip = selectRegions.getModelByType('clip');
+        if (clip !== undefined) {
+          cache.clipState = 'null';
+          clip.destroy();
+        }
+        if (cache.protectState) {
+          Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+          return true;
+        } else {
+          return false;
+        }
       },
       sendData: function(format, sendRegion) {
         var data;

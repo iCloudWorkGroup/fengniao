@@ -31,6 +31,10 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+				return;
+			}
 			if (cache.TempProp.isFrozen === true) {
 				return;
 			}

@@ -1,6 +1,7 @@
 'use strict';
 define(function(require) {
-	var send = require('basic/tools/send'),
+	var Backbone = require('lib/backbone'),
+		send = require('basic/tools/send'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
@@ -24,6 +25,10 @@ define(function(require) {
 		if (clip !== undefined) {
 			cache.clipState = 'null';
 			clip.destroy();
+		}
+		if (cache.protectState) {
+			Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+			return;
 		}
 		region = getOperRegion(label);
 		operRegion = region.operRegion;
@@ -146,7 +151,7 @@ define(function(require) {
 		 * @param  {boolean} reverse
 		 */
 		function setTop() {
-			var cellList, i, changeModelList = [];
+			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
@@ -181,7 +186,7 @@ define(function(require) {
 		 * @param  {object} [appointList]
 		 */
 		function setLeft() {
-			var cellList, i, changeModelList = [];
+			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.left', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
@@ -216,7 +221,7 @@ define(function(require) {
 		 * @param  {object} [appointList]
 		 */
 		function setBottom() {
-			var cellList, i, changeModelList = [];
+			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
@@ -251,7 +256,7 @@ define(function(require) {
 		 * @param  {object} [appointList]
 		 */
 		function setRight() {
-			var cellList, i, changeModelList = [];
+			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.right', true);
 			} else if (operRegion.endRowIndex === 'MAX') {
@@ -284,7 +289,7 @@ define(function(require) {
 		 * @method setOuter
 		 */
 		function setOuter() {
-			var cellList, i, changeModelList = [],cachePosi={};
+			var changeModelList = [];
 			if (operRegion.endColIndex === 'MAX') {
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.top', true);
 				rowOperate.rowPropOper(operRegion.startRowIndex, 'border.bottom', true);
@@ -307,28 +312,28 @@ define(function(require) {
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
 					operRegion.endRowIndex,
-					function(cell, colSort, rowSort) {
+					function(cell) {
 						cell.set('border.right', true);
 					});
 				cells.operLeftHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
 					operRegion.endRowIndex,
-					function(cell, colSort, rowSort) {
+					function(cell) {
 						cell.set('border.left', true);
 					});
 				cells.operTopHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
 					operRegion.endRowIndex,
-					function(cell, colSort, rowSort) {
+					function(cell) {
 						cell.set('border.top', true);
 					});
 				cells.operBottomHeadModel(operRegion.startColIndex,
 					operRegion.startRowIndex,
 					operRegion.endColIndex,
 					operRegion.endRowIndex,
-					function(cell, colSort, rowSort) {
+					function(cell) {
 						cell.set('border.bottom', true);
 					});
 				history.addUpdateAction('border', true, {

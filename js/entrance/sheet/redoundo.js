@@ -34,6 +34,7 @@ define(function(require) {
 				len,
 				i, j, k;
 
+
 			if (!action) {
 				return;
 			}
@@ -100,6 +101,7 @@ define(function(require) {
 				len,
 				i, j, k;
 
+
 			if (!action) {
 				return;
 			}
@@ -148,6 +150,6 @@ define(function(require) {
 				url: url,
 			});
 		}
-	}
+	};
 	return redoUndo;
 });

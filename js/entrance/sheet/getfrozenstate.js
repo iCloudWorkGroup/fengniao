@@ -1,12 +1,10 @@
 define(function(require) {
 	'use strict';
-
 	var cache = require('basic/tools/cache'),
 		getFrozenState;
 
-		getFrozenState = function(sheetId) {
+		getFrozenState = function() {
 			return cache.TempProp.isFrozen;
 		};
 	return getFrozenState;
-
 });

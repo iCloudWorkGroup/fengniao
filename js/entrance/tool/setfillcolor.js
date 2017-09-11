@@ -1,7 +1,7 @@
-
 define(function(require) {
 	'use strict';
-	var send = require('basic/tools/send'),
+	var Backbone = require('lib/backbone'),
+		send = require('basic/tools/send'),
 		config = require('spreadsheet/config'),
 		cache = require('basic/tools/cache'),
 		cells = require('collections/cells'),
@@ -20,8 +20,6 @@ define(function(require) {
 	 * @param {string} arrOpr  操作区域
 	 */
 	var setFillColor = function(sheetId, color, arrOpr) {
-		
-
 		var clip,
 			region,
 			operRegion,
@@ -35,11 +33,16 @@ define(function(require) {
 			cache.clipState = 'null';
 			clip.destroy();
 		}
-
+		if (cache.protectState) {
+			Backbone.trigger('event:showMsgBar:show','保护状态，不能进行该操作');
+			return;
+		}
+		if (!color) {
+			color = sheetId;
+		}
 		region = getOperRegion(arrOpr);
 		operRegion = region.operRegion;
 		sendRegion = region.sendRegion;
-
 
 		if (operRegion.endColIndex === 'MAX') { //整行操作
 			rowOperate.rowPropOper(operRegion.startRowIndex, 'customProp.background', color);
