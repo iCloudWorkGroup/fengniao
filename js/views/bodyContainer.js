@@ -20,7 +20,7 @@ define(function(require) {
 		RowsPanelContainer = require('views/rowsPanelContainer'),
 		InputContainer = require('views/inputContainer'),
 		CommentContainer = require('views/commentcontainer'),
-		SiderbarContainer = require('views/siderbarcontainer'),
+		SidebarContainer = require('views/sidebarcontainer'),
 		BodyContainer;
 
 	/**
@@ -53,8 +53,9 @@ define(function(require) {
 		initialize: function() {
 			Backbone.on('event:bodyContainer:executiveFrozen', this.executiveFrozen, this);
 			Backbone.on('event:bodyContainer:handleComment', this.handleComment, this);
-			Backbone.on('event:siderbarContainer:show', this.showSiderBar, this);
-			Backbone.on('event:siderbarContainer:remove', this.removeSiderBar, this);
+			Backbone.on('event:sidebarContainer:show', this.showSiderBar, this);
+			Backbone.on('event:sidebarContainer:remove', this.removeSiderBar, this);
+			Backbone.on('event:showMsgBar:show', this.showMsgBar, this);
 			Backbone.on('event:reload', this.reload, this);
 			this.commentContainer = null;
 		},
@@ -82,23 +83,45 @@ define(function(require) {
 			});
 			inputContainer.$el.focus();
 		},
+		showMsgBar: function(msg) {
+			var template = getTemplate('MSGCONTAINER'),
+				self = this;
+
+			this.$el.find('.main-layout').append(template({
+				msg: msg
+			}));
+			setTimeout(function() {
+				self.$el.find('.msg').remove();
+			}, 1500);
+		},
+		/**
+		 * 显示右侧工具栏
+		 * @param  {string} type 工具栏类型
+		 */
 		showSiderBar: function(type) {
-			var width = config.sidebarWidth;
 			this.removeSiderBar();
-			this.siderbarContainer = new SiderbarContainer({
-				type: type,
-				width: width,
+			//保护状态，禁止其他类型弹框
+			if (cache.protectState && type !== 'protect') {
+				return;
+			}
+			this.SidebarContainer = new SidebarContainer({
+				type: type
 			});
-			this.$el.find('.main-layout').append(this.siderbarContainer.render().el);
+			this.$el.find('.main-layout').append(this.SidebarContainer.render().el);
 			cache.sidebarState = true;
 			Backbone.trigger('event:changeSidebarContainer');
 		},
+		/**
+		 * 销毁右侧工具栏
+		 * @param  {string} type 工具栏类型
+		 */
 		removeSiderBar: function() {
-			if (this.siderbarContainer) {
-				this.siderbarContainer.destroy();
-				this.siderbarcontainer = null;
+			if (this.SidebarContainer) {
+				this.SidebarContainer.destroy();
+				this.SidebarContainer = null;
 			}
 			cache.sidebarState = false;
+			Backbone.trigger('event:changeSidebarContainer');
 		},
 		handleComment: function(options) {
 			var action = options.action,
@@ -136,10 +159,10 @@ define(function(require) {
 			//判断输入框状态，如果输入框未失去焦点，不进行隐藏
 			var el = this.inputContainer.el,
 				focus = $(':focus')[0];
-			
+
 			if (el !== focus) {
 				Backbone.trigger('event:InputContainer:hide');
-				if(!focus){
+				if (!focus) {
 					el.focus();
 				}
 			}
@@ -660,7 +683,7 @@ define(function(require) {
 			cache.CellsPosition.strandX = {};
 			cache.CellsPosition.strandY = {};
 			cache.rowRegionPosi = [];
-			cache.sendQueueStep = 0;
+			cache.sendQueueStep = 1;
 
 			for (i = 0, len = cellList.length; i < len; i++) {
 				cellList[0].destroy();
@@ -737,8 +760,8 @@ define(function(require) {
 			Backbone.off('event:bodyContainer:executiveFrozen');
 			Backbone.off('event:commentContainer:show');
 			Backbone.off('event:commentContainer:remove');
-			Backbone.off('event:siderbarContainer:show');
-			Backbone.off('event:siderbarContainer:remove');
+			Backbone.off('event:SidebarContainer:show');
+			Backbone.off('event:SidebarContainer:remove');
 			Backbone.trigger('event:colsPanelContainer:destroy');
 			Backbone.trigger('event:rowsPanelContainer:destroy');
 			Backbone.trigger('event:mainContainer:destroy');
