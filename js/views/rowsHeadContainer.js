@@ -7,6 +7,7 @@ define(function(require) {
 		cache = require('basic/tools/cache'),
 		binary = require('basic/util/binary'),
 		send = require('basic/tools/send'),
+		getDisplayName = require('basic/tools/getdisplayname'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
 		cells = require('collections/cells'),
@@ -18,7 +19,6 @@ define(function(require) {
 		SelectRegionModel = require('models/selectRegion'),
 		observerPattern = require('basic/util/observer.pattern'),
 		loadRecorder = require('basic/tools/loadrecorder'),
-		selectCellCols = require('entrance/cell/selectcellcols'),
 		gridRowList = headItemRows.models,
 		gridColList = headItemCols.models,
 		RowsHeadContainer;
@@ -117,7 +117,7 @@ define(function(require) {
 		},
 		selectLocatedState: function(e) {
 			//拖拽视图
-			if (this._isAdjustable(e) && !e.shiftKey) {
+			if (this._isAdjustable(e) && !e.shiftKey && !cache.protectState) {
 				this.spaceEffect(e);
 				return;
 			}
@@ -162,8 +162,8 @@ define(function(require) {
 			rowIndex = binary.modelBinary(mousePosi, gridRowList, 'top', 'height');
 			tempPosi = select.set('tempPosi.mouseRowIndex', rowIndex);
 		},
-		commonMoveState: function(event) {
-			event.currentTarget.style.cursor = this._isAdjustable(event) === true ? 'row-resize' : '';
+		commonMoveState: function(e) {
+			e.currentTarget.style.cursor = this._isAdjustable(e) === true && !cache.protectState ? 'row-resize' : '';
 		},
 		adjustLocatedModel: function(posi, select, continuous) {
 			var modelCell,
@@ -297,28 +297,6 @@ define(function(require) {
 			});
 		},
 		/**
-		 * 整行选中
-		 * @method rowLocate
-		 * @param  {event} e 鼠标点击事件
-		 */
-		rowLocate: function(e) {
-			var containerId = cache.containerId,
-				mainMousePosiY,
-				modelCell,
-				headModelRow,
-				headModelCol,
-				modelIndexRow,
-				headLineColModelList,
-				headLineRowModelList;
-			mainMousePosiY = e.clientY - config.System.outerTop - $('#' + containerId).offset().top + this.viewMainContainer.el.scrollTop;
-			//headColModels,headRowModels list
-			headLineRowModelList = headItemRows.models;
-			//this model index of headline
-			modelIndexRow = binary.modelBinary(mainMousePosiY, headLineRowModelList, 'top', 'height', 0, headLineRowModelList.length - 1);
-			//ps：修改
-			selectCellCols('1', null, modelIndexRow, e);
-		},
-		/**
 		 * 滚动过程中,还原行视图
 		 * @return {[type]} [description]
 		 */
@@ -379,7 +357,7 @@ define(function(require) {
 				alias: (this.rowNumber + 1).toString(),
 				top: this.rowNumber * 20,
 				height: 19,
-				displayName: buildAlias.buildRowAlias(this.rowNumber)
+				displayName: getDisplayName.getRowDisplayName(this.rowNumber)
 			};
 			return currentObject;
 		},

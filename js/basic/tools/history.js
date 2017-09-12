@@ -31,7 +31,7 @@ define(function() {
 				type: 'update',
 				propName: propName,
 				propValue: propValue,
-				region:region,
+				region: region,
 				originalData: originalData,
 			});
 			historyIndex++;
@@ -53,9 +53,9 @@ define(function() {
 		/**
 		 * 清除历史
 		 */
-		clear:function(){
+		clear: function() {
 			historyIndex = 0;
-			historyList=[];
+			historyList = [{}];
 		}
 	};
 	return history;

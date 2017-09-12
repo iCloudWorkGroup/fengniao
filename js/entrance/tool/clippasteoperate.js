@@ -1,6 +1,7 @@
 define(function(require) {
 	'use strict';
-	var cache = require('basic/tools/cache'),
+	var Backbone = require('lib/backbone'),
+		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
 		Cell = require('models/cell'),
@@ -79,6 +80,8 @@ define(function(require) {
 			success: function(data) {
 				if (data && data.isLegal) {
 					fillData();
+				} else {
+					Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
 				}
 			}
 		});
@@ -308,7 +311,6 @@ define(function(require) {
 		}
 		cache.clipState = 'null';
 
-		//bug
 		encodeText = encodeURI(pasteText);
 		rowData = encodeText.split('%0D%0A');
 
@@ -358,6 +360,8 @@ define(function(require) {
 			success: function(data) {
 				if (data && data.isLegal) {
 					fillData();
+				} else {
+					Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
 				}
 			}
 		});

@@ -3,10 +3,9 @@ define(function(require) {
 	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
-		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
 		getOperRegion = require('basic/tools/getoperregion'),
-		aliasBuild = require('basic/tools/buildalias'),
+		getDisplayName = require('basic/tools/getdisplayname'),
 		cells = require('collections/cells'),
 		selectRegions = require('collections/selectRegion'),
 		siderLineCols = require('collections/siderLineCol'),
@@ -30,6 +29,10 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+				return;
+			}
 			if (cache.TempProp.isFrozen === true) {
 				return;
 			}
@@ -46,7 +49,7 @@ define(function(require) {
 				return;
 			}
 			index = operRegion.startColIndex;
-	
+
 			this._addColItem();
 			this._adaptCells(index);
 			this._adaptSelectRegion(index);
@@ -54,8 +57,9 @@ define(function(require) {
 
 			Backbone.trigger('event:cellsContainer:adaptWidth');
 			Backbone.trigger('event:colsAllHeadContainer:adaptWidth');
-			
+
 			sendData();
+
 			function sendData() {
 				send.PackAjax({
 					url: config.url.col.reduce,
@@ -70,7 +74,6 @@ define(function(require) {
 		 */
 		_addColItem: function() {
 			var index = headItemCols.length,
-				width = config.User.cellWidth,
 				previousModel = headItemCols.models[index - 1];
 
 			headItemCols.add({
@@ -101,7 +104,7 @@ define(function(require) {
 				left = currentColModel.get('left') - width - 1;
 				sort = currentColModel.get('sort') - 1;
 				currentColModel.set('left', left);
-				currentColModel.set('displayName', aliasBuild.buildColAlias(i));
+				currentColModel.set('displayName', getDisplayName.getColDisplayName(i));
 				currentColModel.set('sort', sort);
 			}
 		},
@@ -216,33 +219,5 @@ define(function(require) {
 				}
 			}
 		},
-		/**
-		 * 处理冻结状态下,插入行功能
-		 * @param  {number} index 插入索引
-		 */
-		// _frozenHandle: function(index) {
-		// 	var userViewAlias,
-		// 		userViewIndex,
-		// 		frozenAlias,
-		// 		frozenIndex;
-
-		// 	if (cache.TempProp.isFrozen === true) {
-		// 		userViewAlias = cache.UserView.colAlias;
-		// 		frozenAlias = cache.TempProp.colAlias;
-		// 		userViewIndex = headItemCols.getIndexByAlias(userViewAlias);
-		// 		frozenIndex = headItemCols.getIndexByAlias(frozenAlias);
-
-		// 		if (userViewIndex === index) {
-		// 			cache.UserView.colAlias = headItemCols.models[index + 1].get('alias');
-		// 		}
-		// 		if (frozenIndex === index) {
-		// 			if (index === 0) {
-		// 				cache.TempProp.colAlias = headItemCols.models[1].get('alias');
-		// 			} else {
-		// 				cache.TempProp.colAlias = headItemCols.models[index + 1].get('alias');
-		// 			}
-		// 		}
-		// 	}
-		// }
 	};
 });

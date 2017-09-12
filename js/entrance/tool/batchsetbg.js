@@ -1,13 +1,14 @@
 define(function(require) {
 	'use strict';
-	var send = require('basic/tools/send'),
+	var Backbone = require('lib/backbone'),
+		send = require('basic/tools/send'),
+		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		rowOperate = require('entrance/row/rowoperation'),
 		colOperate = require('entrance/col/coloperation'),
-		// changeModelList = [],
 		weight;
 
 	var setBg = {
@@ -21,7 +22,11 @@ define(function(require) {
 				color = sheeId;
 			}
 			color = color.replace(/\s/g, '');
-
+			
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+				return;
+			}
 			if (!regColor.test(color)) {
 				throw new Error('非法参数');
 			}
@@ -37,6 +42,7 @@ define(function(require) {
 					cells.oprCellsByRegion(oper[i], callback, color);
 				}
 			}
+
 			function callback(cell, colSort, rowSort, value) {
 				var original;
 				if ((original = cell.get('customProp').background) !== value) {
@@ -44,7 +50,7 @@ define(function(require) {
 				}
 			}
 			send.PackAjax({
-				url: config.url.cell.bg_batch,
+				url: config.url.cell.bgBatch,
 				data: JSON.stringify({
 					coordinate: sendData,
 					color: color

@@ -2,7 +2,6 @@
 define(function(require) {
 	var $ = require('lib/jquery'),
 		cache = require('basic/tools/cache'),
-		getSelectRegion = require('basic/tools/getoperregion'),
 		selects = require('collections/selectRegion'),
 		gridRows = require('collections/headItemRow'),
 		gridCols = require('collections/headItemCol'),
@@ -27,7 +26,6 @@ define(function(require) {
 				initSelectRowIndex,
 				selectColAlias,
 				selectRowAlias,
-				cellModel,
 				colIndex,
 				rowIndex,
 				occupyCol,
@@ -121,6 +119,6 @@ define(function(require) {
 				$elem.focus();
 			}
 		},
-	}
+	};
 	return handler;
 });

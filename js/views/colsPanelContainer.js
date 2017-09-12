@@ -38,6 +38,7 @@ define(function(require) {
 			Backbone.on('call:colsPanelContainer', this.colsPanelContainer, this);
 			Backbone.on('event:colsPanelContainer:destroy', this.destroy, this);
 			Backbone.trigger('event:colsPanelContainer:adjustWidth', this.adjustWidth, this);
+
 			/**
 			 * 盒模型属性
 			 * @property {object} boxAttribute
@@ -58,6 +59,9 @@ define(function(require) {
 			if (len === 0) {
 				this.boxModel.width = 0;
 				return;
+			}
+			if (this.currentRule.displayPosition.endRowIndex === undefined) {
+				Backbone.on('event:changeSidebarContainer', this.shrink, this);
 			}
 			//the page is reload excel, len will be appoint num ,will be not necessarily start A,1 
 			modelHeadLinelastCol = modelsHeadLineColRegionList[len - 1];
@@ -103,6 +107,13 @@ define(function(require) {
 			}
 			if (newAttributes.style) {
 				this.$el.addClass(newAttributes.style);
+			}
+		},
+		shrink:function(){
+			if(cache.sidebarState){
+				this.$el.width(this.boxAttributes.width - config.sidebarWidth);
+			}else{
+				this.$el.width(this.boxAttributes.width);
 			}
 		},
 		/**

@@ -6,7 +6,7 @@ define(function(require) {
 		cache = require('basic/tools/cache'),
 		send = require('basic/tools/send'),
 		loadRecorder = require('basic/tools/loadrecorder'),
-		buildAlias = require('basic/tools/buildalias'),
+		getDisplayName = require('basic/tools/getdisplayname'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		siderLineCols = require('collections/siderLineCol'),
@@ -44,7 +44,7 @@ define(function(require) {
 					alias: (i + 1).toString(),
 					left: i * config.User.cellWidth,
 					width: config.User.cellWidth - 1,
-					displayName: buildAlias.buildColAlias(i)
+					displayName: getDisplayName.getColDisplayName(i)
 				};
 				headItemCols.add(currentObject);
 			}
@@ -54,7 +54,7 @@ define(function(require) {
 					alias: (j + 1).toString(),
 					top: j * config.User.cellHeight,
 					height: config.User.cellHeight - 1,
-					displayName: buildAlias.buildRowAlias(j)
+					displayName: getDisplayName.getRowDisplayName(j)
 				};
 				headItemRows.add(currentObject);
 			}
@@ -82,7 +82,7 @@ define(function(require) {
 					height: rows[i].height,
 					alias: rows[i].aliasY,
 					operProp: rows[i].operProp,
-					displayName: buildAlias.buildRowAlias(startRowSort + i)
+					displayName: getDisplayName.getRowDisplayName(startRowSort + i)
 				};
 				headItemRows.push(tempHeadRow, {
 					at: index
@@ -122,7 +122,7 @@ define(function(require) {
 				if (!isEmptyObject(cols[i].operProp.border)) {
 					tempHeadCol.operProp.border = cols[i].operProp.border;
 				}
-				tempHeadCol.displayName = buildAlias.buildColAlias(startColSort + i);
+				tempHeadCol.displayName = getDisplayName.getColDisplayName(startColSort + i);
 				if (cols[i].hidden && i > 0) {
 					headItemCols.models[i - 1].set('isRightAjacentHide', true);
 				}
@@ -142,7 +142,7 @@ define(function(require) {
 						left: headItemCols.models[collen + j - 1].get('left') + headItemCols.models[collen + j - 1].get('width') + 1,
 						width: config.User.cellWidth,
 						alias: (headItemCols.length + 1).toString(),
-						displayName: buildAlias.buildColAlias(collen + j),
+						displayName: getDisplayName.getColDisplayName(collen + j),
 					};
 					headItemCols.add(tempHeadCol);
 				}
@@ -400,7 +400,7 @@ define(function(require) {
 				startColSort,
 				sheetNames = [],
 				self = this;
-				
+
 			if (build === 'true' || build === undefined) {
 				this.bulidNewExcel();
 				cache.localRowPosi = 0;
@@ -417,7 +417,7 @@ define(function(require) {
 					bottom: $('#' + domId).height() + config.System.prestrainHeight
 				}),
 				dataType: 'json',
-					success: function() {
+				success: function() {
 					fillData.apply(this, arguments);
 				}
 			});
@@ -438,7 +438,7 @@ define(function(require) {
 				}
 				cache.UserView.rowAlias = data.displayRowStartAlias;
 				cache.UserView.colAlias = data.displayColStartAlias;
-
+				cache.protectState = data.protect;
 				startRowSort = data.dataRowStartIndex;
 				startColSort = data.dataColStartIndex;
 

@@ -5,7 +5,7 @@ define(function(require) {
 		binary = require('basic/util/binary'),
 		LineRowModel = require('models/lineRow'),
 		config = require('spreadsheet/config'),
-		buildAlias = require('basic/tools/buildalias'),
+		getDisplayName = require('basic/tools/getdisplayname'),
 		selectRegions = require('collections/selectRegion'),
 		HeadItemRows;
 	/**
@@ -190,7 +190,7 @@ define(function(require) {
 					alias: (startSort + 1).toString(),
 					top: startPosi,
 					height: config.User.cellHeight - 1,
-					displayName: buildAlias.buildRowAlias(startSort)
+					displayName: getDisplayName.getRowDisplayName(startSort)
 				});
 				startSort++;
 				startPosi = startPosi + config.User.cellHeight;

@@ -1,6 +1,7 @@
 'use strict';
 define(function(require) {
-	var send = require('basic/tools/send'),
+	var Backbone = require('lib/backbone'),
+		send = require('basic/tools/send'),
 		config = require('spreadsheet/config'),
 		history = require('basic/tools/history'),
 		headItemCols = require('collections/headItemCol'),
@@ -33,6 +34,10 @@ define(function(require) {
 			cache.clipState = 'null';
 			clip.destroy();
 		}
+		if (cache.protectState) {
+			Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+			return;
+		}
 		region = getOperRegion(label);
 		operRegion = region.operRegion;
 		sendRegion = region.sendRegion;
@@ -40,27 +45,27 @@ define(function(require) {
 
 		switch (alignType) {
 			case 'left':
-				url = config.url.cell.align_transverse;
+				url = config.url.cell.alignTransverse;
 				transverse = 'left';
 				break;
 			case 'center':
-				url = config.url.cell.align_transverse;
+				url = config.url.cell.alignTransverse;
 				transverse = 'center';
 				break;
 			case 'right':
-				url = config.url.cell.align_transverse;
+				url = config.url.cell.alignTransverse;
 				transverse = 'right';
 				break;
 			case 'top':
-				url = config.url.cell.align_vertical;
+				url = config.url.cell.alignVertical;
 				vertical = 'top';
 				break;
 			case 'middle':
-				url = config.url.cell.align_vertical;
+				url = config.url.cell.alignVertical;
 				vertical = 'middle';
 				break;
 			case 'bottom':
-				url = config.url.cell.align_vertical;
+				url = config.url.cell.alignVertical;
 				vertical = 'bottom';
 				break;
 			default:

@@ -14,6 +14,7 @@ define(function(require) {
 		siderLineRows = require('collections/siderLineRow'),
 		siderLineCols = require('collections/siderLineCol'),
 		cells = require('collections/cells'),
+		protect = require('entrance/tool/protect'),
 		rowModelList = headItemRows.models,
 		colModelList = headItemCols.models,
 		SelectRegion;
@@ -171,14 +172,16 @@ define(function(require) {
 			//判断是否为整行或整列操作
 			if (modelJSON.tempPosi.mouseColIndex === 'MAX' || modelJSON.tempPosi.initColIndex === 'MAX') {
 				this.model.set('wholePosi.endX', 'MAX');
-				colDisplayNames.push('A');
-				colDisplayNames.push(colModelList[endColIndex].get('displayName'));
+				colDisplayNames.push('1');
+				colDisplayNames.push('MAX');
 				rowDisplayNames.push(rowModelList[startRowIndex].get('displayName'));
+				rowDisplayNames.push(rowModelList[endRowIndex].get('displayName'));
 			} else if (modelJSON.tempPosi.mouseRowIndex === 'MAX' || modelJSON.tempPosi.initRowIndex === 'MAX') {
 				this.model.set('wholePosi.endY', 'MAX');
 				rowDisplayNames.push('1');
-				rowDisplayNames.push(rowModelList[endRowIndex].get('displayName'));
+				rowDisplayNames.push('MAX');
 				colDisplayNames.push(colModelList[startColIndex].get('displayName'));
+				colDisplayNames.push(colModelList[endColIndex].get('displayName'));
 			} else {
 				for (i = startColIndex; i < endColIndex + 1; i++) {
 					colDisplayNames.push(colModelList[i].get('displayName'));
@@ -291,7 +294,27 @@ define(function(require) {
 		 * @method editState
 		 */
 		editState: function() {
-			Backbone.trigger('event:InputContainer:show',true);
+			var modelJSON = this.model.toJSON(),
+				startRowIndex,
+				startColIndex,
+				endRowIndex,
+				endColIndex,
+				isAble;
+
+			startRowIndex = headItemRows.getIndexByAlias(modelJSON.wholePosi.startY);
+			startColIndex = headItemCols.getIndexByAlias(modelJSON.wholePosi.startX);
+			endRowIndex = headItemRows.getIndexByAlias(modelJSON.wholePosi.endY);
+			endColIndex = headItemCols.getIndexByAlias(modelJSON.wholePosi.endX);
+			isAble = protect.interceptor({
+				startRowIndex: startRowIndex,
+				startColIndex: startColIndex,
+				endColIndex: endColIndex,
+				endRowIndex: endRowIndex
+			});
+			if (isAble) {
+				return;
+			}
+			Backbone.trigger('event:InputContainer:show', true);
 		},
 		/**
 		 * 视图销毁

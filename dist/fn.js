@@ -29554,7 +29554,7 @@
     		},
     		
     		overEffect: function(e) {
-    			e.currentTarget.style.cursor = this.isAdjustable(e) === true ? 'col-resize' : '';
+    			e.currentTarget.style.cursor = this.isAdjustable(e) === true && !cache.protectState ? 'col-resize' : '';
     		},
     		
     		isAdjustable: function(e) {

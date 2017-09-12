@@ -26,6 +26,10 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+				return;
+			}
 			if (cache.TempProp.isFrozen) {
 				return;
 			}
@@ -185,7 +189,7 @@ define(function(require) {
 				headItemColList[i].set('left', left - width - 1);
 			}
 		},
-		cancelHide: function(sheetId) {
+		cancelHide: function() {
 			var headItemColList = headItemCols.models,
 				len = headItemColList.length,
 				clip,
@@ -208,6 +212,10 @@ define(function(require) {
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
+			}
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+				return;
 			}
 			Backbone.trigger('event:restoreHideCellView');
 			Backbone.trigger('event:restoreHideCols');

@@ -109,6 +109,7 @@ define(function() {
 				width: 150
 			}
 		},
+		sidebarWidth: 280,
 		mouseOperateState: {
 			select: 'selected',
 			dataSource: 'datasource',
@@ -158,20 +159,21 @@ define(function() {
 				border: 'cell/border',
 				bg: 'cell/bg',
 				wordwrap: 'cell/wordwrap',
-				align_transverse: 'cell/align-landscape',
-				align_vertical: 'cell/align-portrait',
+				alignTransverse: 'cell/align-landscape',
+				alignVertical: 'cell/align-portrait',
 				format: 'cell/format',
 				content: 'cell/content',
-				comment_plus: 'cell/comment-plus',
-				comment_del: 'cell/comment-reduce',
-				font_size: 'cell/font-size',
-				font_family: 'cell/font-family',
-				font_weight: 'cell/font-weight',
-				font_italic: 'cell/font-italic',
-				font_color: 'cell/font-color',
-				bg_batch: 'cell/bg-batch',
+				commentPlus: 'cell/comment-plus',
+				commentDel: 'cell/comment-reduce',
+				fontSize: 'cell/font-size',
+				fontFamily: 'cell/font-family',
+				fontWeight: 'cell/font-weight',
+				fontItalic: 'cell/font-italic',
+				fontColor: 'cell/font-color',
+				bgBatch: 'cell/bg-batch',
 				underline: 'cell/font-underline',
-				clear: 'cell/clean-data'
+				clear: 'cell/clean-data',
+				lock: 'cell/lock'
 			},
 			table: {
 				reload: 'reload'
@@ -184,7 +186,8 @@ define(function() {
 				redo: 'sheet/redo',
 				frozen: 'sheet/frozen',
 				unfrozen: 'sheet/unfrozen',
-				load: 'sheet/area'
+				load: 'sheet/area',
+				protect: 'sheet/protect'
 			},
 
 		},

@@ -1,8 +1,10 @@
 'use strict';
 define(function(require) {
-	var headItemCols = require('collections/headItemCol'),
+	var Backbone = require('lib/backbone'),
+		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
+		protect = require('entrance/tool/protect'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache');
 
@@ -24,16 +26,34 @@ define(function(require) {
 		if (clipModel !== undefined) {
 			clipModel.destroy();
 		}
+
 		selectRegion = selectRegions.getModelByType('selected');
 		//整行整列，禁止复制
 		if (selectRegion.get('wholePosi').endX === 'MAX' ||
 			selectRegion.get('wholePosi').endY === 'MAX') {
 			return;
 		}
+
 		clipModel = selectRegion.clone();
 		clipModel.set('selectType', 'clip');
 		selectRegions.add(clipModel);
 
+		startColIndex = headItemCols.getIndexByAlias(clipModel.get('wholePosi').startX);
+		startRowIndex = headItemRows.getIndexByAlias(clipModel.get('wholePosi').startY);
+		endColIndex = headItemCols.getIndexByAlias(clipModel.get('wholePosi').endX);
+		endRowIndex = headItemRows.getIndexByAlias(clipModel.get('wholePosi').endY);
+
+		//剪切操作包含保护区域，禁止操作
+		if (type === 'cut' && protect.interceptor({
+				startColIndex: startColIndex,
+				startRowIndex: startRowIndex,
+				endColIndex: endColIndex,
+				endRowIndex: endRowIndex
+			})) {
+			Backbone.trigger('event:showMsgBar:show','保护状态，不能进行该操作');
+			clipModel.destroy();
+			return;
+		}
 
 		if (type === 'copy') {
 			cache.clipState = 'copy';
@@ -42,11 +62,6 @@ define(function(require) {
 		} else {
 			return;
 		}
-
-		startColIndex = headItemCols.getIndexByAlias(clipModel.get('wholePosi').startX);
-		startRowIndex = headItemRows.getIndexByAlias(clipModel.get('wholePosi').startY);
-		endColIndex = headItemCols.getIndexByAlias(clipModel.get('wholePosi').endX);
-		endRowIndex = headItemRows.getIndexByAlias(clipModel.get('wholePosi').endY);
 
 		for (i = startRowIndex; i < endRowIndex + 1; i++) {
 			for (j = startColIndex; j < endColIndex + 1; j++) {
