@@ -2,6 +2,7 @@
 requirejs.config({
 	baseUrl: './js'
 });
+
 define(function(require) {
 	var $ = require('lib/jquery'),
 	SpreadSheet = require('spreadsheet/spreadsheet');
