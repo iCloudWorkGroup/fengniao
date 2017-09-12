@@ -18,3 +18,4 @@ script:
 cache:
   directories:
   - node_modules
+dist: "precise"
