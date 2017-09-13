@@ -30,6 +30,10 @@ define(function(require) {
 				cache.clipState = 'null';
 				clip.destroy();
 			}
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+				return;
+			}
 			if (cache.TempProp.isFrozen === true) {
 				return;
 			}
@@ -198,34 +202,6 @@ define(function(require) {
 					cache.deletePosi(deleteAlias, aliasColArray[j]);
 				}
 			}
-		},
-		/**
-		 * 处理冻结状态下,插入行功能
-		 * @param  {number} index 插入索引
-		 */
-		// _frozenHandle: function(index) {
-		// 	var userViewAlias,
-		// 		userViewIndex,
-		// 		frozenAlias,
-		// 		frozenIndex;
-
-		// 	if (cache.TempProp.isFrozen === true) {
-		// 		userViewAlias = cache.UserView.rowAlias;
-		// 		frozenAlias = cache.TempProp.rowAlias;
-		// 		userViewIndex = headItemRows.getIndexByAlias(userViewAlias);
-		// 		frozenIndex = headItemRows.getIndexByAlias(frozenAlias);
-
-		// 		if (userViewIndex === index) {
-		// 			cache.UserView.rowAlias = headItemRows.models[index + 1].get('alias');
-		// 		}
-		// 		if (frozenIndex === index) {
-		// 			if (index === 0) {
-		// 				cache.TempProp.rowAlias = headItemRows.models[1].get('alias');
-		// 			} else {
-		// 				cache.TempProp.rowAlias = headItemRows.models[index + 1].get('alias');
-		// 			}
-		// 		}
-		// 	}
-		// }
+		}
 	};
 });

@@ -12,6 +12,7 @@ define(function(require) {
 		beforeEach(function() {
 			build.buildRow();
 			build.buildCol();
+			
 		});
 		it('选择区大小计算', function() {
 			var result;

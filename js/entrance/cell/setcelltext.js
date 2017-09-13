@@ -8,9 +8,7 @@ define(function(require) {
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
-		getOperRegion = require('basic/tools/getoperregion'),
-		rowOperate = require('entrance/row/rowoperation'),
-		colOperate = require('entrance/col/coloperation');
+		getOperRegion = require('basic/tools/getoperregion');
 
 
 	return {
@@ -69,5 +67,5 @@ define(function(require) {
 			});
 			
 		}
-	}
+	};
 });

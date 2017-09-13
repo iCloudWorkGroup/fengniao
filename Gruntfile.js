@@ -3,7 +3,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
-            files: ['js/collections/*.js', 'js/models/*.js', 'js/basic/**/*.js', 'js/entrance/tool/setfillcolor.js', 'js/views/mainContainer.js'], //,'js/entrance/**/*.js'
+            files: ['js/collections/*.js', 'js/models/*.js', 'js/basic/**/*.js', 'js/entrance/**/*.js', 'js/views/mainContainer.js'], //,'js/entrance/**/*.js'
             options: {
                 jshintrc: true,
                 globals: {

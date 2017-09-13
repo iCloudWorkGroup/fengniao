@@ -50,6 +50,7 @@ module.exports = function(config) {
             'js/entrance/row/rowoperation.js': 'coverage',
             'js/entrance/tool/setunderline.js':'coverage',
             'js/entrance/tool/shortcut.js':'coverage',
+            'js/entrance/tool/protect.js':'coverage',
             'js/collections/cells.js':'coverage',
             'js/views/selectRegion.js':'coverage'
         },

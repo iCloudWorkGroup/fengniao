@@ -1,6 +1,7 @@
 'use strict';
 define(function(require) {
-	var send = require('basic/tools/send'),
+	var Backbone = require('lib/backbone'),
+		send = require('basic/tools/send'),
 		cells = require('collections/cells'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
@@ -26,6 +27,10 @@ define(function(require) {
 		if (clip !== undefined) {
 			cache.clipState = 'null';
 			clip.destroy();
+		}
+		if (cache.protectState) {
+			Backbone.trigger('event:showMsgBar:show','保护状态，不能进行该操作');
+			return;
 		}
 		region = getOperRegion(label);
 		operRegion = region.operRegion;
@@ -62,9 +67,8 @@ define(function(require) {
 
 		function sendData() {
 			send.PackAjax({
-				url: config.url.cell.font_size,
+				url: config.url.cell.fontSize,
 				data: JSON.stringify({
-					sheetId: "1",
 					coordinate: sendRegion,
 					size: fontSize
 				})

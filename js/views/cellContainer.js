@@ -2,9 +2,9 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		_ = require('lib/underscore'),
+		Backbone = require('lib/backbone'),
 		getTemplate = require('basic/tools/template'),
 		binary = require('basic/util/binary'),
-		Backbone = require('lib/backbone'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
 		selectRegions = require('collections/selectRegion'),

@@ -10,7 +10,7 @@ define(function(require) {
 	 * @param  {string} sheetId sheetId
 	 * @return {object} 
 	 */
-	getSelectRegion = function(sheetId) {
+	getSelectRegion = function() {
 		var result = {},
 			cols = [],
 			rows = [],

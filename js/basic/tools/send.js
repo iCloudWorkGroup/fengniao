@@ -19,8 +19,8 @@ define(function(require) {
 		 */
 		PackAjax: function(cfg) {
 			var config = {},
-				NULLFUNC = function() {},
-				count = 0;
+				NULLFUNC = function() {};
+
 			if (!cfg.url) {
 				return;
 			}
@@ -44,11 +44,7 @@ define(function(require) {
 				$.ajax({
 					url: config.url,
 					beforeSend: function(request) {
-						if (count > 0 || !config.isPublic) {
-							request.setRequestHeader('step', cache.sendQueueStep);
-						} else {
-							request.setRequestHeader('step', ++cache.sendQueueStep);
-						}
+						request.setRequestHeader('step', cache.sendQueueStep);
 						request.setRequestHeader('excelId', window.SPREADSHEET_AUTHENTIC_KEY);
 						request.setRequestHeader('sheetId', '1');
 					},
@@ -61,12 +57,9 @@ define(function(require) {
 					error: config.error,
 					complete: config.complete,
 					success: function(data) {
-						if (data && data.returncode === -1) {
-							count++;
-							if (count < 3) {
-								doRequest(config);
-							}
-							return;
+						
+						if (!config.isPublic && data.returndata !== false) {
+							cache.sendQueueStep++;
 						}
 						config.success.apply(this, arguments);
 					}

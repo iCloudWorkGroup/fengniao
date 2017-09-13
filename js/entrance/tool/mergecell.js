@@ -1,13 +1,13 @@
 'use strict';
 define(function(require) {
-	var send = require('basic/tools/send'),
+	var Backbone = require('lib/backbone'),
+		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		history = require('basic/tools/history'),
 		cells = require('collections/cells'),
 		Cell = require('models/cell'),
-		config = require('spreadsheet/config'),
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		getOperRegion = require('basic/tools/getoperregion'),
@@ -26,15 +26,12 @@ define(function(require) {
 			sendRegion,
 			clip,
 			originalCellsIndex = [],
-			currentCellsIndex = [],
 			cacheCell,
 			cellList,
 			occupyX = [],
 			occupyY = [],
 			aliasCol,
 			aliasRow,
-			sortCol,
-			sortRow,
 			width = 0,
 			height = 0,
 			len, i = 0,
@@ -45,9 +42,14 @@ define(function(require) {
 			cache.clipState = 'null';
 			clip.destroy();
 		}
+
 		region = getOperRegion(label);
 		operRegion = region.operRegion;
 		sendRegion = region.sendRegion;
+		if (cache.protectState) {
+			Backbone.trigger('event:showMsgBar:show','保护状态，不能进行该操作');
+			return;
+		}
 
 		if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
 			sendData();
@@ -118,7 +120,7 @@ define(function(require) {
 				cache.cachePosition(aliasRow, aliasCol, cells.length - 1);
 			}
 		}
-		history.addCoverAction([cells.length - 1],originalCellsIndex);
+		history.addCoverAction([cells.length - 1], originalCellsIndex);
 		sendData();
 
 		function sendData() {

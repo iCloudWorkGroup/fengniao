@@ -1,6 +1,3 @@
-//attention bug, when call object , we can setting unified method
-//attention bug, adjust gridline methods , can be combin ,because of highly similarity
-//and for improve performace
 define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
@@ -10,7 +7,7 @@ define(function(require) {
 		binary = require('basic/util/binary'),
 		cache = require('basic/tools/cache'),
 		send = require('basic/tools/send'),
-		buildAlias = require('basic/tools/buildalias'),
+		getDisplayName = require('basic/tools/getdisplayname'),
 		SelectRegionModel = require('models/selectRegion'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
@@ -20,7 +17,6 @@ define(function(require) {
 		siderLineCols = require('collections/siderLineCol'),
 		HeadItemColContainer = require('views/headItemColContainer'),
 		ColsSpaceLineContainer = require('views/colsSpaceLineContainer'),
-		selectCellRows = require('entrance/cell/selectcellrows'),
 		gridRowList = headItemRows.models,
 		gridColList = headItemCols.models,
 		ColsHeadContainer;
@@ -136,7 +132,7 @@ define(function(require) {
 		},
 		selectLocatedState: function(e) {
 			//拖拽视图
-			if (this._isAdjustable(e) && !e.shiftKey) {
+			if (this._isAdjustable(e) && !e.shiftKey && !cache.protectState) {
 				this.spaceEffect(e);
 				return;
 			}
@@ -181,8 +177,8 @@ define(function(require) {
 			colIndex = binary.modelBinary(mousePosi, gridColList, 'left', 'width');
 			tempPosi = select.set('tempPosi.mouseColIndex', colIndex);
 		},
-		commonMoveState: function(event) {
-			event.currentTarget.style.cursor = this._isAdjustable(event) === true ? 'col-resize' : '';
+		commonMoveState: function(e) {
+			e.currentTarget.style.cursor = this._isAdjustable(e) === true && !cache.protectState ? 'col-resize' : '';
 		},
 		adjustLocatedModel: function(posi, select, continuous) {
 			var modelCell,
@@ -368,7 +364,7 @@ define(function(require) {
 				alias: (this.colNumber + 1).toString(),
 				left: this.colNumber * config.User.cellWidth,
 				width: config.User.cellWidth - 1,
-				displayName: buildAlias.buildColAlias(this.colNumber)
+				displayName: getDisplayName.getColDisplayName(this.colNumber)
 			};
 			return currentObject;
 		},

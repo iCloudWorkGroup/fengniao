@@ -1,9 +1,7 @@
 'use strict';
 define(function(require) {
 	var Backbone = require('lib/backbone'),
-		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
-
 		operation;
 
 	operation = {

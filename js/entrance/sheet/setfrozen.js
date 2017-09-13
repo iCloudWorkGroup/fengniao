@@ -22,6 +22,10 @@ define(function(require) {
 			cache.clipState = 'null';
 			clip.destroy();
 		}
+		if (cache.protectState) {
+			Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+			return;
+		}
 		region = getOperRegion(point);
 		operRegion = region.operRegion;
 		sendRegion = region.sendRegion;
@@ -136,6 +140,10 @@ define(function(require) {
 	 * @method setUnfrozen
 	 */
 	var setUnfrozen = function() {
+		if (cache.protectState) {
+			Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+			return;
+		}
 		cache.TempProp = {
 			isFrozen: false,
 			colAlias: '1',

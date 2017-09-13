@@ -4,7 +4,7 @@ define(function(require) {
 		config = require('spreadsheet/config'),
 		cache = require('basic/tools/cache'),
 		headItemCols = require('collections/headItemCol'),
-		aliasBuild = require('basic/tools/buildalias'),
+		getDisplayName = require('basic/tools/getdisplayname'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		cells = require('collections/cells'),
 		selectRegions = require('collections/selectRegion'),
@@ -28,6 +28,10 @@ define(function(require) {
 			if (clip !== undefined) {
 				cache.clipState = 'null';
 				clip.destroy();
+			}
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
+				return;
 			}
 			if (cache.TempProp.isFrozen === true) {
 				return;
@@ -112,7 +116,7 @@ define(function(require) {
 				left = currentColModel.get('left') + width;
 				sort = currentColModel.get('sort') + 1;
 				currentColModel.set('left', left);
-				currentColModel.set('displayName', aliasBuild.buildColAlias(sort));
+				currentColModel.set('displayName', getDisplayName.getColDisplayName(sort));
 				currentColModel.set('sort', sort);
 			}
 		},

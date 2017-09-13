@@ -12,9 +12,6 @@ define(function(require) {
 		buildRow: function() {
 			var i = 0,
 				len = 10;
-			while(headItemRows.length){
-				headItemRows.shift();
-			}
 			for (; i < len; i++) {
 				headItemRows.add({
 					sort: i,
@@ -28,9 +25,7 @@ define(function(require) {
 		 * 清空行集合
 		 */
 		destroyRow: function() {
-			while(headItemRows.length){
-				headItemRows.shift();
-			}
+			headItemRows.reset();
 		},
 		/**
 		 * 在列集合中，添加10个合法Model
@@ -38,14 +33,11 @@ define(function(require) {
 		buildCol: function() {
 			var i = 0,
 				len = 10;
-			while(headItemCols.length){
-				headItemCols.shift();
-			}
 			for (; i < len; i++) {
 				headItemCols.add({
 					sort: i,
 					alias: (i + 1).toString(),
-					left: i * 72,
+					top: i * 72,
 					displayName: getDisplayName.getColDisplayName(i)
 				});
 			}
@@ -54,9 +46,7 @@ define(function(require) {
 		 * 清空列集合
 		 */
 		destroyCol: function() {
-			while(headItemCols.length){
-				headItemCols.shift();
-			}
+			headItemCols.reset();
 		}
 	};
 });

@@ -1,6 +1,6 @@
 'use strict';
 define(function() {
-	var historyList = [{}],
+	var historyList = [],
 		historyIndex = 0,
 		history;
 
@@ -12,7 +12,7 @@ define(function() {
 			return historyList[++historyIndex];
 		},
 		previous: function() {
-			if (historyIndex === 0) {
+			if (historyList.length === 0) {
 				return false;
 			}
 			return historyList[historyIndex--];
@@ -31,10 +31,12 @@ define(function() {
 				type: 'update',
 				propName: propName,
 				propValue: propValue,
-				region:region,
+				region: region,
 				originalData: originalData,
 			});
-			historyIndex++;
+			if (historyList.length !== 1) {
+				historyIndex++;
+			}
 		},
 		/**
 		 * 添加设置model覆盖操作
@@ -48,14 +50,16 @@ define(function() {
 				currentModelIndexs: currentModelIndexs,
 				originalModelIndexs: originalModelIndexs,
 			});
-			historyIndex++;
+			if (historyList.length !== 1) {
+				historyIndex++;
+			}
 		},
 		/**
 		 * 清除历史
 		 */
-		clear:function(){
+		clear: function() {
 			historyIndex = 0;
-			historyList=[];
+			historyList = [];
 		}
 	};
 	return history;

@@ -32,6 +32,20 @@ define(function(require) {
 
 	templatesHTML.COMMENTTEMPLAET = '<div></div>';
 
+	templatesHTML.SIDERBARTEMPLATE = '<div class="siderbar-title"><span>{{title}}</span>';
+	templatesHTML.SIDERBARTEMPLATE += '<a href="#" class="fui-cf-bg-extend2-ico ico-close close" title="关闭"></a></div>';
+	templatesHTML.SIDERBARTEMPLATE += '<div class="siderbar-body"></div></div>';
+
+	templatesHTML.LOCKCONTAINER = '<div class="siderbar-item"><div class="lock-content">';
+	templatesHTML.LOCKCONTAINER += '<div class="title"><span>锁定</span><input type="checkbox" checked="{{checked}}" name="lock"></div>';
+	templatesHTML.LOCKCONTAINER += '<div class="content"><label>所选区域：</label><input type="text" value="{{content}}" disabled="disabled"></div>';
+	templatesHTML.LOCKCONTAINER += '<div class="oper"><a href="#" class="confirm">确定</a><a href="#" class="cancel">取消</a></div></div></div>';
+
+	templatesHTML.PROTECTCONTAINER = '<div class="siderbar-item"><div class="protect-content">';
+	templatesHTML.PROTECTCONTAINER += '<div class="content"><label>密码：</label><input type="password"></div>';
+	templatesHTML.PROTECTCONTAINER += '<div class="oper"><a href="#" class="confirm">确定</a><a href="#" class="cancel">取消</a></div></div></div>';
+
+	templatesHTML.MSGCONTAINER = '<div class="msg"><span class="msg-content">{{msg}}</span></div>';
 
 	function getTemplate(type) {
 		var tmpType;

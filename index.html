@@ -9,6 +9,8 @@
 		<link rel="stylesheet" type="text/css" href="./css/toolbar.css"/>
 		<link rel="stylesheet" type="text/css" href="./css/widget.css"/>
 		<link rel="stylesheet" type="text/css" href="./css/scrollbar.css"/>
+		<link rel="stylesheet" type="text/css" href="./css/sidebar.css"/>
+		<link rel="stylesheet" type="text/css" href="./css/msg.css"/>
 	</head>
 	<body>
 		<input type="hidden" id="build" value="true">
@@ -266,22 +268,6 @@
 					</span>
 					<span class="fui-separator"></span>
 				</li>
-				<li class="fui-group">
-					<span class="fui-container">
-						<div class="fui-body" id="regionDelContainer">
-							<span class="fui-layout">
-								<div class="fui-section fui-transverse" data-toolbar="regionDel">
-									<div class="fui-transverse-model">
-										<span class="fui-cf-bg-extend2-ico ico-regiondelete ico-wordwrap"></span>
-										<span class="fui-cf-text"> 删除 </span>
-									</div>
-								</div>
-							</span>
-						</div>
-						<div class="fui-title">区域删除</div>
-					</span>
-					<span class="fui-separator"></span>
-				</li>
 				<li class="fui-group" id="hideContainer">
 					<span class="fui-container">
 						<div class="fui-body" >
@@ -298,6 +284,30 @@
 									<div class="fui-cf-extend-ico ico-frozencustomized fui-cf-alone"></div>
 									<div class="fui-cf-desc">
 										<div class="fui-cf-text">取消隐藏</div>
+									</div>
+								</div>
+							</span>
+						</div>
+						<div class="fui-title">隐藏</div>
+					</span>
+					<span class="fui-separator"></span>
+				</li>
+				<li class="fui-group" id="protectContainer">
+					<span class="fui-container">
+						<div class="fui-body" >
+							<span class="fui-layout" >
+								<div class="fui-section fui-transverse" data-toolbar="lock">
+									<div class="ico-lock fui-cf-alone"></div>
+									<div class="fui-cf-desc">
+										<div class="fui-cf-text">锁定工作簿</div>
+									</div>
+								</div>
+							</span>
+							<span class="fui-layout">
+								<div class="fui-section fui-transverse" data-toolbar="protect">
+									<div class="ico-lock fui-cf-alone"></div>
+									<div class="fui-cf-desc">
+										<div class="fui-cf-text">保护工作簿</div>
 									</div>
 								</div>
 							</span>
