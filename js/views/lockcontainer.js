@@ -3,22 +3,28 @@ define(function(require) {
     var Backbone = require('lib/backbone'),
         getTemplate = require('basic/tools/template'),
         getDisplayName = require('basic/tools/getdisplayname'),
-        listener = require('basic/util/listener'),
+        selectRegions = require('collections/selectRegion'),
         protect = require('entrance/tool/protect'),
         selects = require('collections/selectRegion'),
         cols = require('collections/headItemCol'),
         rows = require('collections/headItemRow'),
         cells = require('collections/cells'),
+        colList = cols.models,
+        rowList = rows.models,
+        cellList = cells.models,
+        cache = require('basic/tools/cache'),
         lockContainer;
 
     lockContainer = Backbone.View.extend({
         events: {
+            'click .lock-toggle': 'toggle',
             'click .confirm': 'confirm',
             'click .cancel': 'close',
         },
         initialize: function() {
-            this.changeSelect = this.getListenerFn();
-            listener.addEventListener('selectRegionChange', this.changeSelect);
+            var select = selectRegions.getModelByType('selected');
+            this.listenTo(select, 'change:wholePosi', this.listenToSelect);
+            this.lockState = null;
         },
         render: function() {
             var template = getTemplate('LOCKCONTAINER'),
@@ -49,43 +55,129 @@ define(function(require) {
                 col: [startCol, endCol],
                 row: [startRow, endRow]
             });
-            this.$el.html(template({
-                content: content,
-                checked: checked
-            }));
+            this.$el.html(template());
+            this.listenToSelect(selectRegions.getModelByType('selected'));
             return this;
         },
-        getListenerFn: function() {
-            var self = this;
-            return function(model) {
-                var content = self.parseText(model.point);
-                self.$el.find('input[type=text]').val(content);
-            }
+        listenToSelect: function(model) {
+            var wholePosi = model.get('wholePosi'),
+                startCol,
+                endCol,
+                startRow,
+                endRow;
+
+            startCol = cols.getIndexByAlias(wholePosi.startX);
+            startRow = rows.getIndexByAlias(wholePosi.startY);
+            endCol = cols.getIndexByAlias(wholePosi.endX);
+            endRow = rows.getIndexByAlias(wholePosi.endY);
+
+            this.onLock(startCol, startRow, endCol, endRow);
+            this.onContent(startCol, startRow, endCol, endRow);
         },
-        parseText: function(point) {
-            var col = point.col,
-                row = point.row,
-                colLen = col.length,
-                rowLen = row.length,
-                text = '';
-            //整行操作
-            if (col[colLen - 1] === 'MAX') {
-                if (rowLen === 2 && row[0] === row[1]) {
-                    text = row[0];
-                } else {
-                    text = row[0] + ' : ' + row[rowLen - 1];
+        onLock: function(startCol, startRow, endCol, endRow) {
+            //locked:包含锁定  unlocked:包未锁定
+            var i, j, len, len2,
+                locked = false,
+                unlocked = false,
+                rowAlias, colAlias,
+                pos = cache.CellsPosition.strandX,
+                temp, tempRecord = {},
+                tempRowLock = {},
+                rowLocked,
+                colLocked;
+
+            if (endCol === 'MAX') {
+                for (i = startRow, len = endRow + 1; i < len; i++) {
+                    locked = (temp = !(rowList[i].get('operProp').locked === false)) || locked;
+                    unlocked = !temp || unlocked;
+                    if (locked && unlocked) {
+                        break;
+                    }
                 }
-            } else if (row[rowLen - 1] === 'MAX') { //整列操作
-                if (colLen === 2 && col[0] === col[1]) {
-                    text = col[0];
-                } else {
-                    text = col[0] + ' : ' + col[colLen - 1];
+            } else if (endRow === 'MAX') {
+                for (i = startCol, len = endCol + 1; i < len; i++) {
+                    locked = (temp = !(colList[i].get('operProp').locked === false)) || locked;
+                    unlocked = !temp || unlocked;
+                    if (locked && unlocked) {
+                        break;
+                    }
                 }
             } else {
-                if ((rowLen === 1 || row[0] === row[rowLen - 1]) && (colLen === 1 || col[0] === col[colLen - 1])) {
-                    text = col[0] + row[0];
+                outerLooP: for (i = startCol, len = endCol + 1; i < len; i++) {
+                    colLocked = colList[i].get('operProp').locked;
+                    colLocked = typeof colLocked === 'undefined' ? true : colLocked;
+                    for (j = startRow, len2 = endRow + 1; j < len2; j++) {
+                        rowAlias = rowList[j].get('alias');
+                        colAlias = colList[i].get('alias');
+
+                        if (typeof tempRowLock[j] === 'undefined') {
+                            rowLocked = typeof(rowLocked = rowList[j].get('operProp').locked) === 'undefined' ? true : rowLocked;
+                            tempRowLock[j] = rowLocked;
+                        } else {
+                            rowLocked = tempRowLock[j];
+                        }
+
+                        if (pos[colAlias] && typeof(temp = pos[colAlias][rowAlias]) !== 'undefined') {
+                            if (!tempRecord[temp]) {
+                                tempRecord[temp] === true;
+                                temp = cellList[temp].get('locked');
+                                unlocked = !temp || unlocked;
+                                locked = temp || locked;
+                            }
+                        } else if (!rowLocked || !colLocked) {
+                            unlocked = true;
+                        } else {
+                            locked = true;
+                        }
+                        if (locked && unlocked) {
+                            break outerLooP;
+                        }
+                    }
+
+                }
+            }
+            if (locked && unlocked) {
+                this.lockState = 'half-locked';
+                this.$el.find('.checkbox').removeClass('checked');
+                this.$el.find('.checkbox').addClass('half-checked');
+            } else if (locked) {
+                this.lockState = 'locked';
+                this.$el.find('.checkbox').removeClass('half-checked');
+                this.$el.find('.checkbox').addClass('checked');
+            } else {
+                this.lockState = 'unlocked';
+                this.$el.find('.checkbox').removeClass('checked');
+                this.$el.find('.checkbox').removeClass('half-checked');
+            }
+        },
+        onContent: function(startCol, startRow, endCol, endRow) {
+            this.$el.find('input[type=text]').val(this.parseText(
+                colList[startCol].get('displayName'),
+                rowList[startRow].get('displayName'),
+                endCol === 'MAX' ? 'MAX' : colList[endCol].get('displayName'),
+                endRow === 'MAX' ? 'MAX' : rowList[endRow].get('displayName')
+            ));
+        },
+        parseText: function(startColName, startRowName, endColName, endRowName) {
+            var text = '';
+            //整行操作
+            if (endColName === 'MAX') {
+                if (startRowName !== endRowName) {
+                    text = startRowName + ':' + endRowName;
                 } else {
-                    text = col[0] + row[0] + ':' + col[colLen - 1] + row[rowLen - 1];
+                    text = startRowName;
+                }
+            } else if (endRowName === 'MAX') { //整列操作
+                if (startColName !== endColName) {
+                    text = startColName + ':' + endColName;
+                } else {
+                    text = startColName;
+                }
+            } else {
+                if ((startRowName === endRowName) && (startColName === endColName)) {
+                    text = startColName + startRowName;
+                } else {
+                    text = startColName + startRowName + ':' + endColName + endRowName;
                 }
             }
             return text;
@@ -110,12 +202,23 @@ define(function(require) {
                 endRowIndex: endRowIndex
             }
         },
-        confirm: function() {
-            var isLock = this.$el.find('input[type=checkbox]').get(0).checked;
-            this.lock(isLock);
+        toggle: function() {
+            if (this.lockState === 'locked' || this.lockState === 'half-locked') {
+                this.lockState = 'unlocked';
+                this.$el.find('.checkbox').removeClass('checked');
+                this.$el.find('.checkbox').removeClass('half-checked');
+            } else {
+                this.lockState = 'locked';
+                this.$el.find('.checkbox').removeClass('half-checked');
+                this.$el.find('.checkbox').addClass('checked');
+            }
         },
-        lock: function(isLock) {
-            if (isLock) {
+        confirm: function(event) {
+            event.preventDefault();
+            if (this.lockState === 'half-locked') {
+                return;
+            }
+            if (this.lockState === 'locked') {
                 protect.lock();
             } else {
                 protect.unlock();
@@ -127,7 +230,7 @@ define(function(require) {
             this.destroy();
         },
         destroy: function() {
-            listener.removeEventListener('selectRegionChange', this.changeSelect);
+            this.remove();
             Backbone.trigger('event:sidebarContainer:remove');
         }
     });

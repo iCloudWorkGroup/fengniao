@@ -37,8 +37,8 @@ define(function(require) {
 	templatesHTML.SIDERBARTEMPLATE += '<div class="siderbar-body"></div></div>';
 
 	templatesHTML.LOCKCONTAINER = '<div class="siderbar-item"><div class="lock-content">';
-	templatesHTML.LOCKCONTAINER += '<div class="title"><span>锁定</span><input type="checkbox" checked="{{checked}}" name="lock"></div>';
-	templatesHTML.LOCKCONTAINER += '<div class="content"><label>所选区域：</label><input type="text" value="{{content}}" disabled="disabled"></div>';
+	templatesHTML.LOCKCONTAINER += '<div class="title"><span>锁定</span><div class="checkbox lock-toggle"></div></div>';
+	templatesHTML.LOCKCONTAINER += '<div class="content"><label>所选区域：</label><input type="text" disabled="disabled"></div>';
 	templatesHTML.LOCKCONTAINER += '<div class="oper"><a href="#" class="confirm">确定</a><a href="#" class="cancel">取消</a></div></div></div>';
 
 	templatesHTML.PROTECTCONTAINER = '<div class="siderbar-item"><div class="protect-content">';

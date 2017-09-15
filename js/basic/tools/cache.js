@@ -11,7 +11,7 @@ define(function(require) {
 	 */
 	return {
 
-		sendQueueStep: 1,
+		sendQueueStep: 0,
 		containerId: '',
 		//ps:CurrentRule ，FrozenRules ，TempProp 都存有冻结信息，具体功能，需要说明
 		CurrentRule: {},

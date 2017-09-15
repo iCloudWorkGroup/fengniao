@@ -109,7 +109,7 @@ define(function(require) {
 			this.mainContainer = mainContainer;
 			cell = cells.getRegionCells(colIndex, rowIndex)[0];
 			if (!cell) {
-				cell = this.createCell(rowIndex, colIndex);
+				cell = cells.createCellModel(colIndex, rowIndex);
 			}
 			this.model = cell;
 			left = this.getAbsoluteLeft();
@@ -189,51 +189,13 @@ define(function(require) {
 			}
 		},
 		/**
-		 * 创建单元格
-		 * @method createCell
-		 * @param  {num} indexRow 行索引
-		 * @param  {num} indexCol 列索引
-		 * @return {Cell} cell 单元格对象
-		 */
-		createCell: function(indexRow, indexCol) {
-			var cacheCell,
-				aliasCol,
-				aliasRow,
-				gridLineColList,
-				gridLineRowList;
-
-			gridLineColList = headItemCols.models;
-			gridLineRowList = headItemRows.models;
-			aliasCol = gridLineColList[indexCol].get('alias');
-			aliasRow = gridLineRowList[indexRow].get('alias');
-			var top, left, width, height;
-			top = gridLineRowList[indexRow].get('top');
-			left = gridLineColList[indexCol].get('left');
-			width = gridLineColList[indexCol].get('width');
-			height = gridLineRowList[indexRow].get('height');
-			cacheCell = new Cell();
-			cacheCell.set('occupy', {
-				x: [aliasCol],
-				y: [aliasRow]
-			});
-			cacheCell.set('physicsBox', {
-				top: top,
-				left: left,
-				width: width,
-				height: height
-			});
-			cache.cachePosition(aliasRow, aliasCol, cells.length);
-			cells.add(cacheCell);
-			return cacheCell;
-		},
-		/**
 		 * 隐藏输入框
 		 */
 		hide: function() {
 			var model = this.model,
 				originalText,
-				rowDisplayName,
-				colDisplayName,
+				rowSort,
+				colSort,
 				text;
 
 			if (this.showState === true) {
@@ -244,12 +206,23 @@ define(function(require) {
 					'height': 0,
 					'z-index': -100
 				});
-				rowDisplayName = headItemRowList[this.rowIndex].get('displayName');
-				colDisplayName = headItemColList[this.colIndex].get('displayName');
 
 				originalText = model.get('content').texts;
 				text = this.$el.val();
-				setCellContent('sheetId', text, colDisplayName.toUpperCase() + rowDisplayName);
+				if (originalText !== text) {
+					model.set('content.texts', text);
+					rowSort = headItemRowList[this.rowIndex].get('sort');
+					colSort = headItemColList[this.colIndex].get('sort');
+
+					history.addUpdateAction('content.texts', text, {
+						startColSort: colSort,
+						startRowSort: rowSort,
+					}, [{
+						colSort: colSort,
+						rowSort: rowSort,
+						value: originalText
+					}]);
+				}
 			}
 			this.$el.val('');
 			this.showState = false;

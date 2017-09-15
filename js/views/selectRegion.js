@@ -127,6 +127,7 @@ define(function(require) {
 				region,
 				width,
 				height,
+				temp,
 				e = {},
 				i;
 
@@ -162,22 +163,22 @@ define(function(require) {
 				width: width,
 				height: height
 			});
-			this.model.set('wholePosi', {
+			temp = {
 				startX: colModelList[startColIndex].get('alias'),
 				startY: rowModelList[startRowIndex].get('alias'),
 				endX: colModelList[endColIndex].get('alias'),
 				endY: rowModelList[endRowIndex].get('alias')
-			});
+			}
 
 			//判断是否为整行或整列操作
 			if (modelJSON.tempPosi.mouseColIndex === 'MAX' || modelJSON.tempPosi.initColIndex === 'MAX') {
-				this.model.set('wholePosi.endX', 'MAX');
+				temp.endX = 'MAX';
 				colDisplayNames.push('1');
 				colDisplayNames.push('MAX');
 				rowDisplayNames.push(rowModelList[startRowIndex].get('displayName'));
 				rowDisplayNames.push(rowModelList[endRowIndex].get('displayName'));
 			} else if (modelJSON.tempPosi.mouseRowIndex === 'MAX' || modelJSON.tempPosi.initRowIndex === 'MAX') {
-				this.model.set('wholePosi.endY', 'MAX');
+				temp.endY = 'MAX';
 				rowDisplayNames.push('1');
 				rowDisplayNames.push('MAX');
 				colDisplayNames.push(colModelList[startColIndex].get('displayName'));
@@ -190,6 +191,8 @@ define(function(require) {
 					rowDisplayNames.push(rowModelList[i].get('displayName'));
 				}
 			}
+			this.model.set('wholePosi', temp);
+			
 			e.point = {
 				col: colDisplayNames,
 				row: rowDisplayNames
