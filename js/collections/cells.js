@@ -7,8 +7,8 @@ define(function(require) {
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
-		gridRowList = headItemRows.models,
-		gridColList = headItemCols.models;
+		rowList = headItemRows.models,
+		colList = headItemCols.models;
 	/**
 	 *cell集合类，管理cell对象
 	 *@class Cells 
@@ -37,50 +37,43 @@ define(function(require) {
 		 */
 		createCellModel: function(startColIndex, startRowIndex,
 			endColIndex, endRowIndex, prop) {
-			var headItemColList,
-				headItemRowList,
-				rowLen,
-				colLen,
-				i = 0,
-				j = 0,
+			var rowLen, colLen, i, j,
 				occupyCol = [],
 				occupyRow = [],
 				cell,
 				width = 0,
 				height = 0,
 				top,
-				left;
+				left,
+				temp;
+
 			if (endColIndex === undefined) {
 				endColIndex = startColIndex;
+				endRowIndex = startRowIndex;
 			} else if (typeof endColIndex === 'object') {
 				prop = endColIndex;
 				endColIndex = startColIndex;
-			}
-			if (endRowIndex === undefined) {
 				endRowIndex = startRowIndex;
 			}
-			headItemColList = headItemCols.models;
-			headItemRowList = headItemRows.models;
-
-			left = headItemColList[startColIndex].get('left');
-			top = headItemRowList[startRowIndex].get('top');
+			left = colList[startColIndex].get('left');
+			top = rowList[startRowIndex].get('top');
 
 			rowLen = endRowIndex - startRowIndex + 1;
 			colLen = endColIndex - startColIndex + 1;
 
 			//获取occupy信息
 			for (i = 0; i < colLen; i++) {
-				occupyCol.push(headItemColList[startColIndex + i].get('alias'));
-				width += headItemColList[startColIndex + i].get('width') + 1;
+				occupyCol.push(colList[startColIndex + i].get('alias'));
+				width += colList[startColIndex + i].get('width') + 1;
 			}
 			for (i = 0; i < rowLen; i++) {
-				occupyRow.push(headItemRowList[startRowIndex + i].get('alias'));
-				height += headItemRowList[startRowIndex + i].get('height') + 1;
+				occupyRow.push(rowList[startRowIndex + i].get('alias'));
+				height += rowList[startRowIndex + i].get('height') + 1;
 			}
 			for (i = 0; i < rowLen; i++) {
 				for (j = 0; j < colLen; j++) {
-					cache.cachePosition(headItemRowList[startRowIndex + i].get('alias'),
-						headItemColList[startColIndex + j].get('alias'),
+					cache.cachePosition(rowList[startRowIndex + i].get('alias'),
+						colList[startColIndex + j].get('alias'),
 						this.length);
 				}
 			}
@@ -95,9 +88,15 @@ define(function(require) {
 				width: width - 1,
 				height: height - 1
 			});
-
+			/**
+			 * 如果传入的单元格初始化属性，使用传入值，否则使用行列值
+			 */
 			if (prop !== undefined) {
 				setProp(cell, prop);
+			} else if (!isEmptyObject(temp = colList[startColIndex].get('operProp'))) {
+				setProp(cell, temp);
+			} else if (!isEmptyObject(temp = rowList[startRowIndex].get('operProp'))) {
+				setProp(cell, temp);
 			}
 
 			this.add(cell);
@@ -110,10 +109,19 @@ define(function(require) {
 						for (childKey in prop[parentKey]) {
 							cell.set(parentKey + '.' + childKey, prop[parentKey][childKey]);
 						}
+					} else {
+						cell.set(parentKey, prop[parentKey]);
 					}
 				}
 			}
-			//新建单元格
+
+			function isEmptyObject(obj) {
+				var prop;
+				for (prop in obj) {
+					return false;
+				}
+				return true;
+			}
 			return cell;
 		},
 		/**
@@ -1126,10 +1134,10 @@ define(function(require) {
 
 				for (i = 0, len = cellList.length; i < len; i++) {
 					temp = cellList[i].get('physicsBox');
-					cellStartRowIndex = binary.modelBinary(temp.top, gridRowList, 'top', 'height');
-					cellStartColIndex = binary.modelBinary(temp.left, gridColList, 'left', 'width');
-					cellEndRowIndex = binary.modelBinary(temp.top + temp.height, gridRowList, 'top', 'height');
-					cellEndColIndex = binary.modelBinary(temp.left + temp.width, gridColList, 'left', 'width');
+					cellStartRowIndex = binary.modelBinary(temp.top, rowList, 'top', 'height');
+					cellStartColIndex = binary.modelBinary(temp.left, colList, 'left', 'width');
+					cellEndRowIndex = binary.modelBinary(temp.top + temp.height, rowList, 'top', 'height');
+					cellEndColIndex = binary.modelBinary(temp.left + temp.width, colList, 'left', 'width');
 					if (cellStartColIndex < startColIndex) {
 						startColIndex = cellStartColIndex;
 						flag = true;

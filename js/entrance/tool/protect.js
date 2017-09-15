@@ -92,16 +92,9 @@ define(function(require) {
 					cellList[i].set('locked', lock);
 				}
 			} else {
-				if (lock) {
-					cellList = cells.getCellByVertical(operRegion);
-					for (i = 0, len1 = cellList.length; i < len1; i++) {
-						cellList[i].set('locked', lock);
-					}
-				} else {
-					cells.oprCellsByRegion(operRegion, function(cell) {
-						cell.set('locked', lock);
-					});
-				}
+				cells.oprCellsByRegion(operRegion, function(cell) {
+					cell.set('locked', lock);
+				});
 			}
 
 			send.PackAjax({
@@ -125,23 +118,24 @@ define(function(require) {
 			});
 		},
 		cancel: function(pwd) {
-			var result;
+			var result = false;
 			send.PackAjax({
 				url: config.url.sheet.protect,
 				data: JSON.stringify({
 					password: pwd,
 					protect: false
 				}),
-				success: this._toggleProtectState
+				success: function(data) {
+					if (data.returndata) {
+						history.clear();
+						cache.protectState = false;
+						result = true;
+					}
+				}
 			});
 			return result;
 		},
-		_toggleProtectState: function(data) {
-			if (data.returndata) {
-				history.clear();
-				cache.protectState = false;
-			}
-		},
+
 		interceptor: function(region) {
 			if (!cache.protectState) {
 				return false;
@@ -185,8 +179,8 @@ define(function(require) {
 			return false;
 		},
 		showLockContainer: function() {
-			if(cache.protectState){
-				Backbone.trigger('event:showMsgBar:show','保护状态，不能进行该操作');
+			if (cache.protectState) {
+				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
 				return;
 			}
 			Backbone.trigger('event:sidebarContainer:show', 'lock');

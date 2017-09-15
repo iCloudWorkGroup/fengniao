@@ -543,6 +543,7 @@ define(function(require) {
 				url: config.url.sheet.load,
 				async: true,
 				isPublic: false,
+				dataType: 'json',
 				data: JSON.stringify({
 					top: top,
 					bottom: bottom

@@ -1,90 +1,151 @@
-.siderbar{
-	background: #F5F5F5;
-	border: 1px solid #d4d4d4;
-	overflow: hidden;
-	position: absolute;
-	right:0px;
-	top:0px;
-	box-sizing: border-box;
-	height: 100%;
-	z-index: 1000;
+.siderbar {
+    background: #F5F5F5;
+    border: 1px solid #d4d4d4;
+    overflow: hidden;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    box-sizing: border-box;
+    height: 100%;
+    z-index: 1000;
 }
-.siderbar-title{
-	padding: 8px 8px;
-	background: #fff;
-	border-bottom: 1px solid #d4d4d4;
-	font-family: 'Microsoft Yahei', 'SimSun', 'sans-serif';
-	font-size: 14px;
-	overflow: hidden;
-	vertical-align: top;
-	line-height: 40px;
+
+.siderbar-title {
+    padding: 8px 8px;
+    background: #fff;
+    border-bottom: 1px solid #d4d4d4;
+    font-family: 'Microsoft Yahei', 'SimSun', 'sans-serif';
+    font-size: 14px;
+    overflow: hidden;
+    vertical-align: top;
+    line-height: 40px;
 }
-.siderbar-title a{
-	float:right;
-	text-decoration: none;
-	display: inline-block;
+
+.siderbar-title a {
+    float: right;
+    text-decoration: none;
+    display: inline-block;
 }
-.siderbar-body{
-	margin:5px;
-	overflow-x: hidden;
-	overflow-y: auto;
+
+.siderbar-body {
+    margin: 5px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
-.siderbar-item{
-	margin-bottom: 5px;
-	border-left: 2px solid #F58517;
-	border-right:1px solid #d4d4d4;
-	border-top:1px solid #d4d4d4;
-	border-bottom:1px solid #d4d4d4;
-	background: #fff;
-	padding: 5px 10px;
-	font-size: 12px;
+
+.siderbar-item {
+    margin-bottom: 5px;
+    border-left: 2px solid #F58517;
+    border-right: 1px solid #d4d4d4;
+    border-top: 1px solid #d4d4d4;
+    border-bottom: 1px solid #d4d4d4;
+    background: #fff;
+    padding: 5px 10px;
+    font-size: 12px;
 }
-.siderbar-item .oper{
-	float:right
+
+.siderbar-item .oper {
+    float: right
 }
-.siderbar-item .confirm{
-	background: #666;
-	text-decoration: none;
-	color: #fff;
-	padding: 2px 5px;
-	display: inline-block;
-	border-radius: 3px;
-	margin-right: 5px;
+
+.siderbar-item .confirm {
+    background: #666;
+    text-decoration: none;
+    color: #fff;
+    padding: 2px 5px;
+    display: inline-block;
+    border-radius: 3px;
+    margin-right: 5px;
 }
-.siderbar-item .cancel{
-	color:#6e6e6e;
-	text-decoration: none;
-	margin-right: 5px;
+
+.siderbar-item .cancel {
+    color: #6e6e6e;
+    text-decoration: none;
+    margin-right: 5px;
 }
-.lock-content .title{
-	font-weight: bold;
+
+.lock-content .title {
+    font-weight: bold;
 }
-.lock-content input[type="checkbox"]{
-	vertical-align: middle;
+
+.lock-content .title .lock-toggle {
+    margin-left: 5px;
+    vertical-align: bottom;
 }
-.lock-content .content{
-	margin-top: 5px;
-	margin-bottom: 15px;
-	color:#6e6e6e;
+
+.lock-content .content {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    color: #6e6e6e;
 }
-.lock-content:after{
-	display: block;
-	visibility: hidden;
-	content:'123123';
-	font-size: 0;
-	height: 0;
-	clear:both;
+
+.lock-content:after {
+    display: block;
+    visibility: hidden;
+    content: '123123';
+    font-size: 0;
+    height: 0;
+    clear: both;
 }
-.ico-close { 
-	width: 16px; 
-	height: 16px; 
-	background-position: -55px -173px; 
+
+.ico-close {
+    width: 16px;
+    height: 16px;
+    background-position: -55px -173px;
 }
-.protect-content{
-	overflow: hidden;
+
+.protect-content {
+    overflow: hidden;
 }
-.protect-content .content{
-	margin-top: 15px;
-	margin-bottom: 5px;
-	color:#6e6e6e;
+
+.protect-content .content {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    color: #6e6e6e;
+}
+
+.checkbox {
+    position: relative;
+    display: inline-block;
+    height: 12px;
+    width: 12px;
+    background: #fafafa;
+    border: 1px solid #cacece;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
+}
+
+.checkbox:active {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.checkbox.checked {
+    background: #e9ecee;
+}
+
+.checkbox.checked:after {
+    content: "\e013";
+    display: block;
+    font-family: 'Glyphicons Halflings';
+    font-size: 12px;
+    font-weight: 100;
+    color: black;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.checkbox.half-checked:after {
+    content: "\e074";
+    display: block;
+    font-family: 'Glyphicons Halflings';
+    font-size: 13px;
+    font-weight: 100;
+    color: black;
+    position: absolute;
+    vertical-align: baseline;
+    bottom: -1px;
+    right: 0px;
 }

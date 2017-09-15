@@ -44,6 +44,9 @@ define(function(require) {
 				$.ajax({
 					url: config.url,
 					beforeSend: function(request) {
+						if (config.isPublic) {
+							cache.sendQueueStep++;
+						}
 						request.setRequestHeader('step', cache.sendQueueStep);
 						request.setRequestHeader('excelId', window.SPREADSHEET_AUTHENTIC_KEY);
 						request.setRequestHeader('sheetId', '1');
@@ -57,9 +60,8 @@ define(function(require) {
 					error: config.error,
 					complete: config.complete,
 					success: function(data) {
-						
-						if (!config.isPublic && data.returndata !== false) {
-							cache.sendQueueStep++;
+						if (config.isPublic && data.returndata === false) {
+							cache.sendQueueStep--;
 						}
 						config.success.apply(this, arguments);
 					}
