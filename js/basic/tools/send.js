@@ -60,7 +60,7 @@ define(function(require) {
 					error: config.error,
 					complete: config.complete,
 					success: function(data) {
-						if (config.isPublic && data.returndata === false) {
+						if (data.isLegal === false) {
 							cache.sendQueueStep--;
 						}
 						config.success.apply(this, arguments);
