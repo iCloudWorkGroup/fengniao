@@ -126,7 +126,7 @@ define(function(require) {
 					protect: false
 				}),
 				success: function(data) {
-					if (data.returndata) {
+					if (data && data.isLegal) {
 						history.clear();
 						cache.protectState = false;
 						result = true;
