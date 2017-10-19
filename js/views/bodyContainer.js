@@ -2,7 +2,6 @@ define(function(require) {
 	'use strict';
 	var $ = require('lib/jquery'),
 		Backbone = require('lib/backbone'),
-		send = require('basic/tools/send'),
 		config = require('spreadsheet/config'),
 		cache = require('basic/tools/cache'),
 		getTemplate = require('basic/tools/template'),
@@ -161,7 +160,6 @@ define(function(require) {
 				focus = $(':focus')[0];
 
 			if (el !== focus) {
-				Backbone.trigger('event:InputContainer:hide');
 				if (!focus) {
 					el.focus();
 				}

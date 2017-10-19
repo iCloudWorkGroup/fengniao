@@ -6,11 +6,11 @@ define(function(require) {
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		LockContainer = require('views/lockcontainer'),
-		ProtectContainer = require('views/protectcontainer');
+		ProtectContainer = require('views/protectcontainer'),
+		ValidateContainer = require('views/validatecontainer');
 
 	SiderbarContainer = Backbone.View.extend({
 		className: 'siderbar',
-
 		events: {
 			'click .close': 'close'
 		},
@@ -29,6 +29,9 @@ define(function(require) {
 				case 'protect':
 					title = cache.protectState ? '撤销保护工作簿' : '保护工作薄';
 					child = new ProtectContainer();
+				case 'validate':
+					title = '数据验证';
+					child = new ValidateContainer();
 				default:
 					break;
 			}
@@ -36,7 +39,6 @@ define(function(require) {
 			this.$el.html(template({
 				title: title
 			}));
-
 			if (child) {
 				this.$el.find('.siderbar-body').append(child.render().el);
 			}

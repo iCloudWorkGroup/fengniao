@@ -217,10 +217,6 @@ define(function(require) {
 			this.$el.off('mousemove');
 
 			Backbone.trigger('event:rowsSpaceLineContainer:destroy');
-			// if ($(e.target)[0].type !== 'textarea' && $(e.target)[0].type !== 'text' &&
-			// 	$(e.target)[0].type !== 'password') {
-			// 	Backbone.trigger('event:InputContainer:hide');
-			// }
 		},
 		/**
 		 * 行列标题区域，鼠标移动事件绑定
