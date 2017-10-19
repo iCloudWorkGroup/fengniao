@@ -1,6 +1,7 @@
 'use strict';
 define(function(require) {
-	var Backbone = require('lib/backbone'),
+	var  _ = require('lib/underscore'),
+		Backbone = require('lib/backbone'),
 		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
@@ -8,30 +9,32 @@ define(function(require) {
 		getOperRegion = require('basic/tools/getoperregion'),
 		history = require('basic/tools/history'),
 		cells = require('collections/cells'),
-		headItemCols = require('collections/headItemCol'),
-		headItemRows = require('collections/headItemRow'),
+		cols = require('collections/headItemCol'),
+		rows = require('collections/headItemRow'),
+		colList = cols.models,
+		rowList = rows.models,
 		splitCell;
 
 	splitCell = function(sheetId, label) {
-		var headLineColList = headItemCols.models,
-			headLineRowList = headItemRows.models,
-			region,
+		var region,
 			operRegion,
 			sendRegion,
+			strand = cache.CellsPosition.strandX,
 			startColIndex,
 			startRowIndex,
 			endColIndex,
 			endRowIndex,
-			selectRegionCells,
-			cacheCell,
-			occupy,
-			cellPosi,
+			selectCells,
+			occupyCol,
+			occupyRow,
 			originalCellIndexs = [],
 			currentCellIndexs = [],
 			clip,
 			i, j, len,
 			aliasCol,
-			aliasRow;
+			aliasRow,
+			currentCell,
+			attributes;
 		//选中区域内开始坐标，结束坐标
 		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
@@ -39,7 +42,7 @@ define(function(require) {
 			clip.destroy();
 		}
 		if (cache.protectState) {
-			Backbone.trigger('event:showMsgBar:show','保护状态，不能进行该操作');
+			Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
 			return;
 		}
 		region = getOperRegion(label);
@@ -58,31 +61,32 @@ define(function(require) {
 		endRowIndex = operRegion.endRowIndex;
 
 		//选中区域内所有单元格对象
-		selectRegionCells = cells.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
-		len = selectRegionCells.length;
+		selectCells = cells.getCellByVertical(startColIndex, startRowIndex, endColIndex, endRowIndex);
 
-		
-		cellPosi = cache.CellsPosition.strandX;
-		for (i = 0; i < len; i++) {
-			occupy=selectRegionCells[i].get('occupy');
-			originalCellIndexs.push(cellPosi[occupy.x[0]][occupy.y[0]]);
-		}
-
-		//删除position索引
-		for (i = 0; i < endColIndex - startColIndex + 1; i++) {
-			for (j = 0; j < endRowIndex - startRowIndex + 1; j++) {
-				aliasCol = headLineColList[startColIndex + i].get('alias');
-				aliasRow = headLineRowList[startRowIndex + j].get('alias');
-				cache.deletePosi(aliasRow, aliasCol);
+		for (i = startColIndex; i < endColIndex + 1; i++) {
+			for (j = startRowIndex; j < endRowIndex + 1; j++) {
+				aliasCol = colList[i].get('alias');
+				aliasRow = rowList[j].get('alias');
+				currentCell = cells.getCellByVertical(i, j)[0];
+				if (currentCell) {
+					attributes = _.clone(currentCell.attributes);
+					occupyCol = attributes.occupy.x[0];
+					occupyRow = attributes.occupy.y[0];
+					if (occupyCol !== aliasCol || occupyRow !== aliasRow) {
+						attributes.content.texts = '';
+						attributes.content.displayTexts = '';
+					} else {
+						originalCellIndexs.push(strand[occupyCol][occupyRow]);
+					}
+					cache.cachePosition(aliasRow, aliasCol, cells.length);
+					currentCellIndexs.push(cells.length);
+					cells.createCellModel(i, j, attributes);
+				}
 			}
 		}
 
-		
-		for (i = 0; i < len; i++) {
-			cacheCell = selectRegionCells[i].clone();
-			selectRegionCells[i].set('isDestroy', true);
-			modifyCell(cacheCell);
-			currentCellIndexs.push(cells.length - 1);
+		for (i = 0, len = selectCells.length; i < len; i++) {
+			selectCells[i].set('isDestroy', true);
 		}
 		history.addCoverAction(currentCellIndexs, originalCellIndexs);
 		sendData();
@@ -96,31 +100,5 @@ define(function(require) {
 			});
 		}
 	};
-
-	function modifyCell(cacheCell) {
-		var occupy = cacheCell.get('occupy'),
-			aliasCol,
-			aliasRow,
-			colIndex,
-			rowIndex,
-			width,
-			height;
-
-		aliasCol = occupy.x[0];
-		aliasRow = occupy.y[0];
-		colIndex = headItemCols.getIndexByAlias(aliasCol);
-		rowIndex = headItemRows.getIndexByAlias(aliasRow);
-
-		height = headItemRows.models[rowIndex].get('height');
-		width = headItemCols.models[colIndex].get('width');
-		cacheCell.set('occupy', {
-			x: aliasCol,
-			y: aliasRow
-		});
-		cacheCell.set('physicsBox.width', width);
-		cacheCell.set('physicsBox.height', height);
-		cache.cachePosition(aliasRow, aliasCol, cells.length);
-		cells.add(cacheCell);
-	}
 	return splitCell;
 });
