@@ -7,15 +7,14 @@ define(function(require) {
 		config = require('spreadsheet/config'),
 		send = require('basic/tools/send'),
 		Cell = require('models/cell'),
-		setCellContent = require('entrance/tool/setcellcontent'),
 		headItemRows = require('collections/headItemRow'),
 		headItemCols = require('collections/headItemCol'),
 		selectRegions = require('collections/selectRegion'),
 		cells = require('collections/cells'),
 		shortcut = require('entrance/sheet/shortcut'),
-		setTextType = require('entrance/tool/settexttype'),
 		clipSelectOperate = require('entrance/tool/clipselectoperate'),
 		clipPasteOperate = require('entrance/tool/clippasteoperate'),
+		setCellContent = require('entrance/tool/setcellcontent'),
 		done = require('entrance/sheet/redoundo'),
 		protect = require('entrance/tool/protect'),
 		headItemRowList = headItemRows.models,
@@ -62,7 +61,6 @@ define(function(require) {
 		 */
 		initialize: function() {
 			Backbone.on('event:InputContainer:show', this.show, this);
-			Backbone.on('event:InputContainer:hide', this.hide, this);
 		},
 		/**
 		 * 显示输入框
@@ -194,11 +192,31 @@ define(function(require) {
 		hide: function() {
 			var model = this.model,
 				originalText,
-				rowSort,
-				colSort,
+				rowDisplayName,
+				colDisplayName,
+				select,
 				text;
-
 			if (this.showState === true) {
+				rowDisplayName = headItemRowList[this.rowIndex].get('displayName');
+				colDisplayName = headItemColList[this.colIndex].get('displayName');
+
+				originalText = model.get('content').texts;
+				text = this.$el.val();
+				if (!setCellContent('sheetId', text, colDisplayName.toUpperCase() + rowDisplayName)) {
+					Backbone.trigger('event:showMsgBar:show', '输入值非法，用户已限定了输入的数值');
+					select = selectRegions.getModelByType('selected');
+
+					select.set('tempPosi', {
+						initColIndex: this.colIndex,
+						initRowIndex: this.rowIndex,
+						mouseColIndex: this.colIndex,
+						mouseRowIndex: this.rowIndex
+					});
+					
+					this.$el.val(originalText);
+					this.$el.focus();
+					return;
+				}
 				this.$el.css({
 					'left': -1000,
 					'top': -1000,
@@ -206,23 +224,6 @@ define(function(require) {
 					'height': 0,
 					'z-index': -100
 				});
-
-				originalText = model.get('content').texts;
-				text = this.$el.val();
-				if (originalText !== text) {
-					model.set('content.texts', text);
-					rowSort = headItemRowList[this.rowIndex].get('sort');
-					colSort = headItemColList[this.colIndex].get('sort');
-
-					history.addUpdateAction('content.texts', text, {
-						startColSort: colSort,
-						startRowSort: rowSort,
-					}, [{
-						colSort: colSort,
-						rowSort: rowSort,
-						value: originalText
-					}]);
-				}
 			}
 			this.$el.val('');
 			this.showState = false;
@@ -615,7 +616,6 @@ define(function(require) {
 		 */
 		destroy: function() {
 			Backbone.off('event:InputContainer:show');
-			Backbone.off('event:InputContainer:hide');
 			this.remove();
 		}
 	});
