@@ -63,7 +63,8 @@ define(function(require) {
 				ColHide = require('widgets/hidecol/colhidecontainer'),
 				RegionDelContainer = require('widgets/celldel/regiondel'),
 				UndoredoContainer = require('widgets/undoredo/undoredocontainer'),
-				ProtectContainer = require('widgets/protect/protectcontainer');
+				ProtectContainer = require('widgets/protect/protectcontainer'),
+				ValidateContainer = require('widgets/validate/validatecontainer');
 			new ShearPlateContainer();
 			new FontFamilyContainer();
 			new FontSizeContainer();
@@ -83,6 +84,7 @@ define(function(require) {
 			new ColHide();
 			new UndoredoContainer();
 			new ProtectContainer();
+			new ValidateContainer();
 		},
 		buildExcelPublicAPI: function(SpreadSheet) {
 			SpreadSheet.prototype.setFontColor = setFontColor;

@@ -14,6 +14,7 @@ define(function(require) {
 		selectRegions = require('collections/selectRegion'),
 		sheets = require('collections/sheets'),
 		cells = require('collections/cells'),
+		strandMap = require('basic/tools/strandmap'),
 		headItemColList = headItemCols.models,
 		headItemRowList = headItemRows.models;
 
@@ -389,7 +390,57 @@ define(function(require) {
 			}
 
 		},
+		analysisValidateRule: function(rules) {
+			if (!(rules instanceof Array)) {
+				return;
+			}
+			var currentRule,
+				ranges,
+				rule,
+				startRow,
+				startCol,
+				endRow,
+				endCol,
+				i, j, k, h,
+				len1, len2;
 
+			for (i = 0, len1 = rules.length; i < len1; i++) {
+				currentRule = rules[i];
+				rule = {};
+				ranges = currentRule.coordinate;
+				rule.validationType = currentRule.rule.validationType;
+				rule.formula1 = currentRule.rule.formula1;
+				rule.formula2 = currentRule.rule.formula2;
+				startRow,
+				startCol,
+				endRow,
+				endCol;
+
+
+				for (j = 0, len2 = ranges.length; j < len2; j++) {
+					startCol = ranges[j].startCol;
+					startRow = ranges[j].startRow;
+					endCol = ranges[j].endCol;
+					endRow = ranges[j].endRow;
+					if (endRow === -1) {
+						for (k = startCol; k < endCol + 1; k++) {
+							strandMap.addColRecord((k + 1).toString(), 'validate', i);
+						}
+					} else if (endCol === -1) {
+						for (k = startRow; k < endRow + 1; k++) {
+							strandMap.addRowRecord((k + 1).toString(), 'validate', i);
+						}
+					} else {
+						for (k = startCol; k < endCol + 1; k++) {
+							for (h = startRow; h < endRow + 1; h++) {
+								strandMap.addPointRecord((k + 1).toString(), (h + 1).toString(), 'validate', i);
+							}
+						}
+					}
+				}
+				cache.validate.push(rule);
+			}
+		},
 		/**
 		 * 从后台发送请求，得到excel数据，进行重新加载
 		 * @method  
@@ -452,7 +503,9 @@ define(function(require) {
 				if (data.spreadSheet && data.spreadSheet[0] &&
 					(sheetData = data.spreadSheet[0].sheet)) {
 
+
 					sheetNames.push(data.spreadSheet[0].name);
+
 					var cellModels = sheetData.cells;
 					var rows = sheetData.glY;
 					var cols = sheetData.glX;
@@ -462,7 +515,7 @@ define(function(require) {
 					self.analysisColData(cols, startColSort);
 					self.analysisCellData(cellModels);
 					self.restoreSelectRegion();
-
+					self.analysisValidateRule(data.spreadSheet[0].validate);
 					headItemColList = headItemCols.models;
 					headItemRowList = headItemRows.models;
 

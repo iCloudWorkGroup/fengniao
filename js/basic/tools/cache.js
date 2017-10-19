@@ -44,6 +44,7 @@ define(function(require) {
 		},
 		clipState: 'null', //copy：复制状态，cut:剪切状态，null:未进行剪切板操作
 
+		validate: [],
 		/**
 		 * 用户可视的区域(在Excel未冻结的情况下使用)
 		 * 需要修改默认值

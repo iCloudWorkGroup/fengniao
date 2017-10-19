@@ -1,15 +1,17 @@
 'use strict';
 define(function(require) {
-	var send = require('basic/tools/send'),
+	var aspect = require('basic/util/aspect'),
+		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
-		config = require('spreadsheet/config'),
-		selectRegions = require('collections/selectRegion'),
 		history = require('basic/tools/history'),
+		getOperRegion = require('basic/tools/getoperregion'),
+		selectRegions = require('collections/selectRegion'),
 		cells = require('collections/cells'),
 		cols = require('collections/headItemCol'),
 		rows = require('collections/headItemRow'),
-		getOperRegion = require('basic/tools/getoperregion'),
 		protect = require('entrance/tool/protect'),
+		validate = require('entrance/tool/validate'),
+		config = require('spreadsheet/config'),
 		colList = cols.models,
 		rowList = rows.models;
 
@@ -33,13 +35,13 @@ define(function(require) {
 		operRegion = region.operRegion;
 		sendRegion = region.sendRegion;
 
-
 		if (protect.interceptor({
 				startColIndex: operRegion.startColIndex,
 				startRowIndex: operRegion.startRowIndex
 			})) {
 			return;
 		}
+
 
 		operRegion.endColIndex = operRegion.startColIndex;
 		operRegion.endRowIndex = operRegion.startRowIndex;
@@ -64,6 +66,8 @@ define(function(require) {
 			endRowSort: rowList[operRegion.endRowIndex].get('sort')
 		}, changeModelList);
 		sendData();
+		
+		return true;
 
 		function sendData() {
 			send.PackAjax({
@@ -75,5 +79,27 @@ define(function(require) {
 			});
 		}
 	};
+
+
+	setCellContent = aspect.before(setCellContent, function(sheetId, text, label) {
+		var region,
+			operRegion,
+			colAlias,
+			rowAlias;
+
+		if (typeof text === 'undefined') {
+			label = text;
+			text = sheetId;
+		}
+		region = getOperRegion(label);
+		operRegion = region.operRegion;
+		colAlias = colList[operRegion.startColIndex].get('alias');
+		rowAlias = rowList[operRegion.startRowIndex].get('alias');
+		if (!validate.validate(colAlias, rowAlias, text)) {
+			return false;
+		} else {
+			return true;
+		}
+	});
 	return setCellContent;
 });

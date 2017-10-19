@@ -61,6 +61,17 @@ define(function(require) {
 			rowLen = endRowIndex - startRowIndex + 1;
 			colLen = endColIndex - startColIndex + 1;
 
+			cell = new CellModel();
+			/**
+			 * 如果传入的单元格初始化属性，使用传入值，否则使用行列值
+			 */
+			if (prop !== undefined) {
+				setProp(cell, prop);
+			} else if (!isEmptyObject(temp = colList[startColIndex].get('operProp'))) {
+				setProp(cell, temp);
+			} else if (!isEmptyObject(temp = rowList[startRowIndex].get('operProp'))) {
+				setProp(cell, temp);
+			}
 			//获取occupy信息
 			for (i = 0; i < colLen; i++) {
 				occupyCol.push(colList[startColIndex + i].get('alias'));
@@ -77,7 +88,7 @@ define(function(require) {
 						this.length);
 				}
 			}
-			cell = new CellModel();
+
 			cell.set('occupy', {
 				x: occupyCol,
 				y: occupyRow
@@ -88,16 +99,6 @@ define(function(require) {
 				width: width - 1,
 				height: height - 1
 			});
-			/**
-			 * 如果传入的单元格初始化属性，使用传入值，否则使用行列值
-			 */
-			if (prop !== undefined) {
-				setProp(cell, prop);
-			} else if (!isEmptyObject(temp = colList[startColIndex].get('operProp'))) {
-				setProp(cell, temp);
-			} else if (!isEmptyObject(temp = rowList[startRowIndex].get('operProp'))) {
-				setProp(cell, temp);
-			}
 
 			this.add(cell);
 
@@ -896,33 +897,8 @@ define(function(require) {
 		 * @method  getCellsByColIndex
 		 * @return {array} cell模型列表
 		 */
-		getCellsByColIndex: function(startIndex, endIndex) {
-			var tempObj,
-				tempAttr,
-				cacheCellArray,
-				cachePosition,
-				cellModelList,
-				alias,
-				i;
-
-			cacheCellArray = [];
-			cellModelList = this.models;
-			cachePosition = cache.CellsPosition.strandX;
-			//遍历cache.CellsPosition中符合索引，生成cells[]集合
-			for (i = startIndex; i < endIndex + 1; i++) {
-				if (headItemCols.models[i] !== undefined) {
-					alias = headItemCols.models[i].get('alias');
-					if (cachePosition[alias] !== undefined) {
-						tempObj = cachePosition[alias];
-						for (tempAttr in tempObj) {
-							if (cacheCellArray.indexOf(cellModelList[tempObj[tempAttr]]) === -1) {
-								cacheCellArray.push(cellModelList[tempObj[tempAttr]]);
-							}
-						}
-					}
-				}
-			}
-			return cacheCellArray;
+		getCellsByColIndex: function(startColIndex, endColIndex) {
+			return this.getCellByVertical(startColIndex, 0, endColIndex, 'MAX');
 		},
 		/**
 		 * 根据alias获取单元格对象

@@ -127,6 +127,8 @@ define(function() {
 		defaultNumberFormat: {
 			decimal: 6
 		},
+		fullColNum: 16383,
+		fullRowNum: 1048575,
 		shortcuts: {
 			clip: true,
 			alt_enter: true,
@@ -173,7 +175,7 @@ define(function() {
 				bgBatch: 'cell/bg-batch',
 				underline: 'cell/font-underline',
 				clear: 'cell/clean-data',
-				lock: 'cell/lock'
+				lock: 'cell/lock',
 			},
 			table: {
 				reload: 'reload'
@@ -187,7 +189,8 @@ define(function() {
 				frozen: 'sheet/frozen',
 				unfrozen: 'sheet/unfrozen',
 				load: 'sheet/area',
-				protect: 'sheet/protect'
+				protect: 'sheet/protect',
+				validate: 'sheet/validate'
 			},
 
 		},

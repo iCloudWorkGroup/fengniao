@@ -123,20 +123,6 @@ define(function(require) {
 			this.showCommentSign(modelAttr);
 			return this;
 		},
-		// getHtmlText: function(modelAttr) {
-		// 	var text;
-
-		// 	if (modelAttr.attributes) {
-		// 		modelAttr = this.model.attributes;
-		// 	}
-
-		// 	text = modelAttr.content.displayTexts || '';
-
-		// 	if (modelAttr.wordWrap) {
-		// 		text =text.replace(/\n/g, '<br>');
-		// 	}
-		// 	return text;
-		// },
 		changeWidth: function(modelAttr) {
 			if (modelAttr.attributes) {
 				modelAttr = this.model.attributes;
