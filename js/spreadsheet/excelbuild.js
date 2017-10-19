@@ -33,6 +33,8 @@ define(function(require) {
 		regionDel = require('entrance/tool/regiondel'),
 		colHide = require('entrance/col/colhide'),
 		batchFillBg = require('entrance/tool/batchsetbg'),
+		validate = require('entrance/tool/validate'),
+		protect = require('entrance/tool/protect'),
 		comment = require('entrance/tool/comment');
 
 
@@ -144,7 +146,9 @@ define(function(require) {
 
 			SpreadSheet.prototype.colHide = colHide.hide.bind(colHide);
 			SpreadSheet.prototype.colCancelHide = colHide.cancelHide.bind(colHide);
-
+			SpreadSheet.prototype.setValidate = validate.showValidateContainer;
+			SpreadSheet.prototype.setLock = protect.showLockContainer;
+			SpreadSheet.prototype.setProtect = protect.showProtectContainer;
 			SpreadSheet.prototype.getStep = function() {
 				return cache.sendQueueStep;
 			}
