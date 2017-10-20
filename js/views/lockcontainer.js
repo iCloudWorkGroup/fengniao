@@ -9,10 +9,10 @@ define(function(require) {
         cols = require('collections/headItemCol'),
         rows = require('collections/headItemRow'),
         cells = require('collections/cells'),
+        cache = require('basic/tools/cache'),
         colList = cols.models,
         rowList = rows.models,
         cellList = cells.models,
-        cache = require('basic/tools/cache'),
         lockContainer;
 
     lockContainer = Backbone.View.extend({

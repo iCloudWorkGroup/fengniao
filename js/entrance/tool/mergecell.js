@@ -3,6 +3,7 @@ define(function(require) {
 	var Backbone = require('lib/backbone'),
 		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
+		strandMap = require('basic/tools/strandmap'),
 		config = require('spreadsheet/config'),
 		selectRegions = require('collections/selectRegion'),
 		history = require('basic/tools/history'),
@@ -11,12 +12,13 @@ define(function(require) {
 		headItemCols = require('collections/headItemCol'),
 		headItemRows = require('collections/headItemRow'),
 		getOperRegion = require('basic/tools/getoperregion'),
+		colList = headItemCols.models,
+		rowList = headItemRows.models,
+		cellList = cells.models,
 		mergeCell;
 
 	mergeCell = function(sheetId, label) {
-
-		var gridLineColList = headItemCols.models,
-			gridLineRowList = headItemRows.models,
+		var cellStrand = cache.CellsPosition.strandX,
 			startRowIndex,
 			startColIndex,
 			endRowIndex,
@@ -26,16 +28,18 @@ define(function(require) {
 			sendRegion,
 			clip,
 			originalCellsIndex = [],
-			cacheCell,
-			cellList,
+			firstCell,
+			firstRule,
+			tempCell,
+			tempIndex,
+			rule,
 			occupyX = [],
 			occupyY = [],
 			aliasCol,
 			aliasRow,
 			width = 0,
 			height = 0,
-			len, i = 0,
-			j = 0;
+			i, j;
 
 		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
@@ -47,12 +51,17 @@ define(function(require) {
 		operRegion = region.operRegion;
 		sendRegion = region.sendRegion;
 		if (cache.protectState) {
-			Backbone.trigger('event:showMsgBar:show','保护状态，不能进行该操作');
+			Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
 			return;
 		}
 
 		if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
-			sendData();
+			send.PackAjax({
+				url: config.url.cell.merge,
+				data: JSON.stringify({
+					coordinate: sendRegion
+				}),
+			});
 			return;
 		}
 		if (operRegion.endColIndex === 'MAX' || operRegion.endRowIndex === 'MAX') {
@@ -63,74 +72,78 @@ define(function(require) {
 		startColIndex = operRegion.startColIndex;
 		endRowIndex = operRegion.endRowIndex;
 		endColIndex = operRegion.endColIndex;
-		/**
-		 * 合并操作：
-		 * 存在含有文本单元格，按照先行后列，按照查找到第一个单元格作为模板进行扩大
-		 * 不存在含有文本单元格，直接以左上角为模板进行扩大
-		 */
-		cellList = cells.getCellByTransverse(startRowIndex, startColIndex, endRowIndex, endColIndex);
 
-		len = cellList.length;
-		for (i = 0; i < len; i++) {
-			if (cellList[i].get('content').texts !== '') {
-				cacheCell = cellList[i].clone();
-				break;
+		aliasCol = colList[startColIndex].get('alias');
+		aliasRow = rowList[startRowIndex].get('alias');
+		firstCell = cells.getCellByTransverse(startRowIndex, startColIndex)[0];
+		firstCell = firstCell && firstCell.clone();
+		firstRule = strandMap.getPointRecord(aliasCol, aliasRow);
+
+		for (i = startRowIndex; i < endRowIndex + 1; i++) {
+			for (j = startColIndex; j < endColIndex + 1; j++) {
+				aliasCol = colList[j].get('alias');
+				aliasRow = rowList[i].get('alias');
+				if (!tempCell) {
+					tempCell = cells.getCellByTransverse(i, j)[0];
+					tempCell = tempCell && tempCell.get('content').texts !== '' ? tempCell.clone() : null;
+					if (tempCell) {
+						rule = strandMap.getPointRecord(aliasCol, aliasRow);
+					}
+				}
+				if (cellStrand[aliasCol] && (tempIndex = cellStrand[aliasCol][aliasRow]) !== undefined) {
+					originalCellsIndex.push(tempIndex);
+					cellList[tempIndex].set('isDestroy', true);
+				}
+				cache.cachePosition(aliasRow, aliasCol, cells.length);
 			}
 		}
 
-		if (cacheCell === undefined) {
-			cacheCell = cells.getCellByTransverse(startRowIndex, startColIndex)[0];
-			if (cacheCell !== undefined) {
-				cacheCell = cacheCell.clone();
-			}
+		if (!tempCell && firstCell) {
+			tempCell = firstCell;
+			rule = firstRule;
+		} else if (!tempCell) {
+			tempCell = new Cell();
 		}
-		if (cacheCell === undefined) {
-			cacheCell = new Cell();
-		}
-		for (i = 0; i < len; i++) {
-			aliasCol = cellList[i].get('occupy').x[0];
-			aliasRow = cellList[i].get('occupy').y[0];
-			originalCellsIndex.push(cache.CellsPosition.strandX[aliasCol][aliasRow]);
-			cellList[i].set('isDestroy', true);
-		}
+
 		//获取occupy信息
 		for (i = 0; i < endColIndex - startColIndex + 1; i++) {
-			occupyX.push(gridLineColList[startColIndex + i].get('alias'));
-			width += gridLineColList[startColIndex + i].get('width') + 1;
+			occupyX.push(colList[startColIndex + i].get('alias'));
+			width += colList[startColIndex + i].get('width') + 1;
 		}
 		for (i = 0; i < endRowIndex - startRowIndex + 1; i++) {
-			occupyY.push(gridLineRowList[startRowIndex + i].get('alias'));
-			height += gridLineRowList[startRowIndex + i].get('height') + 1;
+			occupyY.push(rowList[startRowIndex + i].get('alias'));
+			height += rowList[startRowIndex + i].get('height') + 1;
 		}
-		cacheCell.set('physicsBox', {
-			top: gridLineRowList[startRowIndex].get('top'),
-			left: gridLineColList[startColIndex].get('left'),
+		tempCell.set('physicsBox', {
+			top: rowList[startRowIndex].get('top'),
+			left: colList[startColIndex].get('left'),
 			width: width - 1,
 			height: height - 1
 		});
-		cacheCell.set('occupy', {
+		tempCell.set('occupy', {
 			x: occupyX,
 			y: occupyY
 		});
-		cells.add(cacheCell);
-		for (i = 0; i < endColIndex - startColIndex + 1; i++) {
-			for (j = 0; j < endRowIndex - startRowIndex + 1; j++) {
-				aliasCol = gridLineColList[startColIndex + i].get('alias');
-				aliasRow = gridLineRowList[startRowIndex + j].get('alias');
-				cache.cachePosition(aliasRow, aliasCol, cells.length - 1);
+		cells.add(tempCell);
+		history.addCoverAction([cells.length - 1], originalCellsIndex);
+
+		if (rule === undefined) {
+			for (i = startRowIndex; i < endRowIndex + 1; i++) {
+				for (j = startColIndex; j < endColIndex + 1; j++) {
+					aliasCol = colList[j].get('alias');
+					aliasRow = rowList[i].get('alias');
+					strandMap.addPointRecord(aliasCol, aliasRow, rule);
+				}
 			}
 		}
-		history.addCoverAction([cells.length - 1], originalCellsIndex);
-		sendData();
 
-		function sendData() {
-			send.PackAjax({
-				url: config.url.cell.merge,
-				data: JSON.stringify({
-					coordinate: sendRegion
-				}),
-			});
-		}
+		send.PackAjax({
+			url: config.url.cell.merge,
+			data: JSON.stringify({
+				coordinate: sendRegion
+			}),
+		});
+
 	};
 
 

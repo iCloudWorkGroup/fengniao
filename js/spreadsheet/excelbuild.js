@@ -33,6 +33,8 @@ define(function(require) {
 		regionDel = require('entrance/tool/regiondel'),
 		colHide = require('entrance/col/colhide'),
 		batchFillBg = require('entrance/tool/batchsetbg'),
+		validate = require('entrance/tool/validate'),
+		protect = require('entrance/tool/protect'),
 		comment = require('entrance/tool/comment');
 
 
@@ -63,7 +65,8 @@ define(function(require) {
 				ColHide = require('widgets/hidecol/colhidecontainer'),
 				RegionDelContainer = require('widgets/celldel/regiondel'),
 				UndoredoContainer = require('widgets/undoredo/undoredocontainer'),
-				ProtectContainer = require('widgets/protect/protectcontainer');
+				ProtectContainer = require('widgets/protect/protectcontainer'),
+				ValidateContainer = require('widgets/validate/validatecontainer');
 			new ShearPlateContainer();
 			new FontFamilyContainer();
 			new FontSizeContainer();
@@ -83,6 +86,7 @@ define(function(require) {
 			new ColHide();
 			new UndoredoContainer();
 			new ProtectContainer();
+			new ValidateContainer();
 		},
 		buildExcelPublicAPI: function(SpreadSheet) {
 			SpreadSheet.prototype.setFontColor = setFontColor;
@@ -142,7 +146,9 @@ define(function(require) {
 
 			SpreadSheet.prototype.colHide = colHide.hide.bind(colHide);
 			SpreadSheet.prototype.colCancelHide = colHide.cancelHide.bind(colHide);
-
+			SpreadSheet.prototype.setValidate = validate.showValidateContainer;
+			SpreadSheet.prototype.setLock = protect.showLockContainer;
+			SpreadSheet.prototype.setProtect = protect.showProtectContainer;
 			SpreadSheet.prototype.getStep = function() {
 				return cache.sendQueueStep;
 			}

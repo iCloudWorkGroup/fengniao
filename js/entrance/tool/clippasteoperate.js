@@ -1,30 +1,30 @@
 define(function(require) {
 	'use strict';
-	var Backbone = require('lib/backbone'),
+	var _ = require('lib/underscore'),
+		Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
 		Cell = require('models/cell'),
 		send = require('basic/tools/send'),
 		history = require('basic/tools/history'),
-		headItemCols = require('collections/headItemCol'),
-		headItemRows = require('collections/headItemRow'),
+		cols = require('collections/headItemCol'),
+		rows = require('collections/headItemRow'),
 		selectRegions = require('collections/selectRegion'),
 		setTextType = require('entrance/tool/settexttype'),
-		headItemRowList = headItemRows.models,
-		headItemColList = headItemCols.models,
+		strandMap = require('basic/tools/strandmap'),
+		rowList = rows.models,
+		colList = cols.models,
 		cellList = cells.models;
 
 	function clipPasteOperate(pasteText) {
 		var clipboardData = cache.clipboardData;
-
 		//如果剪切板内容与选中区域的数据不相等，则使用剪切板内容
 		if (cache.clipState !== null && clipboardData === pasteText) {
 			excelDataPaste(cache.clipState);
 		} else {
 			clipBoardDataPaste(pasteText);
 		}
-
 	}
 	/**
 	 * 表格内部复制或剪切操作
@@ -46,13 +46,13 @@ define(function(require) {
 		clipRegion = selectRegions.getModelByType('clip');
 		selectRegion = selectRegions.getModelByType('selected');
 
-		startColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').startX);
-		startRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').startY);
-		endColIndex = headItemCols.getIndexByAlias(clipRegion.get('wholePosi').endX);
-		endRowIndex = headItemRows.getIndexByAlias(clipRegion.get('wholePosi').endY);
+		startColIndex = cols.getIndexByAlias(clipRegion.get('wholePosi').startX);
+		startRowIndex = rows.getIndexByAlias(clipRegion.get('wholePosi').startY);
+		endColIndex = cols.getIndexByAlias(clipRegion.get('wholePosi').endX);
+		endRowIndex = rows.getIndexByAlias(clipRegion.get('wholePosi').endY);
 
-		selectColIndex = headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
-		selectRowIndex = headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
+		selectColIndex = cols.getIndexByAlias(selectRegion.get('wholePosi').startX);
+		selectRowIndex = rows.getIndexByAlias(selectRegion.get('wholePosi').startY);
 
 		if (type === 'cut') {
 			URL = config.url.sheet.cut;
@@ -67,14 +67,14 @@ define(function(require) {
 				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
 				sheetId: '1',
 				orignal: {
-					startCol: headItemColList[startColIndex].get('sort'),
-					endCol: headItemColList[endColIndex].get('sort'),
-					startRow: headItemRowList[startRowIndex].get('sort'),
-					endRow: headItemRowList[endRowIndex].get('sort'),
+					startCol: colList[startColIndex].get('sort'),
+					endCol: colList[endColIndex].get('sort'),
+					startRow: rowList[startRowIndex].get('sort'),
+					endRow: rowList[endRowIndex].get('sort'),
 				},
 				target: {
-					oprCol: headItemColList[selectColIndex].get('sort'),
-					oprRow: headItemRowList[selectRowIndex].get('sort')
+					oprCol: colList[selectColIndex].get('sort'),
+					oprRow: rowList[selectRowIndex].get('sort')
 				}
 			}),
 			success: function(data) {
@@ -89,15 +89,18 @@ define(function(require) {
 		function fillData() {
 			var i, j,
 				temp = {},
+				tempRule,
 				colAlias,
 				rowAlias,
-				cloneList = [],
+				cloneCellList = [],
+				cloneRuleList = [],
 				cloneObj,
-				rowLen = headItemRows.length,
-				colLen = headItemCols.length,
+				cloneRule,
+				rowLen = rows.length,
+				colLen = cols.length,
 				oprEndColIndex = selectColIndex + (endColIndex - startColIndex),
 				oprEndRowIndex = selectRowIndex + (endRowIndex - startRowIndex),
-				cellOccupy = cache.CellsPosition.strandX,
+				cellStrand = cache.CellsPosition.strandX,
 				cellIndex,
 				cellModel;
 
@@ -107,13 +110,13 @@ define(function(require) {
 			 */
 			for (i = startRowIndex; i <= endRowIndex; i++) {
 				for (j = startColIndex; j <= endColIndex; j++) {
-					colAlias = headItemColList[j].get('alias');
-					rowAlias = headItemRowList[i].get('alias');
+					colAlias = colList[j].get('alias');
+					rowAlias = rowList[i].get('alias');
 
-					if (cellOccupy[colAlias] && (cellIndex = cellOccupy[colAlias][rowAlias]) !== undefined) {
+					if (cellStrand[colAlias] && (cellIndex = cellStrand[colAlias][rowAlias]) !== undefined) {
 						if (!temp[cellIndex]) {
 							cellModel = cellList[cellIndex];
-							cloneList.push({
+							cloneCellList.push({
 								relativeCol: j - startColIndex,
 								relativeRow: i - startRowIndex,
 								model: cellModel.clone()
@@ -128,6 +131,16 @@ define(function(require) {
 							deletePosi(colAlias, rowAlias);
 						}
 					}
+					if (tempRule = strandMap.getPointRecord(colAlias, rowAlias)) {
+						cloneRuleList.push({
+							relativeCol: j - startColIndex,
+							relativeRow: i - startRowIndex,
+							rule: _.clone(tempRule)
+						});
+						if (type === 'cut') {
+							strandMap.deletePointRecord(colAlias, rowAlias);
+						}
+					}
 				}
 			}
 			temp = {};
@@ -139,9 +152,9 @@ define(function(require) {
 					if (i >= rowLen || j >= colLen) {
 						continue;
 					}
-					colAlias = headItemColList[j].get('alias');
-					rowAlias = headItemRowList[i].get('alias');
-					if (cellOccupy[colAlias] && (cellIndex = cellOccupy[colAlias][rowAlias]) !== undefined &&
+					colAlias = colList[j].get('alias');
+					rowAlias = rowList[i].get('alias');
+					if (cellStrand[colAlias] && (cellIndex = cellStrand[colAlias][rowAlias]) !== undefined &&
 						!temp[cellIndex]) {
 						temp[cellIndex] = 1;
 						cellModel = cellList[cellIndex];
@@ -151,18 +164,28 @@ define(function(require) {
 						}
 						deletePosi(colAlias, rowAlias);
 					}
+					if (strandMap.getPointRecord(colAlias, rowAlias)) {
+						strandMap.delete(colAlias, rowAlias);
+					}
 				}
 			}
 			/**
 			 * 添加复制数据
 			 */
-			for (i = 0; i < cloneList.length; i++) {
-				cloneObj = cloneList[i];
+			for (i = 0; i < cloneCellList.length; i++) {
+				cloneObj = cloneCellList[i];
 				cellModel = adaptCell(cloneObj.model, cloneObj.relativeCol, cloneObj.relativeRow);
 				if (cellModel) {
 					currentModelIndexs.push(cells.length);
 					cells.push(cellModel);
 				}
+			}
+
+			for (i = 0; i < cloneRuleList.length; i++) {
+				cloneRule = cloneRuleList[i];
+				colAlias = colList[selectColIndex + cloneRule.relativeCol].get('alias');
+				rowAlias = rowList[selectRowIndex + cloneRule.relativeRow].get('alias');
+				strandMap.addPointRecord(colAlias, rowAlias, cloneRule.rule);
 			}
 
 			history.addCoverAction(currentModelIndexs, originalModelIndexs);
@@ -204,30 +227,30 @@ define(function(require) {
 
 
 		selectRegion = selectRegions.getModelByType('selected');
-		selectColIndex = headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
-		selectRowIndex = headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
+		selectColIndex = cols.getIndexByAlias(selectRegion.get('wholePosi').startX);
+		selectRowIndex = rows.getIndexByAlias(selectRegion.get('wholePosi').startY);
 
-		if (selectColIndex + relativeColIndex >= headItemCols.length ||
-			selectRowIndex + relativeRowIndex >= headItemRows.length) {
+		if (selectColIndex + relativeColIndex >= cols.length ||
+			selectRowIndex + relativeRowIndex >= rows.length) {
 			return false;
 		}
 		rowLen = cell.get('occupy').x.length || 1;
 		colLen = cell.get('occupy').x.length || 1;
 		//增加超过加载区域处理
 		for (i = 0; i < rowLen; i++) {
-			rowIndex = selectRowIndex + relativeRowIndex;
-			arrayRowAlias.push(headItemRowList[rowIndex].get('alias'));
-			height += headItemRowList[rowIndex].get('height') + 1;
+			rowIndex = selectRowIndex + relativeRowIndex + i;
+			arrayRowAlias.push(rowList[rowIndex].get('alias'));
+			height += rowList[rowIndex].get('height') + 1;
 			if (i === 0) {
-				top = headItemRowList[rowIndex].get('top');
+				top = rowList[rowIndex].get('top');
 			}
 		}
 		for (i = 0; i < colLen; i++) {
-			colIndex = selectColIndex + relativeColIndex;
-			arrayColAlias.push(headItemColList[colIndex].get('alias'));
-			width += headItemColList[colIndex].get('width') + 1;
+			colIndex = selectColIndex + relativeColIndex + i;
+			arrayColAlias.push(colList[colIndex].get('alias'));
+			width += colList[colIndex].get('width') + 1;
 			if (i === 0) {
-				left = headItemColList[colIndex].get('left');
+				left = colList[colIndex].get('left');
 			}
 		}
 		cell.set('isDestroy', false);
@@ -246,24 +269,17 @@ define(function(require) {
 		return cell;
 
 		function cacheCellPosition() {
-			var occupyCols = cell.get('occupy').x,
-				occupyRows = cell.get('occupy').y,
-				index = cells.length,
+			var index = cells.length,
 				rowLen,
 				colLen,
-				i = 0,
-				j;
-			rowLen = occupyRows.length;
-			colLen = occupyCols.length;
-			for (; i < rowLen; i++) {
-				for (j = 0; j < colLen; j++) {
-					cache.cachePosition(occupyRows[i], occupyCols[j], index);
+				i, j;
+			for (i = 0, rowLen = arrayRowAlias.length; i < rowLen; i++) {
+				for (j = 0, colLen = arrayColAlias.length; j < colLen; j++) {
+					cache.cachePosition(arrayRowAlias[i], arrayColAlias[j], index);
 				}
 			}
 		}
 	}
-
-
 
 	function deletePosi(aliasCol, aliasRow) {
 		var cellPosition = cache.CellsPosition,
@@ -322,11 +338,11 @@ define(function(require) {
 		colLen = rowData[0].split('%09').length;
 
 		selectRegion = selectRegions.getModelByType('selected');
-		selectRowIndex = headItemRows.getIndexByAlias(selectRegion.get('wholePosi').startY);
-		selectColIndex = headItemCols.getIndexByAlias(selectRegion.get('wholePosi').startX);
+		selectRowIndex = rows.getIndexByAlias(selectRegion.get('wholePosi').startY);
+		selectColIndex = cols.getIndexByAlias(selectRegion.get('wholePosi').startX);
 
-		rowSort = headItemRowList[selectRowIndex].get('sort');
-		colSort = headItemColList[selectColIndex].get('sort');
+		rowSort = rowList[selectRowIndex].get('sort');
+		colSort = colList[selectColIndex].get('sort');
 
 		for (i = 0; i < rowLen; i++) {
 			rowCellData = rowData[i].split('%09');
@@ -351,8 +367,8 @@ define(function(require) {
 			async: false,
 			data: JSON.stringify({
 				sheetId: '1',
-				oprCol: headItemColList[selectColIndex].get('sort'),
-				oprRow: headItemRowList[selectRowIndex].get('sort'),
+				oprCol: colList[selectColIndex].get('sort'),
+				oprRow: rowList[selectRowIndex].get('sort'),
 				colLen: colLen,
 				rowLen: rowLen,
 				pasteData: sendData
@@ -367,7 +383,7 @@ define(function(require) {
 		});
 
 		function fillData() {
-			var cellOccupy = cache.CellsPosition.strandX,
+			var cellStrand = cache.CellsPosition.strandX,
 				originalModelIndexs = [],
 				currentModelIndexs = [],
 				rowAlias,
@@ -376,14 +392,14 @@ define(function(require) {
 
 			for (i = selectRowIndex; i < selectRowIndex + rowLen; i++) {
 				for (j = selectColIndex; j < selectColIndex + colLen; j++) {
-					if (i >= headItemRows.length || j >= headItemCols.length) {
+					if (i >= rows.length || j >= cols.length) {
 						continue;
 					}
-					rowAlias = headItemRowList[i].get('alias');
-					colAlias = headItemColList[j].get('alias');
+					rowAlias = rowList[i].get('alias');
+					colAlias = colList[j].get('alias');
 					cellModel = cells.getCellByVertical(j, i)[0];
 					if (cellModel && cellModel.get('isDestroy') === false) {
-						originalModelIndexs.push(cellOccupy[colAlias][rowAlias]);
+						originalModelIndexs.push(cellStrand[colAlias][rowAlias]);
 						cellModel.set('isDestroy', true);
 					}
 					cache.deletePosi(rowAlias, colAlias);

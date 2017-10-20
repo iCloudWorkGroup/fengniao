@@ -1,15 +1,20 @@
 define(function(require) {
 	'use strict';
-	var Backbone = require('lib/backbone'),
+	var _ = require('lib/underscore'),
+		Backbone = require('lib/backbone'),
 		config = require('spreadsheet/config'),
 		cache = require('basic/tools/cache'),
-		headItemCols = require('collections/headItemCol'),
+		cols = require('collections/headItemCol'),
+		rows = require('collections/headItemRow'),
 		getDisplayName = require('basic/tools/getdisplayname'),
 		getOperRegion = require('basic/tools/getoperregion'),
 		cells = require('collections/cells'),
 		selectRegions = require('collections/selectRegion'),
 		siderLineCols = require('collections/siderLineCol'),
-		send = require('basic/tools/send');
+		send = require('basic/tools/send'),
+		strandMap = require('basic/tools/strandmap'),
+		colList = cols.models,
+		rowList = rows.models;
 
 	return {
 		/**
@@ -18,7 +23,6 @@ define(function(require) {
 		 * @param {string} label   行标识号,如果为undefined,则按照当前选中区域进行操作
 		 */
 		add: function(sheetId, label) {
-
 			var clip,
 				region,
 				operRegion,
@@ -43,7 +47,6 @@ define(function(require) {
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
 
-
 			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
 				return;
 			}
@@ -66,10 +69,10 @@ define(function(require) {
 		 * @return {Boolean} 是否能够进行插入列操作
 		 */
 		_isAbleAdd: function() {
-			var index = headItemCols.length - 1,
+			var index = cols.length - 1,
 				cellList;
 
-			cellList = cells.getCellsByColIndex(index, index);
+			cellList = cells.getCellsByColIndex(index);
 			if (cellList.length > 0) {
 				return false;
 			} else {
@@ -82,9 +85,9 @@ define(function(require) {
 		 */
 		_removeLastColItem: function() {
 			var itemModel,
-				index = headItemCols.length - 1;
-			itemModel = headItemCols.models[index];
-			headItemCols.remove(itemModel);
+				index = cols.length - 1;
+			itemModel = cols.models[index];
+			cols.remove(itemModel);
 			itemModel.destroy();
 		},
 		/**
@@ -98,9 +101,9 @@ define(function(require) {
 				left,
 				len,
 				i = index + 1;
-			currentColModel = headItemCols.models[index];
+			currentColModel = cols.models[index];
 			width = config.User.cellWidth;
-			headItemCols.add({
+			cols.add({
 				sort: currentColModel.get('sort'),
 				alias: cache.aliasGenerator('col'),
 				left: currentColModel.get('left'),
@@ -110,9 +113,9 @@ define(function(require) {
 				at: index
 			});
 
-			len = headItemCols.length;
+			len = cols.length;
 			for (; i < len; i++) {
-				currentColModel = headItemCols.models[i];
+				currentColModel = cols.models[i];
 				left = currentColModel.get('left') + width;
 				sort = currentColModel.get('sort') + 1;
 				currentColModel.set('left', left);
@@ -139,11 +142,11 @@ define(function(require) {
 
 			startColAlias = select.get('wholePosi').startX;
 			endColAlias = select.get('wholePosi').endX;
-			startColIndex = headItemCols.getIndexByAlias(startColAlias);
-			endColIndex = headItemCols.getIndexByAlias(endColAlias);
+			startColIndex = cols.getIndexByAlias(startColAlias);
+			endColIndex = cols.getIndexByAlias(endColAlias);
 
-			insertModel = headItemCols.models[index];
-			lastIndex = headItemCols.length - 1;
+			insertModel = cols.models[index];
+			lastIndex = cols.length - 1;
 
 			if (endColIndex < index) {
 				return;
@@ -161,16 +164,16 @@ define(function(require) {
 					select.set('wholePosi.endX', startColAlias);
 					siderLineCols.models[0].set('left', left);
 					siderLineCols.models[0].set('width', width);
-					headItemCols.models[lastIndex - 1].set('activeState', true);
+					cols.models[lastIndex - 1].set('activeState', true);
 				} else {
 					left = select.get('physicsBox').left;
 					left += config.User.cellWidth;
 					width = select.get('physicsBox').width;
-					width -= headItemCols.models[lastIndex].get('width');
+					width -= cols.models[lastIndex].get('width');
 					endColAlias = insertModel.get('alias');
 					select.set('physicsBox.left', left);
 					select.set('physicsBox.width', width);
-					endColAlias = headItemCols.models[endColIndex - 1].get('alias');
+					endColAlias = cols.models[endColIndex - 1].get('alias');
 					select.set('wholePosi.endX', endColAlias);
 
 					siderLineCols.models[0].set('left', left);
@@ -188,88 +191,78 @@ define(function(require) {
 		 * @param  {number} index 索引 
 		 */
 		_adaptCells: function(index) {
-			var left,
+			var cellStrand = cache.CellsPosition.strandX,
+				left,
 				width,
-				aliasArray,
+				occupyCol,
+				occupyRow,
+				nextAlias,
+				preAlias,
 				insertAlias,
+				insertCellIndex, //插入列，经过单元格的相对索引
 				colAlias,
-				cellRowAliasArray,
-				cellRowAlias,
-				cellColAlias,
-				startIndex,
-				cellsList,
+				rowAlias,
+				changeCellList,
+				currentCell,
 				cellIndex,
-				aliasLen,
-				len, i = 0,
-				j,
-				tempCell;
+				attributes,
+				rule,
+				len, len2, i, j;
 
-			cellsList = cells.getCellsByColIndex(index + 1,
-				headItemCols.length - 1);
 
-			len = cellsList.length;
-			for (; i < len; i++) {
-				tempCell = cellsList[i];
+			insertAlias = cols.models[index].get('alias');
+			nextAlias = cols.models[index + 1].get('alias');
+			preAlias = index > 0 ? cols.models[index - 1].get('alias') : null;
 
-				aliasArray = tempCell.get('occupy').x;
-				colAlias = aliasArray[0];
+			changeCellList = cells.getCellsByColIndex(index + 1,
+				cols.length - 1);
 
-				startIndex = headItemCols.getIndexByAlias(colAlias);
+			for (i = 0, len = changeCellList.length; i < len; i++) {
+				currentCell = changeCellList[i];
+				occupyCol = currentCell.get('occupy').x;
+				insertCellIndex = occupyCol.indexOf(nextAlias);
 
-				if (startIndex >= index) {
-					left = tempCell.get('physicsBox').left;
+				if (insertCellIndex === -1 || insertCellIndex === 0) { //未经过单元格
+					left = currentCell.get('physicsBox').left;
 					left += config.User.cellWidth;
-					tempCell.set('physicsBox.left', left);
+					currentCell.set('physicsBox.left', left);
 				} else {
-					width = tempCell.get('physicsBox').width;
+					occupyCol.splice(insertCellIndex, 0, insertAlias);
+					width = currentCell.get('physicsBox').width;
 					width += config.User.cellWidth;
-					tempCell.set('physicsBox.width', width);
 
-					//更新 cache.CellsPosition
-					cellRowAliasArray = tempCell.get('occupy').y;
-					cellColAlias = tempCell.get('occupy').x[0];
-					cellRowAlias = cellRowAliasArray[0];
-					insertAlias = headItemCols.models[index].get('alias');
+					occupyRow = currentCell.get('occupy').y;
+					cellIndex = cellStrand[nextAlias][occupyRow[0]];
 
-					aliasLen = cellRowAliasArray.length;
-					cellIndex = cache.CellsPosition.strandX[cellColAlias][cellRowAlias];
-					for (j = 0; j < aliasLen; j++) {
-						cache.cachePosition(cellRowAliasArray[j],
-							insertAlias,
-							cellIndex);
+					for (j = 0, len2 = occupyRow.length; j < len2; j++) {
+						cache.cachePosition(occupyRow[j], insertAlias, cellIndex);
 					}
-					//更新 cell.occupy
-					aliasArray.splice(index - startIndex, 0, insertAlias);
-					tempCell.set('occupy.x', aliasArray);
+					currentCell.set('physicsBox.width', width);
+					currentCell.set('occupy.x', occupyCol);
 				}
 			}
-		},
-		/**
-		 * 处理冻结状态下,插入行功能
-		 * @param  {number} index 插入索引
-		 */
-		// _frozenHandle: function(index) {
-		// 	var userViewAlias,
-		// 		userViewIndex,
-		// 		frozenAlias,
-		// 		frozenIndex;
-		// 	if (cache.TempProp.isFrozen === true) {
 
-		// 		userViewAlias = cache.UserView.colAlias;
-		// 		frozenAlias = cache.TempProp.colAlias;
-		// 		userViewIndex = headItemCols.getIndexByAlias(userViewAlias);
-		// 		frozenIndex = headItemCols.getIndexByAlias(frozenAlias);
 
-		// 		if (userViewIndex > index) {
-		// 			userViewAlias = headItemCols.models[index].get('alias');
-		// 			cache.UserView.colAlias = userViewAlias;
-		// 		}
-		// 		if (index + 1 === frozenIndex) {
-		// 			frozenAlias = headItemCols.models[index].get('alias');
-		// 			cache.TempProp.colAlias = frozenAlias;
-		// 		}
-		// 		Backbone.trigger('event:bodyContainer:executiveFrozen');
-		// 	}
-		// }
+			if (!preAlias) {
+				return;
+			}
+			//克隆过程
+			colAlias = colList[index - 1].get('alias');
+			for (i = 0, len = rowList.length; i < len; i++) {
+				rowAlias = rowList[i].get('alias');
+				rule = strandMap.getPointRecord(colAlias, rowAlias);
+				if (rule) {
+					strandMap.addPointRecord(insertAlias, rowAlias, rule);
+				}
+				currentCell = cells.getCellByVertical(index - 1, i)[0];
+				if (currentCell &&
+					(occupyCol = currentCell.get('occupy').x).indexOf(preAlias) === occupyCol.length - 1) {
+					attributes = _.clone(currentCell.attributes);
+					attributes.content.texts = '';
+					attributes.content.displayTexts = '';
+					cells.createCellModel(index, i, attributes);
+				}
+			}
+		}
 	};
 });
