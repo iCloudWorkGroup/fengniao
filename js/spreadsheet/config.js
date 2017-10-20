@@ -127,8 +127,6 @@ define(function() {
 		defaultNumberFormat: {
 			decimal: 6
 		},
-		fullColNum: 16383,
-		fullRowNum: 1048575,
 		shortcuts: {
 			clip: true,
 			alt_enter: true,

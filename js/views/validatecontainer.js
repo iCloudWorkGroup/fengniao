@@ -26,6 +26,13 @@ define(function(require) {
 		render: function() {
 			var template = getTemplate('VALIDATETEMPLATE');
 			this.$el.html(template());
+
+			this.select = this.$el.find('select');
+			this.range = this.$el.find('.range');
+			this.source = this.$el.find('.source');
+			this.min = this.$el.find('.min');
+			this.max = this.$el.find('.max');
+			this.error = this.$el.find('.error');
 			this.listenToSelect(selects.getModelByType('selected'));
 			return this;
 		},
@@ -312,36 +319,36 @@ define(function(require) {
 		},
 		_showError: function(flag, msg) {
 			if (flag) {
-				this.$el.find('.error').text(msg).addClass('active');
+				this.error.text(msg).addClass('active');
 			} else {
-				this.$el.find('.error').text(msg).removeClass('active');
+				this.error.text(msg).removeClass('active');
 			}
 		},
 		_toggleDefault: function() {
-			this.$el.find('select').val('default');
-			this.$el.find('.range').removeClass('active');
-			this.$el.find('.source').removeClass('active');
+			this.select.val('default');
+			this.range.removeClass('active');
+			this.source.removeClass('active');
 		},
 		_toggleIntType: function(min, max) {
-			this.$el.find('select').val('intType');
-			this.$el.find('.range').addClass('active');
-			this.$el.find('.source').removeClass('active');
-			this.$el.find('.min').val(min === undefined ? '' : min);
-			this.$el.find('.max').val(max === undefined ? '' : max);
+			this.select.val('intType');
+			this.range.addClass('active');
+			this.source.removeClass('active');
+			this.min.val(min === undefined ? '' : min);
+			this.max.val(max === undefined ? '' : max);
 		},
 		_toggleDecimalType: function(min, max) {
-			this.$el.find('select').val('decimalType');
-			this.$el.find('.range').addClass('active');
-			this.$el.find('.source').removeClass('active');
-			this.$el.find('.min').val(min === undefined ? '' : min);
-			this.$el.find('.max').val(max === undefined ? '' : max);
+			this.select.val('decimalType');
+			this.range.addClass('active');
+			this.source.removeClass('active');
+			this.min.val(min === undefined ? '' : min);
+			this.max.val(max === undefined ? '' : max);
 		},
 		_toggleTextType: function(min, max) {
-			this.$el.find('select').val('textType');
-			this.$el.find('.range').addClass('active');
-			this.$el.find('.source').removeClass('active');
-			this.$el.find('.min').val(min === undefined ? '' : min);
-			this.$el.find('.max').val(max === undefined ? '' : max);
+			this.select.val('textType');
+			this.range.addClass('active');
+			this.source.removeClass('active');
+			this.min.val(min === undefined ? '' : min);
+			this.max.val(max === undefined ? '' : max);
 		},
 		close: function() {
 			this.destory();

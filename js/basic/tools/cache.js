@@ -43,7 +43,15 @@ define(function(require) {
 			strandY: {}
 		},
 		clipState: 'null', //copy：复制状态，cut:剪切状态，null:未进行剪切板操作
-
+		/**
+		 * 存储数据验证规则
+		 * 规则格式:
+		 * {
+		 *     validationType:0|1|2|6, 0:默认，1:整数，2:小数，6:文本
+		 *     formula1: string,
+		 *     formula2: string
+		 * }
+		 */
 		validate: [],
 		/**
 		 * 用户可视的区域(在Excel未冻结的情况下使用)
