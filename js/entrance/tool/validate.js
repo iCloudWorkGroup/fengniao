@@ -7,7 +7,6 @@ define(function(require) {
 		original = require('basic/tools/original'),
 		observerPattern = require('basic/util/observer.pattern'),
 		strandMap = require('basic/tools/strandmap'),
-		text2sort = require('basic/tools/text2sort'),
 		cols = require('collections/headItemCol'),
 		rows = require('collections/headItemRow'),
 		cells = require('collections/cells'),
@@ -86,8 +85,7 @@ define(function(require) {
 			function sequenceValidator(value, formula1) {
 				var arrValidate = [],
 					cellList,
-					len, i,
-					region;
+					len, i;
 
 				if (typeof formula1 === 'object') {
 					cellList = cells.getCellByVertical(cols.getIndexByAlias(formula1.startColAlias),
@@ -142,7 +140,6 @@ define(function(require) {
 		deleteRowUpdateRule: function(alias, index) {
 			var arr = strandMap.getTransverseRecord(alias, 'sourceToRuleIndex'),
 				rule,
-				region,
 				formula1,
 				len, i;
 
@@ -164,7 +161,6 @@ define(function(require) {
 		deleteColUpdateRule: function(alias, index) {
 			var arr = strandMap.getVerticalRecord(alias, 'sourceToRuleIndex'),
 				rule,
-				region,
 				formula1,
 				len, i;
 
@@ -187,7 +183,7 @@ define(function(require) {
 			this.subscribe('validate', 'deleteColPublish', 'deleteColUpdateRule');
 			this.subscribe('validate', 'deleteRowPublish', 'deleteRowUpdateRule');
 		}
-	}
+	};
 	validate.init();
 	return validate;
 });

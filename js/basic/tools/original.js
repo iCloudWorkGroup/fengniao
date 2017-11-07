@@ -394,7 +394,6 @@ define(function(require) {
 		analysisValidateRule: function(rules) {
 			var currentRule,
 				formula1,
-				sourceRegion,
 				ranges,
 				rule,
 				ruleIndex,
@@ -402,10 +401,6 @@ define(function(require) {
 				startCol,
 				endRow,
 				endCol,
-				startRowAlias,
-				endRowAlias,
-				startColAlias,
-				endRowAlias,
 				i, j, k, h,
 				len1, len2;
 
@@ -457,7 +452,7 @@ define(function(require) {
 				}
 			}
 		},
-		insertSequenceRule(rule, ruleIndex) {
+		insertSequenceRule: function(rule, ruleIndex) {
 			var sourceRegion,
 				startRowAlias,
 				endRowAlias,

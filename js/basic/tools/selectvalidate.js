@@ -18,7 +18,7 @@ define(function(require) {
 			observerPattern.buildSubscriber(obj);
 			obj.subscribe('validate', 'changeRulePublish', 'changeRule');
 		}
-	}
+	};
 	observerPattern.buildPublisher(selectValidate);
 	return selectValidate;
 });

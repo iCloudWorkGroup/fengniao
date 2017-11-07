@@ -72,9 +72,9 @@ define(function() {
 			}
 			return;
 		},
-		getVerticalRecord: function(colAlias, type) {
+		getVerticalRecord: function(colAlias) {
 			var result = [],
-				key, value,
+				key,
 				temp;
 
 			if ((temp = colPos[colAlias])) {
@@ -86,9 +86,9 @@ define(function() {
 			}
 			return result;
 		},
-		getTransverseRecord: function(rowAlias, type) {
+		getTransverseRecord: function(rowAlias) {
 			var result = [],
-				key, value,
+				key,
 				temp;
 
 			if ((temp = rowPos[rowAlias])) {

@@ -54,7 +54,7 @@ define(function() {
 				endColSort: colSignToSort(endColName),
 				startRowSort: rowSignToSort(startRowName),
 				endRowSort: rowSignToSort(endRowName)
-			}
+			};
 		} else {
 			return;
 		}
