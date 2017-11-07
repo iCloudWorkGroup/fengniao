@@ -95,7 +95,7 @@ define(function(require) {
 				 */
 				endY: 0
 			},
-			selectType: 'selected' // 'datasource','drag' , 'clip' , 'highlight'
+			selectType: 'selected', // 'datasource','drag' , 'clip' , 'highlight','rulesource'
 		}
 	});
 	return SelectRegion;

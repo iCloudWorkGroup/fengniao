@@ -109,12 +109,20 @@ define(function() {
 				width: 150
 			}
 		},
+		validationType: {
+			defaultType: 0,
+			intType: 1,
+			decimalType: 2,
+			sequenceType: 3,
+			textType: 6
+		},
 		sidebarWidth: 280,
 		mouseOperateState: {
 			select: 'selected',
 			dataSource: 'datasource',
 			drag: 'drag',
-			highlight: 'highlight'
+			highlight: 'highlight',
+			ruleSource: 'rule'
 		},
 		dateFormatType: {
 			frist: 'yyyy/MM/dd',
@@ -188,9 +196,9 @@ define(function() {
 				unfrozen: 'sheet/unfrozen',
 				load: 'sheet/area',
 				protect: 'sheet/protect',
-				validate: 'sheet/validate'
+				validate: 'sheet/validate-set',
+				validateFull: 'sheet/validate-full'
 			},
-
 		},
 		version: '@version@',
 		rootPath: 'http://excel-inc.acmr.com.cn/master/'

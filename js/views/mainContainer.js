@@ -556,6 +556,7 @@ define(function(require) {
 					startRowSort,
 					rowList,
 					cellList,
+					validate,
 					topIndex;
 				if (!data) {
 					return;
@@ -565,10 +566,10 @@ define(function(require) {
 				cache.localRowPosi = data.maxRowPixel;
 				rowList = data.returndata.spreadSheet[0].sheet.glY;
 				cellList = data.returndata.spreadSheet[0].sheet.cells;
-
+				validate = data.returndata.spreadSheet[0].validate;
 				original.analysisRowData(rowList, startRowSort);
 				original.analysisCellData(cellList);
-
+				original.analysisValidateRule(validate.rules);
 				topIndex = binary.indexModelBinary(top, headItemRowList, 'top', 'height');
 				bottomIndex = binary.indexModelBinary(bottom, headItemRowList, 'top', 'height');
 

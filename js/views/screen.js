@@ -151,28 +151,6 @@ define(function(require) {
 			// });
 		},
 		/**
-		 * 粘贴监听事件
-		 * @method pasteData
-		 */
-		// pasteData: function(event) {
-		// 	event.preventDefault();
-		// 	var pasteText;
-		// 	if (window.clipboardData && window.clipboardData.getData) { // IE
-		// 		pasteText = window.clipboardData.getData('Text');
-		// 	} else {
-		// 		pasteText = event.originalEvent.clipboardData.getData('Text'); //e.clipboardData.getData('text/plain');
-		// 	}
-		// 	clipPasteOperate(pasteText);
-		// },
-		// copyData: function(event) {
-		// 	if ($(':focus').length > 0) return;
-		// 	clipSelectOperate("copy", event);
-		// },
-		// cutData: function(event) {
-		// 	if ($(':focus').length > 0) return;
-		// 	clipSelectOperate("cut", event);
-		// },
-		/**
 		 * 用于其他视图，绑定该视图
 		 * @method screenContainer
 		 * @param  {Function} receiveFunc 回调函数

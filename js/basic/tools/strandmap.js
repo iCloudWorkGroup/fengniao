@@ -45,6 +45,7 @@ define(function() {
 				}
 			}
 		},
+
 		/**
 		 * 获取点位置信息对应的属性值
 		 * @param  {string} colAlias 列别名
@@ -70,6 +71,34 @@ define(function() {
 				}
 			}
 			return;
+		},
+		getVerticalRecord: function(colAlias, type) {
+			var result = [],
+				key, value,
+				temp;
+
+			if ((temp = colPos[colAlias])) {
+				for (key in temp) {
+					if (temp[key] !== undefined) {
+						result.push(temp[key]);
+					}
+				}
+			}
+			return result;
+		},
+		getTransverseRecord: function(rowAlias, type) {
+			var result = [],
+				key, value,
+				temp;
+
+			if ((temp = rowPos[rowAlias])) {
+				for (key in temp) {
+					if (temp[key] !== undefined) {
+						result.push(temp[key]);
+					}
+				}
+			}
+			return result;
 		},
 		addColRecord: function(colAlias, type, value) {
 			this._addRecord(colAlias, colPos, rowPos, type, value);
