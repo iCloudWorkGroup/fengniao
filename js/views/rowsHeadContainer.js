@@ -144,6 +144,19 @@ define(function(require) {
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
 			Backbone.trigger('event:rowsHeadContainer:setMouseState', 'moveState', 'dataSourceMoveState');
 		},
+		ruleSourceLocatedState: function() {
+			var select = selectRegions.getModelByType('rulesource'),
+				mousePosi;
+			if (typeof select === 'undefined') {
+				select = new SelectRegionModel();
+				select.set('selectType', 'rulesource');
+				selectRegions.add(select);
+			}
+			mousePosi = this._getRelativePosi(event.clientY);
+			this.adjustLocatedModel(mousePosi, select, event.shiftKey);
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'ruleSourceMoveState');
+			Backbone.trigger('event:rowsHeadContainer:setMouseState', 'moveState', 'ruleSourceMoveState');
+		},
 		selectMoveState: function(e) {
 			var select = selectRegions.getModelByType('selected'),
 				mousePosi,
@@ -155,6 +168,15 @@ define(function(require) {
 		},
 		dataSourceMoveState: function(event) {
 			var select = selectRegions.getModelByType('datasource'),
+				mousePosi,
+				tempPosi,
+				rowIndex;
+			mousePosi = this._getRelativePosi(event.clientY);
+			rowIndex = binary.modelBinary(mousePosi, gridRowList, 'top', 'height');
+			tempPosi = select.set('tempPosi.mouseRowIndex', rowIndex);
+		},
+		ruleSourceMoveState: function(event) {
+			var select = selectRegions.getModelByType('rulesource'),
 				mousePosi,
 				tempPosi,
 				rowIndex;
@@ -212,7 +234,7 @@ define(function(require) {
 			this.$lockData = $('.row-head-item:gt(' + this.$itemEl.index() + ')', this.el);
 			this.$tempSpaceContainer = $('<div/>').addClass('temp-space-container').html(this.$lockData);
 			this.$el.append(this.$tempSpaceContainer);
-			Backbone.trigger('event:screenContainer:mouseMoveHeadContainer',{
+			Backbone.trigger('event:screenContainer:mouseMoveHeadContainer', {
 				spaceMouse: this.itemEl.clientHeight - e.offsetY,
 				// from currentTarget rightBorder caculation distance to document
 				offsetTopByBottom: this.itemEl.clientHeight + this.$itemEl.offset().top,
