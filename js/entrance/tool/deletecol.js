@@ -1,6 +1,7 @@
 define(function(require) {
 	'use strict';
 	var Backbone = require('lib/backbone'),
+		observerPattern = require('basic/util/observer.pattern'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		headItemCols = require('collections/headItemCol'),
@@ -9,9 +10,10 @@ define(function(require) {
 		cells = require('collections/cells'),
 		selectRegions = require('collections/selectRegion'),
 		siderLineCols = require('collections/siderLineCol'),
-		send = require('basic/tools/send');
+		send = require('basic/tools/send'),
+		deleteCol;
 
-	return {
+	deleteCol = {
 		/**
 		 * 删除列操作
 		 * @param {string} sheetId sheetId
@@ -50,6 +52,7 @@ define(function(require) {
 			}
 			index = operRegion.startColIndex;
 
+			this.publish('validate', 'deleteColPublish', headItemCols.models[index].get('alias'), index);
 			this._addColItem();
 			this._adaptCells(index);
 			this._adaptSelectRegion(index);
@@ -220,4 +223,6 @@ define(function(require) {
 			}
 		},
 	};
+	observerPattern.buildPublisher(deleteCol);
+	return deleteCol;
 });

@@ -1,6 +1,7 @@
 define(function(require) {
 	'use strict';
 	var Backbone = require('lib/backbone'),
+		observerPattern = require('basic/util/observer.pattern'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		headItemRows = require('collections/headItemRow'),
@@ -8,9 +9,10 @@ define(function(require) {
 		getOperRegion = require('basic/tools/getoperregion'),
 		selectRegions = require('collections/selectRegion'),
 		siderLineRows = require('collections/siderLineRow'),
-		send = require('basic/tools/send');
+		send = require('basic/tools/send'),
+		deleteRow;
 
-	return {
+	deleteRow = {
 		/**
 		 * 删除行操作
 		 * @param {string} sheetId sheetId
@@ -50,16 +52,17 @@ define(function(require) {
 				return;
 			}
 			index = operRegion.startRowIndex;
+			this.publish('validate', 'deleteRowPublish', headItemRows.models[index].get('alias'), index);
+
 			posi = headItemRows.models[index].get('top');
 			height = headItemRows.models[index].get('height');
 			this._adaptCells(index);
 			this._adaptSelectRegion(index);
-			// this._frozenHandle(index);
 			this._adaptHeadRowItem(index);
 
 			Backbone.trigger('event:cellsContainer:adaptHeight');
-			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight', posi, -height);
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange');
+			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, -height - 1);
 			sendData();
 
 			function sendData() {
@@ -204,4 +207,6 @@ define(function(require) {
 			}
 		}
 	};
+	observerPattern.buildPublisher(deleteRow);
+	return deleteRow;
 });
