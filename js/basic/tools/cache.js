@@ -1,6 +1,6 @@
 //attention bug , those cache objects has mix , for use 
-'use strict';
 define(function(require) {
+	'use strict';
 	var config = require('spreadsheet/config');
 	/**
 	 * 系统缓存对象
@@ -53,6 +53,8 @@ define(function(require) {
 		 * }
 		 */
 		validate: [],
+		validateCounter: 0,
+
 		/**
 		 * 用户可视的区域(在Excel未冻结的情况下使用)
 		 * 需要修改默认值
@@ -81,6 +83,7 @@ define(function(require) {
 			rowEndAlias: '1'
 		},
 		highlightDirection: 'null',
+
 		//鼠标操作状态
 		mouseOperateState: config.mouseOperateState.select,
 
