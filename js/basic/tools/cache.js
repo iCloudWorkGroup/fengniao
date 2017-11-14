@@ -53,6 +53,7 @@ define(function(require) {
 		 * }
 		 */
 		validate: [],
+
 		validateCounter: 0,
 
 		/**

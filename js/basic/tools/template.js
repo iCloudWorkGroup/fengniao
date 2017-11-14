@@ -48,10 +48,12 @@ define(function(require) {
 	templatesHTML.VALIDATETEMPLATE = '<div class="siderbar-item clearfix"><div class="validate-title">验证条件:</div>';
 	templatesHTML.VALIDATETEMPLATE += '<form class="validate-content"><div><label>类型:</label><select name="type" class=""><option class="default" value="default">任意值</option>';
 	templatesHTML.VALIDATETEMPLATE += '<option value="intType" class="intType">整数</option><option value="decimalType" class="decimalType">小数</option><option value="textType" class="textType">文本长度</option>';
+
 	templatesHTML.VALIDATETEMPLATE += '<option value="sequenceType">序列</option>';
 	templatesHTML.VALIDATETEMPLATE += '</select></div>';
 	templatesHTML.VALIDATETEMPLATE += '<div class="range"><label>最小值:</label><input type="text" name="min" class="min"><br><label>最大值:</label><input type="text" name="max" class="max"></div>';
 	templatesHTML.VALIDATETEMPLATE += '<div class="source"><label>来源:</label><input type="text" class="source-data" maxlength="50" name="source"><div class="select-out"></div></div></form>';
+
 	templatesHTML.VALIDATETEMPLATE += '<div class="error">选中区域内包含多种验证规则</div>';
 	templatesHTML.VALIDATETEMPLATE += '<div class="oper"><a href="#" class="confirm">确定</a><a href="#" class="cancel">取消</a></div></div>';
 

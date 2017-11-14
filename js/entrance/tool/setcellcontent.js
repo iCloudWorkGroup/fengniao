@@ -66,6 +66,8 @@ define(function(require) {
 			endRowSort: rowList[operRegion.endRowIndex].get('sort')
 		}, changeModelList);
 		sendData();
+		
+		return true;
 
 		return true;
 
@@ -88,6 +90,7 @@ define(function(require) {
 			rowAlias,
 			colIndex,
 			rowIndex;
+
 
 		if (typeof text === 'undefined') {
 			label = text;

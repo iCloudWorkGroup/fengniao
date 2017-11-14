@@ -39,7 +39,6 @@ define(function(require) {
 			this.sourceData = this.$el.find('.source-data');
 			this.sourceBtn = this.$el.find('.select-out');
 			this.error = this.$el.find('.error');
-
 			this.listenToSelect(selects.getModelByType('selected'));
 			return this;
 		},
