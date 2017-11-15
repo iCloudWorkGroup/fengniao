@@ -69,8 +69,6 @@ define(function(require) {
 		
 		return true;
 
-		return true;
-
 		function sendData() {
 			send.PackAjax({
 				url: config.url.cell.content,
