@@ -229,12 +229,27 @@ define(function(require) {
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
 			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', null);
 		},
+		ruleSourceLocatedState: function(event) {
+			var selectModel = selectRegions.getModelByType('rulesource');
+			if (typeof selectModel === 'undefined') {
+				selectModel = new SelectRegionModel();
+				selectModel.set('selectType', 'rulesource');
+				selectRegions.add(selectModel);
+			}
+			this.located(event.clientX, event.clientY, selectModel, event.shiftKey);
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'ruleSourceMoveState');
+			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', null);
+		},
 		selectMoveState: function(event) {
 			var selectModel = selectRegions.getModelByType('selected');
 			this.select(event.clientX, event.clientY, selectModel);
 		},
 		dataSourceMoveState: function(event) {
 			var selectModel = selectRegions.getModelByType('datasource');
+			this.select(event.clientX, event.clientY, selectModel);
+		},
+		ruleSourceMoveState: function(event) {
+			var selectModel = selectRegions.getModelByType('rulesource');
 			this.select(event.clientX, event.clientY, selectModel);
 		},
 		commonMoveState: function(event) {

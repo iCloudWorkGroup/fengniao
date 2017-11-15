@@ -106,7 +106,21 @@ define(function(require) {
 			return binary.newModelBinary(posi, this.models, 'top', 'height');
 		},
 		getIndexBySort: function(sort) {
+			if (sort === 'MAX') {
+				return 'MAX';
+			}
 			return binary.indexAttrBinary(sort, this.models, 'sort');
+		},
+		getAliasBySort: function(sort) {
+			var index;
+			if (sort === 'MAX') {
+				return 'MAX';
+			}
+			index = binary.indexAttrBinary(sort, this.models, 'sort');
+			if (index === -1) {
+				return -1;
+			}
+			return this.models[index].get('alias');
 		},
 		/**
 		 * 通过别名查询符合条件标线的索引

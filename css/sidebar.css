@@ -168,10 +168,22 @@
     display: block;
 }
 .validate-content .source{
+    position: relative;
     display: none;
 }
 .validate-content .source.active{
     display: block;
+}
+.validate-content .select-out{
+    position: absolute;
+    top: 6px;
+    right: 18px; 
+    width: 16px;
+    height: 16px;
+    background: url('../img/select_out.png');
+}
+.validate-content .select-out.on{
+    background: url('../img/select_out_on.png');
 }
 .error {
     display: none;

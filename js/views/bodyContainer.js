@@ -20,6 +20,7 @@ define(function(require) {
 		InputContainer = require('views/inputContainer'),
 		CommentContainer = require('views/commentcontainer'),
 		SidebarContainer = require('views/sidebarcontainer'),
+		SequenceContainer = require('views/sequencecontainer'), 
 		BodyContainer;
 
 	/**
@@ -64,13 +65,20 @@ define(function(require) {
 		 * @chainable
 		 */
 		render: function() {
-			var inputContainer = this.inputContainer = new InputContainer();
+			var template = getTemplate('BODYTEMPLATE'),
+				inputContainer = this.inputContainer = new InputContainer(),
+				sequenceContainer = new SequenceContainer();
+
+			observerPattern.buildSubscriber(sequenceContainer);
+			sequenceContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
+			sequenceContainer.subscribe('mainContainer', 'verticalPublish', 'verticalScroll');
 
 			observerPattern.buildSubscriber(inputContainer);
 			inputContainer.subscribe('mainContainer', 'transversePublish', 'transverseScroll');
 			inputContainer.subscribe('mainContainer', 'verticalPublish', 'verticalScroll');
-
-			this.$el.html(getTemplate('BODYTEMPLATE'));
+			
+			this.$el.html(template());
+			this.$el.find('.main-layout').append(sequenceContainer.render().el);
 			this.$el.find('.main-layout').append(inputContainer.render().el);
 
 			this.calculation();

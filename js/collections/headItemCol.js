@@ -53,7 +53,21 @@ define(function(require) {
 			return modelList;
 		},
 		getIndexBySort: function(sort) {
+			if (sort === 'MAX') {
+				return 'MAX';
+			}
 			return binary.indexAttrBinary(sort, this.models, 'sort');
+		},
+		getAliasBySort: function(sort) {
+			var index;
+			if (sort === 'MAX') {
+				return 'MAX';
+			}
+			index = binary.indexAttrBinary(sort, this.models, 'sort');
+			if (index === -1) {
+				return -1;
+			}
+			return this.models[index].get('alias');
 		},
 		getIndexByDisplayname: function(displayName) {
 			var model = this.findWhere({

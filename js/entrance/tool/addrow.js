@@ -59,7 +59,7 @@ define(function(require) {
 			this._fillCells(index);
 			// this._frozenHandle(index);
 
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, config.User.cellHeight);
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, config.User.cellHeight + 1);
 			send.PackAjax({
 				url: config.url.row.plus,
 				data: JSON.stringify({

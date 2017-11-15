@@ -85,7 +85,10 @@ define(function(require) {
 		var region,
 			operRegion,
 			colAlias,
-			rowAlias;
+			rowAlias,
+			colIndex,
+			rowIndex;
+
 
 		if (typeof text === 'undefined') {
 			label = text;
@@ -93,9 +96,11 @@ define(function(require) {
 		}
 		region = getOperRegion(label);
 		operRegion = region.operRegion;
-		colAlias = colList[operRegion.startColIndex].get('alias');
-		rowAlias = rowList[operRegion.startRowIndex].get('alias');
-		if (!validate.validate(colAlias, rowAlias, text)) {
+		colIndex = operRegion.startColIndex;
+		rowIndex = operRegion.startRowIndex;
+		colAlias = colList[colIndex].get('alias');
+		rowAlias = rowList[rowIndex].get('alias');
+		if (!validate.validate(text, colAlias, rowAlias, colIndex, rowIndex)) {
 			return false;
 		} else {
 			return true;

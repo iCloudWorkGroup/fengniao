@@ -96,6 +96,10 @@ define(function() {
 				len = sign.length,
 				letter = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
 				index;
+
+			if (sign === 'MAX') {
+				return 'MAX';
+			}
 			for (; i < len; i++) {
 				index = letter.indexOf(sign[i]) + 1;
 				sort += index * (Math.pow(26, (len - i - 1)));
@@ -104,6 +108,9 @@ define(function() {
 		}
 
 		function rowSignToSort(sign) {
+			if (sign === 'MAX') {
+				return 'MAX';
+			}
 			return parseInt(sign) - 1;
 		}
 	};

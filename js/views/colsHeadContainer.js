@@ -130,6 +130,7 @@ define(function(require) {
 				this[type] = null;
 			}
 		},
+
 		selectLocatedState: function(e) {
 			//拖拽视图
 			if (this._isAdjustable(e) && !e.shiftKey && !cache.protectState) {
@@ -146,6 +147,7 @@ define(function(require) {
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'selectMoveState');
 			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', 'selectMoveState');
 		},
+
 		dataSourceLocatedState: function(event) {
 			var select = selectRegions.getModelByType('datasource'),
 				mousePosi;
@@ -158,6 +160,20 @@ define(function(require) {
 			this.adjustLocatedModel(mousePosi, select, event.shiftKey);
 			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'dataSourceMoveState');
 			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', 'dataSourceMoveState');
+		},
+
+		ruleSourceLocatedState: function(event) {
+			var select = selectRegions.getModelByType('rulesource'),
+				mousePosi;
+			if (typeof select === 'undefined') {
+				select = new SelectRegionModel();
+				select.set('selectType', 'rulesource');
+				selectRegions.add(select);
+			}
+			mousePosi = this._getRelativePosi(event.clientX);
+			this.adjustLocatedModel(mousePosi, select, event.shiftKey);
+			Backbone.trigger('event:cellsContainer:setMouseState', 'moveState', 'ruleSourceMoveState');
+			Backbone.trigger('event:colsHeadContainer:setMouseState', 'moveState', 'ruleSourceMoveState');
 		},
 		selectMoveState: function(e) {
 			var select = selectRegions.getModelByType('selected'),
@@ -176,6 +192,14 @@ define(function(require) {
 			mousePosi = this._getRelativePosi(event.clientX);
 			colIndex = binary.modelBinary(mousePosi, gridColList, 'left', 'width');
 			tempPosi = select.set('tempPosi.mouseColIndex', colIndex);
+		},
+		ruleSourceMoveState: function(event) {
+			var select = selectRegions.getModelByType('rulesource'),
+				mousePosi,
+				colIndex;
+			mousePosi = this._getRelativePosi(event.clientX);
+			colIndex = binary.modelBinary(mousePosi, gridColList, 'left', 'width');
+			select.set('tempPosi.mouseColIndex', colIndex);
 		},
 		commonMoveState: function(e) {
 			e.currentTarget.style.cursor = this._isAdjustable(e) === true && !cache.protectState ? 'col-resize' : '';

@@ -5,6 +5,7 @@ define(function(require) {
 		binary = require('basic/util/binary'),
 		cache = require('basic/tools/cache'),
 		send = require('basic/tools/send'),
+		text2sort = require('basic/tools/text2sort'),
 		loadRecorder = require('basic/tools/loadrecorder'),
 		getDisplayName = require('basic/tools/getdisplayname'),
 		headItemCols = require('collections/headItemCol'),
@@ -391,12 +392,11 @@ define(function(require) {
 
 		},
 		analysisValidateRule: function(rules) {
-			if (!(rules instanceof Array)) {
-				return;
-			}
 			var currentRule,
+				formula1,
 				ranges,
 				rule,
+				ruleIndex,
 				startRow,
 				startCol,
 				endRow,
@@ -404,13 +404,18 @@ define(function(require) {
 				i, j, k, h,
 				len1, len2;
 
+			if (!(rules instanceof Array)) {
+				rules = [rules];
+			}
+
 			for (i = 0, len1 = rules.length; i < len1; i++) {
 				currentRule = rules[i];
 				rule = {};
-				ranges = currentRule.coordinate;
+				ranges = currentRule.coordinate || [];
 				rule.validationType = currentRule.rule.validationType;
-				rule.formula1 = currentRule.rule.formula1;
+				formula1 = rule.formula1 = currentRule.rule.formula1;
 				rule.formula2 = currentRule.rule.formula2;
+				ruleIndex = currentRule.rule.index;
 				startRow,
 				startCol,
 				endRow,
@@ -424,21 +429,56 @@ define(function(require) {
 					endRow = ranges[j].endRow;
 					if (endRow === -1) {
 						for (k = startCol; k < endCol + 1; k++) {
-							strandMap.addColRecord((k + 1).toString(), 'validate', i);
+							strandMap.addColRecord((k + 1).toString(), 'validate', ruleIndex);
 						}
 					} else if (endCol === -1) {
 						for (k = startRow; k < endRow + 1; k++) {
-							strandMap.addRowRecord((k + 1).toString(), 'validate', i);
+							strandMap.addRowRecord((k + 1).toString(), 'validate', ruleIndex);
 						}
 					} else {
 						for (k = startCol; k < endCol + 1; k++) {
 							for (h = startRow; h < endRow + 1; h++) {
-								strandMap.addPointRecord((k + 1).toString(), (h + 1).toString(), 'validate', i);
+								strandMap.addPointRecord((k + 1).toString(), (h + 1).toString(), 'validate', ruleIndex);
 							}
 						}
 					}
 				}
-				cache.validate.push(rule);
+				if (typeof cache.validate[ruleIndex] === 'undefined') {
+					if (rule.validationType === config.validationType.sequenceType) {
+						this.insertSequenceRule(rule, ruleIndex);
+					} else {
+						cache.validate[ruleIndex] = rule;
+					}
+				}
+			}
+		},
+		insertSequenceRule: function(rule, ruleIndex) {
+			var sourceRegion,
+				startRowAlias,
+				endRowAlias,
+				startColAlias,
+				endColAlias;
+
+			if (rule.formula1.indexOf('=') !== 0) {
+				cache.validate[ruleIndex] = rule;
+				return;
+			}
+			sourceRegion = text2sort(rule.formula1);
+			startRowAlias = headItemRows.getAliasBySort(sourceRegion.startRowSort);
+			endRowAlias = headItemRows.getAliasBySort(sourceRegion.endRowSort);
+			startColAlias = headItemCols.getAliasBySort(sourceRegion.startColSort);
+			endColAlias = headItemCols.getAliasBySort(sourceRegion.endColSort);
+
+			if (startRowAlias !== -1 && endRowAlias !== -1 &&
+				startColAlias !== -1 && endColAlias !== -1 &&
+				endColAlias !== 'MAX' && endRowAlias !== 'MAX') {
+				rule.formula1 = {
+					startRowAlias: startRowAlias,
+					endRowAlias: endRowAlias,
+					startColAlias: startColAlias,
+					endColAlias: endColAlias
+				};
+				cache.validate[ruleIndex] = rule;
 			}
 		},
 		/**
@@ -500,6 +540,8 @@ define(function(require) {
 
 				data = data.returndata;
 
+
+
 				if (data.spreadSheet && data.spreadSheet[0] &&
 					(sheetData = data.spreadSheet[0].sheet)) {
 
@@ -515,7 +557,8 @@ define(function(require) {
 					self.analysisColData(cols, startColSort);
 					self.analysisCellData(cellModels);
 					self.restoreSelectRegion();
-					self.analysisValidateRule(data.spreadSheet[0].validate);
+					self.analysisValidateRule(data.spreadSheet[0].validate.rules);
+					cache.validateCounter = data.spreadSheet[0].validate.total;
 					headItemColList = headItemCols.models;
 					headItemRowList = headItemRows.models;
 

@@ -6,6 +6,7 @@ define(function(require) {
 		util = require('basic/util/clone'),
 		binary = require('basic/util/binary'),
 		cache = require('basic/tools/cache'),
+		config = require('spreadsheet/config'),
 		send = require('basic/tools/send'),
 		Cell = require('models/cell'),
 		listener = require('basic/util/listener'),
@@ -58,11 +59,13 @@ define(function(require) {
 			this.listenTo(this.model, 'change:tempPosi', this.changePosi);
 			this.listenTo(this.model, 'change:physicsBox', this.changeBox);
 			this.listenTo(this.model, 'destroy', this.destroy);
+
 			if (options.currentRule !== undefined) {
 				this.currentRule = options.currentRule;
 			} else {
 				this.currentRule = util.clone(cache.CurrentRule);
 			}
+
 			this.userViewTop = cache.TempProp.isFrozen ? headItemRows.getModelByAlias(cache.UserView.rowAlias).get('top') : 0;
 			this.userViewLeft = cache.TempProp.isFrozen ? headItemCols.getModelByAlias(cache.UserView.colAlias).get('left') : 0;
 			this.offsetLeft = cache.TempProp.isFrozen ? (this.currentRule.displayPosition.offsetLeft || 0) : 0;
@@ -87,7 +90,9 @@ define(function(require) {
 				height = modelJSON.physicsBox.height,
 				width = modelJSON.physicsBox.width,
 				left = modelJSON.physicsBox.left,
-				top = modelJSON.physicsBox.top;
+				top = modelJSON.physicsBox.top,
+				state = modelJSON.showState;
+
 			if (left === 0) {
 				left = left - 1;
 				width = width - 1;
@@ -100,6 +105,7 @@ define(function(require) {
 			} else {
 				height = height - 2;
 			}
+
 			this.$el.css({
 				width: width,
 				height: height,
@@ -192,7 +198,7 @@ define(function(require) {
 				}
 			}
 			this.model.set('wholePosi', temp);
-			
+
 			e.point = {
 				col: colDisplayNames,
 				row: rowDisplayNames
@@ -303,6 +309,10 @@ define(function(require) {
 				endRowIndex,
 				endColIndex,
 				isAble;
+
+			if (cache.mouseOperateState !== config.mouseOperateState.select) {
+				return;
+			}
 
 			startRowIndex = headItemRows.getIndexByAlias(modelJSON.wholePosi.startY);
 			startColIndex = headItemCols.getIndexByAlias(modelJSON.wholePosi.startX);
