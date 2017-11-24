@@ -420,6 +420,7 @@ define(function(require) {
 
 			limitPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
 			limitIndex = binary.indexModelBinary(limitPosi, headItemRowList, 'top', 'height');
+			limitAlias = headItemRowList[limitIndex].get('alias');
 			for (i = limitIndex + 1; i <= recordIndex; i++) {
 				headItemRowList[i].set('isView', false);
 			}
