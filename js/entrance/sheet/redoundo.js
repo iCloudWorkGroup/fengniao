@@ -3,7 +3,6 @@ define(function(require) {
 	var Backbone = require('lib/backbone'),
 		history = require('basic/tools/history'),
 		cache = require('basic/tools/cache'),
-		binary = require('basic/util/binary'),
 		send = require('basic/tools/send'),
 		config = require('spreadsheet/config'),
 		cols = require('collections/headItemCol'),
@@ -87,7 +86,9 @@ define(function(require) {
 		_redoCoverCellModel: function(action) {
 			var originalModelIndexs = action.originalModelIndexs,
 				currentModelIndexs = action.currentModelIndexs,
-				len, i;
+				occupyCol, occupyRow,
+				occupyColLen, occupyRowLen,
+				index, len, i, j ,k;
 
 			for (i = 0, len = originalModelIndexs.length; i < len; i++) {
 				index = originalModelIndexs[i];
@@ -192,8 +193,7 @@ define(function(require) {
 			}
 		},
 		_undoUpdateValidateRule: function(action) {
-			var region = action.region,
-				originalData = action.originalData,
+			var originalData = action.originalData,
 				select,
 				colIndex,
 				rowIndex,
