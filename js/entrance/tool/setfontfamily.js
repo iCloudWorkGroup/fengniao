@@ -54,12 +54,12 @@ define(function(require) {
 					cell.set('content.family', fontFamily);
 				}
 			});
-			history.addUpdateAction('content.family', fontFamily, {
+			history.addAction(history.getCellPropUpdateAction('content.family', fontFamily, {
 				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
 				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
 				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
 				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-			}, changeModelList);
+			}, changeModelList));
 		}
 		sendData();
 

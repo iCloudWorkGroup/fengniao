@@ -75,12 +75,13 @@ define(function(require) {
 					cell.set('content.bd', bold);
 				}
 			});
-			history.addUpdateAction('content.bd', bold, {
+
+			history.addAction(history.getCellPropUpdateAction('content.bd', bold, {
 				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
 				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
 				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
 				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-			}, changeModelList);
+			}, changeModelList));
 		}
 		sendData();
 		function sendData() {

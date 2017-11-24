@@ -136,7 +136,6 @@ define(function(require) {
 		showValidateContainer: function() {
 			Backbone.trigger('event:sidebarContainer:show', 'validate');
 		},
-
 		deleteRowUpdateRule: function(alias, index) {
 			var arr = strandMap.getTransverseRecord(alias, 'sourceToRuleIndex'),
 				rule,

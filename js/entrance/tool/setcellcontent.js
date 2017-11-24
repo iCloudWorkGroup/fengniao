@@ -21,7 +21,8 @@ define(function(require) {
 			operRegion,
 			sendRegion,
 			changeModelList = [],
-			tempText;
+			tempText,
+			action;
 
 		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
@@ -59,14 +60,16 @@ define(function(require) {
 				cell.set('content.texts', text);
 			}
 		});
-		history.addUpdateAction('content.texts', text, {
+		action = history.getCellPropUpdateAction('content.texts', text, {
 			startColSort: colList[operRegion.startColIndex].get('sort'),
 			startRowSort: rowList[operRegion.startRowIndex].get('sort'),
 			endColSort: colList[operRegion.endColIndex].get('sort'),
 			endRowSort: rowList[operRegion.endRowIndex].get('sort')
 		}, changeModelList);
+		history.addAction(action);
+
 		sendData();
-		
+
 		return true;
 
 		function sendData() {
@@ -88,7 +91,6 @@ define(function(require) {
 			rowAlias,
 			colIndex,
 			rowIndex;
-
 
 		if (typeof text === 'undefined') {
 			label = text;
