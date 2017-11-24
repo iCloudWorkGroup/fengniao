@@ -47,7 +47,7 @@ define(function(require) {
 			operRegion = region.operRegion;
 			sendRegion = region.sendRegion;
 
-			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
+			if (operRegion.endColIndex === 'MAX') {
 				return;
 			}
 
