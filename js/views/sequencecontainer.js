@@ -64,7 +64,7 @@ define(function(require) {
 			var ruleIndex = selectValidate.get(),
 				rule;
 
-			if (ruleIndex !== null) {
+			if (ruleIndex !== null && ruleIndex !== undefined) {
 				rule = cache.validate[ruleIndex];
 				if (!rule || rule.validationType === config.validationType.sequenceType) {
 					this.show();

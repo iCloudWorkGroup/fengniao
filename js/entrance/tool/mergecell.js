@@ -28,17 +28,20 @@ define(function(require) {
 			sendRegion,
 			clip,
 			originalCellsIndex = [],
+			originalRuleIndex = [],
 			firstCell,
-			firstRule,
+			firstRuleIndex,
 			tempCell,
 			tempIndex,
-			rule,
+			ruleIndex,
 			occupyX = [],
 			occupyY = [],
 			aliasCol,
 			aliasRow,
 			width = 0,
 			height = 0,
+			modelAction,
+			validateAction,
 			i, j;
 
 		clip = selectRegions.getModelByType('clip');
@@ -76,8 +79,8 @@ define(function(require) {
 		aliasCol = colList[startColIndex].get('alias');
 		aliasRow = rowList[startRowIndex].get('alias');
 		firstCell = cells.getCellByTransverse(startRowIndex, startColIndex)[0];
-		firstCell = firstCell && firstCell.clone();
-		firstRule = strandMap.getPointRecord(aliasCol, aliasRow);
+		firstCell = firstCell ? firstCell.clone() : new Cell();
+		firstRuleIndex = strandMap.getPointRecord(aliasCol, aliasRow, 'validate');
 
 		for (i = startRowIndex; i < endRowIndex + 1; i++) {
 			for (j = startColIndex; j < endColIndex + 1; j++) {
@@ -87,20 +90,26 @@ define(function(require) {
 					tempCell = cells.getCellByTransverse(i, j)[0];
 					tempCell = tempCell && tempCell.get('content').texts !== '' ? tempCell.clone() : null;
 					if (tempCell) {
-						rule = strandMap.getPointRecord(aliasCol, aliasRow);
+						ruleIndex = strandMap.getPointRecord(aliasCol, aliasRow, 'validate');
 					}
 				}
 				if (cellStrand[aliasCol] && (tempIndex = cellStrand[aliasCol][aliasRow]) !== undefined) {
 					originalCellsIndex.push(tempIndex);
 					cellList[tempIndex].set('isDestroy', true);
 				}
+				originalRuleIndex.push({
+					colSort: colList[j].get('sort'),
+					rowSort: rowList[i].get('sort'),
+					originalIndex: strandMap.getPointRecord(aliasCol, aliasRow, 'validate')
+				});
+				
 				cache.cachePosition(aliasRow, aliasCol, cells.length);
 			}
 		}
 
 		if (!tempCell && firstCell) {
 			tempCell = firstCell;
-			rule = firstRule;
+			ruleIndex = firstRuleIndex;
 		} else if (!tempCell) {
 			tempCell = new Cell();
 		}
@@ -125,17 +134,31 @@ define(function(require) {
 			y: occupyY
 		});
 		cells.add(tempCell);
-		history.addCoverAction([cells.length - 1], originalCellsIndex);
 
-		if (rule === undefined) {
-			for (i = startRowIndex; i < endRowIndex + 1; i++) {
-				for (j = startColIndex; j < endColIndex + 1; j++) {
-					aliasCol = colList[j].get('alias');
-					aliasRow = rowList[i].get('alias');
-					strandMap.addPointRecord(aliasCol, aliasRow, rule);
+
+
+		for (i = startRowIndex; i < endRowIndex + 1; i++) {
+			for (j = startColIndex; j < endColIndex + 1; j++) {
+				aliasCol = colList[j].get('alias');
+				aliasRow = rowList[i].get('alias');
+				if (ruleIndex !== undefined) {
+					strandMap.addPointRecord(aliasCol, aliasRow, 'validate', ruleIndex);
+				} else {
+					strandMap.deletePointRecord(aliasCol, aliasRow, 'validate');
 				}
 			}
 		}
+
+
+		modelAction = history.getCellCoverAction([cells.length - 1], originalCellsIndex);
+		validateAction = history.getValidateUpdateAction({
+			startRowSort: rowList[startRowIndex].get('sort'),
+			endRowSort: rowList[endRowIndex].get('sort'),
+			startColSort: colList[startColIndex].get('sort'),
+			endColSort: colList[endColIndex].get('sort')
+		}, ruleIndex, originalRuleIndex);
+		
+		history.addAction([modelAction, validateAction]);
 
 		send.PackAjax({
 			url: config.url.cell.merge,

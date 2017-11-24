@@ -26,7 +26,8 @@ define(function(require) {
 			sendRegion,
 			headItemRowList = headItemRows.models,
 			headItemColList = headItemCols.models,
-			changeModelList = [];
+			changeModelList = [],
+			action;
 
 		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
@@ -34,7 +35,7 @@ define(function(require) {
 			clip.destroy();
 		}
 		if (cache.protectState) {
-			Backbone.trigger('event:showMsgBar:show','保护状态，不能进行该操作');
+			Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
 			return;
 		}
 		if (!color) {
@@ -59,12 +60,15 @@ define(function(require) {
 					cell.set('customProp.background', color);
 				}
 			});
-			history.addUpdateAction('customProp.background', color, {
+
+			action = history.getCellPropUpdateAction('customProp.background', color, {
 				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
 				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
 				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
 				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
 			}, changeModelList);
+			
+			history.addAction(action);
 		}
 		send.PackAjax({
 			url: config.url.cell.bg,

@@ -59,7 +59,7 @@ define(function(require) {
 		if (operRegion.endColIndex === 'MAX') {
 			rowOperate.rowPropOper(region.startRowIndex, 'wordWrap', wordWrap);
 		} else if (operRegion.endRowIndex === 'MAX') {
-			colOperate.colPropOper(region.startColIndex,region.endColIndex, 'wordWrap', wordWrap);
+			colOperate.colPropOper(region.startColIndex, region.endColIndex, 'wordWrap', wordWrap);
 		} else {
 			cells.oprCellsByRegion(operRegion, function(cell, colSort, rowSort) {
 				if (cell.get('wordWrap') !== wordWrap) {
@@ -71,12 +71,12 @@ define(function(require) {
 					cell.set('wordWrap', wordWrap);
 				}
 			});
-			history.addUpdateAction('wordWrap', wordWrap, {
+			history.addAction(history.getCellPropUpdateAction('wordWrap', wordWrap, {
 				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
 				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
 				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
 				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-			}, changeModelList);
+			}, changeModelList));
 		}
 		sendData();
 

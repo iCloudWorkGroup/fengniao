@@ -31,8 +31,8 @@ define(function(require) {
 	 * @param  {string} type 字符串 cut/copy
 	 */
 	function excelDataPaste(type) {
-		var originalModelIndexs = [],
-			currentModelIndexs = [],
+		var currentModelIndexs = [],
+			wholePosi,
 			clipRegion,
 			selectRegion,
 			startColIndex,
@@ -41,18 +41,20 @@ define(function(require) {
 			endRowIndex,
 			selectColIndex,
 			selectRowIndex,
-			URL = '';
+			URL;
 
 		clipRegion = selectRegions.getModelByType('clip');
 		selectRegion = selectRegions.getModelByType('selected');
 
-		startColIndex = cols.getIndexByAlias(clipRegion.get('wholePosi').startX);
-		startRowIndex = rows.getIndexByAlias(clipRegion.get('wholePosi').startY);
-		endColIndex = cols.getIndexByAlias(clipRegion.get('wholePosi').endX);
-		endRowIndex = rows.getIndexByAlias(clipRegion.get('wholePosi').endY);
+		wholePosi = clipRegion.get('wholePosi');
+		startColIndex = cols.getIndexByAlias(wholePosi.startX);
+		startRowIndex = rows.getIndexByAlias(wholePosi.startY);
+		endColIndex = cols.getIndexByAlias(wholePosi.endX);
+		endRowIndex = rows.getIndexByAlias(wholePosi.endY);
 
-		selectColIndex = cols.getIndexByAlias(selectRegion.get('wholePosi').startX);
-		selectRowIndex = rows.getIndexByAlias(selectRegion.get('wholePosi').startY);
+		wholePosi = selectRegion.get('wholePosi');
+		selectColIndex = cols.getIndexByAlias(wholePosi.startX);
+		selectRowIndex = rows.getIndexByAlias(wholePosi.startY);
 
 		if (type === 'cut') {
 			URL = config.url.sheet.cut;
@@ -60,40 +62,43 @@ define(function(require) {
 			URL = config.url.sheet.copy;
 		}
 
-		send.PackAjax({
-			url: URL,
-			async: false,
-			data: JSON.stringify({
-				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
-				sheetId: '1',
-				orignal: {
-					startCol: colList[startColIndex].get('sort'),
-					endCol: colList[endColIndex].get('sort'),
-					startRow: rowList[startRowIndex].get('sort'),
-					endRow: rowList[endRowIndex].get('sort'),
-				},
-				target: {
-					oprCol: colList[selectColIndex].get('sort'),
-					oprRow: rowList[selectRowIndex].get('sort')
-				}
-			}),
-			success: function(data) {
-				if (data && data.isLegal) {
-					fillData();
-				} else {
-					Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
-				}
-			}
-		});
+		// send.PackAjax({
+		// 	url: URL,
+		// 	async: false,
+		// 	data: JSON.stringify({
+		// 		excelId: window.SPREADSHEET_AUTHENTIC_KEY,
+		// 		sheetId: '1',
+		// 		orignal: {
+		// 			startCol: colList[startColIndex].get('sort'),
+		// 			endCol: colList[endColIndex].get('sort'),
+		// 			startRow: rowList[startRowIndex].get('sort'),
+		// 			endRow: rowList[endRowIndex].get('sort'),
+		// 		},
+		// 		target: {
+		// 			oprCol: colList[selectColIndex].get('sort'),
+		// 			oprRow: rowList[selectRowIndex].get('sort')
+		// 		}
+		// 	}),
+		// 	success: function(data) {
+		// 		if (data && data.isLegal) {
+		fillData();
+		// 		} else {
+		// 			Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
+		// 		}
+		// 	}
+		// });
 
 		function fillData() {
 			var i, j,
 				temp = {},
-				tempRule,
+				tempRuleIndex,
 				colAlias,
 				rowAlias,
 				cloneCellList = [],
 				cloneRuleList = [],
+				originalRuleData = [],
+				originalModelIndexs = [],
+				currentRuleData = [],
 				cloneObj,
 				cloneRule,
 				rowLen = rows.length,
@@ -102,8 +107,11 @@ define(function(require) {
 				oprEndRowIndex = selectRowIndex + (endRowIndex - startRowIndex),
 				cellStrand = cache.CellsPosition.strandX,
 				cellIndex,
-				cellModel;
+				cellModel,
+				actions = [];
 
+			oprEndColIndex = oprEndColIndex > cols.length - 1 ? cols.length - 1 : oprEndColIndex;
+			oprEndRowIndex = oprEndRowIndex > rows.length - 1 ? rows.length - 1 : oprEndRowIndex;
 			/**
 			 * 对选中的复制区域创建副本，避免复制区域和操作区域重叠时，造成复制内容错误
 			 * 如果是剪切操作，删除原始数据，并将原始数据放入历史
@@ -131,14 +139,19 @@ define(function(require) {
 							deletePosi(colAlias, rowAlias);
 						}
 					}
-					if (tempRule = strandMap.getPointRecord(colAlias, rowAlias)) {
+					if ((tempRuleIndex = strandMap.getPointRecord(colAlias, rowAlias, 'validate')) !== undefined) {
 						cloneRuleList.push({
 							relativeCol: j - startColIndex,
 							relativeRow: i - startRowIndex,
-							rule: _.clone(tempRule)
+							ruleIndex: tempRuleIndex
 						});
 						if (type === 'cut') {
-							strandMap.deletePointRecord(colAlias, rowAlias);
+							originalRuleData.push({
+								colAlias: colList[j].get('alias'),
+								rowAlias: rowList[i].get('alias'),
+								index: tempRuleIndex
+							});
+							strandMap.deletePointRecord(colAlias, rowAlias, 'validate');
 						}
 					}
 				}
@@ -164,8 +177,13 @@ define(function(require) {
 						}
 						deletePosi(colAlias, rowAlias);
 					}
-					if (strandMap.getPointRecord(colAlias, rowAlias)) {
-						strandMap.delete(colAlias, rowAlias);
+					if ((tempRuleIndex = strandMap.getPointRecord(colAlias, rowAlias, 'validate')) !== undefined) {
+						originalRuleData.push({
+							colAlias: colAlias,
+							rowAlias: rowAlias,
+							index: tempRuleIndex
+						});
+						strandMap.deletePointRecord(colAlias, rowAlias, 'validate');
 					}
 				}
 			}
@@ -185,10 +203,17 @@ define(function(require) {
 				cloneRule = cloneRuleList[i];
 				colAlias = colList[selectColIndex + cloneRule.relativeCol].get('alias');
 				rowAlias = rowList[selectRowIndex + cloneRule.relativeRow].get('alias');
-				strandMap.addPointRecord(colAlias, rowAlias, cloneRule.rule);
+				currentRuleData.push({
+					colAlias: colAlias,
+					rowAlias: rowAlias,
+					index: cloneRule.ruleIndex
+				});
+				strandMap.addPointRecord(colAlias, rowAlias,'validate' , cloneRule.ruleIndex);
 			}
+			actions.push(history.getCellCoverAction(currentModelIndexs, originalModelIndexs));
+			actions.push(history.getValidateCoverAction(currentRuleData, originalRuleData));
 
-			history.addCoverAction(currentModelIndexs, originalModelIndexs);
+			history.addAction(actions);
 			/**
 			 * 调整选中区
 			 */
@@ -206,6 +231,7 @@ define(function(require) {
 					oprEndColIndex < startColIndex) && type === 'copy') {
 				return;
 			}
+
 			cache.clipState = 'null';
 			cache.clipboardData = null;
 			clipRegion.destroy();
@@ -362,33 +388,36 @@ define(function(require) {
 			}
 		}
 
-		send.PackAjax({
-			url: config.url.sheet.paste,
-			async: false,
-			data: JSON.stringify({
-				sheetId: '1',
-				oprCol: colList[selectColIndex].get('sort'),
-				oprRow: rowList[selectRowIndex].get('sort'),
-				colLen: colLen,
-				rowLen: rowLen,
-				pasteData: sendData
-			}),
-			success: function(data) {
-				if (data && data.isLegal) {
-					fillData();
-				} else {
-					Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
-				}
-			}
-		});
+		// send.PackAjax({
+		// 	url: config.url.sheet.paste,
+		// 	async: false,
+		// 	data: JSON.stringify({
+		// 		sheetId: '1',
+		// 		oprCol: colList[selectColIndex].get('sort'),
+		// 		oprRow: rowList[selectRowIndex].get('sort'),
+		// 		colLen: colLen,
+		// 		rowLen: rowLen,
+		// 		pasteData: sendData
+		// 	}),
+		// 	success: function(data) {
+		// 		if (data && data.isLegal) {
+		fillData();
+		// 		} else {
+		// 			Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
+		// 		}
+		// 	}
+		// });
 
 		function fillData() {
 			var cellStrand = cache.CellsPosition.strandX,
 				originalModelIndexs = [],
 				currentModelIndexs = [],
+				originalRuleData = [],
+				currentRuleData = [],
 				rowAlias,
 				colAlias,
-				cellModel;
+				cellModel,
+				actions = [];
 
 			for (i = selectRowIndex; i < selectRowIndex + rowLen; i++) {
 				for (j = selectColIndex; j < selectColIndex + colLen; j++) {
@@ -403,6 +432,14 @@ define(function(require) {
 						cellModel.set('isDestroy', true);
 					}
 					cache.deletePosi(rowAlias, colAlias);
+					if ((tempRuleIndex = strandMap.getPointRecord(colAlias, rowAlias, 'validate')) !== undefined) {
+						originalRuleData.push({
+							colAlias: colAlias,
+							rowAlias: rowAlias,
+							index: tempRuleIndex
+						});
+						strandMap.deletePointRecord(colAlias, rowAlias, 'validate');
+					}
 				}
 			}
 			for (i = 0; i < cellData.length; i++) {
@@ -416,7 +453,9 @@ define(function(require) {
 					currentModelIndexs.push(cells.length - 1);
 				}
 			}
-			history.addCoverAction(currentModelIndexs, originalModelIndexs);
+			actions.push(history.getCellCoverAction(currentModelIndexs, originalModelIndexs));
+			actions.push(history.getValidateCoverAction([], originalRuleData));
+			history.addAction(actions);
 		}
 
 		function analysisText(text) {

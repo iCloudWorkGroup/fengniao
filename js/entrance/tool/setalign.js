@@ -115,12 +115,13 @@ define(function(require) {
 				}
 
 			});
-			history.addUpdateAction(propName, propValue, {
+			history.addAction(history.getCellPropUpdateAction(propName, propValue, {
 				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
 				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
 				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
 				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-			}, changeModelList);
+			}, changeModelList));
+
 		}
 		type = transverse || vertical;
 		sendData();

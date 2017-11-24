@@ -65,12 +65,13 @@ define(function(require) {
 						cell.set('customProp.comment', comment);
 					}
 				});
-				history.addUpdateAction('customProp.comment', comment, {
+				history.addAction(history.getCellPropUpdateAction('customProp.comment', comment, {
 					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
 					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
 					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
 					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-				}, changeModelList);
+				}, changeModelList));
+
 			}
 			if (comment === null) {
 				this.sendData(sendRegion, null, config.url.cell.commentDel);

@@ -53,7 +53,6 @@ define(function(require) {
 		 * }
 		 */
 		validate: [],
-
 		validateCounter: 0,
 
 		/**
@@ -178,6 +177,8 @@ define(function(require) {
 		sidebarState: false,
 
 		protectState: false,
+
+		redoUndoLock: false,
 		//
 		/**
 		 * 保存位置信息

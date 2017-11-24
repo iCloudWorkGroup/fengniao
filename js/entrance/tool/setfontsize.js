@@ -56,12 +56,12 @@ define(function(require) {
 					cell.set('content.size', fontSize);
 				}
 			});
-			history.addUpdateAction('content.size', fontSize, {
+			history.addAction(history.getCellPropUpdateAction('content.size', fontSize, {
 				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
 				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
 				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
 				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-			}, changeModelList);
+			}, changeModelList));
 		}
 		sendData();
 

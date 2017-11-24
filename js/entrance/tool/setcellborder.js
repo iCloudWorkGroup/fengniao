@@ -99,15 +99,12 @@ define(function(require) {
 					});
 					cell.set('border', border);
 				});
-
-				history.addUpdateAction('border', border, {
-						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
-						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
-						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
-						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-					},
-					changeModelList
-				);
+				history.addAction(history.getCellPropUpdateAction('border', border, {
+					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+				}, changeModelList));
 			}
 		}
 		/**
@@ -135,14 +132,12 @@ define(function(require) {
 					});
 					cell.set('border', border);
 				});
-				history.addUpdateAction('border', border, {
-						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
-						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
-						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
-						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-					},
-					changeModelList
-				);
+				history.addAction(history.getCellPropUpdateAction('border', border, {
+					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+				}, changeModelList));
 			}
 		}
 		/**
@@ -169,14 +164,12 @@ define(function(require) {
 						});
 						cell.set('border.top', true);
 					});
-				history.addUpdateAction('border.top', true, {
-						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
-						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
-						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
-						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-					},
-					changeModelList
-				);
+				history.addAction(history.getCellPropUpdateAction('border.top', border, {
+					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+				}, changeModelList));
 			}
 		}
 		/**
@@ -204,14 +197,12 @@ define(function(require) {
 						});
 						cell.set('border.left', true);
 					});
-				history.addUpdateAction('border.left', true, {
-						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
-						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
-						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
-						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-					},
-					changeModelList
-				);
+				history.addAction(history.getCellPropUpdateAction('border.left', border, {
+					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+				}, changeModelList));
 			}
 		}
 		/**
@@ -239,14 +230,12 @@ define(function(require) {
 						});
 						cell.set('border.bottom', true);
 					});
-				history.addUpdateAction('border.bottom', true, {
-						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
-						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
-						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
-						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-					},
-					changeModelList
-				);
+				history.addAction(history.getCellPropUpdateAction('border.bottom', border, {
+					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+				}, changeModelList));
 			}
 		}
 		/**
@@ -274,14 +263,12 @@ define(function(require) {
 						});
 						cell.set('border.right', true);
 					});
-				history.addUpdateAction('border.right', true, {
-						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
-						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
-						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
-						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-					},
-					changeModelList
-				);
+				history.addAction(history.getCellPropUpdateAction('border.right', border, {
+					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+				}, changeModelList));
 			}
 		}
 		/**
@@ -336,14 +323,12 @@ define(function(require) {
 					function(cell) {
 						cell.set('border.bottom', true);
 					});
-				history.addUpdateAction('border', true, {
-						startColSort: headItemColList[operRegion.startColIndex].get('sort'),
-						startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
-						endColSort: headItemColList[operRegion.endColIndex].get('sort'),
-						endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-					},
-					changeModelList
-				);
+				history.addAction(history.getCellPropUpdateAction('border', border, {
+					startColSort: headItemColList[operRegion.startColIndex].get('sort'),
+					startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
+					endColSort: headItemColList[operRegion.endColIndex].get('sort'),
+					endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
+				}, changeModelList));
 			}
 		}
 
