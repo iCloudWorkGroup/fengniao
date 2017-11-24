@@ -59,14 +59,14 @@ define(function() {
 				region: region,
 				currentRuleIndex: currentRuleIndex,
 				originalData: originalData
-			}
+			};
 		},
 		getValidateCoverAction: function(currentData, originalData) {
 			return {
 				type: 'coverValidateRule',
 				currentData: currentData,
 				originalData: originalData
-			}
+			};
 		},
 		/**
 		 * 清除历史

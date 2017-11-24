@@ -1,7 +1,6 @@
 define(function(require) {
 	'use strict';
-	var _ = require('lib/underscore'),
-		Backbone = require('lib/backbone'),
+	var Backbone = require('lib/backbone'),
 		cache = require('basic/tools/cache'),
 		config = require('spreadsheet/config'),
 		cells = require('collections/cells'),
@@ -62,31 +61,31 @@ define(function(require) {
 			URL = config.url.sheet.copy;
 		}
 
-		// send.PackAjax({
-		// 	url: URL,
-		// 	async: false,
-		// 	data: JSON.stringify({
-		// 		excelId: window.SPREADSHEET_AUTHENTIC_KEY,
-		// 		sheetId: '1',
-		// 		orignal: {
-		// 			startCol: colList[startColIndex].get('sort'),
-		// 			endCol: colList[endColIndex].get('sort'),
-		// 			startRow: rowList[startRowIndex].get('sort'),
-		// 			endRow: rowList[endRowIndex].get('sort'),
-		// 		},
-		// 		target: {
-		// 			oprCol: colList[selectColIndex].get('sort'),
-		// 			oprRow: rowList[selectRowIndex].get('sort')
-		// 		}
-		// 	}),
-		// 	success: function(data) {
-		// 		if (data && data.isLegal) {
-		fillData();
-		// 		} else {
-		// 			Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
-		// 		}
-		// 	}
-		// });
+		send.PackAjax({
+			url: URL,
+			async: false,
+			data: JSON.stringify({
+				excelId: window.SPREADSHEET_AUTHENTIC_KEY,
+				sheetId: '1',
+				orignal: {
+					startCol: colList[startColIndex].get('sort'),
+					endCol: colList[endColIndex].get('sort'),
+					startRow: rowList[startRowIndex].get('sort'),
+					endRow: rowList[endRowIndex].get('sort'),
+				},
+				target: {
+					oprCol: colList[selectColIndex].get('sort'),
+					oprRow: rowList[selectRowIndex].get('sort')
+				}
+			}),
+			success: function(data) {
+				if (data && data.isLegal) {
+					fillData();
+				} else {
+					Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
+				}
+			}
+		});
 
 		function fillData() {
 			var i, j,
@@ -208,7 +207,7 @@ define(function(require) {
 					rowAlias: rowAlias,
 					index: cloneRule.ruleIndex
 				});
-				strandMap.addPointRecord(colAlias, rowAlias,'validate' , cloneRule.ruleIndex);
+				strandMap.addPointRecord(colAlias, rowAlias, 'validate', cloneRule.ruleIndex);
 			}
 			actions.push(history.getCellCoverAction(currentModelIndexs, originalModelIndexs));
 			actions.push(history.getValidateCoverAction(currentRuleData, originalRuleData));
@@ -388,36 +387,36 @@ define(function(require) {
 			}
 		}
 
-		// send.PackAjax({
-		// 	url: config.url.sheet.paste,
-		// 	async: false,
-		// 	data: JSON.stringify({
-		// 		sheetId: '1',
-		// 		oprCol: colList[selectColIndex].get('sort'),
-		// 		oprRow: rowList[selectRowIndex].get('sort'),
-		// 		colLen: colLen,
-		// 		rowLen: rowLen,
-		// 		pasteData: sendData
-		// 	}),
-		// 	success: function(data) {
-		// 		if (data && data.isLegal) {
-		fillData();
-		// 		} else {
-		// 			Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
-		// 		}
-		// 	}
-		// });
+		send.PackAjax({
+			url: config.url.sheet.paste,
+			async: false,
+			data: JSON.stringify({
+				sheetId: '1',
+				oprCol: colList[selectColIndex].get('sort'),
+				oprRow: rowList[selectRowIndex].get('sort'),
+				colLen: colLen,
+				rowLen: rowLen,
+				pasteData: sendData
+			}),
+			success: function(data) {
+				if (data && data.isLegal) {
+					fillData();
+				} else {
+					Backbone.trigger('event:showMsgBar:show', '该区域不能进行此操作');
+				}
+			}
+		});
 
 		function fillData() {
 			var cellStrand = cache.CellsPosition.strandX,
 				originalModelIndexs = [],
 				currentModelIndexs = [],
 				originalRuleData = [],
-				currentRuleData = [],
 				rowAlias,
 				colAlias,
 				cellModel,
-				actions = [];
+				actions = [],
+				tempRuleIndex;
 
 			for (i = selectRowIndex; i < selectRowIndex + rowLen; i++) {
 				for (j = selectColIndex; j < selectColIndex + colLen; j++) {
