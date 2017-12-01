@@ -59,12 +59,12 @@ define(function(require) {
 			this._adaptCells(index);
 			this._adaptSelectRegion(index);
 			this._adaptHeadRowItem(index);
-
+			sendData();
+			
 			Backbone.trigger('event:cellsContainer:adaptHeight');
 			Backbone.trigger('event:rowsAllHeadContainer:adaptHeight');
 			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, -height - 1);
-			sendData();
-
+			
 			function sendData() {
 				send.PackAjax({
 					url: config.url.row.reduce,
