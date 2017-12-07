@@ -541,7 +541,7 @@ define(function(require) {
 
 			send.PackAjax({
 				url: config.url.sheet.load,
-				async: true,
+				async: false,
 				isPublic: false,
 				dataType: 'json',
 				data: JSON.stringify({
