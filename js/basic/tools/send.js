@@ -1,4 +1,5 @@
  define('basic/tools/send', function() {
+ 	'use strict';
  	var $ = require('lib/jquery'),
  		cache = require('basic/tools/cache'),
  		systemConfig = require('spreadsheet/config'),
@@ -64,9 +65,9 @@
  					data: config.data,
  					timeout: config.timeout,
  					error: config.error,
- 					complete: function(data) {
+ 					complete: function() {
  						currentDefer.resolve();
- 						config.complete.apply(this.arguments);
+ 						config.complete.apply(this, arguments);
  					},
  					success: function(data) {
  						if (data.isLegal === false) {
