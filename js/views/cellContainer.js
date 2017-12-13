@@ -54,6 +54,7 @@ define(function(require) {
 			this.listenTo(this.model, 'change:content.alignRow', this.changeTransverseAlign);
 			this.listenTo(this.model, 'change:content.alignCol', this.changeVerticalAlign);
 			this.listenTo(this.model, 'change:content.texts', this.generateDisplayText);
+			this.listenTo(this.model, 'change:content.texts', this.adaptCellHight);
 
 			this.listenTo(this.model, 'change:border.left', this.changeLeftBorder);
 			this.listenTo(this.model, 'change:border.right', this.changeRightBorder);
@@ -98,6 +99,7 @@ define(function(require) {
 			this.$contentBody = $('.bg', this.$el);
 			this.$contentBody[0].innerText = modelAttr.content.displayTexts;
 
+			console.log(this.$el[0]);
 			this.changeFontFamily(modelAttr);
 			this.changeFontSize(modelAttr);
 			this.changeColor(modelAttr);
@@ -370,6 +372,7 @@ define(function(require) {
 					'wordBreak': 'break-word',
 					'whiteSpace': 'pre-line'
 				});
+				this.adaptCellHight();
 			} else {
 				this.$contentBody.css({
 					'whiteSpace': 'pre'
@@ -395,11 +398,9 @@ define(function(require) {
 		generateDisplayText: function() {
 			formatHandler.typeRecognize(this.model);
 			formatHandler.generateDisplayText(this.model);
-
 			var modelAttr = this.model.attributes;
 			this.changeTransverseAlign(modelAttr);
 			this.$contentBody[0].innerText = modelAttr.content.displayTexts;
-
 		},
 		changeFontFamily: function() {
 			this.$contentBody.css({
@@ -417,45 +418,38 @@ define(function(require) {
 			});
 		},
 		adaptCellHight: function() {
-			var text,
-				height,
-				occupyY,
-				occupyX,
-				initHeight,
-				colItemIndex,
-				rowItemIndex,
+			var modelAttr = this.model.attributes,
+				wordWrap = modelAttr.wordWrap,
+				text = modelAttr.content.displayTexts,
+				occupyX = modelAttr.occupy.x,
+				occupyY = modelAttr.occupy.y,
+				fontsize = modelAttr.content.size,
 				headModelRow,
 				headModelCol,
-				fontsize;
-			initHeight = config.User.cellHeight;
-			occupyY = this.model.get('occupy').y;
-			occupyX = this.model.get('occupy').x;
-			fontsize = this.model.get('content').size;
-			if (this.model.get('wordWrap') === true && occupyX.length === 1 && occupyY.length === 1) {
-				headModelRow = headItemRows.getModelByAlias(occupyY[0]);
-				headModelCol = headItemCols.getModelByAlias(occupyX[0]);
-				text = this.model.get('content').displayTexts;
-				height = getTextBox.getTextHeight(text, fontsize, headModelCol.get('width'));
-				if (height > initHeight && headModelRow.get('height') < height) {
-					setCellHeight('sheetId', headModelRow.get('displayName'), height);
-					if (cache.TempProp.isFrozen) {
-						Backbone.trigger('event:bodyContainer:executiveFrozen');
-					};
-				}
+				originalHeight, height;
+
+			if (!modelAttr.wordWrap && text.indexOf('\n') === -1) {
 				return;
 			}
-			if (fontsize > 11) {
-				//处理设置字体问题
-				headModelRow = headItemRows.getModelByAlias(occupyY[0]);
-				height = getTextBox.getTextHeight('', fontsize, 200);
-				if (height > initHeight && headModelRow.get('height') < height) {
-					setCellHeight('sheetId', headModelRow.get('displayName'), height);
-					if (cache.TempProp.isFrozen) {
-						Backbone.trigger('event:bodyContainer:executiveFrozen');
-					};
-				}
+			if (occupyX.length > 1 || occupyY.length > 1) {
+				return;
+			}
+			modelAttr.wordWrap || this.model.set('wordWrap', true);
+
+			headModelRow = headItemRows.getModelByAlias(occupyY[0]);
+			headModelCol = headItemCols.getModelByAlias(occupyX[0]);
+
+			originalHeight = headModelRow.get('height');
+
+			height = getTextBox.getTextHeight(text, fontsize, headModelCol.get('width'));
+			if (originalHeight < height) {
+				setCellHeight('sheetId', headModelRow.get('displayName'), height);
+				if (cache.TempProp.isFrozen) {
+					Backbone.trigger('event:bodyContainer:executiveFrozen');
+				};
 			}
 		},
+
 		/**
 		 * 根据状态暂时移除视图
 		 * @method destroy 

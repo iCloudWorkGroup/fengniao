@@ -5,22 +5,16 @@ define(function(require) {
 		getTextHeight: function(text, fontSize, width) {
 			var tempDiv,
 				height,
-				inputText = '',
 				texts,
 				i = 0,
 				len;
-			texts = text.split('\n');
-			len = texts.length;
-			for (; i < len; i++) {
-				inputText += (texts[i] + '<br>');
-			}
-			// textarea.scrollHeight;
-			inputText = inputText.replace(/\u0020/g, '&nbsp;');
-			tempDiv = $('<div/>').html(inputText);
+
+			tempDiv = $('<div/>').text(text);
 			tempDiv.css({
 				'display': 'none',
 				'font-size': fontSize + 'pt',
 				'wordBreak': 'break-word',
+				'whiteSpace': 'pre-line'
 			});
 			if (width !== undefined) {
 				tempDiv.css({

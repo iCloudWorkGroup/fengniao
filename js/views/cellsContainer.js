@@ -160,6 +160,7 @@ define(function(require) {
 			this.contentCellsContainer = new ContentCellsContainer();
 			this.$el.append(this.gridLineContainer.render().el);
 			this.$el.append(this.contentCellsContainer.render().el);
+			
 			len = modelList.length;
 			for (i = 0; i < len; i++) {
 				this.addSelectRegionView(modelList[i]);
