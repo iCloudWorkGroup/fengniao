@@ -12,51 +12,48 @@ define(function(require) {
 		weight;
 
 	var setBg = {
-		set: function(sheeId, color, arrOper) {
-			var regColor = /^rgb\(((25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]),){2}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9])\)$/,
-				regions, i, len,
-				oper, sendData;
-
-			if (arguments.length < 3) {
-				arrOper = color;
-				color = sheeId;
-			}
-			color = color.replace(/\s/g, '');
-			
+		set: function() {
 			if (cache.protectState) {
 				Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
 				return;
 			}
-			if (!regColor.test(color)) {
-				throw new Error('非法参数');
-			}
-			regions = this._parse(arrOper);
-			oper = regions.oper;
-			sendData = regions.send;
-			for (i = 0, len = oper.length; i < len; i++) {
-				if (oper[i].endColIndex === -1) {
-					rowOperate.rowPropOper(oper[i].endRowIndex, 'customProp.background', color);
-				} else if (oper[i].endRowIndex === -1) {
-					colOperate.colPropOper(oper[i].endColIndex, 'customProp.background', color);
-				} else {
-					cells.oprCellsByRegion(oper[i], callback, color);
-				}
-			}
 
-			function callback(cell, colSort, rowSort, value) {
-				var original;
-				if ((original = cell.get('customProp').background) !== value) {
-					cell.set('customProp.background', value);
+			this._parseRegion(arguments, function(color, arrOpr, arrSend) {
+				var regColor = /^rgb\(((25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]),){2}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9])\)$/,
+					region, i, len,
+					oper, sendData;
+
+				color = color.replace(/\s/g, '');
+
+				if (!regColor.test(color)) {
+					throw new Error('非法参数');
 				}
-			}
-			send.PackAjax({
-				url: config.url.cell.bgBatch,
-				data: JSON.stringify({
-					coordinate: sendData,
-					color: color
-				})
+
+				for (i = 0, len = arrOpr.length; i < len; i++) {
+					region = arrOpr[i];
+					if (region.endColIndex === -1) {
+						rowOperate.rowPropOper(region.startRowIndex, region.endRowIndex, 'customProp.background', color);
+					} else if (region.endRowIndex === -1) {
+						colOperate.colPropOper(region.startColIndex, region.endColIndex, 'customProp.background', color);
+					} else {
+						cells.oprCellsByRegion(region, callback, color);
+					}
+				}
+
+				function callback(cell, colSort, rowSort, value) {
+					var original;
+					if ((original = cell.get('customProp').background) !== value) {
+						cell.set('customProp.background', value);
+					}
+				}
+				send.PackAjax({
+					url: config.url.cell.bgBatch,
+					data: JSON.stringify({
+						coordinate: arrSend,
+						color: color
+					})
+				});
 			});
-
 		},
 		_getWeight: function() {
 			var sign,
@@ -74,26 +71,40 @@ define(function(require) {
 			}
 			return result;
 		},
-		_parse: function(arrOper) {
-			var regCol = /^[a-zA-Z]+$/,
+		_parseRegion: function(args, callback) {
+			var sheetId = args[0],
+				color = args[1],
+				arrOpr = args[2],
+				regCol = /^[a-zA-Z]+$/,
 				regRow = /^[1-9]\d*$/,
 				maxRowNum = config.User.maxRowNum,
 				maxColNum = config.User.maxColNum,
+				currentRowNum = headItemRows.length,
+				currentColNum = headItemCols.length,
 				startCol, startRow, endCol, endRow,
-				oper = [],
+				opr = [],
 				send = [],
 				point,
 				temp,
 				len, i;
 
+			if (args.length < 3) {
+				arrOpr = color;
+				color = sheeId;
+			}
+
 			if (!weight) {
 				weight = this._getWeight();
 			}
-			if (Object.prototype.toString.call(arrOper) !== '[object Array]') {
-				arrOper = [arrOper];
+
+			if (!arrOpr) {
+				arrOpr = [];
+			} else if ({}.toString.call(arrOpr) !== '[object Array]') {
+				arrOpr = [arrOpr];
 			}
-			for (i = 0, len = arrOper.length; i < len; i++) {
-				point = arrOper[i];
+
+			for (i = 0, len = arrOpr.length; i < len; i++) {
+				point = arrOpr[i];
 				//整行或整列操作
 				if (typeof point === 'string') {
 					if (regCol.test(point) && (startCol = colToSort(point)) <= maxColNum) {
@@ -103,13 +114,14 @@ define(function(require) {
 							startRow: 0,
 							endRow: -1
 						});
-						startCol = headItemCols.getIndexBySort(startCol);
-						oper.push({
-							startColIndex: startCol,
-							endColIndex: startCol,
-							startRowIndex: 0,
-							endRowIndex: -1
-						});
+						if (startCol < currentColNum && (startCol = headItemCols.getIndexBySort(startCol)) !== -1) {
+							opr.push({
+								startColIndex: startCol,
+								endColIndex: startCol,
+								startRowIndex: 0,
+								endRowIndex: -1
+							});
+						};
 						continue;
 					}
 					if (regRow.test(point) && (startRow = rowToSort(point)) <= maxRowNum) {
@@ -119,13 +131,14 @@ define(function(require) {
 							startRow: startRow,
 							endRow: startRow
 						});
-						startRow = headItemRows.getIndexBySort(startRow);
-						oper.push({
-							startColIndex: 0,
-							endColIndex: -1,
-							startRowIndex: startRow,
-							endRowIndex: startRow
-						});
+						if (startRow < currentRowNum && (startRow = headItemRows.getIndexBySort(startRow)) !== -1) {
+							opr.push({
+								startColIndex: 0,
+								endColIndex: -1,
+								startRowIndex: startRow,
+								endRowIndex: startRow
+							});
+						};
 						continue;
 					}
 					throw new Error('非法参数');
@@ -133,53 +146,51 @@ define(function(require) {
 
 				point.endRow = point.endRow === undefined ? point.startRow : point.endRow;
 				point.endCol = point.endCol === undefined ? point.startCol : point.endCol;
-				startCol = point.startCol;
-				if (startCol === undefined || !regCol.test(startCol) || (startCol = colToSort(startCol)) >= maxColNum) {
-					throw new Error('非法参数');
-				}
-				endCol = point.endCol;
-				if ((endCol = colToSort(endCol)) > maxColNum) {
-					throw new Error('非法参数');
-				}
-				if (startCol > endCol) {
+
+				startCol = regCol.test(point.startCol) && colToSort(point.startCol);
+				endCol = regCol.test(point.endCol) && colToSort(point.endCol);
+				startRow = regRow.test(point.startRow) && rowToSort(point.startRow);
+				endRow = regRow.test(point.endRow) && rowToSort(point.endRow);
+
+				if (startCol > endCol || endCol === false) {
 					temp = startCol;
 					startCol = endCol;
 					endCol = temp;
 				}
-				startRow = point.startRow;
-				if (startRow === undefined || !regRow.test(startRow) || (startRow = rowToSort(startRow)) >= maxRowNum) {
-					throw new Error('非法参数');
-				}
-				endRow = point.endRow;
-				if ((endRow = rowToSort(endRow)) > maxRowNum) {
-					throw new Error('非法参数');
-				}
-				if (startRow > endRow) {
+
+				if (startRow > endRow || endRow === false) {
 					temp = startRow;
 					startRow = endRow;
 					endRow = temp;
 				}
+				if (endRow > maxRowNum || endCol > maxColNum || !isNumber(startCol) || !isNumber(startRow)) {
+					throw new Error('传入参数错误');
+				}
+
 				send.push({
 					startCol: startCol,
 					startRow: startRow,
 					endCol: endCol,
 					endRow: endRow
 				});
-				startCol = headItemCols.getIndexBySort(startCol);
-				startRow = headItemRows.getIndexBySort(startRow);
-				endCol = headItemCols.getIndexBySort(endCol);
-				endRow = headItemRows.getIndexBySort(endRow);
-				oper.push({
-					startColIndex: startCol,
-					startRowIndex: startRow,
-					endColIndex: endCol,
-					endRowIndex: endRow
-				});
+
+				if (startCol < currentColNum && startRow < currentRowNum) {
+					startCol = headItemCols.getIndexBySort(startCol);
+					startRow = headItemRows.getIndexBySort(startRow);
+					endCol = headItemCols.getIndexBySort(endCol);
+					endRow = headItemRows.getIndexBySort(endRow);
+
+					endCol = endCol !== -1 ? endCol : currentColNum - 1;
+					endRow = endRow !== -1 ? endRow : currentRowNum - 1;
+					opr.push({
+						startColIndex: startCol,
+						startRowIndex: startRow,
+						endColIndex: endCol,
+						endRowIndex: endRow
+					});
+				}
 			}
-			return {
-				send: send,
-				oper: oper
-			};
+			callback.call(this, color, opr, send);
 
 			function colToSort(str) {
 				var count = -1,
@@ -192,6 +203,10 @@ define(function(require) {
 
 			function rowToSort(str) {
 				return Number(str) - 1;
+			}
+
+			function isNumber(val) {
+				return typeof val === 'number';
 			}
 		},
 	};
