@@ -20,8 +20,7 @@ define(function(require) {
 
 			this._parseRegion(arguments, function(color, arrOpr, arrSend) {
 				var regColor = /^rgb\(((25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9]),){2}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9]?[0-9])\)$/,
-					region, i, len,
-					oper, sendData;
+					region, i, len;
 
 				color = color.replace(/\s/g, '');
 
@@ -90,7 +89,7 @@ define(function(require) {
 
 			if (args.length < 3) {
 				arrOpr = color;
-				color = sheeId;
+				color = sheetId;
 			}
 
 			if (!weight) {
@@ -121,7 +120,7 @@ define(function(require) {
 								startRowIndex: 0,
 								endRowIndex: -1
 							});
-						};
+						}
 						continue;
 					}
 					if (regRow.test(point) && (startRow = rowToSort(point)) <= maxRowNum) {
@@ -138,7 +137,7 @@ define(function(require) {
 								startRowIndex: startRow,
 								endRowIndex: startRow
 							});
-						};
+						}
 						continue;
 					}
 					throw new Error('非法参数');
