@@ -1,6 +1,6 @@
 'use strict';
 define(function(require) {
-	var  _ = require('lib/underscore'),
+	var _ = require('lib/underscore'),
 		Backbone = require('lib/backbone'),
 		send = require('basic/tools/send'),
 		cache = require('basic/tools/cache'),
@@ -34,7 +34,8 @@ define(function(require) {
 			aliasCol,
 			aliasRow,
 			currentCell,
-			attributes;
+			attributes,
+			action;
 		//选中区域内开始坐标，结束坐标
 		clip = selectRegions.getModelByType('clip');
 		if (clip !== undefined) {
@@ -85,10 +86,12 @@ define(function(require) {
 			}
 		}
 
+
 		for (i = 0, len = selectCells.length; i < len; i++) {
 			selectCells[i].set('isDestroy', true);
 		}
-		history.addCoverAction(currentCellIndexs, originalCellIndexs);
+		action = history.getCellCoverAction(currentCellIndexs, originalCellIndexs);
+		history.addAction(action);
 		sendData();
 
 		function sendData() {

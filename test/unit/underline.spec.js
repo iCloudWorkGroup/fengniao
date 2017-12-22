@@ -91,7 +91,7 @@ define(function(require) {
 					startColSort: 0,
 					startRowSort: 0
 				},
-				type: 'update'
+				type: 'updateCellProp'
 			});
 		});
 		it('设置下划线', function() {

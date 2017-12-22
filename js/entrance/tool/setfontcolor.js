@@ -29,7 +29,7 @@ define(function(require) {
 			clip.destroy();
 		}
 		if (cache.protectState) {
-			Backbone.trigger('event:showMsgBar:show','保护状态，不能进行该操作');
+			Backbone.trigger('event:showMsgBar:show', '保护状态，不能进行该操作');
 			return;
 		}
 		region = getOperRegion(label);
@@ -55,12 +55,12 @@ define(function(require) {
 					cell.set('content.color', color);
 				}
 			});
-			history.addUpdateAction('content.color', color, {
+			history.addAction(history.getCellPropUpdateAction('content.color', color, {
 				startColSort: headItemColList[operRegion.startColIndex].get('sort'),
 				startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
 				endColSort: headItemColList[operRegion.endColIndex].get('sort'),
 				endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-			}, changeModelList);
+			}, changeModelList));
 		}
 		sendData();
 

@@ -2,6 +2,7 @@ define(function(require) {
 	'use strict';
 	var Backbone = require('lib/backbone'),
 		original = require('basic/tools/original'),
+		history = require('basic/tools/history'),
 		getTemplate = require('basic/tools/template'),
 		selects = require('collections/selectRegion'),
 		strandMap = require('basic/tools/strandmap'),
@@ -39,6 +40,7 @@ define(function(require) {
 			this.sourceData = this.$el.find('.source-data');
 			this.sourceBtn = this.$el.find('.select-out');
 			this.error = this.$el.find('.error');
+
 			this.listenToSelect(selects.getModelByType('selected'));
 			return this;
 		},
@@ -282,9 +284,14 @@ define(function(require) {
 				endColIndex = cols.getIndexByAlias(wholePosi.endX),
 				endRowIndex = rows.getIndexByAlias(wholePosi.endY),
 				rules = cache.validate,
+				originalIndex,
+				originalIndexRecord = [],
 				ruleIndex,
 				originalFormula1,
 				formula1,
+				colAlias,
+				rowAlias,
+				record,
 				i, j, key;
 
 			if (rule.validationType === config.validationType.sequenceType) {
@@ -303,6 +310,8 @@ define(function(require) {
 				cache.validate[ruleIndex] = rule;
 			}
 			selectValidate.set(ruleIndex);
+
+
 			if (endColIndex === 'MAX') {
 				for (i = startRowIndex; i < endRowIndex + 1; i++) {
 					strandMap.addRowRecord(rowList[i].get('alias'), 'validate', ruleIndex);
@@ -314,17 +323,36 @@ define(function(require) {
 			} else {
 				for (i = startColIndex; i < endColIndex + 1; i++) {
 					for (j = startRowIndex; j < endRowIndex + 1; j++) {
-						strandMap.addPointRecord(colList[i].get('alias'), rowList[j].get('alias'), 'validate', ruleIndex);
+						colAlias = colList[i].get('alias');
+						rowAlias = rowList[j].get('alias');
+						originalIndex = strandMap.getPointRecord(colAlias, rowAlias, 'validate');
+						if (ruleIndex !== originalIndex) {
+							originalIndexRecord.push({
+								colSort: colList[i].get('sort'),
+								rowSort: rowList[j].get('sort'),
+								originalIndex: originalIndex
+							});
+							strandMap.addPointRecord(colAlias, rowAlias, 'validate', ruleIndex);
+						}
 					}
 				}
+				record = history.getValidateUpdateAction({
+					startColSort: colList[startColIndex].get('sort'),
+					startRowSort: rowList[startRowIndex].get('sort'),
+					endColSort: colList[endColIndex].get('sort'),
+					endRowSort: rowList[endRowIndex].get('sort')
+				}, ruleIndex, originalIndexRecord);
+				history.addAction(record);
 			}
+
+
 			if (rule.validationType === config.validationType.sequenceType &&
 				typeof rule.formula1 === 'object' &&
 				rule.formula1.endRowAlias !== 'MAX' &&
 				rule.formula1.endColAlias !== 'MAX') {
 				formula1 = rule.formula1;
-				strandMap.addPointRecord(formula1.startColAlias, formula1.startRowAlias, ruleIndex);
-				strandMap.addPointRecord(formula1.endColAlias, formula1.endRowAlias, ruleIndex);
+				strandMap.addPointRecord(formula1.startColAlias, formula1.startRowAlias, 'sourceToRuleIndex', ruleIndex);
+				strandMap.addPointRecord(formula1.endColAlias, formula1.endRowAlias, 'sourceToRuleIndex', ruleIndex);
 			}
 			this._sendData(rule, startColIndex, startRowIndex, endColIndex, endRowIndex, originalFormula1);
 

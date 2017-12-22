@@ -47,7 +47,7 @@ define(function(require) {
 			sendRegion = region.sendRegion;
 
 
-			if (operRegion.startColIndex === -1 || operRegion.startRowIndex === -1) {
+			if (operRegion.endRowIndex === 'MAX') {
 				return;
 			}
 			index = operRegion.startRowIndex;
@@ -57,9 +57,6 @@ define(function(require) {
 			this._adaptSelectRegion(index);
 			this._adaptCells(index);
 			this._fillCells(index);
-			// this._frozenHandle(index);
-
-			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, config.User.cellHeight + 1);
 			send.PackAjax({
 				url: config.url.row.plus,
 				data: JSON.stringify({
@@ -67,6 +64,7 @@ define(function(require) {
 					row: sendRegion.startRow
 				})
 			});
+			Backbone.trigger('event:mainContainer:adaptRowHeightChange', posi, config.User.cellHeight + 1);
 		},
 		/**
 		 * 调整行对象
@@ -249,32 +247,6 @@ define(function(require) {
 				}
 				return true;
 			}
-		},
-		/**
-		 * 处理冻结状态下,插入行功能
-		 * @param  {number} index 插入索引
-		 */
-		// _frozenHandle: function(index) {
-		// 	var userViewAlias,
-		// 		userViewIndex,
-		// 		frozenAlias,
-		// 		frozenIndex;
-		// 	if (cache.TempProp.isFrozen === true) {
-		// 		userViewAlias = cache.UserView.rowAlias;
-		// 		frozenAlias = cache.TempProp.rowAlias;
-		// 		userViewIndex = rows.getIndexByAlias(userViewAlias);
-		// 		frozenIndex = rows.getIndexByAlias(frozenAlias);
-
-		// 		if (userViewIndex > index) {
-		// 			userViewAlias = rows.models[index].get('alias');
-		// 			cache.UserView.rowAlias = userViewAlias;
-		// 		}
-		// 		if (index + 1 === frozenIndex) {
-		// 			frozenAlias = rows.models[index].get('alias');
-		// 			cache.TempProp.rowAlias = frozenAlias;
-		// 		}
-		// 		Backbone.trigger('event:bodyContainer:executiveFrozen');
-		// 	}
-		// }
+		}
 	};
 });

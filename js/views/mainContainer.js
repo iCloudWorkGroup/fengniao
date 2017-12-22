@@ -420,6 +420,7 @@ define(function(require) {
 
 			limitPosi = this.el.scrollTop + this.el.offsetHeight + config.System.prestrainHeight + offsetTop + userViewTop;
 			limitIndex = binary.indexModelBinary(limitPosi, headItemRowList, 'top', 'height');
+			limitAlias = headItemRowList[limitIndex].get('alias');
 			for (i = limitIndex + 1; i <= recordIndex; i++) {
 				headItemRowList[i].set('isView', false);
 			}
@@ -541,7 +542,6 @@ define(function(require) {
 
 			send.PackAjax({
 				url: config.url.sheet.load,
-				async: true,
 				isPublic: false,
 				dataType: 'json',
 				data: JSON.stringify({

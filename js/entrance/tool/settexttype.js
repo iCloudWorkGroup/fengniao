@@ -149,12 +149,12 @@
             });
             cell.set('format', format);
           });
-          history.addUpdateAction('format', format, {
+          history.addAction(history.getCellPropUpdateAction('format', format, {
             startColSort: headItemColList[operRegion.startColIndex].get('sort'),
             startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
             endColSort: headItemColList[operRegion.endColIndex].get('sort'),
             endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-          }, changeModelList);
+          }, changeModelList));
         }
         this.sendData(format, sendRegion);
       },
@@ -200,12 +200,12 @@
             });
             cell.set('format', format);
           });
-          history.addUpdateAction('format', format, {
+          history.addAction(history.getCellPropUpdateAction('format', format, {
             startColSort: headItemColList[operRegion.startColIndex].get('sort'),
             startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
             endColSort: headItemColList[operRegion.endColIndex].get('sort'),
             endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-          }, changeModelList);
+          }, changeModelList));
         }
         this.sendData(format, sendRegion);
       },
@@ -258,12 +258,12 @@
             });
             cell.set('format', format);
           });
-          history.addUpdateAction('format', format, {
+          history.addAction(history.getCellPropUpdateAction('format', format, {
             startColSort: headItemColList[operRegion.startColIndex].get('sort'),
             startRowSort: headItemRowList[operRegion.startRowIndex].get('sort'),
             endColSort: headItemColList[operRegion.endColIndex].get('sort'),
             endRowSort: headItemRowList[operRegion.endRowIndex].get('sort')
-          }, changeModelList);
+          }, changeModelList));
         }
         this.sendData(format, sendRegion);
       },

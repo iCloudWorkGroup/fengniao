@@ -201,6 +201,6 @@ define(function() {
 			},
 		},
 		version: '@version@',
-		rootPath: 'http://excel-inc.acmr.com.cn/master/'
+		rootPath: 'http://excel-inc.acmr.com.cn/'
 	};
 });

@@ -72,29 +72,29 @@ define(function() {
 			}
 			return;
 		},
-		getVerticalRecord: function(colAlias) {
+		getVerticalRecord: function(colAlias, type) {
 			var result = [],
 				key,
 				temp;
 
 			if ((temp = colPos[colAlias])) {
 				for (key in temp) {
-					if (temp[key] !== undefined) {
-						result.push(temp[key]);
+					if (temp[key] !== undefined && temp[key][type] !== undefined) {
+						result.push(temp[key][type]);
 					}
 				}
 			}
 			return result;
 		},
-		getTransverseRecord: function(rowAlias) {
+		getTransverseRecord: function(rowAlias, type) {
 			var result = [],
 				key,
 				temp;
 
 			if ((temp = rowPos[rowAlias])) {
 				for (key in temp) {
-					if (temp[key] !== undefined) {
-						result.push(temp[key]);
+					if (temp[key] !== undefined && temp[key][type] !== undefined) {
+						result.push(temp[key][type]);
 					}
 				}
 			}

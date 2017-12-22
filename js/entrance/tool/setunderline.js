@@ -69,12 +69,12 @@ define(function(require) {
 			this._send(region.sendRegion, underline);
 		},
 		_history: function(prop, value, region, oldList) {
-			history.addUpdateAction(prop, value, {
+			history.addAction(history.getCellPropUpdateAction(prop, value, {
 				startColSort: gridColList[region.startColIndex].get('sort'),
 				startRowSort: gridRowList[region.startRowIndex].get('sort'),
 				endColSort: gridColList[region.endColIndex].get('sort'),
 				endRowSort: gridRowList[region.endRowIndex].get('sort')
-			}, oldList);
+			}, oldList));
 		},
 		_destroyClipRegion: function() {
 			var clip = selects.getModelByType('clip');
