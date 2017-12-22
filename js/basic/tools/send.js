@@ -1,4 +1,4 @@
- define('basic/tools/send', function() {
+ define(function(require) {
  	'use strict';
  	var $ = require('lib/jquery'),
  		cache = require('basic/tools/cache'),

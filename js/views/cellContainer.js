@@ -99,7 +99,6 @@ define(function(require) {
 			this.$contentBody = $('.bg', this.$el);
 			this.$contentBody[0].innerText = modelAttr.content.displayTexts;
 
-			console.log(this.$el[0]);
 			this.changeFontFamily(modelAttr);
 			this.changeFontSize(modelAttr);
 			this.changeColor(modelAttr);

@@ -1,6 +1,5 @@
 requirejs.config({
-	baseUrl: './js',
-	urlArgs: '0.12.3'
+	baseUrl: './js'
 });
 define(function(require) {
 	'use strict';
