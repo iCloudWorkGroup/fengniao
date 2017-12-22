@@ -4,10 +4,7 @@ define(function(require) {
 	return {
 		getTextHeight: function(text, fontSize, width) {
 			var tempDiv,
-				height,
-				texts,
-				i = 0,
-				len;
+				height;
 
 			tempDiv = $('<div/>').text(text);
 			tempDiv.css({
