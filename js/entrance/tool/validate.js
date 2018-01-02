@@ -69,14 +69,14 @@ define(function(require) {
 
 			function rangeValidator(value, formula1, formula2) {
 				value = parseFloat(value);
-				if (value > parseFloat(formula1) || value < parseFloat(formula2)) {
+				if (value < parseFloat(formula1) || value > parseFloat(formula2)) {
 					return false;
 				}
 				return true;
 			}
 
 			function lenValidator(value, formula1, formula2) {
-				if (value.length > parseFloat(formula1) || value.length < parseFloat(formula2)) {
+				if (value.length < parseFloat(formula1) || value.length > parseFloat(formula2)) {
 					return false;
 				}
 				return true;
